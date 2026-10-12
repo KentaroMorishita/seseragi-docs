@@ -23,7 +23,8 @@ Write the parameters after the function name, followed by the result type. The e
 
 ```seseragi
 pub effect fn main =
-  add 20 22 |> println
+  add 20 22
+  |> println
 ```
 
 Pass arguments separated by spaces. `add 20 22` returns 42. The `|>` operator passes that value to `println`.
@@ -35,7 +36,8 @@ Supplying some arguments produces a function that accepts the remaining ones.
 ```seseragi
 pub effect fn main = {
   let increment = add 1
-  increment 41 |> println
+  increment 41
+  |> println
 }
 ```
 
@@ -45,6 +47,25 @@ pub effect fn main = {
 
 Mark functions containing operations such as `println` with `effect`. An ordinary `fn` cannot directly print output. [Your first program](/en/docs/learn/first-program) composes a function that returns text with an operation that prints it.
 
-## Detailed specification
+## Types and arguments
 
-For the full rules, see [syntax](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/01-syntax.md), [types](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/02-types.md), and [effects](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/05-effects.md) in the language repository.
+An ordinary `fn` declaration specifies the type of each parameter and the result. The type of `add` is `Int -> Int -> Int`, equivalent to `Int -> (Int -> Int)`. Supplying the first integer returns a function that accepts the next one.
+
+You cannot pass a string where an `Int` is expected, as in `add 20 "22"`. The type mismatch is detected before execution.
+
+Arguments are evaluated once, from left to right. The body is then evaluated using those values.
+
+## Block bodies
+
+Use `{ ... }` when the body needs multiple declarations. A block returns the value of its final expression.
+
+```seseragi
+fn twice x: Int -> Int = {
+  let doubled = x + x
+  doubled
+}
+```
+
+`doubled` is local to this block and cannot be referenced outside it.
+
+See [Your first program](/en/docs/learn/first-program#compose-functions-and-print) for a pipeline in a complete program. [Local development](/en/docs/learn/local-development) explains how to run it on your machine.

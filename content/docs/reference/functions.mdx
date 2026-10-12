@@ -23,7 +23,8 @@ fn add x: Int -> y: Int -> Int =
 
 ```seseragi
 pub effect fn main =
-  add 20 22 |> println
+  add 20 22
+  |> println
 ```
 
 引数を空白で区切って渡します。`add 20 22`の結果は42です。`|>`でその値を`println`へ渡して出力します。
@@ -35,7 +36,8 @@ pub effect fn main =
 ```seseragi
 pub effect fn main = {
   let increment = add 1
-  increment 41 |> println
+  increment 41
+  |> println
 }
 ```
 
@@ -45,6 +47,25 @@ pub effect fn main = {
 
 `println`などの処理を含む関数には、`effect`を明示します。通常の`fn`から直接出力することはできません。[最初のプログラム](/docs/learn/first-program)では、文字列を返す関数と、結果を出力する処理をつないでいます。
 
-## 詳しい仕様
+## 型と引数の規則
 
-パラメータ、関数適用、型検査の詳しい規則は、[字句・構文・演算子](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/01-syntax.md)、[型](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/02-types.md)、[Effect](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/05-effects.md)を参照してください。
+通常の`fn`宣言には、各引数の型と結果の型を書きます。`add`の型は`Int -> Int -> Int`です。これは`Int -> (Int -> Int)`と同じで、最初の整数を渡すと、次の整数を受け取る関数を返します。
+
+`add 20 "22"`のように、`Int`の引数へ文字列を渡すことはできません。型の不一致は実行前に検出されます。
+
+関数の引数は左から右へ、一度ずつ評価されます。渡された値を使って、本体の式を評価します。
+
+## ブロックを使う
+
+本体に複数の定義が必要な場合は、`{ ... }`で囲みます。ブロックは最後の式の値を返します。
+
+```seseragi
+fn twice x: Int -> Int = {
+  let doubled = x + x
+  doubled
+}
+```
+
+`doubled`はこのブロックの中で使う名前です。ブロックの外から参照することはできません。
+
+部分適用とパイプラインを実際のプログラムで読むなら、[最初のプログラム](/docs/learn/first-program#関数をつないで出力する)へ進んでください。手元で動かす準備は[ローカルで使う](/docs/learn/local-development)で説明しています。

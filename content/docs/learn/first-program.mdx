@@ -49,7 +49,9 @@ fn label parcel: Parcel -> String =
 
 ```seseragi
 pub effect fn main =
-  Sent "Kyoto" |> label |> println
+  Sent "Kyoto"
+  |> label
+  |> println
 ```
 
 まず`Sent "Kyoto"`を`label`へ渡し、その結果の文字列を`println`へ渡します。
@@ -70,7 +72,9 @@ fn label parcel: Parcel -> String =
   }
 
 pub effect fn main =
-  Sent "Kyoto" |> label |> println
+  Sent "Kyoto"
+  |> label
+  |> println
 ```
 
 実行すると、次の一行を出力します。

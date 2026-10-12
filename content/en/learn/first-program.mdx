@@ -49,7 +49,9 @@ The `|>` operator passes the value on its left to the function on its right.
 
 ```seseragi
 pub effect fn main =
-  Sent "Kyoto" |> label |> println
+  Sent "Kyoto"
+  |> label
+  |> println
 ```
 
 First, pass `Sent "Kyoto"` to `label`. Then pass the resulting string to `println`.
@@ -70,7 +72,9 @@ fn label parcel: Parcel -> String =
   }
 
 pub effect fn main =
-  Sent "Kyoto" |> label |> println
+  Sent "Kyoto"
+  |> label
+  |> println
 ```
 
 Running it prints one line:

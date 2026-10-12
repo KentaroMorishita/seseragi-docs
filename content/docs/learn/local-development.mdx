@@ -1,0 +1,80 @@
+---
+title: ローカルで使う
+description: CLIを導入してコードを実行し、Webアプリの開発とビルドを始める。
+---
+
+手元でSeseragiを使うには、CLIとBunが必要です。ブラウザで試す場合は、[Playground](https://seseragi.vercel.app/)を使ってください。
+
+## CLIとBunを導入する
+
+[CLIのダウンロード](https://github.com/KentaroMorishita/seseragi/releases)から、使っているOSとCPUに合うアーカイブを取得してください。展開した`seseragi`を、PATHの通った場所へ配置します。アーカイブにはLSPも含まれます。
+
+Bunは[公式のインストール手順](https://bun.sh/docs/installation)で導入できます。配布済みのCLIを使う場合、Rustは不要です。
+
+ターミナルで、両方のコマンドを確認してください。
+
+```sh
+seseragi --version
+bun --version
+```
+
+## ソースファイルを実行する
+
+[最初のプログラム](/docs/learn/first-program#完成したプログラム)のコードを`parcel.ssrg`へ保存し、保存したディレクトリで実行してください。
+
+```sh
+seseragi run parcel.ssrg
+```
+
+次の一行を出力します。
+
+```text
+Sent to Kyoto
+```
+
+## VS Codeで編集する
+
+CLIと同じリリースの、OSとCPUに合うVSIXをダウンロードしてください。VS Codeで「Extensions: Install from VSIX...」を実行し、取得したファイルを選びます。
+
+VSIXには対応するLSPが同梱されています。別の言語サーバーをインストールする必要はありません。
+
+## Webアプリを作る
+
+次のコマンドで、新しいプロジェクトを作成します。`hello-web`というディレクトリが存在しない場所で実行してください。
+
+```sh
+seseragi new web hello-web
+cd hello-web
+```
+
+`seseragi.toml`、`seseragi.lock`と、`src/app.ssrg`、`src/main.ssrg`が生成されます。アプリの状態と画面は`app.ssrg`、ブラウザのDOMへの接続は`main.ssrg`に書かれています。
+
+## ブラウザで開発する
+
+プロジェクトのディレクトリで開発サーバーを起動します。
+
+```sh
+seseragi dev --open
+```
+
+通常は`http://127.0.0.1:3000/`が開きます。ソースを保存すると再ビルドされ、ブラウザが再読み込みされます。
+
+## 公開用にビルドする
+
+開発サーバーを`Ctrl-C`で停止し、同じディレクトリでビルドします。
+
+```sh
+seseragi build .
+```
+
+`dist/`にHTML、JavaScript、CSSなどの静的ファイルが生成されます。公開には、このディレクトリの内容を静的サイトとして配信します。
+
+## 依存関係を変更したとき
+
+プロジェクトの依存関係や設定を変えた場合は、ロックファイルを更新してください。
+
+```sh
+seseragi lock update
+```
+
+`run`、`dev`、`build`は、ロックファイルがない場合や設定と一致しない場合に`SES-K0102`で停止します。コマンドの実行時に自動で更新されることはありません。

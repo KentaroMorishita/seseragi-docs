@@ -9,4 +9,6 @@ fn label parcel: Parcel -> String =
   }
 
 pub effect fn main =
-  Sent "Kyoto" |> label |> println
+  Sent "Kyoto"
+  |> label
+  |> println

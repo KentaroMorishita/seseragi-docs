@@ -1,0 +1,80 @@
+---
+title: Local development
+description: Install the CLI, run a source file, and start developing and building a Web app.
+---
+
+To use Seseragi locally, install the CLI and Bun. To try it in your browser, use the [Playground](https://seseragi.vercel.app/).
+
+## Install the CLI and Bun
+
+[Download the CLI](https://github.com/KentaroMorishita/seseragi/releases) archive for your operating system and CPU. Extract it and place `seseragi` in a directory on your PATH. The archive also includes the LSP.
+
+Install Bun using its [official instructions](https://bun.sh/docs/installation). You do not need Rust when using the prebuilt CLI.
+
+Check both commands in your terminal:
+
+```sh
+seseragi --version
+bun --version
+```
+
+## Run a source file
+
+Save the code from [Your first program](/en/docs/learn/first-program#the-complete-program) as `parcel.ssrg`. Run it from the directory containing the file:
+
+```sh
+seseragi run parcel.ssrg
+```
+
+It prints one line:
+
+```text
+Sent to Kyoto
+```
+
+## Edit in VS Code
+
+Download the VSIX for your operating system and CPU from the same release as the CLI. In VS Code, run “Extensions: Install from VSIX...” and select the file.
+
+The VSIX includes the matching LSP. You do not need to install a separate language server.
+
+## Create a Web app
+
+Create a new project in a location where the `hello-web` directory does not already exist:
+
+```sh
+seseragi new web hello-web
+cd hello-web
+```
+
+This generates `seseragi.toml`, `seseragi.lock`, `src/app.ssrg`, and `src/main.ssrg`. The app's state and view live in `app.ssrg`; `main.ssrg` connects it to the browser DOM.
+
+## Develop in the browser
+
+Start the development server from the project directory:
+
+```sh
+seseragi dev --open
+```
+
+It normally opens `http://127.0.0.1:3000/`. Saving a source file rebuilds the app and reloads the browser.
+
+## Build for publishing
+
+Stop the development server with `Ctrl-C`, then build from the same directory:
+
+```sh
+seseragi build .
+```
+
+The `dist/` directory contains the generated HTML, JavaScript, CSS, and other static files. Publish its contents through static hosting.
+
+## After changing dependencies
+
+Update the lockfile after changing dependencies or project configuration:
+
+```sh
+seseragi lock update
+```
+
+`run`, `dev`, and `build` stop with `SES-K0102` when the lockfile is missing or does not match the configuration. They do not update it automatically.
