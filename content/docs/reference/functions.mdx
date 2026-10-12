@@ -6,52 +6,44 @@ description: fnによる宣言、空白による呼び出し、部分適用を�
 ## 宣言
 
 ```seseragi
-fn subtotal
-  unitPrice: Int
-  -> quantity: Int
-  -> Int = {
-    unitPrice * quantity
-  }
+fn add x: Int -> y: Int -> Int =
+  x + y
 ```
 
 関数名の後ろに引数を並べ、最後に結果の型を書きます。`=`の右側が関数本体です。
 
 | 部分 | 意味 |
 | --- | --- |
-| `subtotal` | 関数名 |
-| `unitPrice: Int` | 最初の引数とその型 |
-| `quantity: Int` | 次の引数とその型 |
+| `add` | 関数名 |
+| `x: Int` | 最初の引数とその型 |
+| `y: Int` | 次の引数とその型 |
 | 最後の`Int` | 結果の型 |
 
 ## 呼び出し
 
 ```seseragi
-let amount = subtotal 480 3
+pub effect fn main =
+  add 20 22 |> println
 ```
 
-引数を空白で区切って渡します。この例の結果は1440です。
+引数を空白で区切って渡します。`add 20 22`の結果は42です。`|>`でその値を`println`へ渡して出力します。
 
 ## 部分適用
 
-複数の引数を受け取る関数へ、一部の引数だけを渡すと、残りの引数を受け取る関数を得られます。
-
-```seseragi
-let notebookSubtotal = subtotal 480
-let amount = notebookSubtotal 3
-```
-
-`notebookSubtotal`は数量を受け取って合計を返す関数です。480円という単価を先に固定して、注文ごとの数量を後から渡せます。
-
-## 出力を伴う関数
+一部の引数だけを渡すと、残りの引数を受け取る関数を得られます。
 
 ```seseragi
 pub effect fn main = {
-  let amount = subtotal 480 3
-  println `合計: ${amount}円`
+  let increment = add 1
+  increment 41 |> println
 }
 ```
 
-`println`などの処理を含む関数には、`effect`を明示します。通常の`fn`から直接出力することはできません。[最初のプログラム](/docs/learn/first-program)で、計算と出力の分け方を確認できます。
+`increment`は一つの整数を受け取り、1を足して返す関数です。`let`でこの関数に名前をつけ、`main`の中で使っています。出力は42です。
+
+## 出力を伴う関数
+
+`println`などの処理を含む関数には、`effect`を明示します。通常の`fn`から直接出力することはできません。[最初のプログラム](/docs/learn/first-program)では、文字列を返す関数と、結果を出力する処理をつないでいます。
 
 ## 詳しい仕様
 

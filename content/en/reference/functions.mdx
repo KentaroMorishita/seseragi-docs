@@ -6,52 +6,44 @@ description: Function declarations, application with spaces, and partial applica
 ## Declaration
 
 ```seseragi
-fn subtotal
-  unitPrice: Int
-  -> quantity: Int
-  -> Int = {
-    unitPrice * quantity
-  }
+fn add x: Int -> y: Int -> Int =
+  x + y
 ```
 
 Write the parameters after the function name, followed by the result type. The expression after `=` is the body.
 
 | Part | Meaning |
 | --- | --- |
-| `subtotal` | Function name |
-| `unitPrice: Int` | First parameter and its type |
-| `quantity: Int` | Next parameter and its type |
+| `add` | Function name |
+| `x: Int` | First parameter and its type |
+| `y: Int` | Next parameter and its type |
 | Final `Int` | Result type |
 
 ## Application
 
 ```seseragi
-let amount = subtotal 480 3
+pub effect fn main =
+  add 20 22 |> println
 ```
 
-Pass arguments separated by spaces. This expression returns 1440.
+Pass arguments separated by spaces. `add 20 22` returns 42. The `|>` operator passes that value to `println`.
 
 ## Partial application
 
-Supplying some of a function's arguments produces a function that accepts the remaining arguments.
-
-```seseragi
-let notebookSubtotal = subtotal 480
-let amount = notebookSubtotal 3
-```
-
-`notebookSubtotal` accepts a quantity and returns the total. It fixes the unit price at 480 yen so each order can supply its own quantity.
-
-## Effectful functions
+Supplying some arguments produces a function that accepts the remaining ones.
 
 ```seseragi
 pub effect fn main = {
-  let amount = subtotal 480 3
-  println `合計: ${amount}円`
+  let increment = add 1
+  increment 41 |> println
 }
 ```
 
-Mark functions containing operations such as `println` with `effect`. An ordinary `fn` cannot directly print output. See [Your first program](/en/docs/learn/first-program) for a worked example.
+`increment` takes an integer and returns it plus 1. Here, `let` gives that function a name local to `main`. The output is 42.
+
+## Effectful functions
+
+Mark functions containing operations such as `println` with `effect`. An ordinary `fn` cannot directly print output. [Your first program](/en/docs/learn/first-program) composes a function that returns text with an operation that prints it.
 
 ## Detailed specification
 

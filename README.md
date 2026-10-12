@@ -20,7 +20,7 @@ bun run preview
 - `content/docs`: 概要、Learn、Reference。本文はMDXで管理
 - `src/components/docs.tsx`: Fumadocsのレイアウトと共通設定
 - `src/pages/api/search.ts`: ビルド時に生成する静的検索インデックス
-- `examples/order.ssrg`: 学習ページとトップに掲載する実行例
+- `examples/parcel.ssrg`: 学習ページとトップに掲載する実行例
 
 言語の実装、Playground、仕様の正本は[Seseragi](https://github.com/KentaroMorishita/seseragi)が管理します。このリポジトリではコンパイラを再実装しません。
 
@@ -34,6 +34,6 @@ GitHubの`main`をVercelの`seseragi-docs-site`へ接続します。`vercel.json
 
 初期構成はFumadocs公式Astroテンプレートに基づきます。ロゴ、SNS画像、TextMate文法はSeseragiリポジトリの`assets/brand`、`extensions/seseragi/syntaxes/seseragi.tmLanguage.json`から取得しています。
 
-`examples/order.ssrg`はSeseragi 0.61.25で実行を確認済みです。検証結果と次の読者レビュー項目は`docs/validation.md`へ記録します。
+`examples/parcel.ssrg`はSeseragi 0.61.25で実行を確認済みです。検証結果と次の読者レビュー項目は`docs/validation.md`へ記録します。
 
 日本語を標準とし、英語版は`/en`で公開します。本文は`content/docs`と`content/en`に分け、ページごとに言語を切り替えます。検索も言語別の静的インデックスを使います。

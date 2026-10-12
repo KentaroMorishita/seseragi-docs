@@ -1,105 +1,124 @@
 ---
 title: Your first program
-description: Learn values, functions, and effects by calculating the total for a notebook order.
+description: Model delivery states with a type, then transform them into text with match and a pipeline.
 ---
 
-A notebook costs 480 yen. How much do three notebooks cost? Let's put that calculation in a function and print the result.
+Display “Preparing” when a parcel is being packed, or its destination city once it has been sent. Let's define those states and a function that returns the display text.
 
-## Give values names
+## Define the states
 
-Define the price and quantity with `let`.
-
-```seseragi title="order.ssrg"
-let notebookPrice = 480
-let notebookCount = 3
-```
-
-`notebookPrice` is the unit price and `notebookCount` is the quantity. Both values are integers, so their inferred type is `Int`.
-
-## Write a function for the total
-
-Define a function that takes a unit price and a quantity, then returns their product.
+Define two cases of a type called `Parcel`.
 
 ```seseragi
-fn subtotal
-  unitPrice: Int
-  -> quantity: Int
-  -> Int = {
-    unitPrice * quantity
+type Parcel =
+  | Packing
+  | Sent String
+```
+
+`Packing` represents a parcel being prepared. `Sent` represents a sent parcel and carries its destination city as a `String`. A type made up of cases like these is called an algebraic data type.
+
+`Sent "Kyoto"` creates a value whose destination is Kyoto. Both `Packing` and `Sent "Kyoto"` are values of type `Parcel`.
+
+## Turn a state into text
+
+`label` takes a `Parcel` and returns a `String` for display.
+
+```seseragi
+fn label parcel: Parcel -> String =
+  match parcel {
+    Packing -> "Preparing"
+    Sent city -> `Sent to ${city}`
   }
 ```
 
-The function name follows `fn`. `unitPrice: Int` and `quantity: Int` are parameters. The final `Int` is the result type. The expression after `=` produces that result.
+Write the function name and parameter after `fn`. `parcel: Parcel` names the parameter and its type; the final `String` is the result type. The expression after `=` is the body.
 
-<div className="lesson-flow" role="img" aria-label="Passing price 480 and quantity 3 to subtotal returns 1440">
-  <div><small>Arguments</small><strong>480 and 3</strong></div><span aria-hidden="true">→</span><div><small>Function</small><strong>subtotal</strong></div><span aria-hidden="true">→</span><div><small>Result</small><strong>1440</strong></div>
+`match` checks which case the value belongs to. For `Packing`, it returns `"Preparing"`. For `Sent city`, it extracts the destination into `city`.
+
+Inside a backtick-delimited string, `${city}` inserts that value. Passing `Sent "Kyoto"` returns `"Sent to Kyoto"`.
+
+<div className="lesson-flow" role="img" aria-label="Passing Sent Kyoto to label returns Sent to Kyoto">
+  <div><small>Value</small><strong>Sent "Kyoto"</strong></div><span aria-hidden="true">→</span><div><small>Function</small><strong>label</strong></div><span aria-hidden="true">→</span><div><small>Result</small><strong>Sent to Kyoto</strong></div>
 </div>
 
-Call the function by writing its name followed by space-separated arguments.
+## Compose functions and print
+
+Apply a function by writing its name followed by space-separated arguments. For example, `label (Sent "Kyoto")` passes a sent parcel to `label`.
+
+The `|>` operator passes the value on its left to the function on its right.
 
 ```seseragi
-let amount = subtotal notebookPrice notebookCount
+pub effect fn main =
+  Sent "Kyoto" |> label |> println
 ```
 
-This passes 480 as `unitPrice` and 3 as `quantity`, binding the result, 1440, to `amount`.
+First, pass `Sent "Kyoto"` to `label`. Then pass the resulting string to `println`.
 
-## Separate calculation from output
+`main` is the program's entry point. Declare it with `pub effect fn` because it produces output. `label` is an ordinary function that returns text; `println` performs the output.
 
-Use `println` to print the result. Operations that produce output belong inside an `effect fn`.
+## The complete program
 
-```seseragi title="order.ssrg"
-fn subtotal
-  unitPrice: Int
-  -> quantity: Int
-  -> Int = {
-    unitPrice * quantity
+```seseragi title="parcel.ssrg"
+type Parcel =
+  | Packing
+  | Sent String
+
+fn label parcel: Parcel -> String =
+  match parcel {
+    Packing -> "Preparing"
+    Sent city -> `Sent to ${city}`
   }
 
-let notebookPrice = 480
-let notebookCount = 3
-
-pub effect fn main = {
-  let amount = subtotal notebookPrice notebookCount
-  println `合計: ${amount}円`
-}
+pub effect fn main =
+  Sent "Kyoto" |> label |> println
 ```
 
-`main` is the program's entry point. Declare it with `pub` and `effect fn`. `subtotal` calculates a value; `println` prints it.
-
-Inside a backtick-delimited string, `${amount}` inserts the value. This example prints a Japanese label meaning “Total” and the amount in yen:
+Running it prints one line:
 
 ```text title="Output"
-合計: 1440円
+Sent to Kyoto
 ```
 
-### The TypeScript equivalent
-
-```ts
-function subtotal(
-  unitPrice: number,
-  quantity: number,
-): number {
-  return unitPrice * quantity;
-}
-
-const amount = subtotal(480, 3);
-console.log(`合計: ${amount}円`);
-```
-
-Seseragi uses spaces for function application and marks effectful functions with `effect`. Its `Int` type represents integers. TypeScript's `number` includes both integers and fractional values, so the numerical types are not identical.
-
-## Change it yourself
-
-Paste the complete program into the [Playground](https://seseragi.vercel.app/) and run it. With the CLI installed, save it as `order.ssrg` and run:
+Paste the complete program into the [Playground](https://seseragi.vercel.app/) and run it. With the CLI installed, save it as `parcel.ssrg` and run:
 
 ```sh
-seseragi run order.ssrg
+seseragi run parcel.ssrg
 ```
 
-Change the quantity to 5. The total becomes 2400 yen. Then change the unit price and check the result.
+## Change the state
 
-Passing the string `"3"` as the quantity produces a type error: `subtotal` expects an `Int`. Try this to see how argument types are checked before execution.
+Replace `Sent "Kyoto"` in `main` with `Packing`. The output becomes `Preparing`. Change the city to `"Sapporo"` and it becomes `Sent to Sapporo`.
+
+Next, add a new case, `Arrived`, to `Parcel`. Compilation fails because `label` has no branch handling that case. Handling every case lets the compiler check for missing branches before execution.
+
+## The TypeScript equivalent
+
+In TypeScript, represent the same states with a discriminated union and a `switch`.
+
+```ts
+type Parcel =
+  | { kind: "packing" }
+  | { kind: "sent"; city: string };
+
+function label(parcel: Parcel) {
+  switch (parcel.kind) {
+    case "packing":
+      return "Preparing";
+    case "sent": {
+      const { city } = parcel;
+      return `Sent to ${city}`;
+    }
+  }
+}
+
+console.log(label({
+  kind: "sent",
+  city: "Kyoto",
+}));
+```
+
+Seseragi declares the cases `Packing` and `Sent` directly in the type. The `Sent city` pattern selects the case and extracts the destination together.
 
 ## Read next
 
-The [function reference](/en/docs/reference/functions) covers declarations and partial application: supplying some arguments now and the remaining ones later.
+The [function reference](/en/docs/reference/functions) covers declarations, application, and partial application.

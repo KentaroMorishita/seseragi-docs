@@ -1,107 +1,124 @@
 ---
 title: 最初のプログラム
-description: ノートの注文を例に、値、関数、Effectの役割を一つずつ理解する。
+description: 配送状態を型で表し、matchとパイプラインで表示する文字列へ変換する。
 ---
 
-480円のノートを3冊買うと、合計はいくらになるでしょうか。この計算を関数にし、結果を画面へ出すプログラムを作ります。
+荷物が準備中なら「Preparing」、発送済みなら発送先の都市名を表示します。配送状態を表す型と、表示する文字列を返す関数を作ります。
 
-## 値に名前をつける
+## 状態を表す型
 
-単価と冊数を、`let`で定義します。
-
-```seseragi title="order.ssrg"
-let notebookPrice = 480
-let notebookCount = 3
-```
-
-`notebookPrice`は単価、`notebookCount`は冊数を表します。どちらも整数なので、型は`Int`と推論されます。
-
-## 合計を計算する関数を作る
-
-単価と数量を受け取り、合計を返す関数を定義します。
+準備中と発送済みを、`Parcel`という型の二つのケースとして定義します。
 
 ```seseragi
-fn subtotal
-  unitPrice: Int
-  -> quantity: Int
-  -> Int = {
-    unitPrice * quantity
+type Parcel =
+  | Packing
+  | Sent String
+```
+
+`Packing`は準備中を表します。`Sent`は発送済みを表し、発送先の都市名を`String`として持ちます。このように複数のケースからなる型を、代数的データ型と呼びます。
+
+`Sent "Kyoto"`と書くと、発送先がKyotoの値を作れます。`Packing`と`Sent "Kyoto"`は、どちらも`Parcel`です。
+
+## 状態から文字列を作る
+
+`label`は`Parcel`を受け取り、表示する`String`を返す関数です。
+
+```seseragi
+fn label parcel: Parcel -> String =
+  match parcel {
+    Packing -> "Preparing"
+    Sent city -> `Sent to ${city}`
   }
 ```
 
-`fn`の後に関数名を書きます。`unitPrice: Int`と`quantity: Int`が引数、最後の`Int`が結果の型です。`=`の右側の式が、その結果になります。
+`fn`の後ろに関数名と引数を書きます。`parcel: Parcel`は引数とその型、最後の`String`は結果の型です。`=`の右側に本体の式を書きます。
 
-<div className="lesson-flow" role="img" aria-label="単価480と数量3をsubtotalに渡すと1440を返す">
-  <div><small>引数</small><strong>480 と 3</strong></div><span aria-hidden="true">→</span><div><small>関数</small><strong>subtotal</strong></div><span aria-hidden="true">→</span><div><small>結果</small><strong>1440</strong></div>
+`match`は、受け取った値がどのケースに一致するかを調べます。`Packing`なら`"Preparing"`を返します。`Sent city`なら、値に含まれる発送先を`city`として取り出します。
+
+バッククォートで囲んだ文字列では、`${city}`の位置に値を埋め込めます。`Sent "Kyoto"`を受け取った場合の結果は`"Sent to Kyoto"`です。
+
+<div className="lesson-flow" role="img" aria-label="Sent Kyotoをlabelに渡すとSent to Kyotoを返す">
+  <div><small>値</small><strong>Sent "Kyoto"</strong></div><span aria-hidden="true">→</span><div><small>関数</small><strong>label</strong></div><span aria-hidden="true">→</span><div><small>結果</small><strong>Sent to Kyoto</strong></div>
 </div>
 
-関数を呼び出すときは、名前の後ろに引数を空白で並べます。
+## 関数をつないで出力する
+
+関数を呼び出すには、名前の後ろに引数を空白で並べます。たとえば、`label (Sent "Kyoto")`は発送済みの値を`label`へ渡します。
+
+`|>`を使うと、左側の値を右側の関数へ渡せます。
 
 ```seseragi
-let amount = subtotal notebookPrice notebookCount
+pub effect fn main =
+  Sent "Kyoto" |> label |> println
 ```
 
-この式では、`unitPrice`に480、`quantity`に3を渡します。計算結果の1440を`amount`へ束縛します。
+まず`Sent "Kyoto"`を`label`へ渡し、その結果の文字列を`println`へ渡します。
 
-## 計算と出力を分ける
+`main`はプログラムの入口です。画面への出力を伴うため、`pub effect fn`で宣言します。`label`は文字列を返す通常の関数で、出力は`println`が行います。
 
-計算した値を画面へ出すには、`println`を使います。出力を伴う処理は`effect fn`の中に書きます。
+## 完成したプログラム
 
-```seseragi title="order.ssrg"
-fn subtotal
-  unitPrice: Int
-  -> quantity: Int
-  -> Int = {
-    unitPrice * quantity
+```seseragi title="parcel.ssrg"
+type Parcel =
+  | Packing
+  | Sent String
+
+fn label parcel: Parcel -> String =
+  match parcel {
+    Packing -> "Preparing"
+    Sent city -> `Sent to ${city}`
   }
 
-let notebookPrice = 480
-let notebookCount = 3
-
-pub effect fn main = {
-  let amount = subtotal notebookPrice notebookCount
-  println `合計: ${amount}円`
-}
+pub effect fn main =
+  Sent "Kyoto" |> label |> println
 ```
 
-`main`がプログラムの入口です。`pub`で公開し、`effect fn`として宣言します。`subtotal`は値を計算し、`println`はその値を出力します。
-
-バッククォートで囲んだ文字列では、`${amount}`の位置に値を埋め込めます。この例では、次の文字列を出力します。
+実行すると、次の一行を出力します。
 
 ```text title="実行結果"
-合計: 1440円
+Sent to Kyoto
 ```
 
-### TypeScriptで書くと
-
-同じ処理をTypeScriptで書くと、次のようになります。
-
-```ts
-function subtotal(
-  unitPrice: number,
-  quantity: number,
-): number {
-  return unitPrice * quantity;
-}
-
-const amount = subtotal(480, 3);
-console.log(`合計: ${amount}円`);
-```
-
-Seseragiでは、関数の呼び出しに空白を使い、出力を伴う関数には`effect`を明示します。`Int`は整数の型です。TypeScriptの`number`には整数と小数の両方が含まれるため、数値型の対応は完全に同じではありません。
-
-## 自分で変えてみる
-
-[Playground](https://seseragi.vercel.app/)へ完成したコードを貼り付けて、実行してください。CLIが使える場合は、`order.ssrg`へ保存して次のコマンドで実行できます。
+[Playground](https://seseragi.vercel.app/)へ完成したコードを貼り付けて実行してください。CLIが使える場合は、`parcel.ssrg`へ保存して次のコマンドで実行できます。
 
 ```sh
-seseragi run order.ssrg
+seseragi run parcel.ssrg
 ```
 
-冊数を5へ変えてください。合計は2400円になります。次に単価も変え、出力が計算どおりになるか確認してみましょう。
+## 状態を変えてみる
 
-数量に文字列の`"3"`を渡すと、型検査でエラーになります。`subtotal`が受け取る数量は`Int`だからです。実行前に引数の型を確認できることも、この例で試せます。
+`main`の`Sent "Kyoto"`を`Packing`に置き換えると、出力は`Preparing`になります。都市名を`"Sapporo"`へ変えると、`Sent to Sapporo`になります。
+
+次に、`Parcel`へ新しいケース`Arrived`を追加してみてください。`label`の`match`にはそのケースを処理する分岐がないので、コンパイルエラーになります。すべてのケースを扱うことで、処理の抜けを実行前に確認できます。
+
+## TypeScriptで書くと
+
+TypeScriptでは、判別用のフィールドを持つユニオン型と、`switch`で同じ状態を表せます。
+
+```ts
+type Parcel =
+  | { kind: "packing" }
+  | { kind: "sent"; city: string };
+
+function label(parcel: Parcel) {
+  switch (parcel.kind) {
+    case "packing":
+      return "Preparing";
+    case "sent": {
+      const { city } = parcel;
+      return `Sent to ${city}`;
+    }
+  }
+}
+
+console.log(label({
+  kind: "sent",
+  city: "Kyoto",
+}));
+```
+
+Seseragiでは、`Packing`と`Sent`というケースを型の宣言に直接書きます。`match`の`Sent city`でケースの判別と都市名の取り出しを一緒に行えます。
 
 ## 次に読む
 
-[関数リファレンス](/docs/reference/functions)では、宣言の構文と、一部の引数だけを渡す部分適用を確認できます。
+[関数リファレンス](/docs/reference/functions)では、関数の宣言、呼び出し、部分適用を確認できます。

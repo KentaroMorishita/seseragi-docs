@@ -7,15 +7,15 @@ Seseragiでは、値を関数で変換し、型でデータの形を表します
 
 ## まず、一つ動かしてみる
 
-[最初のプログラム](/docs/learn/first-program)では、ノートの単価と数量から合計を計算します。短いコードを読みながら、値の定義、関数の呼び出し、画面への出力を確認してください。
+[最初のプログラム](/docs/learn/first-program)では、配送状態を型で表し、表示する文字列へ変換します。短いコードを読みながら、型、パターンマッチ、関数のつなぎ方を確認してください。
 
 ブラウザで試すなら、[Playground](https://seseragi.vercel.app/)を開いてください。コードを編集して実行できます。[Tour](https://seseragi.vercel.app/tour/)では、Hello worldからWeb UIまで順に試せます。
 
 ## TypeScriptから来た方へ
 
-Seseragiの関数は、`subtotal price count`のように空白で引数を渡します。複数の引数を受け取る関数へ、一部だけ渡すこともできます。
+Seseragiの関数は、`label (Sent "Kyoto")`のように空白で引数を渡します。複数の引数を受け取る関数へ、一部だけ渡すこともできます。
 
-TypeScriptでは計算も出力も同じ関数構文で書きます。Seseragiでは、通常の`fn`で計算を、`effect fn`で出力などを伴う処理を書きます。[学習ページ](/docs/learn/first-program#計算と出力を分ける)で、両方を並べて読めます。
+TypeScriptでは計算も出力も同じ関数構文で書きます。Seseragiでは、通常の`fn`で計算を、`effect fn`で出力などを伴う処理を書きます。[学習ページ](/docs/learn/first-program#関数をつないで出力する)で、両方を並べて読めます。
 
 ## 手元で使う
 
