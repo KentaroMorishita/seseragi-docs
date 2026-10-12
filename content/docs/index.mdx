@@ -1,0 +1,28 @@
+---
+title: Seseragiとは
+description: データの形と処理の流れを、型と関数で表すプログラミング言語。
+---
+
+Seseragiでは、値を関数で変換し、型でデータの形を表します。計算と、出力や状態の更新を伴う処理を区別して書けます。
+
+## まず、一つ動かしてみる
+
+[最初のプログラム](/docs/learn/first-program)では、ノートの単価と数量から合計を計算します。短いコードを読みながら、値の定義、関数の呼び出し、画面への出力を確認してください。
+
+ブラウザで試すなら、[Playground](https://seseragi.vercel.app/)を開いてください。コードを編集して実行できます。[Tour](https://seseragi.vercel.app/tour/)では、Hello worldからWeb UIまで順に試せます。
+
+## TypeScriptから来た方へ
+
+Seseragiの関数は、`subtotal price count`のように空白で引数を渡します。複数の引数を受け取る関数へ、一部だけ渡すこともできます。
+
+TypeScriptでは計算も出力も同じ関数構文で書きます。Seseragiでは、通常の`fn`で計算を、`effect fn`で出力などを伴う処理を書きます。[学習ページ](/docs/learn/first-program#計算と出力を分ける)で、両方を並べて読めます。
+
+## 手元で使う
+
+CLIとLSPは[GitHub Releases](https://github.com/KentaroMorishita/seseragi/releases)から取得できます。生成したプログラムの実行にはBunも必要です。Webアプリの作成手順は、言語リポジトリの[Getting Started](https://github.com/KentaroMorishita/seseragi/blob/main/docs/GETTING_STARTED.md)を参照してください。
+
+## 実装と仕様を確認する
+
+Seseragiは実験段階の言語です。現在使える機能は[実装状況](https://github.com/KentaroMorishita/seseragi/blob/main/docs/STATUS.md)、構文と意味の詳しい定義は[言語仕様](https://github.com/KentaroMorishita/seseragi/tree/main/docs/spec)に記載しています。
+
+このサイトでは、まず基本の学習ページと関数リファレンスを公開しています。

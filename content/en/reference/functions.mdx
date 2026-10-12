@@ -1,0 +1,58 @@
+---
+title: Functions
+description: Function declarations, application with spaces, and partial application.
+---
+
+## Declaration
+
+```seseragi
+fn subtotal
+  unitPrice: Int
+  -> quantity: Int
+  -> Int = {
+    unitPrice * quantity
+  }
+```
+
+Write the parameters after the function name, followed by the result type. The expression after `=` is the body.
+
+| Part | Meaning |
+| --- | --- |
+| `subtotal` | Function name |
+| `unitPrice: Int` | First parameter and its type |
+| `quantity: Int` | Next parameter and its type |
+| Final `Int` | Result type |
+
+## Application
+
+```seseragi
+let amount = subtotal 480 3
+```
+
+Pass arguments separated by spaces. This expression returns 1440.
+
+## Partial application
+
+Supplying some of a function's arguments produces a function that accepts the remaining arguments.
+
+```seseragi
+let notebookSubtotal = subtotal 480
+let amount = notebookSubtotal 3
+```
+
+`notebookSubtotal` accepts a quantity and returns the total. It fixes the unit price at 480 yen so each order can supply its own quantity.
+
+## Effectful functions
+
+```seseragi
+pub effect fn main = {
+  let amount = subtotal 480 3
+  println `合計: ${amount}円`
+}
+```
+
+Mark functions containing operations such as `println` with `effect`. An ordinary `fn` cannot directly print output. See [Your first program](/en/docs/learn/first-program) for a worked example.
+
+## Detailed specification
+
+For the full rules, see [syntax](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/01-syntax.md), [types](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/02-types.md), and [effects](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/05-effects.md) in the language repository.

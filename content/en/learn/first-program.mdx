@@ -1,0 +1,105 @@
+---
+title: Your first program
+description: Learn values, functions, and effects by calculating the total for a notebook order.
+---
+
+A notebook costs 480 yen. How much do three notebooks cost? Let's put that calculation in a function and print the result.
+
+## Give values names
+
+Define the price and quantity with `let`.
+
+```seseragi title="order.ssrg"
+let notebookPrice = 480
+let notebookCount = 3
+```
+
+`notebookPrice` is the unit price and `notebookCount` is the quantity. Both values are integers, so their inferred type is `Int`.
+
+## Write a function for the total
+
+Define a function that takes a unit price and a quantity, then returns their product.
+
+```seseragi
+fn subtotal
+  unitPrice: Int
+  -> quantity: Int
+  -> Int = {
+    unitPrice * quantity
+  }
+```
+
+The function name follows `fn`. `unitPrice: Int` and `quantity: Int` are parameters. The final `Int` is the result type. The expression after `=` produces that result.
+
+<div className="lesson-flow" role="img" aria-label="Passing price 480 and quantity 3 to subtotal returns 1440">
+  <div><small>Arguments</small><strong>480 and 3</strong></div><span aria-hidden="true">→</span><div><small>Function</small><strong>subtotal</strong></div><span aria-hidden="true">→</span><div><small>Result</small><strong>1440</strong></div>
+</div>
+
+Call the function by writing its name followed by space-separated arguments.
+
+```seseragi
+let amount = subtotal notebookPrice notebookCount
+```
+
+This passes 480 as `unitPrice` and 3 as `quantity`, binding the result, 1440, to `amount`.
+
+## Separate calculation from output
+
+Use `println` to print the result. Operations that produce output belong inside an `effect fn`.
+
+```seseragi title="order.ssrg"
+fn subtotal
+  unitPrice: Int
+  -> quantity: Int
+  -> Int = {
+    unitPrice * quantity
+  }
+
+let notebookPrice = 480
+let notebookCount = 3
+
+pub effect fn main = {
+  let amount = subtotal notebookPrice notebookCount
+  println `合計: ${amount}円`
+}
+```
+
+`main` is the program's entry point. Declare it with `pub` and `effect fn`. `subtotal` calculates a value; `println` prints it.
+
+Inside a backtick-delimited string, `${amount}` inserts the value. This example prints a Japanese label meaning “Total” and the amount in yen:
+
+```text title="Output"
+合計: 1440円
+```
+
+### The TypeScript equivalent
+
+```ts
+function subtotal(
+  unitPrice: number,
+  quantity: number,
+): number {
+  return unitPrice * quantity;
+}
+
+const amount = subtotal(480, 3);
+console.log(`合計: ${amount}円`);
+```
+
+Seseragi uses spaces for function application and marks effectful functions with `effect`. Its `Int` type represents integers. TypeScript's `number` includes both integers and fractional values, so the numerical types are not identical.
+
+## Change it yourself
+
+Paste the complete program into the [Playground](https://seseragi.vercel.app/) and run it. With the CLI installed, save it as `order.ssrg` and run:
+
+```sh
+seseragi run order.ssrg
+```
+
+Change the quantity to 5. The total becomes 2400 yen. Then change the unit price and check the result.
+
+Passing the string `"3"` as the quantity produces a type error: `subtotal` expects an `Int`. Try this to see how argument types are checked before execution.
+
+## Read next
+
+The [function reference](/en/docs/reference/functions) covers declarations and partial application: supplying some arguments now and the remaining ones later.

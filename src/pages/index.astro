@@ -1,0 +1,36 @@
+---
+import Layout from "@/components/layout.astro";
+import { Home } from "@/components/docs";
+import { Code } from "astro:components";
+import grammar from "@/lib/seseragi.tmLanguage.json";
+import snippet from "../../examples/order.ssrg?raw";
+---
+<Layout title="データから、考えをコードに。" description="Seseragiを小さなプログラムから学ぶ。値、関数、型、Effectを、動くコードと図で理解するドキュメント。">
+  <Home pathname={Astro.url.pathname} client:load>
+    <div id="main-content" tabindex="-1" class="landing">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="status-dot"></span> THE SESERAGI LANGUAGE</p>
+          <h1>データから、<br />考えを<span>コードに。</span></h1>
+          <p class="hero-description">値の形を決めて、関数でつなぐ。<br />小さなプログラムから、Seseragiの考え方を学ぼう。</p>
+          <div class="hero-actions"><a class="primary-link" href="/docs/learn/first-program">最初のプログラムを書く <span aria-hidden="true">↗</span></a><a class="subtle-link" href="/docs">Seseragiとは <span aria-hidden="true">→</span></a></div>
+          <p class="hero-note">Experimental <span>·</span> ブラウザでも試せます</p>
+        </div>
+        <div class="hero-example">
+          <div class="code-window"><div class="code-title"><span class="code-dots" aria-hidden="true">● ● ●</span><span>order.ssrg</span><span class="code-language">Seseragi</span></div><Code code={snippet.trim()} lang={{ ...grammar, name: "seseragi" }} theme="github-dark" /><div class="code-output"><span>OUTPUT</span><samp>合計: 1440円</samp></div></div>
+          <p class="example-caption">計算を関数に。画面への出力をEffectに。</p>
+        </div>
+      </section>
+      <section class="routes-section" aria-labelledby="routes-title">
+        <div class="section-intro"><p class="eyebrow">A PLACE TO START</p><h2 id="routes-title">今、知りたいことから。</h2><p>順に学ぶ。必要な構文を調べる。動かして確かめる。</p></div>
+        <div class="route-grid">
+          <a class="route-card" href="/docs/learn/first-program"><span class="route-number">01 / LEARN</span><h3>書きながら、理解する。<span aria-hidden="true">↗</span></h3><p>注文の合計を計算するプログラムで、値と関数、Effectの役割を学びます。</p><span class="route-label">最初のプログラム</span></a>
+          <a class="route-card" href="/docs/reference/functions"><span class="route-number">02 / REFERENCE</span><h3>構文を、確かめる。<span aria-hidden="true">↗</span></h3><p>関数の宣言と呼び出し、部分適用を、短い例で確認できます。</p><span class="route-label">関数リファレンス</span></a>
+          <a class="route-card" href="https://seseragi.vercel.app/"><span class="route-number">03 / PLAYGROUND</span><h3>変えて、動かしてみる。<span aria-hidden="true">↗</span></h3><p>インストールせずに、コードの編集と実行、Web UIのプレビューを試せます。</p><span class="route-label">Playgroundを開く</span></a>
+        </div>
+      </section>
+      <section class="idea-section"><p class="eyebrow">THINK IN SESERAGI</p><h2>計算と、外への働きかけを分ける。</h2><p>同じ入力から同じ結果を返す計算は関数へ。<br />出力や状態の更新は、Effectとして扱います。</p><div class="idea-flow" role="img" aria-label="単価480円と数量3から関数subtotalで合計1440円を計算し、Effectで出力する"><div><span>DATA</span><strong>480 × 3</strong><small>単価と数量</small></div><span class="flow-arrow" aria-hidden="true">→</span><div><span>FUNCTION</span><strong>subtotal</strong><small>合計を計算</small></div><span class="flow-arrow" aria-hidden="true">→</span><div><span>EFFECT</span><strong>println</strong><small>結果を出力</small></div></div><a class="subtle-link" href="/docs/learn/first-program">この例を一つずつ読む <span aria-hidden="true">→</span></a></section>
+      <footer class="site-footer"><span>Seseragi <span class="footer-muted">/ ドキュメント</span></span><a href="https://github.com/KentaroMorishita/seseragi">Language on GitHub ↗</a></footer>
+    </div>
+  </Home>
+</Layout>

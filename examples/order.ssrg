@@ -1,0 +1,14 @@
+fn subtotal
+  unitPrice: Int
+  -> quantity: Int
+  -> Int = {
+    unitPrice * quantity
+  }
+
+let notebookPrice = 480
+let notebookCount = 3
+
+pub effect fn main = {
+  let amount = subtotal notebookPrice notebookCount
+  println `合計: ${amount}円`
+}

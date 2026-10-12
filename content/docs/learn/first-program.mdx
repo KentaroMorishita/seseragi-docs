@@ -1,0 +1,107 @@
+---
+title: 最初のプログラム
+description: ノートの注文を例に、値、関数、Effectの役割を一つずつ理解する。
+---
+
+480円のノートを3冊買うと、合計はいくらになるでしょうか。この計算を関数にし、結果を画面へ出すプログラムを作ります。
+
+## 値に名前をつける
+
+単価と冊数を、`let`で定義します。
+
+```seseragi title="order.ssrg"
+let notebookPrice = 480
+let notebookCount = 3
+```
+
+`notebookPrice`は単価、`notebookCount`は冊数を表します。どちらも整数なので、型は`Int`と推論されます。
+
+## 合計を計算する関数を作る
+
+単価と数量を受け取り、合計を返す関数を定義します。
+
+```seseragi
+fn subtotal
+  unitPrice: Int
+  -> quantity: Int
+  -> Int = {
+    unitPrice * quantity
+  }
+```
+
+`fn`の後に関数名を書きます。`unitPrice: Int`と`quantity: Int`が引数、最後の`Int`が結果の型です。`=`の右側の式が、その結果になります。
+
+<div className="lesson-flow" role="img" aria-label="単価480と数量3をsubtotalに渡すと1440を返す">
+  <div><small>引数</small><strong>480 と 3</strong></div><span aria-hidden="true">→</span><div><small>関数</small><strong>subtotal</strong></div><span aria-hidden="true">→</span><div><small>結果</small><strong>1440</strong></div>
+</div>
+
+関数を呼び出すときは、名前の後ろに引数を空白で並べます。
+
+```seseragi
+let amount = subtotal notebookPrice notebookCount
+```
+
+この式では、`unitPrice`に480、`quantity`に3を渡します。計算結果の1440を`amount`へ束縛します。
+
+## 計算と出力を分ける
+
+計算した値を画面へ出すには、`println`を使います。出力を伴う処理は`effect fn`の中に書きます。
+
+```seseragi title="order.ssrg"
+fn subtotal
+  unitPrice: Int
+  -> quantity: Int
+  -> Int = {
+    unitPrice * quantity
+  }
+
+let notebookPrice = 480
+let notebookCount = 3
+
+pub effect fn main = {
+  let amount = subtotal notebookPrice notebookCount
+  println `合計: ${amount}円`
+}
+```
+
+`main`がプログラムの入口です。`pub`で公開し、`effect fn`として宣言します。`subtotal`は値を計算し、`println`はその値を出力します。
+
+バッククォートで囲んだ文字列では、`${amount}`の位置に値を埋め込めます。この例では、次の文字列を出力します。
+
+```text title="実行結果"
+合計: 1440円
+```
+
+### TypeScriptで書くと
+
+同じ処理をTypeScriptで書くと、次のようになります。
+
+```ts
+function subtotal(
+  unitPrice: number,
+  quantity: number,
+): number {
+  return unitPrice * quantity;
+}
+
+const amount = subtotal(480, 3);
+console.log(`合計: ${amount}円`);
+```
+
+Seseragiでは、関数の呼び出しに空白を使い、出力を伴う関数には`effect`を明示します。`Int`は整数の型です。TypeScriptの`number`には整数と小数の両方が含まれるため、数値型の対応は完全に同じではありません。
+
+## 自分で変えてみる
+
+[Playground](https://seseragi.vercel.app/)へ完成したコードを貼り付けて、実行してください。CLIが使える場合は、`order.ssrg`へ保存して次のコマンドで実行できます。
+
+```sh
+seseragi run order.ssrg
+```
+
+冊数を5へ変えてください。合計は2400円になります。次に単価も変え、出力が計算どおりになるか確認してみましょう。
+
+数量に文字列の`"3"`を渡すと、型検査でエラーになります。`subtotal`が受け取る数量は`Int`だからです。実行前に引数の型を確認できることも、この例で試せます。
+
+## 次に読む
+
+[関数リファレンス](/docs/reference/functions)では、宣言の構文と、一部の引数だけを渡す部分適用を確認できます。

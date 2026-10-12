@@ -1,0 +1,41 @@
+---
+import { render, type CollectionEntry } from "astro:content";
+import { Docs } from "@/components/docs";
+import { mdxComponents } from "@/lib/mdx-components";
+import "@/styles/global.css";
+import { enSource as source } from "@/lib/source";
+import Layout from "@/components/layout.astro";
+import type { TOCItemType } from "fumadocs-core/toc";
+
+interface Props {
+  page: CollectionEntry<"docsEn">;
+}
+
+export async function getStaticPaths() {
+  return source.getPages().map((page) => ({
+    params: { slug: page.slugs.length > 0 ? page.slugs.join("/") : undefined },
+    props: { page: page.data._raw },
+  }));
+}
+
+const { page } = Astro.props;
+const { Content, headings } = await render(page);
+const slugs = typeof Astro.params.slug === "string" ? Astro.params.slug.split("/") : [];
+
+const toc: TOCItemType[] = headings.map((heading) => ({
+  depth: heading.depth,
+  title: heading.text,
+  url: "#" + heading.slug,
+}));
+---
+
+<Layout lang="en" title={page.data.title} description={page.data.description ?? 'Seseragi documentation'}>
+  <Docs tree={source.getPageTree()} pathname={Astro.url.pathname} page={{ toc }} client:load>
+    <div id="main-content" tabindex="-1" class="article-header">
+      <span class="eyebrow">{slugs[0] === 'learn' ? 'LEARN SESERAGI' : slugs[0] === 'reference' ? 'REFERENCE' : 'GET STARTED'}</span>
+      <h1 class="font-semibold text-3xl">{page.data.title}</h1>
+      <p class="text-lg text-fd-muted-foreground mb-8">{page.data.description}</p>
+    </div>
+    <div class="prose flex-1"><Content components={mdxComponents("en")} /></div>
+  </Docs>
+</Layout>

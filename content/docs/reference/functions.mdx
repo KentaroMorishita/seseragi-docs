@@ -1,0 +1,58 @@
+---
+title: 関数
+description: fnによる宣言、空白による呼び出し、部分適用を確認する。
+---
+
+## 宣言
+
+```seseragi
+fn subtotal
+  unitPrice: Int
+  -> quantity: Int
+  -> Int = {
+    unitPrice * quantity
+  }
+```
+
+関数名の後ろに引数を並べ、最後に結果の型を書きます。`=`の右側が関数本体です。
+
+| 部分 | 意味 |
+| --- | --- |
+| `subtotal` | 関数名 |
+| `unitPrice: Int` | 最初の引数とその型 |
+| `quantity: Int` | 次の引数とその型 |
+| 最後の`Int` | 結果の型 |
+
+## 呼び出し
+
+```seseragi
+let amount = subtotal 480 3
+```
+
+引数を空白で区切って渡します。この例の結果は1440です。
+
+## 部分適用
+
+複数の引数を受け取る関数へ、一部の引数だけを渡すと、残りの引数を受け取る関数を得られます。
+
+```seseragi
+let notebookSubtotal = subtotal 480
+let amount = notebookSubtotal 3
+```
+
+`notebookSubtotal`は数量を受け取って合計を返す関数です。480円という単価を先に固定して、注文ごとの数量を後から渡せます。
+
+## 出力を伴う関数
+
+```seseragi
+pub effect fn main = {
+  let amount = subtotal 480 3
+  println `合計: ${amount}円`
+}
+```
+
+`println`などの処理を含む関数には、`effect`を明示します。通常の`fn`から直接出力することはできません。[最初のプログラム](/docs/learn/first-program)で、計算と出力の分け方を確認できます。
+
+## 詳しい仕様
+
+パラメータ、関数適用、型検査の詳しい規則は、[字句・構文・演算子](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/01-syntax.md)、[型](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/02-types.md)、[Effect](https://github.com/KentaroMorishita/seseragi/blob/main/docs/spec/05-effects.md)を参照してください。

@@ -1,0 +1,54 @@
+---
+import "@/styles/global.css";
+interface Props { title: string; description: string; lang?: "ja" | "en"; }
+const { title, description, lang = "ja" } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang={lang} class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · Seseragi</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={lang === "ja" ? "ja_JP" : "en_US"} />
+    <link rel="alternate" hreflang="ja" href={new URL(Astro.url.pathname.replace(/^\/en(?=\/|$)/, "") || "/", Astro.site)} />
+    <link rel="alternate" hreflang="en" href={new URL(`/en${Astro.url.pathname.replace(/^\/en(?=\/|$)/, "")}`.replace(/\/$/, "") || "/en", Astro.site)} />
+    <meta property="og:title" content={`${title} · Seseragi`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL('/social-preview.png', Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline>
+      try {
+        const theme = localStorage.getItem('theme') || 'dark';
+        const dark = theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+      } catch {}
+    </script>
+  </head>
+  <body class="flex flex-col min-h-screen"><a class="skip-link" href="#main-content">{lang === "ja" ? "本文へ移動" : "Skip to content"}</a><slot />
+    <script>
+      document.querySelectorAll<HTMLButtonElement>('[data-docs-copy]').forEach(button => { button.hidden = false; });
+      document.addEventListener('click', async event => {
+        if (!(event.target instanceof Element)) return;
+        const button = event.target.closest<HTMLButtonElement>('[data-docs-copy]');
+        if (!button) return;
+        const code = button.closest('figure')?.querySelector('pre');
+        if (!code) return;
+        const label = button.textContent;
+        try {
+          await navigator.clipboard.writeText(code.textContent ?? '');
+          button.textContent = document.documentElement.lang === 'ja' ? 'コピーしました' : 'Copied';
+        } catch {
+          button.textContent = document.documentElement.lang === 'ja' ? 'コピーできませんでした' : 'Copy failed';
+        }
+        setTimeout(() => { button.textContent = label; }, 2000);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+---
+import Layout from "@/components/layout.astro";
+import { Home } from "@/components/docs";
+import { Code } from "astro:components";
+import grammar from "@/lib/seseragi.tmLanguage.json";
+import snippet from "../../../examples/order.ssrg?raw";
+---
+<Layout lang="en" title="From data to ideas in code." description="Learn Seseragi with working examples. Explore values, functions, types, and effects through code and diagrams.">
+  <Home pathname={Astro.url.pathname} client:load>
+    <div id="main-content" tabindex="-1" class="landing">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="status-dot"></span> THE SESERAGI LANGUAGE</p>
+          <h1>From data.<br />To ideas<span> in code.</span></h1>
+          <p class="hero-description">Shape your data. Connect it with functions.<br />Learn Seseragi, one small program at a time.</p>
+          <div class="hero-actions"><a class="primary-link" href="/en/docs/learn/first-program">Write your first program <span aria-hidden="true">↗</span></a><a class="subtle-link" href="/en/docs">What is Seseragi? <span aria-hidden="true">→</span></a></div>
+          <p class="hero-note">Experimental <span>·</span> Try it in your browser</p>
+        </div>
+        <div class="hero-example">
+          <div class="code-window"><div class="code-title"><span class="code-dots" aria-hidden="true">● ● ●</span><span>order.ssrg</span><span class="code-language">Seseragi</span></div><Code code={snippet.trim()} lang={{ ...grammar, name: "seseragi" }} theme="github-dark" /><div class="code-output"><span>OUTPUT</span><samp>合計: 1440円</samp></div></div>
+          <p class="example-caption">Calculate with a function. Print with an effect.</p>
+        </div>
+      </section>
+      <section class="routes-section" aria-labelledby="routes-title">
+        <div class="section-intro"><p class="eyebrow">A PLACE TO START</p><h2 id="routes-title">Start with what you need.</h2><p>Follow a lesson. Look up syntax. Run an experiment.</p></div>
+        <div class="route-grid">
+          <a class="route-card" href="/en/docs/learn/first-program"><span class="route-number">01 / LEARN</span><h3>Learn by writing.<span aria-hidden="true">↗</span></h3><p>Understand values, functions, and effects with a small program that calculates an order total.</p><span class="route-label">Your first program</span></a>
+          <a class="route-card" href="/en/docs/reference/functions"><span class="route-number">02 / REFERENCE</span><h3>Find the syntax.<span aria-hidden="true">↗</span></h3><p>Look up function declarations, application, and partial application with short examples.</p><span class="route-label">Function reference</span></a>
+          <a class="route-card" href="https://seseragi.vercel.app/"><span class="route-number">03 / PLAYGROUND</span><h3>Change it. Run it.<span aria-hidden="true">↗</span></h3><p>Edit and run code, or preview a Web UI, without installing anything.</p><span class="route-label">Open the Playground</span></a>
+        </div>
+      </section>
+      <section class="idea-section"><p class="eyebrow">THINK IN SESERAGI</p><h2>Separate calculations from effects.</h2><p>Put calculations that return the same result for the same input in functions.<br />Use effects for output and state updates.</p><div class="idea-flow" role="img" aria-label="Price 480 and quantity 3 go into subtotal, then the result 1440 is printed with an effect"><div><span>DATA</span><strong>480 × 3</strong><small>Price and quantity</small></div><span class="flow-arrow" aria-hidden="true">→</span><div><span>FUNCTION</span><strong>subtotal</strong><small>Calculate the total</small></div><span class="flow-arrow" aria-hidden="true">→</span><div><span>EFFECT</span><strong>println</strong><small>Print the result</small></div></div><a class="subtle-link" href="/en/docs/learn/first-program">Walk through this example <span aria-hidden="true">→</span></a></section>
+      <footer class="site-footer"><span>Seseragi <span class="footer-muted">/ Documentation</span></span><a href="https://github.com/KentaroMorishita/seseragi">Language on GitHub ↗</a></footer>
+    </div>
+  </Home>
+</Layout>
