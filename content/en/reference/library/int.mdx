@@ -1,0 +1,377 @@
+---
+title: "std/int"
+description: "Parse, format, and calculate with safe integers, using checked operations for typed failure."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as int from "std/int"
+```
+
+## Example
+
+{/* example: examples/library/int.ssrg */}
+
+```seseragi
+import * as ints from "std/int"
+
+pub effect fn main =
+  match ints.parse "42" {
+    Right value ->
+      value
+      |> ints.format
+      |> println
+    Left _ ->
+      println "Invalid integer"
+  }
+```
+
+Output:
+
+```text
+42
+```
+
+## Choosing operations
+
+- Int is a safe integer. Ordinary arithmetic overflow is a defect; use checked operations for overflow that can arise from input. Saturating operations implement a different policy by clamping to bounds.
+- parse uses text-input rules, rejecting whitespace, _, and source-literal prefixes such as 0x. Make preprocessing and radix selection explicit.
+- Integer division truncates toward zero; remainder has the dividend sign. Checked division/remainder report a typed zero-divisor failure and normalize negative zero to Int zero.
+- Int and Float do not implicitly convert. Use BigInt beyond Int range, and check range when narrowing back.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `IntDivisionError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+IntDivisionError
+```
+
+### `IntParseError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+IntParseError
+```
+
+### `IntPowerError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+IntPowerError
+```
+
+## Constructors and values
+
+### `EmptyInt`
+
+<small className="api-kind">Constructor</small>
+
+```text
+EmptyInt
+  IntParseError
+```
+
+### `IntDivisionByZero`
+
+<small className="api-kind">Constructor</small>
+
+```text
+IntDivisionByZero
+  IntDivisionError
+```
+
+### `IntOutsideRange`
+
+<small className="api-kind">Constructor</small>
+
+```text
+IntOutsideRange
+  IntParseError
+```
+
+### `IntPowerOverflow`
+
+<small className="api-kind">Constructor</small>
+
+```text
+IntPowerOverflow
+  IntPowerError
+```
+
+### `InvalidIntDigit`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidIntDigit
+  { offset: Int, radix: Int }
+  -> IntParseError
+```
+
+### `InvalidIntRadix`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidIntRadix
+  Int
+  -> IntParseError
+```
+
+### `NegativeIntExponent`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NegativeIntExponent
+  Int
+  -> IntPowerError
+```
+
+## Functions and operators
+
+### `abs`
+
+<small className="api-kind">Function</small>
+
+```text
+abs
+  Int
+  -> Int
+```
+
+### `checkedAdd`
+
+<small className="api-kind">Function</small>
+
+```text
+checkedAdd
+  Int
+  -> Int
+  -> Maybe<Int>
+```
+
+### `checkedDivide`
+
+<small className="api-kind">Function</small>
+
+```text
+checkedDivide
+  Int
+  -> Int
+  -> Either<IntDivisionError, Int>
+```
+
+### `checkedMultiply`
+
+<small className="api-kind">Function</small>
+
+```text
+checkedMultiply
+  Int
+  -> Int
+  -> Maybe<Int>
+```
+
+### `checkedPower`
+
+<small className="api-kind">Function</small>
+
+```text
+checkedPower
+  Int
+  -> Int
+  -> Either<IntPowerError, Int>
+```
+
+### `checkedRemainder`
+
+<small className="api-kind">Function</small>
+
+```text
+checkedRemainder
+  Int
+  -> Int
+  -> Either<IntDivisionError, Int>
+```
+
+### `checkedSubtract`
+
+<small className="api-kind">Function</small>
+
+```text
+checkedSubtract
+  Int
+  -> Int
+  -> Maybe<Int>
+```
+
+### `clamp`
+
+<small className="api-kind">Function</small>
+
+```text
+clamp
+  Int
+  -> Int
+  -> Int
+  -> Int
+```
+
+### `format`
+
+<small className="api-kind">Function</small>
+
+```text
+format
+  Int
+  -> String
+```
+
+### `formatRadix`
+
+<small className="api-kind">Function</small>
+
+```text
+formatRadix
+  Int
+  -> Int
+  -> Either<IntParseError, String>
+```
+
+### `maximum`
+
+<small className="api-kind">Function</small>
+
+```text
+maximum
+  Int
+  -> Int
+  -> Int
+```
+
+### `maxValue`
+
+<small className="api-kind">Function</small>
+
+```text
+maxValue
+  Unit
+  -> Int
+```
+
+### `minimum`
+
+<small className="api-kind">Function</small>
+
+```text
+minimum
+  Int
+  -> Int
+  -> Int
+```
+
+### `minValue`
+
+<small className="api-kind">Function</small>
+
+```text
+minValue
+  Unit
+  -> Int
+```
+
+### `parse`
+
+<small className="api-kind">Function</small>
+
+```text
+parse
+  String
+  -> Either<IntParseError, Int>
+```
+
+### `parseRadix`
+
+<small className="api-kind">Function</small>
+
+```text
+parseRadix
+  Int
+  -> String
+  -> Either<IntParseError, Int>
+```
+
+### `saturatingAdd`
+
+<small className="api-kind">Function</small>
+
+```text
+saturatingAdd
+  Int
+  -> Int
+  -> Int
+```
+
+### `saturatingMultiply`
+
+<small className="api-kind">Function</small>
+
+```text
+saturatingMultiply
+  Int
+  -> Int
+  -> Int
+```
+
+### `saturatingPower`
+
+<small className="api-kind">Function</small>
+
+```text
+saturatingPower
+  Int
+  -> Int
+  -> Either<IntPowerError, Int>
+```
+
+### `saturatingSubtract`
+
+<small className="api-kind">Function</small>
+
+```text
+saturatingSubtract
+  Int
+  -> Int
+  -> Int
+```
+
+### `sign`
+
+<small className="api-kind">Function</small>
+
+```text
+sign
+  Int
+  -> Int
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/values-and-expressions)
+- [Browse modules by purpose](/en/docs/reference/library)

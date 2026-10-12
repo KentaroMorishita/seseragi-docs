@@ -1,0 +1,24 @@
+schema = 1
+language = "0.1.0"
+standard_library = "0.1.0"
+unicode = "17.0.0"
+timezone_database = "2025b"
+root = "docs/interop@0.0.0#workspace:."
+
+[[packages]]
+id = "docs/interop@0.0.0#workspace:."
+name = "docs/interop"
+version = "0.0.0"
+source_kind = "workspace"
+source = "."
+manifest_digest = "sha256:3edad501144d44bf18f45eadea972d8f3f02875e554223d74199edb94f4d4450"
+content_digest = "sha256:63b0a02a4a70b48fa0c8f1c788161788e50baecbff2d26264ac87e5a38a5a154"
+dependencies = []
+
+[[foreign_modules]]
+package = "docs/interop@0.0.0#workspace:."
+declaration = "src/main.ssrg#0-86"
+specifier = "../host/math.mjs"
+exact_identity = "workspace:host/math.mjs"
+declaration_digest = "sha256:57fb87678096f6bd19e740ae5db854113d673075c1ed8aad6f1b97887b29c6d2"
+content_digest = "sha256:218c58a806283beec4bc754896c92113ef39d4a05e3d009a66051fcf5910d4fc"

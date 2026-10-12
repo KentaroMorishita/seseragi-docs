@@ -1,0 +1,143 @@
+---
+title: "std/bytes/base64"
+description: "標準形式とURL用形式のBase64を厳密にエンコード・デコードします。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as bytes_base64
+  from "std/bytes/base64"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Base64DecodeError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+厳密なRFC 4648 Base64復号の失敗を表します。
+
+```text
+Base64DecodeError
+```
+
+## コンストラクタと値
+
+### `InvalidBase64Digit`
+
+<small className="api-kind">コンストラクタ</small>
+
+最初の不正なBase64 digitのUTF-8 byte offsetを報告します。
+
+```text
+InvalidBase64Digit
+  { offset: Int }
+  -> Base64DecodeError
+```
+
+### `InvalidBase64Length`
+
+<small className="api-kind">コンストラクタ</small>
+
+UTF-8 byte数で測った、不正なBase64入力長を報告します。
+
+```text
+InvalidBase64Length
+  Int
+  -> Base64DecodeError
+```
+
+### `InvalidBase64Padding`
+
+<small className="api-kind">コンストラクタ</small>
+
+不正なBase64 paddingのUTF-8 byte offsetを報告します。
+
+```text
+InvalidBase64Padding
+  { offset: Int }
+  -> Base64DecodeError
+```
+
+### `NonCanonicalBase64Bits`
+
+<small className="api-kind">コンストラクタ</small>
+
+最後のBase64 sextetで、未使用bitが0ではないことを報告します。
+
+```text
+NonCanonicalBase64Bits
+  { offset: Int }
+  -> Base64DecodeError
+```
+
+## 関数と演算子
+
+### `decode`
+
+<small className="api-kind">関数</small>
+
+canonicalなpadding付きRFC 4648 Base64 textを厳密に復号します。
+
+```text
+decode
+  String
+  -> Either<
+       Base64DecodeError,
+       Bytes
+     >
+```
+
+### `decodeUrl`
+
+<small className="api-kind">関数</small>
+
+canonicalなpaddingなしURL-safe Base64 textを厳密に復号します。
+
+```text
+decodeUrl
+  String
+  -> Either<
+       Base64DecodeError,
+       Bytes
+     >
+```
+
+### `encode`
+
+<small className="api-kind">関数</small>
+
+Bytesをcanonicalなpadding付きRFC 4648 Base64 textへencodeします。
+
+```text
+encode
+  Bytes
+  -> String
+```
+
+### `encodeUrl`
+
+<small className="api-kind">関数</small>
+
+BytesをcanonicalなpaddingなしURL-safe Base64 textへencodeします。
+
+```text
+encodeUrl
+  Bytes
+  -> String
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/records-and-structs)
+- [用途からmoduleを探す](/docs/reference/library)

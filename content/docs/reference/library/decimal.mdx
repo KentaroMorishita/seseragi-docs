@@ -1,0 +1,341 @@
+---
+title: "std/decimal"
+description: "十進数の正確な値と、指定した丸め規則による演算を扱います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as decimal
+  from "std/decimal"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Decimal`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+opaqueな有限の任意精度Decimalです。
+
+```text
+Decimal
+```
+
+### `DecimalArithmeticError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+検査付きDecimal除算の失敗を表します。
+
+```text
+DecimalArithmeticError
+```
+
+### `DecimalContext`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+Decimal操作の正のprecisionと丸め方針を明示します。
+
+```text
+DecimalContext
+```
+
+### `DecimalContextError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+不正な明示DecimalContextを表します。
+
+```text
+DecimalContextError
+```
+
+### `DecimalConversionError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+明示的なInt/Float変換の失敗を表します。
+
+```text
+DecimalConversionError
+```
+
+### `DecimalParseError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+不正なDecimal textをUTF-8 byte offsetとともに表します。
+
+```text
+DecimalParseError
+```
+
+## コンストラクタと値
+
+### `DecimalDivisionByZero`
+
+<small className="api-kind">コンストラクタ</small>
+
+値が0のDecimal divisorを報告します。
+
+```text
+DecimalDivisionByZero
+  DecimalArithmeticError
+```
+
+### `DecimalNotIntegral`
+
+<small className="api-kind">コンストラクタ</small>
+
+0ではない小数部を持つDecimalを報告します。
+
+```text
+DecimalNotIntegral
+  DecimalConversionError
+```
+
+### `DecimalOutsideFloatRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+finite binary64範囲外のDecimalを報告します。
+
+```text
+DecimalOutsideFloatRange
+  DecimalConversionError
+```
+
+### `DecimalOutsideIntRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+safe Int範囲外の整数値Decimalを報告します。
+
+```text
+DecimalOutsideIntRange
+  DecimalConversionError
+```
+
+### `FloatNotFinite`
+
+<small className="api-kind">コンストラクタ</small>
+
+明示Float変換の境界でNaNまたはinfinityを報告します。
+
+```text
+FloatNotFinite
+  DecimalConversionError
+```
+
+### `InvalidDecimal`
+
+<small className="api-kind">コンストラクタ</small>
+
+Decimalのparseが最初に不正になるbyte位置を報告します。
+
+```text
+InvalidDecimal
+  { offset: Int }
+  -> DecimalParseError
+```
+
+### `NonPositiveDecimalPrecision`
+
+<small className="api-kind">コンストラクタ</small>
+
+0または負のDecimal precisionを報告します。
+
+```text
+NonPositiveDecimalPrecision
+  Int
+  -> DecimalContextError
+```
+
+### `NonTerminatingDecimal`
+
+<small className="api-kind">コンストラクタ</small>
+
+有限decimal展開で表せない正確な商を報告します。
+
+```text
+NonTerminatingDecimal
+  DecimalArithmeticError
+```
+
+## 関数と演算子
+
+### `context`
+
+<small className="api-kind">関数</small>
+
+正のprecisionを検査し、DecimalContextを作ります。
+
+```text
+context
+  Int
+  -> RoundingMode
+  -> Either<
+       DecimalContextError,
+       DecimalContext
+     >
+```
+
+### `divide`
+
+<small className="api-kind">関数</small>
+
+明示した有効桁数と丸め規則でDecimalを除算します。
+
+```text
+divide
+  DecimalContext
+  -> Decimal
+  -> Decimal
+  -> Either<
+       DecimalArithmeticError,
+       Decimal
+     >
+```
+
+### `divideExact`
+
+<small className="api-kind">関数</small>
+
+正確な結果が有限decimal展開を持つ場合だけDecimalを除算します。
+
+```text
+divideExact
+  Decimal
+  -> Decimal
+  -> Either<
+       DecimalArithmeticError,
+       Decimal
+     >
+```
+
+### `fromFloat`
+
+<small className="api-kind">関数</small>
+
+明示したDecimalContextで、有限binary64の正確な値を変換します。
+
+```text
+fromFloat
+  DecimalContext
+  -> Float
+  -> Either<
+       DecimalConversionError,
+       Decimal
+     >
+```
+
+### `fromInt`
+
+<small className="api-kind">関数</small>
+
+Intを正確にDecimalへ変換します。
+
+```text
+fromInt
+  Int
+  -> Decimal
+```
+
+### `parse`
+
+<small className="api-kind">関数</small>
+
+binary floating pointを使わず、正確なDecimal textをparseします。
+
+```text
+parse
+  String
+  -> Either<
+       DecimalParseError,
+       Decimal
+     >
+```
+
+### `precision`
+
+<small className="api-kind">関数</small>
+
+contextの有効桁数precisionを返します。
+
+```text
+precision
+  DecimalContext
+  -> Int
+```
+
+### `quantize`
+
+<small className="api-kind">関数</small>
+
+明示したdecimal scaleと丸めmodeでDecimalを丸めます。
+
+```text
+quantize
+  Int
+  -> RoundingMode
+  -> Decimal
+  -> Decimal
+```
+
+### `rounding`
+
+<small className="api-kind">関数</small>
+
+contextの丸めmodeを返します。
+
+```text
+rounding
+  DecimalContext
+  -> RoundingMode
+```
+
+### `toFloat`
+
+<small className="api-kind">関数</small>
+
+Decimalを、最も近いfinite binary64へ明示的に丸めます。
+
+```text
+toFloat
+  Decimal
+  -> Either<
+       DecimalConversionError,
+       Float
+     >
+```
+
+### `toIntExact`
+
+<small className="api-kind">関数</small>
+
+範囲内の整数値Decimalを、丸めずIntへ変換します。
+
+```text
+toIntExact
+  Decimal
+  -> Either<
+       DecimalConversionError,
+       Int
+     >
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/values-and-expressions)
+- [用途からmoduleを探す](/docs/reference/library)

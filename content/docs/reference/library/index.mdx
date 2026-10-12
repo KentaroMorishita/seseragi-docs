@@ -1,0 +1,133 @@
+---
+title: 標準ライブラリ
+description: 用途からmoduleを選び、公開型・関数・制約・対応環境を調べる。
+---
+
+Seseragi 0.61.25の標準ライブラリを、Preludeを含む63の項目に分け、1,451の公開名を収録しています。用途からmoduleを選び、その型と関数を確認できます。
+
+## 型の読み方
+
+関数はカリー化されています。型は引数の順に並び、最後が結果の型です。コレクションの操作では、処理対象を最後の引数に置く関数が多く、[縦に並べたパイプライン](/docs/learn/functions-and-pipelines)へつなげられます。`where`は必要な[型クラス](/docs/reference/type-classes)の制約です。掲載するsignatureは型の表記であり、実行する定義ではありません。
+
+`Effect<R, E, A>`の型引数は、必要な環境、型付きの失敗、成功値を表します。moduleをimportしてもEffectは実行されず、providerが提供されるわけでもありません。[Effect](/docs/reference/effects)と[runtime provider](/docs/reference/runtime-providers)で境界を確認できます。内部表現を隠した型には、必ずしも`Show`のinstanceがあるとは限りません。
+
+## 実行環境
+
+`process`はCLIやserverのprocess、`browser`はWebアプリやPlaygroundのブラウザ実行を表します。両環境のinterfaceがあっても、選んだproviderが必要な能力を提供する必要があります。moduleの対応環境だけでなく、signatureの環境と失敗型も確認してください。
+
+## 基本の型と結果
+
+| Module | 用途 | 環境 |
+| --- | --- | --- |
+| [`std/either`](/docs/reference/library/either) | Leftの失敗とRightの成功を変換・集約します。 | process / browser |
+| [`std/maybe`](/docs/reference/library/maybe) | 値がない場合をNothingで表し、既定値や代替値を選びます。 | process / browser |
+| [`std/prelude`](/docs/reference/library/prelude) | 基本の型・型クラス・関数。importせずに使えます。 | process / browser |
+| [`std/validation`](/docs/reference/library/validation) | 独立した入力の検証で、複数のエラーを蓄積します。 | process / browser |
+
+## コレクション
+
+| Module | 用途 | 環境 |
+| --- | --- | --- |
+| [`std/array`](/docs/reference/library/array) | 有限の要素列を検索・変換・分割します。入力を変更せず、添字の取得はMaybeを返します。 | process / browser |
+| [`std/collection`](/docs/reference/library/collection) | 走査の継続をNext、終了をDoneで表す共通型を提供します。 | process / browser |
+| [`std/iterator`](/docs/reference/library/iterator) | Iteratorを作り、消費して列へ変換します。反復の状態と消費を意識して使います。 | process / browser |
+| [`std/list`](/docs/reference/library/list) | 永続的なListを走査・変換します。Arrayとの変換は元の要素順を保ちます。 | process / browser |
+| [`std/map`](/docs/reference/library/map) | EqとHashを満たすキーで値を保存・検索します。挿入順とキーの等価性を分けて扱います。 | process / browser |
+| [`std/non-empty-list`](/docs/reference/library/non-empty-list) | 少なくとも一つの要素を持つ列を扱います。通常のListからの変換で空を確認します。 | process / browser |
+| [`std/set`](/docs/reference/library/set) | EqとHashによる重複のない集合を作り、集合演算を行います。 | process / browser |
+
+## 文字と文字列
+
+| Module | 用途 | 環境 |
+| --- | --- | --- |
+| [`std/char`](/docs/reference/library/char) | 一つのUnicode scalarを検査・変換します。Stringや書記素クラスタとは別の単位です。 | process / browser |
+| [`std/regex`](/docs/reference/library/regex) | 正規表現のコンパイル・検索・置換を行います。パターンの不備は型付きのエラーで扱います。 | process / browser |
+| [`std/text`](/docs/reference/library/text) | Stringの検索・分割・変換を行います。文字数や位置の単位は各APIで確認してください。 | process / browser |
+| [`std/text/grapheme`](/docs/reference/library/text-grapheme) | 拡張書記素クラスタを単位に、文字列を分割・取得します。 | process / browser |
+| [`std/text/unicode`](/docs/reference/library/text-unicode) | Unicodeの正規化・文字属性・case foldingを扱います。 | process / browser |
+
+## 数値
+
+| Module | 用途 | 環境 |
+| --- | --- | --- |
+| [`std/big-int`](/docs/reference/library/big-int) | safe integerの範囲を超える任意精度整数を扱います。Intと暗黙に混在させません。 | process / browser |
+| [`std/decimal`](/docs/reference/library/decimal) | 十進数の正確な値と、指定した丸め規則による演算を扱います。 | process / browser |
+| [`std/float`](/docs/reference/library/float) | 浮動小数点の解析・比較・丸め・変換を行います。NaNを含む比較の意味を明示します。 | process / browser |
+| [`std/int`](/docs/reference/library/int) | safe integerの解析・書式化・算術を扱います。失敗を値で受け取るchecked操作を選べます。 | process / browser |
+| [`std/math`](/docs/reference/library/math) | 浮動小数点の数学関数と定数を提供します。 | process / browser |
+| [`std/number`](/docs/reference/library/number) | 丸め方など、数値モジュールが共有する基本の型を提供します。 | process / browser |
+
+## BytesとJSON
+
+| Module | 用途 | 環境 |
+| --- | --- | --- |
+| [`std/bytes`](/docs/reference/library/bytes) | 不変のbyte列を作り、取得・切り出し・変換を行います。 | process / browser |
+| [`std/bytes/base64`](/docs/reference/library/bytes-base64) | 標準形式とURL用形式のBase64を厳密にエンコード・デコードします。 | process / browser |
+| [`std/bytes/hex`](/docs/reference/library/bytes-hex) | Bytesと16進数表記の文字列を変換します。 | process / browser |
+| [`std/json`](/docs/reference/library/json) | JSONの解析・表示と、型を保つcodecを組み立てます。 | process / browser |
+
+## Effectと状態
+
+| Module | 用途 | 環境 |
+| --- | --- | --- |
+| [`std/deferred`](/docs/reference/library/deferred) | 一度だけ完了する結果を、複数の処理の間で受け渡します。 | process / browser |
+| [`std/effect`](/docs/reference/library/effect) | 実行する処理を値として構築し、失敗・環境・時間・resource・並行処理を合成します。 | process / browser |
+| [`std/queue`](/docs/reference/library/queue) | 非同期処理間で値を渡し、容量や終了を制御します。 | process / browser |
+| [`std/ref`](/docs/reference/library/ref) | Effectの中で参照値を取得・変更します。Signalの通知とは別の用途です。 | process / browser |
+| [`std/semaphore`](/docs/reference/library/semaphore) | 同時に実行できる処理数をpermitで制限します。 | process / browser |
+| [`std/signal`](/docs/reference/library/signal) | 現在値と派生値を扱い、更新とsubscriptionの寿命を管理します。 | process / browser |
+| [`std/stream`](/docs/reference/library/stream) | 時間とともに流れる要素を変換します。消費・中断・resourceの寿命を含めて扱います。 | process / browser |
+
+## 時刻・I/O・process
+
+| Module | 用途 | 環境 |
+| --- | --- | --- |
+| [`std/child-process`](/docs/reference/library/child-process) | 子processの起動と終了、入出力とresourceを管理します。 | process |
+| [`std/clock`](/docs/reference/library/clock) | Clockの能力を要求し、単調時刻を取得します。 | process / browser |
+| [`std/console`](/docs/reference/library/console) | Consoleの能力を使って文字列や値を出力します。 | process / browser |
+| [`std/entropy`](/docs/reference/library/entropy) | 暗号用途の乱数を、Entropyの能力を要求するEffectで取得します。 | process / browser |
+| [`std/fs`](/docs/reference/library/fs) | FileSystemの能力でfileを読み書きします。resourceは利用範囲を明確にして扱います。 | process / browser |
+| [`std/log`](/docs/reference/library/log) | Loggerの能力を使い、levelと構造化した情報を記録します。 | process / browser |
+| [`std/path`](/docs/reference/library/path) | file pathを解析・結合します。パスの値を作る操作とfilesystemへのI/Oを分けます。 | process / browser |
+| [`std/process`](/docs/reference/library/process) | 現在のprocessの引数・環境・終了に関する操作を行います。 | process |
+| [`std/random`](/docs/reference/library/random) | seedで再現できる擬似乱数と、列の並べ替えを扱います。 | process / browser |
+| [`std/stdin`](/docs/reference/library/stdin) | processの標準入力を読みます。EOFと入力失敗を型で扱います。 | process |
+| [`std/time`](/docs/reference/library/time) | 日時・期間・タイムゾーンを扱います。壁時計と単調時刻を区別します。 | process / browser |
+
+## Webと通信
+
+| Module | 用途 | 環境 |
+| --- | --- | --- |
+| [`std/http`](/docs/reference/library/http) | HttpClientの能力でrequestを送信し、responseとbodyの寿命を扱います。 | process / browser |
+| [`std/http/multipart`](/docs/reference/library/http-multipart) | multipartのfieldとfile partを構築・解釈します。 | process / browser |
+| [`std/http/server`](/docs/reference/library/http-server) | process上でHTTP serverを起動し、requestの処理とshutdownを管理します。 | process |
+| [`std/sse`](/docs/reference/library/sse) | Server-Sent Eventsのデコード・エンコードとHTTP streamを扱います。 | process / browser |
+| [`std/web/dom`](/docs/reference/library/web-dom) | HTMLとSignalをbrowserのDOMへ接続し、型の付いたActionとeventを配送します。 | browser |
+| [`std/web/file`](/docs/reference/library/web-file) | browserから渡されたFileの内容を、型の付いたEffectで読みます。 | browser |
+| [`std/web/html`](/docs/reference/library/web-html) | props recordと子要素から、純粋なHTML treeを作ります。描画とDOMへの接続は別の操作です。 | process / browser |
+| [`std/web/navigation`](/docs/reference/library/web-navigation) | browserのURLと履歴を操作します。DOM描画とは独立した能力です。 | browser |
+| [`std/web/storage`](/docs/reference/library/web-storage) | browserのlocal/session storageを、失敗を保つEffectで操作します。 | browser |
+| [`std/web/svg`](/docs/reference/library/web-svg) | 型の付いたpropsでSVG treeを作り、HTMLの画面へ組み込みます。 | process / browser |
+| [`std/websocket`](/docs/reference/library/websocket) | WebSocket接続を確立し、messageと終了をstreamとして扱います。 | process / browser |
+| [`std/websocket/server`](/docs/reference/library/websocket-server) | process上でWebSocket接続を受け入れます。 | process |
+
+## テストと性能測定
+
+| Module | 用途 | 環境 |
+| --- | --- | --- |
+| [`std/benchmark`](/docs/reference/library/benchmark) | 入力と測定処理を分け、CLIで性能を測定します。 | process / browser |
+| [`std/test`](/docs/reference/library/test) | 純粋な検査とEffectの検査をsuiteへまとめ、CLIで実行します。 | process / browser |
+
+## Monad transformer
+
+| Module | 用途 | 環境 |
+| --- | --- | --- |
+| [`std/transformer/either`](/docs/reference/library/transformer-either) | Eitherの失敗を、別のMonadが返す値と組み合わせます。 | process / browser |
+| [`std/transformer/maybe`](/docs/reference/library/transformer-maybe) | Maybeの欠如を、別のMonadが返す値と組み合わせます。 | process / browser |
+| [`std/transformer/reader`](/docs/reference/library/transformer-reader) | 共有する環境を、別のMonadを使う計算へ渡します。 | process / browser |
+| [`std/transformer/state`](/docs/reference/library/transformer-state) | 状態を受け取り次の状態を返す計算を、別のMonadと組み合わせます。 | process / browser |
+| [`std/transformer/writer`](/docs/reference/library/transformer-writer) | 計算結果とMonoidの記録を、別のMonadと組み合わせます。 | process / browser |
+
+## まだ提供されていない契約
+
+`std/http/bun`はidentityと契約を持ちますが、0.61.25の公開interfaceはなく、importできません。現在提供されているserver APIは[`std/http/server`](/docs/reference/library/http-server)で確認してください。

@@ -1,0 +1,98 @@
+---
+title: "Arrays and lists"
+description: "Transform, filter, and summarize collections, choosing between Array and List."
+---
+
+Square several integers, keep the even results, and add them. Functions describe each stage without updating elements or appending to a temporary array.
+
+## Transform and summarize an Array
+
+{/* example: examples/learn/arrays-and-lists.ssrg */}
+```seseragi title="arrays-and-lists.ssrg"
+import * as arrays from "std/array"
+
+fn square n: Int -> Int =
+  n * n
+
+fn even n: Int -> Bool =
+  n % 2 == 0
+
+pub effect fn main = do {
+  let numbers = [1, 2, 3, 4, 5]
+  let total =
+    numbers
+    |> map square
+    |> arrays.filter even
+    |> sum
+  let first = numbers[0] ?? 0
+  println `total: ${total}`
+  println `first: ${first}`
+}
+```
+
+```text title="Output"
+total: 20
+first: 1
+```
+
+`numbers` is an `Array<Int>`. `map square` produces `[1, 4, 9, 16, 25]`; `arrays.filter even` produces `[4, 16]`; `sum` produces 20. Each stage preserves the original `numbers`.
+
+`map` and `sum` are available from the prelude. This example imports `std/array` as `arrays` to use its `filter`. `map` also works with other types through a type class, explained in [Type classes](/en/docs/learn/type-classes).
+
+## Indexing returns Maybe
+
+`numbers[0]` returns a `Maybe<Int>`, rather than the integer directly. It is `Just 1` when the element exists and `Nothing` for an out-of-range or negative index. `numbers[0] ?? 0` extracts the existing value or uses 0 when it is absent.
+
+All elements must have the same type; `[1, "two"]` is invalid. An empty array also needs an element type. If context cannot determine it, annotate the binding as `let empty: Array<Int> = []`.
+
+## List is a distinct collection
+
+An Array is written `[1, 2, 3]`; a List begins with a backtick: `` `[1, 2, 3] ``. Both are immutable. Arrays support indexing, while Lists support efficient prepending and sharing of tails. They are not implicitly converted.
+
+`1 : tail` prepends 1 to a List. This complete example matches a List as empty or as its head and remaining tail:
+
+{/* example: examples/learn/list-patterns.ssrg */}
+```seseragi title="list-patterns.ssrg"
+fn total values: List<Int> -> Int =
+  match values {
+    `[] -> 0
+    `[head, ...tail] ->
+      head + total tail
+  }
+
+pub effect fn main =
+  1 : `[2, 3]
+  |> total
+  |> show
+  |> println
+```
+
+```text title="Output"
+6
+```
+
+`total` returns an integer. Convert it to a string with `show` before passing it to `println`.
+
+In `` `[head, ...tail] ``, `tail` is a `List<Int>`. With an Array pattern `[head, ...tail]`, the tail is another Array. Lists have no indexing syntax. Convert explicitly with `toList` from `std/array` or `toArray` from `std/list`.
+
+## Use a range and a comprehension
+
+This fragment squares the even values between 1 and 5 into an Array:
+
+```text
+[n * n | n <- 1..=5, n % 2 == 0]
+```
+
+The result is `[4, 16]`. `1..=5` includes 5; `1..5` excludes it. Clauses after `|` are processed from left to right. `n <- ...` binds each element, and the following `Bool` condition filters it. A comprehension is pure; it does not perform output or asynchronous work.
+
+## Choose a traversal
+
+Splitting a List into its head and tail can share the existing tail. Repeatedly splitting an Array with `[head, ...tail]` creates another remaining Array each time and is unsuitable for large inputs. Use `map`, `filter`, or `reduce` for whole-Array traversal.
+
+The List example's `head + total tail` still performs addition after the recursive call, so it is not tail recursive. Use the standard `sum` for a large List. [Recursion](/en/docs/learn/recursion) explains termination and stack behavior when writing recursion yourself.
+
+## Change the filter
+
+In the first example, change `even` to test `n % 2 != 0`; the total becomes 35. Change `numbers[0]` to `numbers[99]`; the fallback prints 0. The next chapter, [Maybe and Either](/en/docs/learn/maybe-and-either), handles absence explicitly instead of always filling it with a default.
+
+See the [standard library](/en/docs/reference/library) for functions and [Data types](/en/docs/reference/data-types) for collection and indexing contracts.

@@ -1,0 +1,251 @@
+---
+title: "std/set"
+description: "Build duplicate-free collections with Eq and Hash and perform set operations."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as set from "std/set"
+```
+
+## Choosing operations
+
+- Use Set for membership with deduplication. Elements need Eq and Hash; iteration follows first insertion order.
+- Inserting an existing element preserves order; reinserting after removal moves it to the end. union keeps the left side, then appends right-only elements.
+- Equal results of a transformation collapse to one element. Set has no shape-preserving Functor instance; use std/set map explicitly.
+- Set equality ignores order. Membership is expected O(1) with suitable hashes, but hash collisions still have a cost.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Set`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Set<_>
+```
+
+## Functions and operators
+
+### `contains`
+
+<small className="api-kind">Function</small>
+
+```text
+contains<A>
+  A
+  -> Set<A>
+  -> Bool
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `difference`
+
+<small className="api-kind">Function</small>
+
+```text
+difference<A>
+  Set<A>
+  -> Set<A>
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `empty`
+
+<small className="api-kind">Function</small>
+
+```text
+empty<A>
+  Unit
+  -> Set<A>
+```
+
+### `filter`
+
+<small className="api-kind">Function</small>
+
+Keeps collection elements whose predicate returns True.
+
+```text
+filter<A>
+  (A -> Bool)
+  -> Set<A>
+  -> Set<A>
+```
+
+### `fromIterable`
+
+<small className="api-kind">Function</small>
+
+```text
+fromIterable<C, A>
+  C
+  -> Set<A>
+where
+  Iterable<C, A>,
+  Eq<A>,
+  Hash<A>
+```
+
+### `insert`
+
+<small className="api-kind">Function</small>
+
+```text
+insert<A>
+  A
+  -> Set<A>
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `intersection`
+
+<small className="api-kind">Function</small>
+
+```text
+intersection<A>
+  Set<A>
+  -> Set<A>
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `isEmpty`
+
+<small className="api-kind">Function</small>
+
+Returns whether the collection contains no elements.
+
+```text
+isEmpty<A>
+  Set<A>
+  -> Bool
+```
+
+### `isSubsetOf`
+
+<small className="api-kind">Function</small>
+
+```text
+isSubsetOf<A>
+  Set<A>
+  -> Set<A>
+  -> Bool
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `map`
+
+<small className="api-kind">Function</small>
+
+```text
+map<A, B>
+  (A -> B)
+  -> Set<A>
+  -> Set<B>
+where
+  Eq<B>,
+  Hash<B>
+```
+
+### `remove`
+
+<small className="api-kind">Function</small>
+
+```text
+remove<A>
+  A
+  -> Set<A>
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `singleton`
+
+<small className="api-kind">Function</small>
+
+```text
+singleton<A>
+  A
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `size`
+
+<small className="api-kind">Function</small>
+
+```text
+size<A>
+  Set<A>
+  -> Int
+```
+
+### `toArray`
+
+<small className="api-kind">Function</small>
+
+Returns the Set elements as an Array in iteration order.
+
+```text
+toArray<A>
+  Set<A>
+  -> Array<A>
+```
+
+### `toList`
+
+<small className="api-kind">Function</small>
+
+Returns the Set elements as a List in iteration order.
+
+```text
+toList<A>
+  Set<A>
+  -> List<A>
+```
+
+### `union`
+
+<small className="api-kind">Function</small>
+
+```text
+union<A>
+  Set<A>
+  -> Set<A>
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/arrays-and-lists)
+- [Browse modules by purpose](/en/docs/reference/library)

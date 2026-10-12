@@ -1,0 +1,322 @@
+{
+  "std/prelude": {
+    "group": "core",
+    "ja": "基本の型・型クラス・関数。importせずに使えます。",
+    "en": "Core types, type classes, and functions available without imports."
+  },
+  "std/maybe": {
+    "group": "core",
+    "ja": "値がない場合をNothingで表し、既定値や代替値を選びます。",
+    "en": "Choose defaults and alternatives for values that may be absent."
+  },
+  "std/either": {
+    "group": "core",
+    "ja": "Leftの失敗とRightの成功を変換・集約します。",
+    "en": "Transform and combine Left failures and Right successes."
+  },
+  "std/validation": {
+    "group": "core",
+    "ja": "独立した入力の検証で、複数のエラーを蓄積します。",
+    "en": "Accumulate multiple errors when validating independent inputs."
+  },
+  "std/array": {
+    "group": "collections",
+    "ja": "有限の要素列を検索・変換・分割します。入力を変更せず、添字の取得はMaybeを返します。",
+    "en": "Search, transform, and partition finite sequences without mutation. Indexed lookup returns Maybe."
+  },
+  "std/list": {
+    "group": "collections",
+    "ja": "永続的なListを走査・変換します。Arrayとの変換は元の要素順を保ちます。",
+    "en": "Traverse and transform persistent Lists. Array conversions preserve source order."
+  },
+  "std/collection": {
+    "group": "collections",
+    "ja": "走査の継続をNext、終了をDoneで表す共通型を提供します。",
+    "en": "Common types for continuing a traversal with Next or finishing it with Done."
+  },
+  "std/non-empty-list": {
+    "group": "collections",
+    "ja": "少なくとも一つの要素を持つ列を扱います。通常のListからの変換で空を確認します。",
+    "en": "Represent sequences with at least one element and check emptiness when converting from List."
+  },
+  "std/iterator": {
+    "group": "collections",
+    "ja": "Iteratorを作り、消費して列へ変換します。反復の状態と消費を意識して使います。",
+    "en": "Create and consume iterators. Use their state and consumption model deliberately."
+  },
+  "std/map": {
+    "group": "collections",
+    "ja": "EqとHashを満たすキーで値を保存・検索します。挿入順とキーの等価性を分けて扱います。",
+    "en": "Store and retrieve values using keys with Eq and Hash. Distinguish insertion order from key equality."
+  },
+  "std/set": {
+    "group": "collections",
+    "ja": "EqとHashによる重複のない集合を作り、集合演算を行います。",
+    "en": "Build duplicate-free collections with Eq and Hash and perform set operations."
+  },
+  "std/text": {
+    "group": "text",
+    "ja": "Stringの検索・分割・変換を行います。文字数や位置の単位は各APIで確認してください。",
+    "en": "Search, split, and transform Strings. Check the unit used for lengths and positions in each API."
+  },
+  "std/char": {
+    "group": "text",
+    "ja": "一つのUnicode scalarを検査・変換します。Stringや書記素クラスタとは別の単位です。",
+    "en": "Inspect and convert one Unicode scalar, distinct from Strings and grapheme clusters."
+  },
+  "std/text/grapheme": {
+    "group": "text",
+    "ja": "拡張書記素クラスタを単位に、文字列を分割・取得します。",
+    "en": "Split and access text by extended grapheme clusters."
+  },
+  "std/text/unicode": {
+    "group": "text",
+    "ja": "Unicodeの正規化・文字属性・case foldingを扱います。",
+    "en": "Use Unicode normalization, character properties, and case folding."
+  },
+  "std/regex": {
+    "group": "text",
+    "ja": "正規表現のコンパイル・検索・置換を行います。パターンの不備は型付きのエラーで扱います。",
+    "en": "Compile patterns and search or replace text, with typed errors for invalid patterns."
+  },
+  "std/number": {
+    "group": "numbers",
+    "ja": "丸め方など、数値モジュールが共有する基本の型を提供します。",
+    "en": "Shared numeric types, including rounding modes."
+  },
+  "std/int": {
+    "group": "numbers",
+    "ja": "safe integerの解析・書式化・算術を扱います。失敗を値で受け取るchecked操作を選べます。",
+    "en": "Parse, format, and calculate with safe integers, using checked operations for typed failure."
+  },
+  "std/float": {
+    "group": "numbers",
+    "ja": "浮動小数点の解析・比較・丸め・変換を行います。NaNを含む比較の意味を明示します。",
+    "en": "Parse, compare, round, and convert floating-point values with explicit NaN semantics."
+  },
+  "std/math": {
+    "group": "numbers",
+    "ja": "浮動小数点の数学関数と定数を提供します。",
+    "en": "Floating-point mathematical functions and constants."
+  },
+  "std/big-int": {
+    "group": "numbers",
+    "ja": "safe integerの範囲を超える任意精度整数を扱います。Intと暗黙に混在させません。",
+    "en": "Work with arbitrary-precision integers without implicitly mixing them with Int."
+  },
+  "std/decimal": {
+    "group": "numbers",
+    "ja": "十進数の正確な値と、指定した丸め規則による演算を扱います。",
+    "en": "Represent exact decimal values and calculate with explicit rounding rules."
+  },
+  "std/bytes": {
+    "group": "data",
+    "ja": "不変のbyte列を作り、取得・切り出し・変換を行います。",
+    "en": "Create, access, slice, and convert immutable byte sequences."
+  },
+  "std/bytes/hex": {
+    "group": "data",
+    "ja": "Bytesと16進数表記の文字列を変換します。",
+    "en": "Convert Bytes to and from hexadecimal text."
+  },
+  "std/bytes/base64": {
+    "group": "data",
+    "ja": "標準形式とURL用形式のBase64を厳密にエンコード・デコードします。",
+    "en": "Strictly encode and decode standard and URL-safe Base64."
+  },
+  "std/json": {
+    "group": "data",
+    "ja": "JSONの解析・表示と、型を保つcodecを組み立てます。",
+    "en": "Parse and render JSON and compose typed codecs."
+  },
+  "std/effect": {
+    "group": "effects",
+    "ja": "実行する処理を値として構築し、失敗・環境・時間・resource・並行処理を合成します。",
+    "en": "Build computations as values and compose failures, requirements, timing, resources, and concurrency."
+  },
+  "std/signal": {
+    "group": "effects",
+    "ja": "現在値と派生値を扱い、更新とsubscriptionの寿命を管理します。",
+    "en": "Represent current and derived values and manage updates and subscription lifetimes."
+  },
+  "std/stream": {
+    "group": "effects",
+    "ja": "時間とともに流れる要素を変換します。消費・中断・resourceの寿命を含めて扱います。",
+    "en": "Transform values over time with explicit consumption, cancellation, and resource lifetimes."
+  },
+  "std/ref": {
+    "group": "effects",
+    "ja": "Effectの中で参照値を取得・変更します。Signalの通知とは別の用途です。",
+    "en": "Read and change references inside Effect, separately from Signal notifications."
+  },
+  "std/deferred": {
+    "group": "effects",
+    "ja": "一度だけ完了する結果を、複数の処理の間で受け渡します。",
+    "en": "Share a result that completes once between computations."
+  },
+  "std/queue": {
+    "group": "effects",
+    "ja": "非同期処理間で値を渡し、容量や終了を制御します。",
+    "en": "Pass values between asynchronous computations with capacity and shutdown control."
+  },
+  "std/semaphore": {
+    "group": "effects",
+    "ja": "同時に実行できる処理数をpermitで制限します。",
+    "en": "Limit concurrent operations with permits."
+  },
+  "std/clock": {
+    "group": "system",
+    "ja": "Clockの能力を要求し、単調時刻を取得します。",
+    "en": "Request Clock capability and read monotonic time."
+  },
+  "std/time": {
+    "group": "system",
+    "ja": "日時・期間・タイムゾーンを扱います。壁時計と単調時刻を区別します。",
+    "en": "Work with dates, durations, and time zones, distinguishing wall time from monotonic time."
+  },
+  "std/random": {
+    "group": "system",
+    "ja": "seedで再現できる擬似乱数と、列の並べ替えを扱います。",
+    "en": "Generate reproducible pseudo-random values and shuffle sequences."
+  },
+  "std/entropy": {
+    "group": "system",
+    "ja": "暗号用途の乱数を、Entropyの能力を要求するEffectで取得します。",
+    "en": "Request Entropy capability for cryptographically secure random data."
+  },
+  "std/console": {
+    "group": "system",
+    "ja": "Consoleの能力を使って文字列や値を出力します。",
+    "en": "Write text and values using Console capability."
+  },
+  "std/stdin": {
+    "group": "system",
+    "ja": "processの標準入力を読みます。EOFと入力失敗を型で扱います。",
+    "en": "Read process standard input with typed EOF and failures."
+  },
+  "std/log": {
+    "group": "system",
+    "ja": "Loggerの能力を使い、levelと構造化した情報を記録します。",
+    "en": "Record levels and structured information using Logger capability."
+  },
+  "std/path": {
+    "group": "system",
+    "ja": "file pathを解析・結合します。パスの値を作る操作とfilesystemへのI/Oを分けます。",
+    "en": "Parse and combine file paths, separately from filesystem I/O."
+  },
+  "std/fs": {
+    "group": "system",
+    "ja": "FileSystemの能力でfileを読み書きします。resourceは利用範囲を明確にして扱います。",
+    "en": "Read and write files using FileSystem capability and explicit resource scope."
+  },
+  "std/process": {
+    "group": "system",
+    "ja": "現在のprocessの引数・環境・終了に関する操作を行います。",
+    "en": "Access arguments, environment, and termination for the current process."
+  },
+  "std/child-process": {
+    "group": "system",
+    "ja": "子processの起動と終了、入出力とresourceを管理します。",
+    "en": "Start and manage child processes, their input/output, and resources."
+  },
+  "std/web/html": {
+    "group": "web",
+    "ja": "props recordと子要素から、純粋なHTML treeを作ります。描画とDOMへの接続は別の操作です。",
+    "en": "Create pure HTML trees from props records and children. Rendering and DOM attachment are separate operations."
+  },
+  "std/web/svg": {
+    "group": "web",
+    "ja": "型の付いたpropsでSVG treeを作り、HTMLの画面へ組み込みます。",
+    "en": "Build SVG trees with typed props and compose them into HTML views."
+  },
+  "std/web/dom": {
+    "group": "web",
+    "ja": "HTMLとSignalをbrowserのDOMへ接続し、型の付いたActionとeventを配送します。",
+    "en": "Connect HTML and Signals to browser DOM and dispatch typed actions and events."
+  },
+  "std/web/file": {
+    "group": "web",
+    "ja": "browserから渡されたFileの内容を、型の付いたEffectで読みます。",
+    "en": "Read the contents of browser Files through typed Effects."
+  },
+  "std/web/navigation": {
+    "group": "web",
+    "ja": "browserのURLと履歴を操作します。DOM描画とは独立した能力です。",
+    "en": "Read and change browser URLs and history through a capability independent of DOM rendering."
+  },
+  "std/web/storage": {
+    "group": "web",
+    "ja": "browserのlocal/session storageを、失敗を保つEffectで操作します。",
+    "en": "Use browser local and session storage through Effects that preserve failure."
+  },
+  "std/http": {
+    "group": "web",
+    "ja": "HttpClientの能力でrequestを送信し、responseとbodyの寿命を扱います。",
+    "en": "Send requests using HttpClient capability and manage response and body lifetimes."
+  },
+  "std/http/server": {
+    "group": "web",
+    "ja": "process上でHTTP serverを起動し、requestの処理とshutdownを管理します。",
+    "en": "Start process HTTP servers and manage request handling and shutdown."
+  },
+  "std/http/multipart": {
+    "group": "web",
+    "ja": "multipartのfieldとfile partを構築・解釈します。",
+    "en": "Construct and inspect multipart fields and file parts."
+  },
+  "std/sse": {
+    "group": "web",
+    "ja": "Server-Sent Eventsのデコード・エンコードとHTTP streamを扱います。",
+    "en": "Encode and decode Server-Sent Events and use HTTP streams."
+  },
+  "std/websocket": {
+    "group": "web",
+    "ja": "WebSocket接続を確立し、messageと終了をstreamとして扱います。",
+    "en": "Establish WebSocket connections and handle messages and termination as streams."
+  },
+  "std/websocket/server": {
+    "group": "web",
+    "ja": "process上でWebSocket接続を受け入れます。",
+    "en": "Accept WebSocket connections in a process."
+  },
+  "std/http/bun": {
+    "group": "web",
+    "ja": "Bun固有のHTTP server契約。0.61.25では公開interfaceがなく、importできません。",
+    "en": "Bun-specific HTTP server contract. Version0.61.25 has no public interface and cannot import it."
+  },
+  "std/test": {
+    "group": "testing",
+    "ja": "純粋な検査とEffectの検査をsuiteへまとめ、CLIで実行します。",
+    "en": "Group pure and effectful checks into suites and run them with the CLI."
+  },
+  "std/benchmark": {
+    "group": "testing",
+    "ja": "入力と測定処理を分け、CLIで性能を測定します。",
+    "en": "Separate input preparation from measurements and benchmark using the CLI."
+  },
+  "std/transformer/maybe": {
+    "group": "transformers",
+    "ja": "Maybeの欠如を、別のMonadが返す値と組み合わせます。",
+    "en": "Compose absence from Maybe with values produced by another Monad."
+  },
+  "std/transformer/either": {
+    "group": "transformers",
+    "ja": "Eitherの失敗を、別のMonadが返す値と組み合わせます。",
+    "en": "Compose Either failures with values produced by another Monad."
+  },
+  "std/transformer/reader": {
+    "group": "transformers",
+    "ja": "共有する環境を、別のMonadを使う計算へ渡します。",
+    "en": "Pass a shared environment through computations using another Monad."
+  },
+  "std/transformer/state": {
+    "group": "transformers",
+    "ja": "状態を受け取り次の状態を返す計算を、別のMonadと組み合わせます。",
+    "en": "Compose state-passing computations with another Monad."
+  },
+  "std/transformer/writer": {
+    "group": "transformers",
+    "ja": "計算結果とMonoidの記録を、別のMonadと組み合わせます。",
+    "en": "Compose computation results and Monoid output with another Monad."
+  }
+}

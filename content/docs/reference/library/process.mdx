@@ -1,0 +1,226 @@
+---
+title: "std/process"
+description: "現在のprocessの引数・環境・終了に関する操作を行います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process |
+| 能力のidentity | `std/process::Process` |
+
+## import
+
+```seseragi
+import * as process
+  from "std/process"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Process`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Process
+```
+
+### `ProcessError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ProcessError
+```
+
+### `ProcessSignal`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ProcessSignal
+```
+
+## コンストラクタと値
+
+### `CurrentDirectoryUnavailable`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+CurrentDirectoryUnavailable
+  ProcessError
+```
+
+### `Hangup`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Hangup
+  ProcessSignal
+```
+
+### `Interrupt`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Interrupt
+  ProcessSignal
+```
+
+### `InvalidArgumentEncoding`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidArgumentEncoding
+  Int
+  -> ProcessError
+```
+
+### `InvalidEnvironmentEncoding`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidEnvironmentEncoding
+  String
+  -> ProcessError
+```
+
+### `InvalidEnvironmentName`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidEnvironmentName
+  String
+  -> ProcessError
+```
+
+### `Quit`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Quit
+  ProcessSignal
+```
+
+### `ReservedProcessSignal`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ReservedProcessSignal
+  ProcessSignal
+  -> ProcessError
+```
+
+### `Terminate`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Terminate
+  ProcessSignal
+```
+
+### `UnsupportedProcessSignal`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+UnsupportedProcessSignal
+  ProcessSignal
+  -> ProcessError
+```
+
+### `User1`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+User1
+  ProcessSignal
+```
+
+### `User2`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+User2
+  ProcessSignal
+```
+
+## 関数と演算子
+
+### `arguments`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+arguments
+  Unit
+  -> Effect<
+       { process: Process },
+       ProcessError,
+       Array<String>
+     >
+```
+
+### `currentDirectory`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+currentDirectory
+  Unit
+  -> Effect<
+       { process: Process },
+       ProcessError,
+       Path
+     >
+```
+
+### `environment`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+environment
+  String
+  -> Effect<
+       { process: Process },
+       ProcessError,
+       Maybe<String>
+     >
+```
+
+### `signals`
+
+<small className="api-kind">関数</small>
+
+```text
+signals
+  NonEmptyList<ProcessSignal>
+  -> Stream<
+       { process: Process },
+       ProcessError,
+       ProcessSignal
+     >
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

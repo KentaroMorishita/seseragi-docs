@@ -1,0 +1,104 @@
+---
+title: "std/websocket/server"
+description: "process上でWebSocket接続を受け入れます。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process |
+| 能力のidentity | `std/websocket/server::WebSocketServer` |
+
+## import
+
+```seseragi
+import * as websocket_server
+  from "std/websocket/server"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Handler`
+
+<small className="api-kind">型alias</small>
+
+```text
+Handler<_>
+```
+
+### `WebSocketServer`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+WebSocketServer
+```
+
+### `WebSocketServerHandle`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+WebSocketServerHandle
+```
+
+## 関数と演算子
+
+### `closeServer`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+closeServer
+  WebSocketServerHandle
+  -> Effect<
+       {
+         webSocketServer:
+          WebSocketServer
+       },
+       Never,
+       Unit
+     >
+```
+
+### `listen`
+
+<small className="api-kind">Effectを返す関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+listen<R>
+  {
+    hostname?: String,
+    port: Int,
+    path: String,
+    protocols: Array<String>,
+    receiveBuffer: BufferCapacity,
+    handler: (
+      WebSocketConnection
+      -> Effect<R, Never, Unit>
+    )
+  }
+  -> Effect<
+       R & {
+         webSocketServer:
+          WebSocketServer
+       },
+       WebSocketError,
+       WebSocketServerHandle
+     >
+```
+
+</details>
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

@@ -1,0 +1,9 @@
+type Light =
+  | Red
+  | Green
+
+pub effect fn main = {
+  let red: Light = Red
+  let green: Light = Green
+  println ""
+}

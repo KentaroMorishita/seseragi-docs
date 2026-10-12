@@ -1,0 +1,347 @@
+---
+title: "std/sse"
+description: "Server-Sent Eventsのデコード・エンコードとHTTP streamを扱います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as sse from "std/sse"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `DecodeLimit`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+DecodeLimit
+```
+
+### `Event`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Event
+```
+
+### `SseBuildError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+SseBuildError
+```
+
+### `SseParseError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+SseParseError
+```
+
+## コンストラクタと値
+
+### `InvalidSseComment`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidSseComment
+  String
+  -> SseBuildError
+```
+
+### `InvalidSseDecodeLimit`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidSseDecodeLimit
+  Int
+  -> SseBuildError
+```
+
+### `InvalidSseEventId`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidSseEventId
+  String
+  -> SseBuildError
+```
+
+### `InvalidSseEventName`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidSseEventName
+  String
+  -> SseBuildError
+```
+
+### `InvalidSseRetryMillis`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidSseRetryMillis
+  Int
+  -> SseBuildError
+```
+
+### `SseEventTooLarge`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SseEventTooLarge
+  Int
+  -> SseParseError
+```
+
+### `SseInvalidContentType`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SseInvalidContentType
+  String
+  -> SseParseError
+```
+
+### `SseInvalidUtf8`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SseInvalidUtf8
+  SseParseError
+```
+
+### `SseMalformedHttpEvents`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SseMalformedHttpEvents
+  String
+  -> SseParseError
+```
+
+### `SseMalformedId`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SseMalformedId
+  SseParseError
+```
+
+### `SseMalformedRetry`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SseMalformedRetry
+  String
+  -> SseParseError
+```
+
+### `SseUnexpectedStatus`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SseUnexpectedStatus
+  Int
+  -> SseParseError
+```
+
+## 関数と演算子
+
+### `decodeLimit`
+
+<small className="api-kind">関数</small>
+
+```text
+decodeLimit
+  Int
+  -> Either<
+       SseBuildError,
+       DecodeLimit
+     >
+```
+
+### `defaultDecodeLimit`
+
+<small className="api-kind">関数</small>
+
+```text
+defaultDecodeLimit
+  Unit
+  -> DecodeLimit
+```
+
+### `encode`
+
+<small className="api-kind">関数</small>
+
+```text
+encode
+  Event
+  -> Bytes
+```
+
+### `event`
+
+<small className="api-kind">関数</small>
+
+```text
+event
+  String
+  -> Event
+```
+
+### `eventData`
+
+<small className="api-kind">関数</small>
+
+```text
+eventData
+  Event
+  -> String
+```
+
+### `eventId`
+
+<small className="api-kind">関数</small>
+
+```text
+eventId
+  Event
+  -> Maybe<String>
+```
+
+### `eventName`
+
+<small className="api-kind">関数</small>
+
+```text
+eventName
+  Event
+  -> Maybe<String>
+```
+
+### `eventRetryMillis`
+
+<small className="api-kind">関数</small>
+
+```text
+eventRetryMillis
+  Event
+  -> Maybe<Int>
+```
+
+### `events`
+
+<small className="api-kind">関数</small>
+
+```text
+events<R, E>
+  DecodeLimit
+  -> Stream<R, E, HttpEvent>
+  -> Stream<
+       R,
+       Either<E, SseParseError>,
+       Event
+     >
+```
+
+### `keepAlive`
+
+<small className="api-kind">関数</small>
+
+```text
+keepAlive
+  String
+  -> Either<SseBuildError, Bytes>
+```
+
+### `response`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+response<R>
+  Array<HttpHeader>
+  -> Stream<R, Never, Event>
+  -> Effect<
+       R,
+       Never,
+       HttpServerResponse
+     >
+```
+
+### `withEventName`
+
+<small className="api-kind">関数</small>
+
+```text
+withEventName
+  String
+  -> Event
+  -> Either<SseBuildError, Event>
+```
+
+### `withId`
+
+<small className="api-kind">関数</small>
+
+```text
+withId
+  String
+  -> Event
+  -> Either<SseBuildError, Event>
+```
+
+### `withLastEventId`
+
+<small className="api-kind">関数</small>
+
+```text
+withLastEventId
+  String
+  -> Request
+  -> Either<SseBuildError, Request>
+```
+
+### `withRetryMillis`
+
+<small className="api-kind">関数</small>
+
+```text
+withRetryMillis
+  Int
+  -> Event
+  -> Either<SseBuildError, Event>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)

@@ -1,0 +1,77 @@
+---
+title: State and Actions
+description: Keep update rules pure so you can verify them independently of views and effects.
+---
+
+Verify a counter's increment and reset rules without rendering a screen. A pure `update` makes it possible to establish how each operation changes state before building the UI.
+
+This task isolates the counter update rules from [Build a Web application](/en/docs/guides/web-app). Action cases and `match` use [Algebraic data types](/en/docs/learn/algebraic-data-types) and [Pattern matching](/en/docs/learn/pattern-matching).
+
+## Separate state from an operation
+
+State in this example is an `Int` representing the current count. `Action` has `Increment` and `Reset` cases representing what happened. `update action state` returns a new state.
+
+An operation and its result are different values. Receiving `Reset` produces the state `0`; the state is not an Action named `Reset`.
+
+## Save the complete update example
+
+Save this as `state.ssrg`.
+
+{/* example: examples/guides/state.ssrg */}
+```seseragi title="state.ssrg"
+type Action =
+  | Increment
+  | Reset
+
+fn update action: Action -> n: Int
+  -> Int =
+  match action {
+    Increment -> n + 1
+    Reset -> 0
+  }
+
+pub effect fn main = do {
+  0
+  |> update Increment
+  |> update Increment
+  |> show
+  |> println
+  5
+  |> update Reset
+  |> show
+  |> println
+}
+```
+
+`update Increment` is a function waiting for its state argument. `0 |> update Increment` computes the same result as `update Increment 0`.
+
+## Execute a sequence of operations
+
+```sh
+seseragi run state.ssrg
+```
+
+```text
+2
+0
+```
+
+The first pipeline applies `Increment` twice to 0. The second applies `Reset` to 5. All calculations apart from `println` are pure and produce the same results for the same inputs.
+
+## Group several values into state
+
+A form can hold an editing string and a displayed message alongside its current value. `Model` is a named struct. Construct a new struct value to update it, such as `Model { ...model, draft: value }`.
+
+You cannot assign to a field of a struct bound by `let`. [Forms](/en/docs/guides/forms) supplies a concrete struct-based example.
+
+## Place effects at an execution boundary
+
+A pure `update` cannot read input or perform network operations. For `dom.app`, it must return the next state from an Action and the current state.
+
+When external operations become necessary, separate Effect dispatch from state transition. [Stateful features](/en/docs/guides/stateful-features) demonstrates updating a `MutableSignal` with `signals.update`. If you turn external results back into Actions, represent both success and failure cases in the Action type.
+
+## Test the update rules
+
+Preserve rules such as `update Increment 0` returning 1 and `update Reset 5` returning 0 in tests, instead of checking them only by clicking buttons.
+
+[Testing](/en/docs/guides/testing) explains the `std/test` runner. Adding an Action case also causes the compiler to check `match` exhaustiveness. See [Pattern Reference](/en/docs/reference/patterns) for its exact contract.

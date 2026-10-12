@@ -1,0 +1,270 @@
+---
+title: "std/stdin"
+description: "processの標準入力を読みます。EOFと入力失敗を型で扱います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process |
+| 能力のidentity | `std/prelude::Stdin` |
+
+## import
+
+```seseragi
+import * as stdin from "std/stdin"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `LineLimit`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+LineLimit
+```
+
+### `ReadSize`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ReadSize
+```
+
+### `Stdin`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Stdin
+```
+
+### `StdinConfigError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+StdinConfigError
+```
+
+### `StdinError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+StdinError
+```
+
+## コンストラクタと値
+
+### `ConcurrentStdinRead`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ConcurrentStdinRead
+  StdinError
+```
+
+### `InvalidStdinUtf8`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidStdinUtf8
+  { offset: Int }
+  -> StdinError
+```
+
+### `LineLimitTooLarge`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+LineLimitTooLarge
+  Int
+  -> StdinConfigError
+```
+
+### `NonPositiveLineLimit`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NonPositiveLineLimit
+  Int
+  -> StdinConfigError
+```
+
+### `NonPositiveReadSize`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NonPositiveReadSize
+  Int
+  -> StdinConfigError
+```
+
+### `ReadSizeTooLarge`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ReadSizeTooLarge
+  Int
+  -> StdinConfigError
+```
+
+### `StdinLineTooLong`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+StdinLineTooLong
+  { limitBytes: Int }
+  -> StdinError
+```
+
+### `StdinPositionOverflow`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+StdinPositionOverflow
+  StdinError
+```
+
+### `StdinReadFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+StdinReadFailure
+  StdinError
+```
+
+### `StdinUnavailable`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+StdinUnavailable
+  StdinError
+```
+
+## 関数と演算子
+
+### `defaultLineLimit`
+
+<small className="api-kind">関数</small>
+
+```text
+defaultLineLimit
+  Unit
+  -> LineLimit
+```
+
+### `defaultReadSize`
+
+<small className="api-kind">関数</small>
+
+```text
+defaultReadSize
+  Unit
+  -> ReadSize
+```
+
+### `lineLimit`
+
+<small className="api-kind">関数</small>
+
+```text
+lineLimit
+  Int
+  -> Either<
+       StdinConfigError,
+       LineLimit
+     >
+```
+
+### `lines`
+
+<small className="api-kind">関数</small>
+
+```text
+lines
+  LineLimit
+  -> Stream<
+       { stdin: Stdin },
+       StdinError,
+       String
+     >
+```
+
+### `readChunk`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+readChunk
+  ReadSize
+  -> Effect<
+       { stdin: Stdin },
+       StdinError,
+       Maybe<Bytes>
+     >
+```
+
+### `readLine`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+readLine
+  Unit
+  -> Effect<
+       { stdin: Stdin },
+       StdinError,
+       Maybe<String>
+     >
+```
+
+### `readLineWith`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+readLineWith
+  LineLimit
+  -> Effect<
+       { stdin: Stdin },
+       StdinError,
+       Maybe<String>
+     >
+```
+
+### `readSize`
+
+<small className="api-kind">関数</small>
+
+```text
+readSize
+  Int
+  -> Either<
+       StdinConfigError,
+       ReadSize
+     >
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

@@ -1,0 +1,261 @@
+---
+title: "std/map"
+description: "Store and retrieve values using keys with Eq and Hash. Distinguish insertion order from key equality."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as map from "std/map"
+```
+
+## Choosing operations
+
+- Keys need Eq and Hash, with equal keys producing equal hashes. Good hashes give expected O(1) lookup/point updates; collisions can make them linear.
+- Iteration follows insertion order. Updating a key preserves its position; removing and reinserting it moves it to the end.
+- fromEntries keeps the last value for duplicate keys, but their first position. Use an explicit resolver when colliding values need combination.
+- Map equality ignores insertion order. Display and serialization preserve it, so equal Maps need not produce identical bytes.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Map`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Map<_, _>
+```
+
+## Functions and operators
+
+### `containsKey`
+
+<small className="api-kind">Function</small>
+
+```text
+containsKey<K, V>
+  K
+  -> Map<K, V>
+  -> Bool
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `empty`
+
+<small className="api-kind">Function</small>
+
+```text
+empty<K, V>
+  Unit
+  -> Map<K, V>
+```
+
+### `entries`
+
+<small className="api-kind">Function</small>
+
+```text
+entries<K, V>
+  Map<K, V>
+  -> Array<(K, V)>
+```
+
+### `filter`
+
+<small className="api-kind">Function</small>
+
+Keeps collection elements whose predicate returns True.
+
+```text
+filter<K, V>
+  (K -> V -> Bool)
+  -> Map<K, V>
+  -> Map<K, V>
+```
+
+### `fromEntries`
+
+<small className="api-kind">Function</small>
+
+```text
+fromEntries<C, K, V>
+  C
+  -> Map<K, V>
+where
+  Iterable<C, (K, V)>,
+  Eq<K>,
+  Hash<K>
+```
+
+### `get`
+
+<small className="api-kind">Function</small>
+
+Looks up a key using its Eq and Hash instances, returning Nothing when the key is absent.
+
+```text
+get<K, V>
+  K
+  -> Map<K, V>
+  -> Maybe<V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `insert`
+
+<small className="api-kind">Function</small>
+
+```text
+insert<K, V>
+  K
+  -> V
+  -> Map<K, V>
+  -> Map<K, V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `isEmpty`
+
+<small className="api-kind">Function</small>
+
+Returns whether the collection contains no elements.
+
+```text
+isEmpty<K, V>
+  Map<K, V>
+  -> Bool
+```
+
+### `keys`
+
+<small className="api-kind">Function</small>
+
+```text
+keys<K, V>
+  Map<K, V>
+  -> Array<K>
+```
+
+### `mapKeysWith`
+
+<small className="api-kind">Function</small>
+
+```text
+mapKeysWith<K1, K2, V>
+  (V -> V -> V)
+  -> (K1 -> K2)
+  -> Map<K1, V>
+  -> Map<K2, V>
+where
+  Eq<K2>,
+  Hash<K2>
+```
+
+### `mapValues`
+
+<small className="api-kind">Function</small>
+
+```text
+mapValues<K, A, B>
+  (A -> B)
+  -> Map<K, A>
+  -> Map<K, B>
+```
+
+### `mergeWith`
+
+<small className="api-kind">Function</small>
+
+```text
+mergeWith<K, V>
+  (V -> V -> V)
+  -> Map<K, V>
+  -> Map<K, V>
+  -> Map<K, V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `remove`
+
+<small className="api-kind">Function</small>
+
+```text
+remove<K, V>
+  K
+  -> Map<K, V>
+  -> Map<K, V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `singleton`
+
+<small className="api-kind">Function</small>
+
+```text
+singleton<K, V>
+  K
+  -> V
+  -> Map<K, V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `size`
+
+<small className="api-kind">Function</small>
+
+```text
+size<K, V>
+  Map<K, V>
+  -> Int
+```
+
+### `upsert`
+
+<small className="api-kind">Function</small>
+
+```text
+upsert<K, V>
+  K
+  -> (Maybe<V> -> V)
+  -> Map<K, V>
+  -> Map<K, V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `values`
+
+<small className="api-kind">Function</small>
+
+```text
+values<K, V>
+  Map<K, V>
+  -> Array<V>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/arrays-and-lists)
+- [Browse modules by purpose](/en/docs/reference/library)

@@ -1,0 +1,133 @@
+---
+title: "std/console"
+description: "Consoleの能力を使って文字列や値を出力します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+| 能力のidentity | `std/prelude::Console` |
+
+## import
+
+```seseragi
+import * as console
+  from "std/console"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Console`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Console
+```
+
+### `ConsoleError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ConsoleError
+```
+
+## 関数と演算子
+
+### `error`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+error
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `errorLine`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+errorLine
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `flush`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+flush
+  Unit
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `print`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+print
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `println`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+println
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `printValue`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+printValue<A>
+  A
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+where
+  Show<A>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

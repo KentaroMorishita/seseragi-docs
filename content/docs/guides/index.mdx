@@ -1,0 +1,28 @@
+---
+title: 実用ガイド
+description: 実行できるアプリから、状態・フォーム・テスト・配布の構成を学ぶ。
+---
+
+作りたいものに合わせて進めてください。各ガイドには、保存するファイル、実行コマンド、確認する結果を載せています。CLIとBunの導入は[ローカルで使う](/docs/learn/local-development)から始められます。
+
+## TypeScriptから読み始める
+
+[TypeScriptからSeseragiへ](/docs/guides/typescript-to-seseragi)では、関数呼び出し、型、失敗、副作用を対応づけます。Reactに慣れている場合も、状態を持つ場所とHTMLを返す関数の役割を先に確かめてください。
+
+## コマンドラインで動かす
+
+[CLIアプリを作る](/docs/guides/cli-app)で標準入力を読み、数量を検証して金額を出力します。[失敗を扱う](/docs/guides/error-handling)では、入力の失敗を型で表し、表示するメッセージへ変えます。
+
+## ブラウザーに画面を作る
+
+[Webアプリを作る](/docs/guides/web-app)では、カウンターを作って開発サーバーで操作します。[状態とAction](/docs/guides/state-and-actions)で更新関数を整理し、[フォーム](/docs/guides/forms)で入力値と検証結果を画面へつなぎます。
+
+## 画面が大きくなったら分ける
+
+[コンポーネント](/docs/guides/components)はHTMLを返す純粋関数を扱います。[状態を持つ機能](/docs/guides/stateful-features)では、機能ごとにSignalを作り、親へ読み取り専用の画面を返します。画面の再描画と状態の生成を分けて考えるための二つのガイドです。
+
+## 変更を検証して配布する
+
+[テスト](/docs/guides/testing)で境界値の確認を自動化し、[パッケージと配布](/docs/guides/packages-and-deployment)で公開する関数とアプリの入口を分けます。[TypeScriptとの接続](/docs/guides/typescript-bindings)では、ホスト側の関数を安全な呼び出し契約で包みます。
+
+構文そのものを順に学ぶ場合は[Learn](/docs/learn/first-program)、型やAPIの契約を調べる場合は[Reference](/docs/reference)へ進んでください。

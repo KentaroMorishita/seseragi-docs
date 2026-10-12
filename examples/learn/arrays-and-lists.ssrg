@@ -1,0 +1,19 @@
+import * as arrays from "std/array"
+
+fn square n: Int -> Int =
+  n * n
+
+fn even n: Int -> Bool =
+  n % 2 == 0
+
+pub effect fn main = do {
+  let numbers = [1, 2, 3, 4, 5]
+  let total =
+    numbers
+    |> map square
+    |> arrays.filter even
+    |> sum
+  let first = numbers[0] ?? 0
+  println `total: ${total}`
+  println `first: ${first}`
+}

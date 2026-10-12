@@ -1,0 +1,82 @@
+---
+title: "Records and structs"
+description: "Group named values and understand structural records and nominal structs."
+---
+
+Represent a point as two integers. We will write a function that returns a horizontally shifted point while preserving the original.
+
+## Use a record by its required fields
+
+`{ x: 1, y: 2 }` is a record with named fields and type `{ x: Int, y: Int }`. Access a field with an expression such as `point.x`.
+
+Records are structurally typed. This declaration accepts a record containing a `name`:
+
+```text
+fn nameOf value: { name: String }
+  -> String = value.name
+```
+
+You can pass `{ name: "Aki", score: 42 }` because it contains the required `name: String` field. This acceptance of additional fields is called width subtyping. A missing field or a field of the wrong type is still rejected.
+
+## Give a type a name with struct
+
+`struct Point` declares a type named `Point`. Construct it with `Point { x: 1, y: 2 }` and read its fields.
+
+A separate `struct Size` with the same fields is still a different type. Unlike records, matching field shapes do not make `Point` and `Size` interchangeable. This distinction based on a declaration's identity is called nominal typing.
+
+## Produce an updated value
+
+{/* example: examples/learn/records-and-structs.ssrg */}
+```seseragi title="records-and-structs.ssrg"
+struct Point {
+  x: Int,
+  y: Int,
+}
+
+fn moveX amount: Int
+  -> point: Point -> Point =
+  Point {
+    ...point,
+    x: point.x + amount,
+  }
+
+pub effect fn main = do {
+  let start = Point { x: 1, y: 2 }
+  let moved = moveX 3 start
+  println `${start.x}, ${start.y}`
+  println `${moved.x}, ${moved.y}`
+}
+```
+
+```text title="Output"
+1, 2
+4, 2
+```
+
+`moveX 3 start` returns a new `Point` with 3 added to `start.x`. `Point { ...point, x: ... }` first takes the original fields and then replaces `x` in the new value. `start` remains `1, 2`.
+
+Constructing a struct requires all fields. With spread, place one value of the same struct type first and inherit the fields you do not replace. Records also support spread and can combine several records from left to right. See [Data types](/en/docs/reference/data-types) for the detailed differences.
+
+## Destructure a value
+
+Patterns extract data from tuples, records, and structs. This fragment could appear inside `moveX`:
+
+```text
+let Point { x, y } = point
+let offset = { x: amount, y: 0 }
+let { x: dx, y: dy } = offset
+```
+
+`x: dx` takes the value of field `x` and binds the name `dx`. It does not write to another field. Struct patterns include the type name; record patterns do not.
+
+## Choose the data type
+
+A record type can state the small set of fields a function needs. Use a struct or [newtype](/en/docs/reference/data-types) when the type's identity should distinguish meanings such as a coordinate, amount, or identifier.
+
+A struct can also have methods, but it does not require an object that mutates its own data. This example describes movement as an ordinary function from an input `Point` to an output `Point`.
+
+## Add another movement
+
+Use `moveX` as a model to define `moveY`, then move `start` up by 5. Print the original point as well to confirm it stays unchanged. Then define a `Size` with the same fields and try passing it to `moveX`; the type checker rejects the mismatch.
+
+Continue to [Algebraic data types](/en/docs/learn/algebraic-data-types), which describes one of several possible states rather than several fields held together.

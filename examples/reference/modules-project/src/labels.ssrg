@@ -1,0 +1,9 @@
+pub type Stage =
+  | Draft
+  | Published String
+
+pub fn title stage: Stage -> String =
+  match stage {
+    Draft -> "Draft"
+    Published name -> name
+  }

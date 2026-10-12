@@ -1,0 +1,11 @@
+import * as html from "std/web/html"
+
+fn view -> html.Html<Unit> =
+  html.h1 {
+    children: "Seseragi & you",
+  }
+
+pub effect fn main =
+  view ()
+  |> html.renderToString
+  |> println

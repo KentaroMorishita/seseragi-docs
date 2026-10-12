@@ -1,0 +1,202 @@
+---
+title: "std/web/storage"
+description: "Use browser local and session storage through Effects that preserve failure."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | browser |
+| Capability identities | `std/web/storage::Storage` |
+
+## Import
+
+```seseragi
+import * as web_storage
+  from "std/web/storage"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Storage`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Storage
+```
+
+### `StorageArea`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+StorageArea
+```
+
+### `StorageError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+StorageError
+```
+
+## Constructors and values
+
+### `Local`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Local
+  StorageArea
+```
+
+### `Session`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Session
+  StorageArea
+```
+
+### `StorageQuotaExceeded`
+
+<small className="api-kind">Constructor</small>
+
+```text
+StorageQuotaExceeded
+  {
+    area: StorageArea,
+    key: String,
+    message: String
+  }
+  -> StorageError
+```
+
+### `StorageSecurityFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+StorageSecurityFailure
+  {
+    area: StorageArea,
+    message: String
+  }
+  -> StorageError
+```
+
+### `StorageUnavailable`
+
+<small className="api-kind">Constructor</small>
+
+```text
+StorageUnavailable
+  {
+    area: StorageArea,
+    message: String
+  }
+  -> StorageError
+```
+
+## Functions and operators
+
+### `clear`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+clear
+  StorageArea
+  -> Effect<
+       { storage: Storage },
+       StorageError,
+       Unit
+     >
+```
+
+### `errorMessage`
+
+<small className="api-kind">Function</small>
+
+```text
+errorMessage
+  StorageError
+  -> String
+```
+
+### `get`
+
+<small className="api-kind">Function returning Effect</small>
+
+Returns an Effect that reads a key in the selected storage area, returning Nothing for a missing key or a typed StorageError on failure.
+
+```text
+get
+  StorageArea
+  -> String
+  -> Effect<
+       { storage: Storage },
+       StorageError,
+       Maybe<String>
+     >
+```
+
+### `keys`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+keys
+  StorageArea
+  -> Effect<
+       { storage: Storage },
+       StorageError,
+       Array<String>
+     >
+```
+
+### `remove`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+remove
+  StorageArea
+  -> String
+  -> Effect<
+       { storage: Storage },
+       StorageError,
+       Unit
+     >
+```
+
+### `set`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+set
+  StorageArea
+  -> String
+  -> String
+  -> Effect<
+       { storage: Storage },
+       StorageError,
+       Unit
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/signals)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Web UI contract](/en/docs/reference/web-ui)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

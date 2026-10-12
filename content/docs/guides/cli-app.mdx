@@ -1,0 +1,97 @@
+---
+title: CLIアプリを作る
+description: 標準入力を読み、数量を検証し、金額を出力するCLIを作る。
+---
+
+一行で渡された数量を読み、単価480の合計金額を出力します。入力は1から1000までの整数に限ります。変換と検証は純粋関数へ置き、標準入力と出力は`main`で行います。
+
+`fn`の呼び出しと`match`に加え、[MaybeとEither](/docs/learn/maybe-and-either)と[Effect](/docs/learn/effects)を使います。呼び出しの構文は[関数とパイプライン](/docs/learn/functions-and-pipelines)で確認できます。
+
+## 準備する
+
+[ローカルで使う](/docs/learn/local-development)の手順でSeseragi CLIとBunを導入してください。このプログラムは一つのファイルで動き、追加パッケージは必要ありません。
+
+`process`ターゲットが提供する標準入力とConsoleを使います。ブラウザー向けの`web`ターゲットへ切り替えて実行するコードではありません。
+
+## 入力の契約を決める
+
+`quantity`は文字列を整数へ変換し、範囲を検証して`Either<AppError, Int>`を返します。不正な文字列、0、1001、入力がない場合を`InvalidQuantity`として扱います。
+
+`readLine`の`Nothing`は入力終了を表します。空文字列を読んだ場合の`Just ""`とは区別されています。このアプリでは、どちらも有効な数量にならないため失敗へ変えます。
+
+## 完成したプログラム
+
+`quantity.ssrg`へ保存してください。
+
+{/* example: examples/guides/cli-app.ssrg */}
+```seseragi title="quantity.ssrg"
+import * as ints from "std/int"
+
+type AppError deriving Show =
+  | InputFailure StdinError
+  | InvalidQuantity
+  | OutputFailure ConsoleError
+
+alias Quantity = Either<AppError, Int>
+
+fn quantity text: String -> Quantity =
+  match ints.parse text {
+    Right n ->
+      if n >= 1 && n <= 1000 then
+        Right n
+      else
+        Left InvalidQuantity
+    Left _ -> Left InvalidQuantity
+  }
+
+pub effect fn main = do {
+  line <-
+    readLine ()
+    |> mapError InputFailure
+  let parsed: Quantity = match line {
+      Just text -> quantity text
+      Nothing -> Left InvalidQuantity
+  }
+  count <- fromEither parsed
+  let total = 480 * count
+  `Total: ${total}`
+  |> println
+  |> mapError OutputFailure
+}
+```
+
+`fromEither`は検証済みの`Either`をEffectへ移します。入力の`StdinError`と出力の`ConsoleError`は、`mapError`でアプリの`AppError`へ揃えます。複数の失敗をコンパイラーが自動的に一つの型へまとめることはありません。
+
+## 入力を渡して実行する
+
+macOSやLinuxのシェルでは、次のコマンドで数量を標準入力へ渡せます。
+
+```sh
+printf '3\n' |
+  seseragi run quantity.ssrg
+```
+
+```text
+Total: 1440
+```
+
+直接`seseragi run quantity.ssrg`を実行した場合は、数量を入力してEnterを押してください。`readLine`は一行だけ読むため、後続の行はこのアプリの計算に使いません。
+
+## 不正な入力を確かめる
+
+```sh
+printf '0\n' |
+  seseragi run quantity.ssrg
+printf 'many\n' |
+  seseragi run quantity.ssrg
+```
+
+どちらも`InvalidQuantity`の未処理の型付き失敗となり、CLIは終了コード1を返します。金額は出力しません。コンパイルやターゲットの設定に問題がある場合の終了コード2とは区別されます。
+
+利用者向けのメッセージを出したい場合は、[失敗を扱う](/docs/guides/error-handling)の`attempt`と`match`で、回復可能な失敗を表示へ変えられます。
+
+## パッケージへ進める
+
+関数を別ファイルから再利用したり、テストを置いたりする段階で`seseragi.toml`を持つパッケージへ移します。実行ターゲットは`[run]`の`target = "process"`です。
+
+[テスト](/docs/guides/testing)では検証したい境界値を固定し、[パッケージと配布](/docs/guides/packages-and-deployment)では実行入口と公開APIを分けます。[CLI Reference](/docs/reference/cli)で各コマンドのオプションを調べられます。

@@ -1,0 +1,138 @@
+---
+title: "std/benchmark"
+description: "入力と測定処理を分け、CLIで性能を測定します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as benchmark
+  from "std/benchmark"
+```
+
+## 選び方と注意
+
+- Benchmarkは計測bodyを持つ通常のtreeです。測る計算をbody実行ごとに構築し、先に一度求めた結果の取得時間だけを測らないでください。
+- blackBoxは同じ値を返すoptimization barrierです。コンパイル時定数の除去を防ぐもので、allocationや実行順を変える機能ではありません。
+- inputSizeは正のproblem sizeをreportへ付けます。warmup、sample、ホスト/toolchain version、profileを揃えてbaselineを比較します。
+- bodyの型付き失敗、defect、リソースの解放漏れはcaseの失敗として扱います。追加serviceをprovideし、計測用の共有mutable stateをtreeの外へ置かない構成にします。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Benchmark`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Benchmark
+```
+
+### `BenchmarkEnvironment`
+
+<small className="api-kind">型alias</small>
+
+```text
+BenchmarkEnvironment
+```
+
+### `BenchmarkFailure`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+BenchmarkFailure
+```
+
+## コンストラクタと値
+
+### `ExplicitBenchmarkFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ExplicitBenchmarkFailure
+  String
+  -> BenchmarkFailure
+```
+
+## 関数と演算子
+
+### `benchmark`
+
+<small className="api-kind">関数</small>
+
+```text
+benchmark
+  String
+  -> Effect<
+       {
+         random: Random,
+         console: Console,
+         logger: Logger
+       },
+       BenchmarkFailure,
+       Unit
+     >
+  -> Benchmark
+```
+
+### `blackBox`
+
+<small className="api-kind">関数</small>
+
+```text
+blackBox<A>
+  A
+  -> A
+```
+
+### `fail`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+fail
+  String
+  -> Effect<
+       {},
+       BenchmarkFailure,
+       Unit
+     >
+```
+
+### `inputSize`
+
+<small className="api-kind">関数</small>
+
+```text
+inputSize
+  Int
+  -> Benchmark
+  -> Benchmark
+```
+
+### `suite`
+
+<small className="api-kind">関数</small>
+
+```text
+suite
+  String
+  -> Array<Benchmark>
+  -> Benchmark
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/functions-and-pipelines)
+- [用途からmoduleを探す](/docs/reference/library)
+- [性能を測る](/docs/reference/performance)

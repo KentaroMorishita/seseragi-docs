@@ -1,0 +1,139 @@
+---
+title: "パターンマッチ"
+description: "値に応じて分岐し、必要な部分を取り出す。"
+---
+
+`match`は、受け取った値に応じて結果を選ぶ式です。まずBoolの二つの値で分岐します。その後で、前の[代数的データ型](/docs/learn/algebraic-data-types)のケースから値を取り出します。
+
+## 二つの値で分岐する
+
+次の関数は、`True`なら`"enabled"`、`False`なら`"disabled"`を返します。
+
+{/* example: examples/learn/pattern-matching.ssrg */}
+```seseragi title="pattern-matching.ssrg"
+fn label enabled: Bool -> String =
+  match enabled {
+    True -> "enabled"
+    False -> "disabled"
+  }
+
+pub effect fn main =
+  True
+  |> label
+  |> println
+```
+
+```text title="実行結果"
+enabled
+```
+
+`match enabled`は`enabled`を一度評価し、分岐のパターンを上から試します。最初に一致した分岐の式が、`match`全体の結果になります。この例では、パターンは`True`と`False`です。
+
+すべての分岐は同じ型の結果を返します。ここでは、どちらも`String`です。二つの値を両方扱っているため、どのBoolを渡しても結果を返せます。
+
+## ケースのデータに名前を付ける
+
+次の例は、前の章で作った`Reading`を使います。`NoReading`にはデータがなく、`Measured`は整数を一つ持ちます。`match`では、ケースを判別するときにその整数へ名前を付けられます。
+
+{/* example: examples/learn/pattern-payloads.ssrg */}
+```seseragi title="pattern-payloads.ssrg"
+type Reading =
+  | NoReading
+  | Measured Int
+
+fn label reading: Reading -> String =
+  match reading {
+    NoReading -> "No reading"
+    Measured n -> `Reading: ${n}`
+  }
+
+pub effect fn main =
+  Measured 23
+  |> label
+  |> println
+```
+
+```text title="実行結果"
+Reading: 23
+```
+
+`Measured n`は、値が`Measured`のケースなら一致し、そのpayloadを`n`へ束縛します。取り出した名前を参照できるのは、その分岐の中だけです。`main`で値を作る`Measured 23`と、分岐で値を分解する`Measured n`は、役割が異なります。
+
+## 残りの値を_で扱う
+
+整数には多くの値があるため、個別の値を列挙した後に残りを扱う分岐を置けます。次の断片は0と、それ以外の整数を区別します。
+
+```text
+match number {
+  0 -> "zero"
+  _ -> "nonzero"
+}
+```
+
+`_`は任意の値に一致し、名前を付けません。通常の名前だけのパターンも、値を束縛してすべてに一致します。小文字の名前を書いても、外側の変数との等値比較にはなりません。特定の値と比較する場合は、リテラルのパターンや次のguardを使います。
+
+## guardで条件を加える
+
+パターンへ`when`でBoolの条件を付けると、パターンが一致した後にその条件を調べます。次の断片では、正の整数を最初の分岐で扱います。
+
+```text
+match number {
+  n when n > 0 -> "positive"
+  _ -> "zero or negative"
+}
+```
+
+`n`は入力の整数を束縛します。条件が`True`なら最初の分岐を選び、`False`なら次の分岐を試します。guardは網羅性の根拠にならないため、条件が成立しない入力を扱う分岐も必要です。
+
+## tupleの分解と条件を組み合わせる
+
+ここまでのパターンとguardを、座標の分類に組み合わせます。tupleは複数の値を順序付きで一つにまとめた値です。`(3, 0)`は二つの整数からなるtupleで、`describe`はそのtupleを一つの引数として受け取ります。
+
+{/* example: examples/learn/pattern-tuples.ssrg */}
+```seseragi title="pattern-tuples.ssrg"
+fn describe point: (Int, Int)
+  -> String =
+  match point {
+    (0, 0) -> "origin"
+    (x, 0) when x > 0 -> "east"
+    (_, 0) -> "horizontal axis"
+    (0, _) -> "vertical axis"
+    _ -> "off the axes"
+  }
+
+pub effect fn main =
+  (3, 0)
+  |> describe
+  |> println
+```
+
+```text title="実行結果"
+east
+```
+
+`(0, 0)`は、二つの値が両方0なら一致します。`(x, 0)`では、最初の整数へ`x`という名前を付け、二つ目が0であることを確認します。guardを付けた分岐の後の`(_, 0)`が、0以下の横軸上の点を扱います。
+
+`(3, 0)`の括弧はtupleを作るためのものです。関数へ引数を渡す空白の構文と区別してください。
+
+## 網羅性と失敗しない分解
+
+`match`には、すべての入力を扱える分岐が必要です。Boolなら`True`と`False`、ADTなら全ケースを扱えます。条件を限った分岐の後に、残りを扱うパターンを置く方法もあります。
+
+到達できない分岐もエラーになります。座標の例で最後の`_`を先頭へ移すと、それ以降の分岐には到達しません。
+
+`let (x, y) = point`は、この型なら必ず二つの値を取り出せます。一方、`let (0, y) = point`は最初の整数が0でなければ一致しません。こうした失敗しうるパターンを通常の`let`には置けません。`Reading`から`Measured n`だけを取り出す場合も、`NoReading`を扱う`match`を使います。
+
+## 分岐を変えて確かめる
+
+Boolの例で`main`の`True`を`False`へ変えると、`disabled`を出力します。次に`False`の分岐を削除すると、網羅性の診断が出ます。`Reading`の例では、`main`を`NoReading`へ変え、`No reading`になることを確認してください。
+
+座標の例では、入力だけを変えて結果を比べます。
+
+| 入力 | 出力 |
+| --- | --- |
+| `(0, 0)` | `origin` |
+| `(-3, 0)` | `horizontal axis` |
+| `(0, 4)` | `vertical axis` |
+| `(2, 3)` | `off the axes` |
+
+次は[ArrayとList](/docs/learn/arrays-and-lists)で、複数の値の処理とコレクションのパターンを扱います。利用できるパターンの詳細は[パターンリファレンス](/docs/reference/patterns)にあります。

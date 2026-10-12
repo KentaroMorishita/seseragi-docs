@@ -20,16 +20,16 @@ bun --version
 
 ## Run a source file
 
-Save the code from [Your first program](/en/docs/learn/first-program#the-complete-program) as `parcel.ssrg`. Run it from the directory containing the file:
+Save the code from [Your first program](/en/docs/learn/first-program#display-one-line) as `hello.ssrg`. Run it from the directory containing the file:
 
 ```sh
-seseragi run parcel.ssrg
+seseragi run hello.ssrg
 ```
 
 It prints one line:
 
 ```text
-Sent to Kyoto
+Hello, Seseragi!
 ```
 
 ## Edit in VS Code
@@ -71,7 +71,7 @@ The `dist/` directory contains the generated HTML, JavaScript, CSS, and other st
 
 ## After changing dependencies
 
-Update the lockfile after changing dependencies or project configuration:
+Update the lockfile after changing dependencies, project configuration, or code exported by a package. If a command stops with `SES-K0102`, inspect the change and update explicitly:
 
 ```sh
 seseragi lock update

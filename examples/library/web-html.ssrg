@@ -1,0 +1,6 @@
+import * as html from "std/web/html"
+
+pub effect fn main =
+  html.p { children: "Hello" }
+  |> html.renderToString
+  |> println

@@ -1,0 +1,146 @@
+---
+title: Compose stateful features
+description: Create a private Signal and return a read-only view to the parent.
+---
+
+Render “Today” and “Tomorrow” counters that can change independently. The counter module creates state and returns `Signal<Html<Task<Unit>>>`. Its parent does not modify the child's state directly.
+
+This guide uses [Effects](/en/docs/learn/effects), [Signals](/en/docs/learn/signals), [generics](/en/docs/learn/generics), and [modules](/en/docs/learn/modules). `Task<Unit>` aliases `Effect<{}, Never, Unit>`: it needs no additional service and has no typed failure. The child supplies this Task as an event Action, and the parent DOM runtime executes it.
+
+## Prepare a project
+
+```sh
+seseragi new web two-counters
+cd two-counters
+```
+
+Add `src/counter.ssrg` and replace `src/main.ssrg`. The generated `app.ssrg` is unused. Place both files in the same package's `src/` directory.
+
+## Let the child create its state
+
+{/* example: examples/guides/stateful-features/src/counter.ssrg */}
+```seseragi title="src/counter.ssrg"
+import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal, Signal }
+  from "std/signal"
+
+struct Count { count: Int }
+
+alias View = html.Html<Task<Unit>>
+
+fn view title: String
+  -> state: MutableSignal<Count>
+  -> current: Count
+  -> View =
+  html.section {
+    children: [
+      html.h2<Task<Unit>, String> {
+        children: title
+      },
+      html.p<Task<Unit>, String> {
+        children: show current.count
+      },
+      html.button {
+        buttonType: "button",
+        children: "Add one",
+        onClick: signals.update
+          (\n: Count -> Count {
+            count: n.count + 1
+          }) state
+      }
+    ]
+  }
+
+pub effect fn create title: String
+  -> Signal<View> = do {
+  state <-
+    signals.make $ Count { count: 0 }
+  state
+  |> signals.map (view title state)
+  |> succeed
+}
+```
+
+`create` is an Effect. Running it creates state once with `signals.make` and returns a Signal that derives a view from it. Evaluating `view` does not create new state.
+
+The `MutableSignal` stays private to the module. The parent receives a read-only `Signal`. A button carries its update `Task<Unit>` as its Action, so the child does not need to export all its operation cases to the parent.
+
+## Compose views in the parent
+
+{/* example: examples/guides/stateful-features/src/main.ssrg */}
+```seseragi title="src/main.ssrg"
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { create } from "./counter"
+
+alias View = html.Html<Task<Unit>>
+
+fn layout first: View -> second: View
+  -> View =
+  html.main {
+    style: html.style {
+      margin: "32px auto",
+      maxWidth: "32rem",
+      padding: "24px"
+    },
+    children: [first, second]
+  }
+
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+
+pub effect fn main = do {
+  first <- create "Today"
+  second <- create "Tomorrow"
+  let content =
+    signals.combine layout first $
+      second
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let options = dom.defaultOptions ()
+  (
+    dom.run options target perform $
+      content
+  )
+  |> mapError runtimeError
+}
+```
+
+`create "Today"` and `create "Tomorrow"` run separately and create separate state. `signals.combine` supplies the latest two views to `layout`, producing one view Signal.
+
+`perform` returns the child's `Task<Unit>` unchanged. `dom.run` executes it when a click is dispatched. The parent does not duplicate the child's update branches.
+
+## Verify independence in a browser
+
+```sh
+seseragi lock update
+seseragi dev --open
+```
+
+Both counters start at 0. Click “Today” twice: only Today becomes 2. Click “Tomorrow” once: Tomorrow becomes 1, and Today stays 2.
+
+You do not call `create` from `view` to recreate state. An HTML `key` does not allocate Signal state either. The separate executions of `create` establish independent state.
+
+## Choose the owner of shared state
+
+If both counters must edit the same total, their common parent creates that state and passes current values or permitted update Effects to its children. Passing a whole application `MutableSignal` gives each child a broader mutation capability.
+
+This example keeps state local to each counter. Application-wide state belongs to the root feature, rather than a global singleton created at module import time.
+
+## Distinguish shutdown from resource ownership
+
+`dom.run` owns DOM subscriptions and event listeners and releases them when it ends. The click Effects in this example need no additional service and have `Never` failure. `mapError` converts the DOM runtime's own failures into `String`.
+
+A child with custom subscriptions, timers, or connections must tie their lifetime to an explicit Effect scope or `DomMount`. An HTML `key` disappearing from the screen does not by itself release arbitrary resources. See [Signal Reference](/en/docs/reference/signals) and [Web UI Reference](/en/docs/reference/web-ui).

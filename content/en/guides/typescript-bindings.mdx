@@ -1,0 +1,150 @@
+---
+title: TypeScript bindings
+description: Choose pure or task contracts and handle TypeScript calls and exceptions at a typed boundary.
+---
+
+Call a local TypeScript module from Seseragi. Bind a pure string transformation and a function with a rejected Promise under different calling contracts. This example has no external library dependency and runs without network access.
+
+This task uses imports from [Modules](/en/docs/learn/modules) and execution/failure from [Effects](/en/docs/learn/effects). The `foreign` boundary declaration is introduced here.
+
+## Prepare the files
+
+Create this structure. Host manifest and lock inputs are separate from Seseragi's manifest and lock:
+
+```text
+bindings/
+  seseragi.toml
+  host/
+    package.json
+    bun.lock
+    format.ts
+  src/
+    format.ssrg
+    main.ssrg
+```
+
+```toml title="seseragi.toml"
+[package]
+name = "docs/typescript-bindings"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[run]
+entry = "main"
+target = "process"
+
+[foreign.typescript]
+resolver = "node"
+manifest = "host/package.json"
+lockfile = "host/bun.lock"
+```
+
+```json title="host/package.json"
+{
+  "name": "docs-host",
+  "version": "0.1.0",
+  "type": "module"
+}
+```
+
+With no host dependencies, save this as `host/bun.lock`. If Bun deletes an empty lock during a dependency-free install, the declared input still needs to exist.
+
+```json title="host/bun.lock"
+{
+  "lockfileVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "docs-host",
+      "version": "0.1.0"
+    }
+  },
+  "packages": {}
+}
+```
+
+## Write the host functions
+
+{/* example: examples/guides/typescript-bindings/host/format.ts */}
+
+```typescript title="host/format.ts"
+export function bracket(
+  value: string,
+) {
+  return `[${value}]`;
+}
+
+export async function loadLabel() {
+  throw new Error(
+    "Temporarily unavailable",
+  );
+}
+```
+
+`bracket` constructs a string synchronously. `loadLabel` deliberately rejects its Promise to demonstrate failure handling. Loading the module does not execute that function's body.
+
+## Declare the foreign calling contracts
+
+{/* example: examples/guides/typescript-bindings/src/format.ssrg */}
+```seseragi title="src/format.ssrg"
+pub foreign "typescript"
+from "../host/format.ts" {
+  pure fn bracket value: String
+    -> String
+  task fn loadLabel -> String
+}
+```
+
+A `pure` binding guarantees a synchronous, deterministic, non-throwing call that neither observes nor modifies external state. The binding author supplies that guarantee; an operation being inexpensive is not sufficient.
+
+A `task` member appears as an Effect. The final `String` declares the success value. Its actual type is `Effect<{}, Js.Error, String>`. Synchronous throws and Promise rejections enter the `Js.Error` failure channel.
+
+A pure member makes the entire resolved host module pure-load. This module's initialization has no effects. A library whose initialization can perform effects or fail must not declare pure members; use task-load instead.
+
+## Use the bindings from Seseragi
+
+{/* example: examples/guides/typescript-bindings/src/main.ssrg */}
+```seseragi title="src/main.ssrg"
+import * as effects from "std/effect"
+import { bracket, loadLabel }
+  from "./format"
+
+pub effect fn main = do {
+  "ready"
+  |> bracket
+  |> println
+  result <-
+    loadLabel ()
+    |> effects.attempt
+  let message = match result {
+    Right value -> value
+    Left _ -> "Please try again"
+  }
+  println message
+}
+```
+
+`bracket` works as an ordinary pipeline function. `loadLabel` creates a Task; `attempt` turns its failure back into a result value. Seseragi does not catch the external exception through `try/catch` syntax.
+
+## Run and inspect the boundary
+
+Execute these commands in `bindings/`:
+
+```sh
+seseragi lock update
+seseragi run .
+```
+
+```text
+[ready]
+Please try again
+```
+
+Calling `task fn loadLabel` alone does not execute the host function. `main` runs the Tasks in order, and `attempt` handles the intentional rejection.
+
+## Wrap a binding in application types
+
+If a host returns `null` or `undefined`, use raw boundary types such as `Js.NullOr` or `Js.UndefinedOr`. Convert them into `Maybe` in a handwritten application adapter. Do not share a mutable object as an immutable record.
+
+For a larger library, `seseragi dts convert` generates binding candidates. Declaration files do not establish purity or exception behavior. Review the conversion report and place handwritten adapters around generated imports instead of exposing generated files directly as a public API.
+
+[TypeScript interop Reference](/en/docs/reference/typescript-interop) defines conversion, nullable and opaque types, and failure phases. [Packages and deployment](/en/docs/guides/packages-and-deployment) separates the adapter's public entry.

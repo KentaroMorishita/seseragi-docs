@@ -1,0 +1,89 @@
+---
+title: Build components
+description: Reuse a pure function that turns props into HTML in a browser view and SSR.
+---
+
+Turn a delivery card into a function that accepts a title and detail. A component is an ordinary `fn`. Separating HTML construction from DOM effects makes the function usable both in a browser view and when rendering to a string.
+
+Props use [Records](/en/docs/learn/records-and-structs), and the Action type uses [Generics](/en/docs/learn/generics). The Web integration builds on `view` from [Build a Web application](/en/docs/guides/web-app).
+
+## Define props
+
+The card requires `title` and `detail` strings. `CardProps` is a record alias describing that structure.
+
+Pass the values needed to create the view through props. Avoid reading or changing shared state each time the function is evaluated. If the view needs state, pass the current value from its owner.
+
+## Write the complete card
+
+Save this as `components.ssrg`.
+
+{/* example: examples/guides/components.ssrg */}
+```seseragi title="components.ssrg"
+import * as html from "std/web/html"
+
+alias CardProps = {
+  title: String,
+  detail: String
+}
+
+fn card<Action> props: CardProps
+  -> html.Html<Action> =
+  html.section {
+    class: "card",
+    children: [
+      html.h2<Action, String> {
+        children: props.title
+      },
+      html.p<Action, String> {
+        children: props.detail
+      }
+    ]
+  }
+
+pub effect fn main =
+  card {
+    title: "Delivery",
+    detail: "Sent to Kyoto"
+  }
+  |> html.renderToString
+  |> println
+```
+
+`Action` in `card<Action>` represents the event type its HTML can dispatch. This card has no events, so it can fit the Action type of its surrounding view. `html.h2<Action, String>` explicitly supplies the Action and children types.
+
+A `String` can be a text child. Convert numbers with `show`. To combine text and HTML in a children array, wrap the text with `html.text` rather than mixing strings with HTML values.
+
+## Render HTML
+
+```sh
+seseragi run components.ssrg
+```
+
+The program prints one line of HTML containing an `h2` and `p` inside a `section`. With line breaks for readability, its structure is:
+
+```html
+<section class="card">
+  <h2>Delivery</h2>
+  <p>Sent to Kyoto</p>
+</section>
+```
+
+`renderToString` is pure and does not create DOM nodes. `println` performs the Effect of writing the resulting string to Console.
+
+## Call it from a Web view
+
+Use `card { title: "Delivery", detail: "Sent to Kyoto" }` as a child in the `view` from [Build a Web application](/en/docs/guides/web-app). The card does not own a DOM target or event listener.
+
+For a reusable button with an event, include its click Action in props. The parent supplies the Action; the component places it on the HTML event instead of modifying the parent's state directly.
+
+## Preserve safe rendering
+
+The title and detail strings are escaped as text. This function does not concatenate them into raw HTML source. Passing `"<script>"` produces HTML displaying that text.
+
+Links and images use a validated `WebUrl`. Handle a failure from `parseWebUrl` as a typed result rather than treating an arbitrary string as a URL. See [Web UI Reference](/en/docs/reference/web-ui) for props and rendering contracts.
+
+## Separate stateful parts
+
+Passing current values into pure components works when several components display the same state. If each feature needs independent state, give it a separate Effect entry that creates its Signal.
+
+[Stateful features](/en/docs/guides/stateful-features) composes two counters under one parent while preserving their independent values.

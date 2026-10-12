@@ -1,0 +1,80 @@
+---
+title: "Runtime Provider"
+description: "service requirement、logical target、互換性、決定的なProvider選択とlockを確認する。"
+---
+
+アプリは「HTTPを使う」「Clockを使う」というserviceを型で要求します。どのhost APIで実行するかはProviderの設定へ置きます。ライブラリの追加だけで、アプリのruntime implementationが勝手に切り替わることはありません。
+
+## API、Contract、bridge、Provider
+
+| 層 | 責務 |
+| --- | --- |
+| std/package API | アプリが使う型、Effect、typed error、値の正規化 |
+| Provider Contract | service identity、論理operation、input・success・failure |
+| Runtime ABI/bridge | backend上の値の変換と呼び出しprotocol |
+| runtime Provider | host APIや外部ライブラリの呼び出し |
+
+アプリは公開moduleのoperationを呼びます。service objectのmember、ABIのresult envelope、内部handleを直接呼ぶAPIとして扱いません。
+
+## serviceとtarget
+
+| module | requirement field | service identity |
+| --- | --- | --- |
+| `std/clock` | `clock` | `std/clock::Clock` |
+| `std/fs` | `fileSystem` | `std/fs::FileSystem` |
+| `std/http` | `httpClient` | `std/http::HttpClient` |
+| `std/http/server` | `httpServer` | `std/http/server::HttpServer` |
+| `std/web/dom` | `dom` | `std/web/dom::Dom` |
+| `std/web/storage` | `storage` | `std/web/storage::Storage` |
+
+requirementはEffect型からentryのclosed environmentへ集めます。importしただけで、使わないserviceを要求へ加えることはありません。
+
+manifestの`process`/`web`はlogical targetです。Provider artifactの`bun-process`などはtoolchain adapter identityです。logical targetを決めた後にProviderを選び、Provider不足を別targetへの切り替えで隠しません。現在のprocess経路はBun、Web経路はbrowserを使います。compilerをWASMで配ることと、生成プログラムがWASMになることも別です。
+
+## Clockを使う例
+
+次のpackageはClockのoperationを要求し、`Clock ready`を出力します。
+
+{/* example: examples/reference/provider-clock/src/main.ssrg */}
+
+```seseragi title="main.ssrg"
+import * as clock from "std/clock"
+
+pub effect fn main = do {
+  _ <- clock.now ()
+  println "Clock ready"
+}
+```
+
+この例のmanifestはprocessを選び、`[providers]`のservice key`std/clock::Clock`へProvider identity`seseragi/runtime-bun#clock`を指定しています。省略時は対応targetのtoolchain defaultを使えます。明示指定はdeployment設定であり、アプリの関数signatureへProvider名を入れるものではありません。
+
+## 候補と互換性
+
+候補は、選択targetのtoolchain catalogにあるartifactか、実行rootの直接dependencyが公開するartifactです。transitive libraryはserviceを要求できますが、consumerの代わりにProviderを選べません。
+
+候補はservice identity、target、Contract version、backend family/ABI major、runtime feature、host package解決をすべて満たす必要があります。Contract majorは一致、Provider minorはrequired minor以上です。packageのSemVerとContract/ABIのversionを同一視しません。
+
+## 選択と事前エラー
+
+互換性確認後の選択順は、root manifestの明示指定、toolchain default、互換候補が一件だけの場合の順です。明示指定やdefaultが不適合でも、別候補へfallbackしません。指定がなく候補0件ならmissing、2件以上ならambiguousです。
+
+| code | 原因 |
+| --- | --- |
+| `SES-K0201` | serviceのProviderがない |
+| `SES-K0202` | 互換候補が複数あり曖昧 |
+| `SES-K0203` | 選択Providerのtargetが不一致 |
+| `SES-K0204` | Contract versionが不適合 |
+| `SES-K0205` | backend/ABIが不適合 |
+| `SES-K0206` | runtime feature/host packageが不足 |
+| `SES-K0207` | requirementのContract majorが衝突 |
+| `SES-K0208` | 明示/defaultのidentityが候補として不可視 |
+
+選択はentry評価前に完了します。未提供serviceへundefinedを入れてruntime errorにすることはありません。選択情報・artifact digest・host identityは同じ`seseragi.lock`へ保存します。
+
+## 実行とresource
+
+Provider-backed Effectもcoldで、構築時にhost operationを開始しません。typed failure、defect、cancellationを別の終了理由として保持します。resource acquireの成功からscope登録までをatomicに引き継ぎ、明示closeとfinalizerが重なっても一度だけcloseします。
+
+resourceやcallbackは、consumerのscopeと解除契約を持ちます。GCやmodule globalへlifetimeを逃がしません。Providerを自作する場合は、schema・compatibility・lifecycleのconformanceを満たす必要があります。
+
+アプリの要件を組み立てる規則は[Effect](/docs/reference/effects)、設定とlock更新は[プロジェクト設定](/docs/reference/project-configuration)、対応moduleとtargetは[標準ライブラリ](/docs/reference/library)を参照してください。

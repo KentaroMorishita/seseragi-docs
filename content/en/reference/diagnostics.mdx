@@ -1,0 +1,88 @@
+---
+title: Diagnostics
+description: Read source locations and error codes, then fix type mismatches, missing cases, integer ranges, and stale locks.
+---
+
+A diagnostic points to a source location and explains a problem. Compilation errors prevent code generation; they are distinct from a typed failure returned by an executing Effect.
+
+## Read a diagnostic
+
+CLI text output includes the file, line and column, a code such as `SES-T0101`, the affected source, and the explanation. Read the first cause before changing later expressions. A mistake in one declaration can affect several uses.
+
+For JSON output, use a supported command such as `run` or `lint`. The current `build` command does not accept `--diagnostic-format`:
+
+```sh
+seseragi lint parcel.ssrg \
+  --diagnostic-format json
+```
+
+Lint reports unused local definitions as well as compiler diagnostics. `--deny-warnings` makes warnings fail the lint command. See the [CLI reference](/en/docs/reference/cli) for each command's options.
+
+## Match the argument type
+
+This example is rejected with `SES-T0101`. The explicitly imported Console function takes a String, while `42` is an Int:
+
+{/* example: examples/diagnostics/type-mismatch.ssrg */}
+
+```seseragi
+import * as console
+  from "std/console"
+
+pub effect fn main =
+  console.println 42
+```
+
+Convert the value with `show` before passing it to `console.println`, or use `console.printValue`, whose type requires `Show`. Check the [Console API](/en/docs/reference/library/console) for the declared types.
+
+## Handle every data case
+
+This definition omits `Sent`. Compilation rejects it with `SES-T0301`, even though `main` happens to use `Packing`:
+
+{/* example: examples/diagnostics/non-exhaustive.ssrg */}
+
+```seseragi
+type Parcel =
+  | Packing
+  | Sent String
+
+fn label parcel: Parcel -> String =
+  match parcel {
+    Packing -> "Preparing"
+  }
+
+pub effect fn main =
+  Packing
+  |> label
+  |> println
+```
+
+Add a `Sent city` branch. Exhaustiveness is checked against the type, not just the values that the current entry point uses. Learn [pattern matching](/en/docs/learn/pattern-matching) to model cases without discarding their data.
+
+## Stay within Int's range
+
+An Int must be in `-9007199254740991..9007199254740991`. This literal is rejected with `SES-P0203`:
+
+{/* example: examples/diagnostics/integer-range.ssrg */}
+
+```seseragi
+pub effect fn main =
+  9007199254740992
+  |> show
+  |> println
+```
+
+Use a [BigInt](/en/docs/reference/library/big-int) when the value needs arbitrary precision. Converting an out-of-range Int after writing the literal cannot bypass the literal check.
+
+## Update a stale lock explicitly
+
+`SES-K0102` means the package lock is missing or no longer agrees with the package graph, configuration, provider selection, or locked contents. Inspect your changes and update it explicitly:
+
+```sh
+seseragi lock update
+```
+
+This commonly matters after changing package source before running tests. The development server updates the project's own source during watch mode, but changing dependencies or configuration still requires an explicit lock update and server restart. See [project configuration](/en/docs/reference/project-configuration).
+
+## Separate compiler errors from runtime failure
+
+Compilation errors stop before execution. An Effect's typed failure is a value in its error channel and may be recovered with `catchAll`. A defect or cancellation is not the same channel. See [failure handling](/en/docs/guides/error-handling) and the [Effect reference](/en/docs/reference/effects).

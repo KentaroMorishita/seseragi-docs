@@ -1,0 +1,255 @@
+---
+title: TypeScriptからSeseragiへ
+description: 呼び出し、式、データを一つずつ比較し、EffectとWeb UIへ進む。
+---
+
+TypeScriptの関数や配列を使った経験をもとに、構文を一つずつ比較します。それぞれのSeseragi例は独立したファイルとして保存して実行できます。CLIの準備と`main`の役割は[最初のプログラム](/docs/learn/first-program)と[ローカルで使う](/docs/learn/local-development)を参照してください。
+
+## 数値を関数へ渡す
+
+まずは、整数を二倍にする関数だけで呼び出し方を比べます。
+
+```typescript
+function double(value: number) {
+  return value * 2;
+}
+
+console.log(double(21));
+```
+
+Seseragiの`fn`は関数を定義します。`n: Int`が引数、最後の`Int`が結果の型です。`double 21`は`n`に21を渡し、42を返します。結果の整数を表示するために`printValue`を使います。
+
+次の内容を`migration.ssrg`へ保存してください。
+
+{/* example: examples/guides/migration.ssrg */}
+
+```seseragi title="migration.ssrg"
+fn double n: Int -> Int = n * 2
+
+pub effect fn main = {
+  let answer = double 21
+  printValue answer
+}
+```
+
+```sh
+seseragi run migration.ssrg
+```
+
+出力
+
+```text
+42
+```
+
+## 括弧で引数の式をまとめる
+
+TypeScriptでは次のように書く計算です。
+
+```typescript
+console.log(double(20 + 1));
+```
+
+Seseragiでは`double (20 + 1)`と書きます。括弧がまとめているのは引数の式`20 + 1`です。この式の値21を、直前と同じ`double`へ渡します。
+
+次は`migration-grouping.ssrg`へ保存してください。関数呼び出しと、引数の式を括弧でまとめることを分けて確認できます。
+
+{/* example: examples/guides/migration-grouping.ssrg */}
+
+```seseragi title="migration-grouping.ssrg"
+fn double n: Int -> Int = n * 2
+
+pub effect fn main = {
+  let answer = double (20 + 1)
+  printValue answer
+}
+```
+
+```sh
+seseragi run migration-grouping.ssrg
+```
+
+出力
+
+```text
+42
+```
+
+[値と式](/docs/learn/values-and-expressions)では、式の組み合わせと評価する順序を扱います。
+
+## 引数を一つずつ受け取る
+
+TypeScriptでカリー化した足し算を書くなら、二つの関数を使います。
+
+```typescript
+const add = (x: number) =>
+  (y: number) => x + y;
+
+const addTwenty = add(20);
+console.log(addTwenty(22));
+```
+
+Seseragiの`add 20 22`も引数を順に渡します。`add 20`まで適用すると、残りの`Int`を受け取る関数になります。これを`addTwenty`へ束縛して、22を渡す例です。
+
+`migration-partial.ssrg`へ保存してください。
+
+{/* example: examples/guides/migration-partial.ssrg */}
+
+```seseragi title="migration-partial.ssrg"
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+pub effect fn main = {
+  let addTwenty = add 20
+  let answer = addTwenty 22
+  printValue answer
+}
+```
+
+```sh
+seseragi run migration-partial.ssrg
+```
+
+出力
+
+```text
+42
+```
+
+`Int -> Int -> Int`の最後の`Int`が計算結果です。[関数とパイプライン](/docs/learn/functions-and-pipelines)でカリー化と部分適用を練習できます。
+
+## 配列の変換をパイプラインにする
+
+TypeScriptの配列を二倍にする計算は、次のように書けます。
+
+```typescript
+console.log([1, 2, 3].map(double));
+```
+
+Seseragiでは配列を`map double`へ渡します。`map double`は配列を待つ関数で、前の節と同じ部分適用です。`|>`は左の値を右の関数へ渡します。入力と各段階を縦に並べます。
+
+`migration-pipeline.ssrg`へ保存してください。
+
+{/* example: examples/guides/migration-pipeline.ssrg */}
+
+```seseragi title="migration-pipeline.ssrg"
+fn double n: Int -> Int = n * 2
+
+pub effect fn main =
+  [1, 2, 3]
+  |> map double
+  |> printValue
+```
+
+```sh
+seseragi run migration-pipeline.ssrg
+```
+
+出力
+
+```text
+[2, 4, 6]
+```
+
+`map`は各要素を変換した新しい配列を返します。[配列とList](/docs/learn/arrays-and-lists)で検索やフィルターへ進めます。
+
+## レコードのfieldを読む
+
+TypeScriptで名前の付いた値をまとめる例です。
+
+```typescript
+const point = { x: 3, y: 4 };
+console.log(point.x);
+```
+
+Seseragiでは`{ x: 3, y: 4 }`がレコードの値です。`point.x`でそのfieldを読みます。`migration-record.ssrg`へ保存してください。
+
+{/* example: examples/guides/migration-record.ssrg */}
+
+```seseragi title="migration-record.ssrg"
+pub effect fn main = {
+  let point = { x: 3, y: 4 }
+  printValue point.x
+}
+```
+
+```sh
+seseragi run migration-record.ssrg
+```
+
+出力
+
+```text
+3
+```
+
+レコードの値は不変です。新しい値の組み立て方や、名前を持つstructとの違いは[レコードとstruct](/docs/learn/records-and-structs)で扱います。
+
+## constructorで型のケースを作る
+
+ここからは、数値の関数とは別に、データの作り方を比べます。TypeScriptでは判別可能なユニオンを使えます。
+
+```typescript
+type Delivery =
+  | { kind: "preparing" }
+  | { kind: "sent"; city: string };
+
+const delivery: Delivery = {
+  kind: "sent",
+  city: "Kyoto",
+};
+```
+
+Seseragiでは`Preparing`と`Sent String`が`Delivery`のケースです。大文字で始まる`Sent`はconstructorで、`Sent "Kyoto"`は発送先を持つ`Delivery`の値を作ります。`label`はその値を受け取る通常の関数です。
+
+`migration-data.ssrg`へ保存してください。この例では`match`でケースを分け、`Sent city`の都市名を取り出します。
+
+{/* example: examples/guides/migration-data.ssrg */}
+
+```seseragi title="migration-data.ssrg"
+type Delivery =
+  | Preparing
+  | Sent String
+
+fn label d: Delivery -> String =
+  match d {
+    Preparing -> "Preparing"
+    Sent city -> city
+  }
+
+pub effect fn main = {
+  let delivery = Sent "Kyoto"
+  println (label delivery)
+}
+```
+
+```sh
+seseragi run migration-data.ssrg
+```
+
+出力
+
+```text
+Kyoto
+```
+
+ケースの定義は[代数的データ型](/docs/learn/algebraic-data-types)、値の取り出し方は[パターンマッチ](/docs/learn/pattern-matching)で詳しく扱います。
+
+## 不在・失敗・副作用を対応づける
+
+| TypeScriptで表すもの | Seseragiで表すもの |
+| --- | --- |
+| 存在しないかもしれない値 | `Maybe<A>` |
+| 成功か、理由のある失敗 | `Either<E, A>` |
+| 副作用を伴う遅延計算 | `Effect<R, E, A>` |
+| 引数から決まる計算 | 通常の`fn` |
+
+`Either`はすでに得られた結果です。`Effect<R, E, A>`は、環境Rを要求し、Eで失敗しうる、成功値Aの計算です。Effectを作った後、`main`やDOMランタイムなどの実行境界が実行します。
+
+[MaybeとEither](/docs/learn/maybe-and-either)と[Effect](/docs/learn/effects)でこの違いを学んだ後、[失敗を扱う](/docs/guides/error-handling)で入力の検証と回復を実装できます。
+
+## Reactのpropsと状態に対応づける
+
+Seseragiのコンポーネントは、propsを受け取り`Html<Action>`を返す通常の関数です。イベントがActionを作り、純粋な`update`が次の状態を返します。`dom.app`は状態を持つSignalとDOMへの接続を管理します。
+
+[Webアプリを作る](/docs/guides/web-app)ではカウンター、[コンポーネント](/docs/guides/components)ではpropsからカードを作る関数を、それぞれ別の課題として扱います。独立した状態を持つ機能の構成は[状態を持つ機能](/docs/guides/stateful-features)へ進んでください。

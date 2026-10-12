@@ -1,0 +1,1066 @@
+---
+title: "std/prelude"
+description: "Core types, type classes, and functions available without imports."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+Prelude names are available without an import. Purpose-specific operations live in explicit modules.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Add`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Add
+```
+
+### `Applicative`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Applicative
+```
+
+### `Debug`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Debug
+```
+
+### `Div`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Div
+```
+
+### `Either`
+
+<small className="api-kind">Type</small>
+
+Represents either a typed failure or a success value.
+
+```text
+Either<E, A>
+```
+
+### `Eq`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Eq
+```
+
+### `Functor`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Functor
+```
+
+### `Hash`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Hash
+```
+
+### `Iterable`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Iterable
+```
+
+### `JsonDecode`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait JsonDecode
+```
+
+### `JsonEncode`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait JsonEncode
+```
+
+### `Maybe`
+
+<small className="api-kind">Type</small>
+
+Represents an optional value as Nothing or Just.
+
+```text
+Maybe<A>
+```
+
+### `Monad`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Monad
+```
+
+### `Monoid`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Monoid
+```
+
+### `Mul`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Mul
+```
+
+### `One`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait One
+```
+
+### `Ord`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Ord
+```
+
+### `Ordering`
+
+<small className="api-kind">Type</small>
+
+Represents a total comparison result as Less, Equal, or Greater.
+
+```text
+Ordering
+```
+
+### `Pow`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Pow
+```
+
+### `Reducible`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Reducible
+```
+
+### `Rem`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Rem
+```
+
+### `Semigroup`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Semigroup
+```
+
+### `Show`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Show
+```
+
+### `Sub`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Sub
+```
+
+### `Task`
+
+<small className="api-kind">Type alias</small>
+
+Transparent alias for an Effect with no environment and no recoverable failure.
+
+```text
+alias Task<A> = Effect<{}, Never, A>
+```
+
+### `Traversable`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Traversable
+```
+
+### `Zero`
+
+<small className="api-kind">Type class</small>
+
+```text
+trait Zero
+```
+
+## Constructors and values
+
+### `Equal`
+
+<small className="api-kind">Constructor</small>
+
+Constructs the equal Ordering result.
+
+```text
+Equal
+  Ordering
+```
+
+### `Greater`
+
+<small className="api-kind">Constructor</small>
+
+Constructs the greater-than Ordering result.
+
+```text
+Greater
+  Ordering
+```
+
+### `Just`
+
+<small className="api-kind">Constructor</small>
+
+Constructs a present Maybe value.
+
+```text
+Just
+  A
+  -> Maybe<A>
+```
+
+### `Left`
+
+<small className="api-kind">Constructor</small>
+
+Constructs the failure side of Either.
+
+```text
+Left
+  E
+  -> Either<E, A>
+```
+
+### `Less`
+
+<small className="api-kind">Constructor</small>
+
+Constructs the less-than Ordering result.
+
+```text
+Less
+  Ordering
+```
+
+### `Nothing`
+
+<small className="api-kind">Constructor</small>
+
+Constructs an empty Maybe value.
+
+```text
+Nothing
+  Maybe<A>
+```
+
+### `Product`
+
+<small className="api-kind">Constructor / Type</small>
+
+Selects multiplication through a nominal wrapper; Monoid requires One and homogeneous Mul evidence.
+
+```text
+Product
+  A
+  -> Product<A>
+```
+
+### `Right`
+
+<small className="api-kind">Constructor</small>
+
+Constructs the success side of Either.
+
+```text
+Right
+  A
+  -> Either<E, A>
+```
+
+### `Sum`
+
+<small className="api-kind">Constructor / Type</small>
+
+Selects addition through a nominal wrapper; Monoid requires Zero and homogeneous Add evidence.
+
+```text
+Sum
+  A
+  -> Sum<A>
+```
+
+## Functions and operators
+
+### `-` / Sub.sub
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+- via Sub.sub
+```
+
+### `:` / List cons
+
+<small className="api-kind">Operator</small>
+
+Persistent List cons. Precedence 4, right associative; evaluates head then tail once and shares the tail in O(1). The operator section (:) is a curried function.
+
+```text
+A : List<A> -> List<A>
+```
+
+### `!=` / Eq.eq
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+!= via Eq.eq
+```
+
+### `??` / List cons
+
+<small className="api-kind">Operator</small>
+
+Maybe fallback. Precedence 0, right-associative. Evaluates the left once; evaluates the fallback only for Nothing. Syntax only: no operator section or overload.
+
+```text
+Maybe<A> ?? A -> A
+```
+
+### `*` / Mul.mul
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+* via Mul.mul
+```
+
+### `**` / Pow.pow
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+** via Pow.pow
+```
+
+### `/` / Div.div
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+/ via Div.div
+```
+
+### `%` / Rem.rem
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+% via Rem.rem
+```
+
+### `+` / Add.add
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
++ via Add.add
+```
+
+### `<` / Ord.compare
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+< via Ord.compare
+```
+
+### `<*>` / Applicative.apply
+
+<small className="api-kind">Operator</small>
+
+Operator spelling for a standard trait method.
+
+```text
+<*> via Applicative.apply
+```
+
+### `<=` / Ord.compare
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+<= via Ord.compare
+```
+
+### `<$>` / Functor.map
+
+<small className="api-kind">Operator</small>
+
+Operator spelling for a standard trait method.
+
+```text
+<$> via Functor.map
+```
+
+### `==` / Eq.eq
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+== via Eq.eq
+```
+
+### `>` / Ord.compare
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+> via Ord.compare
+```
+
+### `>=` / Ord.compare
+
+<small className="api-kind">Operator</small>
+
+Dispatches through the standard trait instance selected by the operand types.
+
+```text
+>= via Ord.compare
+```
+
+### `>>=` / Monad.flatMap
+
+<small className="api-kind">Operator</small>
+
+Operator spelling for a standard trait method.
+
+```text
+>>= via Monad.flatMap
+```
+
+### `add`
+
+<small className="api-kind">Function</small>
+
+Applies the selected arithmetic trait instance.
+
+```text
+add<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Add<L, R, O>
+```
+
+### `all`
+
+<small className="api-kind">Function</small>
+
+Returns false at the first element rejected by the predicate.
+
+```text
+all<C, A>
+  (A -> Bool)
+  -> C
+  -> Bool
+where
+  Iterable<C, A>
+```
+
+### `any`
+
+<small className="api-kind">Function</small>
+
+Returns true at the first element accepted by the predicate.
+
+```text
+any<C, A>
+  (A -> Bool)
+  -> C
+  -> Bool
+where
+  Iterable<C, A>
+```
+
+### `append`
+
+<small className="api-kind">Function</small>
+
+Combines two values through their associative Semigroup operation, including instances such as numeric wrappers.
+
+```text
+append<A>
+  A
+  -> A
+  -> A
+where
+  Semigroup<A>
+```
+
+### `apply`
+
+<small className="api-kind">Function</small>
+
+Applies a function inside an Applicative context.
+
+```text
+apply<F<_>, A, B>
+  F<(A -> B)>
+  -> F<A>
+  -> F<B>
+where
+  Applicative<F<_>>
+```
+
+### `combine`
+
+<small className="api-kind">Function</small>
+
+Combines a reducible collection using its Monoid instance.
+
+```text
+combine<C, A>
+  C
+  -> A
+where
+  Reducible<C, A>,
+  Monoid<A>
+```
+
+### `compare`
+
+<small className="api-kind">Function</small>
+
+Compares two values with the selected total ordering.
+
+```text
+compare<A>
+  A
+  -> A
+  -> Ordering
+where
+  Ord<A>
+```
+
+### `debug`
+
+<small className="api-kind">Function</small>
+
+```text
+debug<A>
+  A
+  -> String
+where
+  Debug<A>
+```
+
+### `decodeJson`
+
+<small className="api-kind">Function</small>
+
+```text
+decodeJson<A>
+  Json
+  -> Either<DecodeError, A>
+where
+  JsonDecode<A>
+```
+
+### `div`
+
+<small className="api-kind">Function</small>
+
+Applies the selected arithmetic trait instance.
+
+```text
+div<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Div<L, R, O>
+```
+
+### `empty`
+
+<small className="api-kind">Function</small>
+
+Returns the identity value for a Monoid.
+
+```text
+empty<A>
+  Unit
+  -> A
+where
+  Monoid<A>
+```
+
+### `encodeJson`
+
+<small className="api-kind">Function</small>
+
+```text
+encodeJson<A>
+  A
+  -> Json
+where
+  JsonEncode<A>
+```
+
+### `eq`
+
+<small className="api-kind">Function</small>
+
+Tests two values with the selected Eq instance.
+
+```text
+eq<A>
+  A
+  -> A
+  -> Bool
+where
+  Eq<A>
+```
+
+### `flatMap`
+
+<small className="api-kind">Function</small>
+
+Sequences a Monad with a value-dependent next computation.
+
+```text
+flatMap<M<_>, A, B>
+  (A -> M<B>)
+  -> M<A>
+  -> M<B>
+where
+  Monad<M<_>>
+```
+
+### `forEach`
+
+<small className="api-kind">Function</small>
+
+Runs one Effect for every value exposed by an Iterable instance.
+
+```text
+forEach<C, R, E, A>
+  (A -> Effect<R, E, Unit>)
+  -> C
+  -> Effect<R, E, Unit>
+where
+  Iterable<C, A>
+```
+
+### `hash`
+
+<small className="api-kind">Function</small>
+
+Computes the hash defined by the selected Hash instance.
+
+```text
+hash<A>
+  A
+  -> Int
+where
+  Hash<A>
+```
+
+### `iterate`
+
+<small className="api-kind">Function</small>
+
+Creates an Iterator over a collection.
+
+```text
+iterate<C, A>
+  C
+  -> Iterator<A>
+where
+  Iterable<C, A>
+```
+
+### `join`
+
+<small className="api-kind">Function</small>
+
+Joins a reducible collection of strings with a separator.
+
+```text
+join<C>
+  String
+  -> C
+  -> String
+where
+  Reducible<C, String>
+```
+
+### `map`
+
+<small className="api-kind">Function</small>
+
+Transforms the value inside a Functor without changing its shape.
+
+```text
+map<F<_>, A, B>
+  (A -> B)
+  -> F<A>
+  -> F<B>
+where
+  Functor<F<_>>
+```
+
+### `mul`
+
+<small className="api-kind">Function</small>
+
+Applies the selected arithmetic trait instance.
+
+```text
+mul<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Mul<L, R, O>
+```
+
+### `next`
+
+<small className="api-kind">Function</small>
+
+Reads the next Iterator value and its remaining Iterator.
+
+```text
+next<A>
+  Iterator<A>
+  -> Maybe<(A, Iterator<A>)>
+```
+
+### `one`
+
+<small className="api-kind">Function</small>
+
+Returns the numeric one for the selected type.
+
+```text
+one<A>
+  Unit
+  -> A
+where
+  One<A>
+```
+
+### `pow`
+
+<small className="api-kind">Function</small>
+
+Applies the selected arithmetic trait instance.
+
+```text
+pow<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Pow<L, R, O>
+```
+
+### `print`
+
+<small className="api-kind">Function</small>
+
+Writes text through Console without adding a newline.
+
+```text
+print
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `println`
+
+<small className="api-kind">Function</small>
+
+Writes text followed by a newline through Console.
+
+```text
+println
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `printValue`
+
+<small className="api-kind">Function</small>
+
+Renders a value through its Show instance and writes it through Console.
+
+```text
+printValue<A>
+  A
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+where
+  Show<A>
+```
+
+### `product`
+
+<small className="api-kind">Function</small>
+
+Multiplies every element of a reducible collection from one.
+
+```text
+product<C, A>
+  C
+  -> A
+where
+  Reducible<C, A>,
+  One<A>,
+  Mul<A, A, A>
+```
+
+### `pure`
+
+<small className="api-kind">Function</small>
+
+Lifts a value into an Applicative context.
+
+```text
+pure<F<_>, A>
+  A
+  -> F<A>
+where
+  Applicative<F<_>>
+```
+
+### `readLine`
+
+<small className="api-kind">Function</small>
+
+Reads one optional line through Stdin.
+
+```text
+readLine
+  Unit
+  -> Effect<
+       { stdin: Stdin },
+       StdinError,
+       Maybe<String>
+     >
+```
+
+### `reduce`
+
+<small className="api-kind">Function</small>
+
+Folds a reducible collection into one accumulated value.
+
+```text
+reduce<C, A, B>
+  B
+  -> (B -> A -> B)
+  -> C
+  -> B
+where
+  Reducible<C, A>
+```
+
+### `rem`
+
+<small className="api-kind">Function</small>
+
+Applies the selected arithmetic trait instance.
+
+```text
+rem<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Rem<L, R, O>
+```
+
+### `show`
+
+<small className="api-kind">Function</small>
+
+```text
+show<A>
+  A
+  -> String
+where
+  Show<A>
+```
+
+### `sub`
+
+<small className="api-kind">Function</small>
+
+Applies the selected arithmetic trait instance.
+
+```text
+sub<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Sub<L, R, O>
+```
+
+### `sum`
+
+<small className="api-kind">Function</small>
+
+Adds every element of a reducible collection from zero.
+
+```text
+sum<C, A>
+  C
+  -> A
+where
+  Reducible<C, A>,
+  Zero<A>,
+  Add<A, A, A>
+```
+
+### `traverse`
+
+<small className="api-kind">Function</small>
+
+Traverses a Functor with an Applicative effect while preserving its shape.
+
+```text
+traverse<F<_>, G<_>, A, B>
+  (A -> G<B>)
+  -> F<A>
+  -> G<F<B>>
+where
+  Traversable<F<_>>,
+  Applicative<G<_>>
+```
+
+### `unfold`
+
+<small className="api-kind">Function</small>
+
+Builds a lazy Iterator from an initial state and step function.
+
+```text
+unfold<S, A>
+  (S -> Maybe<(A, S)>)
+  -> S
+  -> Iterator<A>
+```
+
+### `zero`
+
+<small className="api-kind">Function</small>
+
+Returns the numeric zero for the selected type.
+
+```text
+zero<A>
+  Unit
+  -> A
+where
+  Zero<A>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/maybe-and-either)
+- [Browse modules by purpose](/en/docs/reference/library)

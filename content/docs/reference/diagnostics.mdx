@@ -1,0 +1,88 @@
+---
+title: 診断を読む
+description: 位置とエラーコードから、型の不一致、未処理のケース、Intの範囲、古いlockを直す。
+---
+
+診断は、問題のあるソース位置と理由を伝えます。コンパイルエラーがある場合はコード生成へ進みません。実行したEffectが返す型付きの失敗とは、発生する段階が異なります。
+
+## 位置と理由を読む
+
+CLIのテキスト出力には、ファイル、行・列、`SES-T0101`などのコード、該当箇所、理由が表示されます。後続の式を一度に直す前に、最初の原因を確認してください。一つの定義の誤りが、複数の使用箇所へ影響する場合があります。
+
+JSONで取得する場合は、対応する`run`や`lint`のオプションを使います。現在の`build`には`--diagnostic-format`を渡せません。
+
+```sh
+seseragi lint parcel.ssrg \
+  --diagnostic-format json
+```
+
+lintはコンパイラの診断に加え、未使用のローカル定義を調べます。`--deny-warnings`を付けると、警告がある場合もlintの失敗になります。コマンドごとのオプションは[CLIリファレンス](/docs/reference/cli)で確認できます。
+
+## 引数の型を合わせる
+
+次のコードは`SES-T0101`で拒否されます。明示的にimportしたConsoleの関数はStringを受け取りますが、`42`はIntです。
+
+{/* example: examples/diagnostics/type-mismatch.ssrg */}
+
+```seseragi
+import * as console
+  from "std/console"
+
+pub effect fn main =
+  console.println 42
+```
+
+`show`で文字列へ変換してから`console.println`へ渡すか、`Show`を必要とする`console.printValue`を使います。宣言された型は[Console API](/docs/reference/library/console)で確認できます。
+
+## すべてのケースを処理する
+
+次の定義には`Sent`の処理がありません。`main`が今は`Packing`だけを使っていても、`SES-T0301`で拒否されます。
+
+{/* example: examples/diagnostics/non-exhaustive.ssrg */}
+
+```seseragi
+type Parcel =
+  | Packing
+  | Sent String
+
+fn label parcel: Parcel -> String =
+  match parcel {
+    Packing -> "Preparing"
+  }
+
+pub effect fn main =
+  Packing
+  |> label
+  |> println
+```
+
+`Sent city`の分岐を追加してください。網羅性は、現在の入口が使う値だけでなく、型の取りうる値に対して検査します。[パターンマッチ](/docs/learn/pattern-matching)では、各ケースのデータを使いながら分岐を書く方法を学べます。
+
+## Intの範囲を確認する
+
+Intの範囲は`-9007199254740991..9007199254740991`です。次のリテラルは`SES-P0203`で拒否されます。
+
+{/* example: examples/diagnostics/integer-range.ssrg */}
+
+```seseragi
+pub effect fn main =
+  9007199254740992
+  |> show
+  |> println
+```
+
+任意精度が必要な値には[BigInt](/docs/reference/library/big-int)を使います。範囲外のIntを書いてから変換しても、リテラルの検査を避けることはできません。
+
+## 古いlockを明示的に更新する
+
+`SES-K0102`はlockがないか、package graph、設定、providerの選択、lock対象の内容と一致していないことを表します。変更を確認し、明示的に更新してください。
+
+```sh
+seseragi lock update
+```
+
+パッケージのコードを編集してからテストを実行する場合も、更新が必要になることがあります。開発サーバーのwatch中は自パッケージのソース変更を扱いますが、依存関係や設定を変えた場合は明示的なlock更新とサーバーの再起動が必要です。[project設定](/docs/reference/project-configuration)で詳しく説明しています。
+
+## コンパイルエラーと実行時の失敗を分ける
+
+コンパイルエラーは実行前に停止します。Effectの型付きの失敗はerror channelの値であり、`catchAll`などで回復できます。defectと中断は同じchannelではありません。[失敗を扱う](/docs/guides/error-handling)と[Effectリファレンス](/docs/reference/effects)へ進んでください。

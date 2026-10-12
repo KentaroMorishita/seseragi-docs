@@ -1,0 +1,11 @@
+import * as bytes from "std/bytes"
+import * as hex from "std/bytes/hex"
+
+pub effect fn main =
+  match bytes.fromInts [65, 66] {
+    Right value ->
+      value
+      |> hex.encode
+      |> println
+    Left _ -> println "Invalid byte"
+  }

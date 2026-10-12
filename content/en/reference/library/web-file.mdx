@@ -1,0 +1,197 @@
+---
+title: "std/web/file"
+description: "Read the contents of browser Files through typed Effects."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | browser |
+
+## Import
+
+```seseragi
+import * as web_file
+  from "std/web/file"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Blob`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Blob
+```
+
+### `BlobBuildError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+BlobBuildError
+```
+
+### `BlobReadError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+BlobReadError
+```
+
+### `File`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+File
+```
+
+## Constructors and values
+
+### `BlobReadFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+BlobReadFailure
+  String
+  -> BlobReadError
+```
+
+### `BlobReadLimitExceeded`
+
+<small className="api-kind">Constructor</small>
+
+```text
+BlobReadLimitExceeded
+  {
+    limitBytes: Int,
+    sizeBytes: Int
+  }
+  -> BlobReadError
+```
+
+### `InvalidBlobMimeType`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidBlobMimeType
+  String
+  -> BlobBuildError
+```
+
+## Functions and operators
+
+### `asBlob`
+
+<small className="api-kind">Function</small>
+
+```text
+asBlob
+  File
+  -> Blob
+```
+
+### `body`
+
+<small className="api-kind">Function</small>
+
+```text
+body
+  Blob
+  -> Body<{}, BlobReadError>
+```
+
+### `fromBytes`
+
+<small className="api-kind">Function</small>
+
+```text
+fromBytes
+  Maybe<String>
+  -> Bytes
+  -> Either<BlobBuildError, Blob>
+```
+
+### `lastModifiedMillis`
+
+<small className="api-kind">Function</small>
+
+```text
+lastModifiedMillis
+  File
+  -> Int
+```
+
+### `mimeType`
+
+<small className="api-kind">Function</small>
+
+```text
+mimeType
+  Blob
+  -> Maybe<String>
+```
+
+### `name`
+
+<small className="api-kind">Function</small>
+
+```text
+name
+  File
+  -> String
+```
+
+### `readBytes`
+
+<small className="api-kind">Function</small>
+
+```text
+readBytes
+  Int
+  -> Blob
+  -> Effect<
+       {},
+       BlobReadError,
+       Bytes
+     >
+```
+
+### `readChunks`
+
+<small className="api-kind">Function</small>
+
+```text
+readChunks
+  Blob
+  -> Stream<
+       {},
+       BlobReadError,
+       Bytes
+     >
+```
+
+### `sizeBytes`
+
+<small className="api-kind">Function</small>
+
+```text
+sizeBytes
+  Blob
+  -> Int
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/signals)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Web UI contract](/en/docs/reference/web-ui)

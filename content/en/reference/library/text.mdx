@@ -1,0 +1,341 @@
+---
+title: "std/text"
+description: "Search, split, and transform Strings. Check the unit used for lengths and positions in each API."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as text from "std/text"
+```
+
+## Choosing operations
+
+- Indices count Unicode scalars. Distinguish them from UTF-8 byte lengths and grapheme APIs for displayed characters.
+- split and replace use literal Strings; replacement markers such as $ are not expanded. Use std/regex explicitly for regular expressions.
+- Scalar slices validate an end-exclusive range rather than clamping invalid indices. Do not assume O(1) random access for scalarAt and related traversals.
+- Casing and trimming use shared Unicode rules, not locale-specific transformations. trim does not remove U+FEFF.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `TextSliceError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+TextSliceError
+```
+
+### `Utf8DecodeError`
+
+<small className="api-kind">Opaque type</small>
+
+Reports the byte offset of the first invalid UTF-8 sequence.
+
+```text
+Utf8DecodeError
+```
+
+## Constructors and values
+
+### `InvalidScalarRange`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidScalarRange
+  {
+    start: Int,
+    end: Int,
+    length: Int
+  }
+  -> TextSliceError
+```
+
+### `InvalidUtf8`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidUtf8
+  { offset: Int }
+  -> Utf8DecodeError
+```
+
+## Functions and operators
+
+### `caseFold`
+
+<small className="api-kind">Function</small>
+
+```text
+caseFold
+  String
+  -> String
+```
+
+### `concat`
+
+<small className="api-kind">Function</small>
+
+Concatenates the Strings in Array order into one String.
+
+```text
+concat
+  Array<String>
+  -> String
+```
+
+### `contains`
+
+<small className="api-kind">Function</small>
+
+```text
+contains
+  String
+  -> String
+  -> Bool
+```
+
+### `decodeUtf8`
+
+<small className="api-kind">Function</small>
+
+Strictly decodes UTF-8 or reports the first invalid byte offset.
+
+```text
+decodeUtf8
+  Bytes
+  -> Either<Utf8DecodeError, String>
+```
+
+### `decodeUtf8Lossy`
+
+<small className="api-kind">Function</small>
+
+Decodes UTF-8 and replaces invalid sequences.
+
+```text
+decodeUtf8Lossy
+  Bytes
+  -> String
+```
+
+### `encodeUtf8`
+
+<small className="api-kind">Function</small>
+
+Encodes String as UTF-8 Bytes.
+
+```text
+encodeUtf8
+  String
+  -> Bytes
+```
+
+### `endsWith`
+
+<small className="api-kind">Function</small>
+
+```text
+endsWith
+  String
+  -> String
+  -> Bool
+```
+
+### `isEmpty`
+
+<small className="api-kind">Function</small>
+
+Returns whether the collection contains no elements.
+
+```text
+isEmpty
+  String
+  -> Bool
+```
+
+### `join`
+
+<small className="api-kind">Function</small>
+
+```text
+join
+  String
+  -> Array<String>
+  -> String
+```
+
+### `lengthBytes`
+
+<small className="api-kind">Function</small>
+
+```text
+lengthBytes
+  String
+  -> Int
+```
+
+### `lengthScalars`
+
+<small className="api-kind">Function</small>
+
+```text
+lengthScalars
+  String
+  -> Int
+```
+
+### `lines`
+
+<small className="api-kind">Function</small>
+
+```text
+lines
+  String
+  -> Array<String>
+```
+
+### `replace`
+
+<small className="api-kind">Function</small>
+
+```text
+replace
+  String
+  -> String
+  -> String
+  -> String
+```
+
+### `replaceAll`
+
+<small className="api-kind">Function</small>
+
+```text
+replaceAll
+  String
+  -> String
+  -> String
+  -> String
+```
+
+### `scalarAt`
+
+<small className="api-kind">Function</small>
+
+```text
+scalarAt
+  Int
+  -> String
+  -> Maybe<Char>
+```
+
+### `sliceScalars`
+
+<small className="api-kind">Function</small>
+
+```text
+sliceScalars
+  Int
+  -> Int
+  -> String
+  -> Either<TextSliceError, String>
+```
+
+### `split`
+
+<small className="api-kind">Function</small>
+
+```text
+split
+  String
+  -> String
+  -> Array<String>
+```
+
+### `startsWith`
+
+<small className="api-kind">Function</small>
+
+```text
+startsWith
+  String
+  -> String
+  -> Bool
+```
+
+### `toLower`
+
+<small className="api-kind">Function</small>
+
+```text
+toLower
+  String
+  -> String
+```
+
+### `toUpper`
+
+<small className="api-kind">Function</small>
+
+```text
+toUpper
+  String
+  -> String
+```
+
+### `trim`
+
+<small className="api-kind">Function</small>
+
+```text
+trim
+  String
+  -> String
+```
+
+### `trimEnd`
+
+<small className="api-kind">Function</small>
+
+```text
+trimEnd
+  String
+  -> String
+```
+
+### `trimStart`
+
+<small className="api-kind">Function</small>
+
+```text
+trimStart
+  String
+  -> String
+```
+
+### `words`
+
+<small className="api-kind">Function</small>
+
+```text
+words
+  String
+  -> Array<String>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/values-and-expressions)
+- [Browse modules by purpose](/en/docs/reference/library)

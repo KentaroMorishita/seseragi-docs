@@ -1,0 +1,75 @@
+---
+title: "std/transformer/maybe"
+description: "Compose absence from Maybe with values produced by another Monad."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as transformer_maybe
+  from "std/transformer/maybe"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `MaybeT`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct MaybeT<M<_>, A> {
+  run: M<Maybe<A>>
+}
+```
+
+- `run`: A Maybe result held in the underlying type constructor M.
+
+## Functions and operators
+
+### `fromMaybe`
+
+<small className="api-kind">Function</small>
+
+```text
+fromMaybe<M<_>, A>
+  Maybe<A>
+  -> MaybeT<M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `lift`
+
+<small className="api-kind">Function</small>
+
+```text
+lift<M<_>, A>
+  M<A>
+  -> MaybeT<M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `run`
+
+<small className="api-kind">Function</small>
+
+```text
+run<M<_>, A>
+  MaybeT<M<_>, A>
+  -> M<Maybe<A>>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/type-classes)
+- [Browse modules by purpose](/en/docs/reference/library)

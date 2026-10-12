@@ -1,0 +1,48 @@
+---
+title: "Language reference"
+description: "Look up the rules for syntax, types, evaluation, effects, modules, and tools."
+---
+
+Use this reference to check what you can write, how expressions are typed, when computations run, and where errors occur. For a guided introduction, start with [Learn](/en/docs/learn/first-program). For an application workflow, use the [Guides](/en/docs/guides/cli-app).
+
+## Syntax and data
+
+| Question | Page |
+| --- | --- |
+| Literals, line breaks, and operator precedence | [Syntax](/en/docs/reference/syntax) |
+| Annotations, type arguments, inference, and compatibility | [Types](/en/docs/reference/types) |
+| ADTs, structs, records, newtypes, and collections | [Data types](/en/docs/reference/data-types) |
+| Destructuring, guards, exhaustiveness, and binding scope | [Patterns](/en/docs/reference/patterns) |
+| Currying, partial application, lambdas, and recursion | [Functions](/en/docs/reference/functions) |
+
+## Computation and state
+
+| Question | Page |
+| --- | --- |
+| Absence, failure, deferred execution, environments, and resources | [Effects and failure](/en/docs/reference/effects) |
+| Current values, derived signals, transactions, and subscriptions | [Signals](/en/docs/reference/signals) |
+| Traits, instances, constraints, deriving, and do notation | [Type classes](/en/docs/reference/type-classes) |
+
+## Application boundaries
+
+| Question | Page |
+| --- | --- |
+| Imports, visibility, and module initialization | [Modules](/en/docs/reference/modules) |
+| Foreign calls, null, promises, and snapshot conversion | [TypeScript interop](/en/docs/reference/typescript-interop) |
+| Html, actions, DOM resources, and Signal bindings | [Web UI](/en/docs/reference/web-ui) |
+| Services, targets, and provider selection | [Runtime providers](/en/docs/reference/runtime-providers) |
+
+## Tools and operation
+
+| Question | Page |
+| --- | --- |
+| Available commands and options | [CLI](/en/docs/reference/cli) |
+| seseragi.toml, layout, dependencies, and locking | [Project configuration](/en/docs/reference/project-configuration) |
+| Collection costs, recursion, profiles, and measurement | [Performance](/en/docs/reference/performance) |
+| Standard-module functions, types, and supported targets | [Standard library](/en/docs/reference/library) |
+
+## Verification scope
+
+The runnable examples on these pages were checked with the distributed Seseragi compiler **0.61.25**. The compiler distribution version and the language version selected by `package.language` are separate. A manifest specifies a language range accepted by the compiler in use.
+
+A future contract in the language specification is not presented as an available command or API. Any unimplemented feature discussed here is identified where it appears. Optimization guidance also separates structures that may be erased from optimizations the current backend actually guarantees.

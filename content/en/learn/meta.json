@@ -1,1 +1,25 @@
-{"title": "Learn", "pages": ["first-program", "local-development"]}
+{
+  "title": "Learn",
+  "pages": [
+    "index",
+    "---Start here---",
+    "first-program",
+    "local-development",
+    "---Values and functions---",
+    "values-and-expressions",
+    "functions-and-pipelines",
+    "---Model data---",
+    "records-and-structs",
+    "algebraic-data-types",
+    "pattern-matching",
+    "arrays-and-lists",
+    "maybe-and-either",
+    "---Abstraction and computation---",
+    "generics",
+    "recursion",
+    "effects",
+    "signals",
+    "type-classes",
+    "modules"
+  ]
+}

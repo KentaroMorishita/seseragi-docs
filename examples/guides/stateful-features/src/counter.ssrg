@@ -1,0 +1,40 @@
+import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal, Signal }
+  from "std/signal"
+
+struct Count { count: Int }
+
+alias View = html.Html<Task<Unit>>
+
+fn view title: String
+  -> state: MutableSignal<Count>
+  -> current: Count
+  -> View =
+  html.section {
+    children: [
+      html.h2<Task<Unit>, String> {
+        children: title
+      },
+      html.p<Task<Unit>, String> {
+        children: show current.count
+      },
+      html.button {
+        buttonType: "button",
+        children: "Add one",
+        onClick: signals.update
+          (\n: Count -> Count {
+            count: n.count + 1
+          }) state
+      }
+    ]
+  }
+
+pub effect fn create title: String
+  -> Signal<View> = do {
+  state <-
+    signals.make $ Count { count: 0 }
+  state
+  |> signals.map (view title state)
+  |> succeed
+}

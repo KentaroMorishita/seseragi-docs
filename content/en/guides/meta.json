@@ -1,0 +1,20 @@
+{
+  "title": "Guides",
+  "pages": [
+    "index",
+    "---Adopt the language---",
+    "typescript-to-seseragi",
+    "cli-app",
+    "error-handling",
+    "---Build Web apps---",
+    "web-app",
+    "state-and-actions",
+    "components",
+    "forms",
+    "stateful-features",
+    "---Develop and publish---",
+    "testing",
+    "typescript-bindings",
+    "packages-and-deployment"
+  ]
+}

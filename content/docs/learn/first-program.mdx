@@ -1,128 +1,51 @@
 ---
 title: 最初のプログラム
-description: 配送状態を型で表し、matchとパイプラインで表示する文字列へ変換する。
+description: 文字列を一行出力し、実行と編集の流れを確かめる。
 ---
 
-荷物が準備中なら「Preparing」、発送済みなら発送先の都市名を表示します。配送状態を表す型と、表示する文字列を返す関数を作ります。
+まず、`Hello, Seseragi!`を表示するプログラムを実行します。表示できたら文字列を変えて、もう一度実行してみましょう。
 
-## 状態を表す型
+## 一行を表示する
 
-準備中と発送済みを、`Parcel`という型の二つのケースとして定義します。
+{/* example: examples/hello.ssrg */}
 
-```seseragi
-type Parcel =
-  | Packing
-  | Sent String
-```
-
-`Packing`は準備中を表します。`Sent`は発送済みを表し、発送先の都市名を`String`として持ちます。このように複数のケースからなる型を、代数的データ型と呼びます。
-
-`Sent "Kyoto"`と書くと、発送先がKyotoの値を作れます。`Packing`と`Sent "Kyoto"`は、どちらも`Parcel`です。
-
-## 状態から文字列を作る
-
-`label`は`Parcel`を受け取り、表示する`String`を返す関数です。
-
-```seseragi
-fn label parcel: Parcel -> String =
-  match parcel {
-    Packing -> "Preparing"
-    Sent city -> `Sent to ${city}`
-  }
-```
-
-`fn`の後ろに関数名と引数を書きます。`parcel: Parcel`は引数とその型、最後の`String`は結果の型です。`=`の右側に本体の式を書きます。
-
-`match`は、受け取った値がどのケースに一致するかを調べます。`Packing`なら`"Preparing"`を返します。`Sent city`なら、値に含まれる発送先を`city`として取り出します。
-
-バッククォートで囲んだ文字列では、`${city}`の位置に値を埋め込めます。`Sent "Kyoto"`を受け取った場合の結果は`"Sent to Kyoto"`です。
-
-<div className="lesson-flow" role="img" aria-label="Sent Kyotoをlabelに渡すとSent to Kyotoを返す">
-  <div><small>値</small><strong>Sent "Kyoto"</strong></div><span aria-hidden="true">→</span><div><small>関数</small><strong>label</strong></div><span aria-hidden="true">→</span><div><small>結果</small><strong>Sent to Kyoto</strong></div>
-</div>
-
-## 関数をつないで出力する
-
-関数を呼び出すには、名前の後ろに引数を空白で並べます。たとえば、`label (Sent "Kyoto")`は発送済みの値を`label`へ渡します。
-
-`|>`を使うと、左側の値を右側の関数へ渡せます。
-
-```seseragi
+```seseragi title="hello.ssrg"
 pub effect fn main =
-  Sent "Kyoto"
-  |> label
-  |> println
+  println "Hello, Seseragi!"
 ```
 
-まず`Sent "Kyoto"`を`label`へ渡し、その結果の文字列を`println`へ渡します。
+`main`がプログラムの入口です。`pub`で入口を公開し、出力を行うため`effect fn`で宣言します。
 
-`main`はプログラムの入口です。画面への出力を伴うため、`pub effect fn`で宣言します。`label`は文字列を返す通常の関数で、出力は`println`が行います。
+`println`は文字列を一行表示する関数です。関数名の後へ、空白で区切って`"Hello, Seseragi!"`を渡します。ダブルクォートは文字列の始まりと終わりを表します。
 
-## 完成したプログラム
+## ブラウザで実行する
 
-```seseragi title="parcel.ssrg"
-type Parcel =
-  | Packing
-  | Sent String
+[Playground](https://seseragi.vercel.app/)を開き、上のコードを貼り付けて実行してください。インストールは不要です。
 
-fn label parcel: Parcel -> String =
-  match parcel {
-    Packing -> "Preparing"
-    Sent city -> `Sent to ${city}`
-  }
-
-pub effect fn main =
-  Sent "Kyoto"
-  |> label
-  |> println
-```
-
-実行すると、次の一行を出力します。
+実行すると、次の一行が表示されます。
 
 ```text title="実行結果"
-Sent to Kyoto
+Hello, Seseragi!
 ```
 
-[Playground](https://seseragi.vercel.app/)へ完成したコードを貼り付けて実行してください。CLIが使える場合は、`parcel.ssrg`へ保存して次のコマンドで実行できます。
+## 手元で実行する
+
+CLIを使う場合は、上のコードを`hello.ssrg`に保存します。まだ導入していなければ、[ローカルで使う](/docs/learn/local-development)の手順を先に確認してください。
+
+ファイルを保存した場所で、次のコマンドを実行します。
 
 ```sh
-seseragi run parcel.ssrg
+seseragi run hello.ssrg
 ```
 
-## 状態を変えてみる
+同じ`Hello, Seseragi!`が表示されます。
 
-`main`の`Sent "Kyoto"`を`Packing`に置き換えると、出力は`Preparing`になります。都市名を`"Sapporo"`へ変えると、`Sent to Sapporo`になります。
+## 表示する文字列を変える
 
-次に、`Parcel`へ新しいケース`Arrived`を追加してみてください。`label`の`match`にはそのケースを処理する分岐がないので、コンパイルエラーになります。すべてのケースを扱うことで、処理の抜けを実行前に確認できます。
+`"Hello, Seseragi!"`を`"Hello, Kyoto!"`に変え、もう一度実行してください。表示も`Hello, Kyoto!`へ変わります。
 
-## TypeScriptで書くと
-
-TypeScriptでは、判別用のフィールドを持つユニオン型と、`switch`で同じ状態を表せます。
-
-```ts
-type Parcel =
-  | { kind: "packing" }
-  | { kind: "sent"; city: string };
-
-function label(parcel: Parcel) {
-  switch (parcel.kind) {
-    case "packing":
-      return "Preparing";
-    case "sent": {
-      const { city } = parcel;
-      return `Sent to ${city}`;
-    }
-  }
-}
-
-console.log(label({
-  kind: "sent",
-  city: "Kyoto",
-}));
-```
-
-Seseragiでは、`Packing`と`Sent`というケースを型の宣言に直接書きます。`match`の`Sent city`でケースの判別と都市名の取り出しを一緒に行えます。
+文字列の内容を自分の名前や好きなメッセージに変えても構いません。両端のダブルクォートは残してください。
 
 ## 次に読む
 
-[関数リファレンス](/docs/reference/functions)では、関数の宣言、呼び出し、部分適用を確認できます。
+[ローカルで使う](/docs/learn/local-development)で、CLIの導入とファイルの実行、Webアプリの作成手順を確認できます。続いて[値と式](/docs/learn/values-and-expressions)で、計算の結果を扱う書き方を学びます。

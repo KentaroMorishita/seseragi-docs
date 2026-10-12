@@ -1,0 +1,6228 @@
+---
+title: "std/web/html"
+description: "props recordと子要素から、純粋なHTML treeを作ります。描画とDOMへの接続は別の操作です。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as web_html
+  from "std/web/html"
+```
+
+## 使ってみる
+
+{/* example: examples/library/web-html.ssrg */}
+
+```seseragi
+import * as html from "std/web/html"
+
+pub effect fn main =
+  html.p { children: "Hello" }
+  |> html.renderToString
+  |> println
+```
+
+出力:
+
+```text
+<p>Hello</p>
+```
+
+## 選び方と注意
+
+- Htmlはpureな不変treeで、componentは普通の関数です。treeを作るだけでDOM、購読、hookのstateを生成しません。
+- childrenはString、Html、そのArray/Listなどです。数値はshow/textで明示変換し、ArrayでStringとHtmlをarbitrary unionにしません。
+- textはSSR/DOMのsinkで一度escapeします。URLとcustom attributeは検査済みの値を使い、raw HTML Stringをuncheckedに挿入しません。
+- SSRはeventを実行せず、event propやキーをattributeへ出しません。browserのDOM接続はstd/web/domへ分けます。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `AnchorProps`
+
+<small className="api-kind">型alias</small>
+
+```text
+AnchorProps<_, _>
+```
+
+### `Attribute`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+検査済みcustom HTML attribute名と値のopaque型です。
+
+```text
+Attribute
+```
+
+### `ButtonProps`
+
+<small className="api-kind">型alias</small>
+
+```text
+ButtonProps<_, _>
+```
+
+### `ChangeEvent`
+
+<small className="api-kind">内部表現を隠したstruct</small>
+
+valueとoptionalなcheckedを持つ不変form snapshotです。checkbox/radioはJust、value controlはNothingです。
+
+```text
+ChangeEvent
+```
+
+### `ElementProps`
+
+<small className="api-kind">型alias</small>
+
+```text
+ElementProps<_, _>
+```
+
+### `ElementRef`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ElementRef
+```
+
+### `EventAction`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+dispatch、default prevention、propagation制御を明示するevent結果です。
+
+```text
+EventAction<_>
+```
+
+### `FileChangeEvent`
+
+<small className="api-kind">内部表現を隠したstruct</small>
+
+```text
+FileChangeEvent
+```
+
+### `FormProps`
+
+<small className="api-kind">型alias</small>
+
+```text
+FormProps<_, _>
+```
+
+### `Html`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Html<_>
+```
+
+### `HtmlBuildError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+拒否されたcustom HTML値または安全でないWeb URLを表します。
+
+```text
+HtmlBuildError
+```
+
+### `ImageProps`
+
+<small className="api-kind">型alias</small>
+
+```text
+ImageProps<_>
+```
+
+### `InputEvent`
+
+<small className="api-kind">内部表現を隠したstruct</small>
+
+現在のString値だけを持つ不変text-input snapshotです。
+
+```text
+InputEvent
+```
+
+### `InputProps`
+
+<small className="api-kind">型alias</small>
+
+```text
+InputProps<_>
+```
+
+### `IntoChildren`
+
+<small className="api-kind">型クラス</small>
+
+```text
+IntoChildren<_, _>
+```
+
+### `KeyboardEvent`
+
+<small className="api-kind">内部表現を隠したstruct</small>
+
+key identity、repeat状態、modifier keyを持つ不変keyboard snapshotです。
+
+```text
+KeyboardEvent
+```
+
+### `LabelProps`
+
+<small className="api-kind">型alias</small>
+
+```text
+LabelProps<_, _>
+```
+
+### `MouseEvent`
+
+<small className="api-kind">内部表現を隠したstruct</small>
+
+button、座標、modifier keyを持つ不変mouse snapshotです。
+
+```text
+MouseEvent
+```
+
+### `PointerEvent`
+
+<small className="api-kind">内部表現を隠したstruct</small>
+
+mouse、touch、penを区別する不変pointer snapshotです。
+
+```text
+PointerEvent
+```
+
+### `ScrollEvent`
+
+<small className="api-kind">内部表現を隠したstruct</small>
+
+現在のelement offsetを持つ不変scroll snapshotです。
+
+```text
+ScrollEvent
+```
+
+### `Style`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Style
+```
+
+### `StyleRecord`
+
+<small className="api-kind">型クラス</small>
+
+```text
+StyleRecord<_>
+```
+
+### `Tag`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+検査済みcustom HTML element名のopaque型です。
+
+```text
+Tag
+```
+
+### `TextareaProps`
+
+<small className="api-kind">型alias</small>
+
+```text
+TextareaProps<_>
+```
+
+### `WebUrl`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+安全性が必要なHTML attributeに使う、検査済みopaque URLです。
+
+```text
+WebUrl
+```
+
+### `WheelEvent`
+
+<small className="api-kind">内部表現を隠したstruct</small>
+
+delta、mode、座標、modifierを持つ不変wheel snapshotです。
+
+```text
+WheelEvent
+```
+
+## コンストラクタと値
+
+### `Dispatch`
+
+<small className="api-kind">コンストラクタ</small>
+
+既定動作や伝播を変更せずActionを送ることを表すEventActionの値を作ります。
+
+```text
+Dispatch<Action>
+  Action
+  -> EventAction<Action>
+```
+
+### `DispatchPreventDefault`
+
+<small className="api-kind">コンストラクタ</small>
+
+既定動作を防いでからActionを送ることを表すEventActionの値を作ります。
+
+```text
+DispatchPreventDefault<Action>
+  Action
+  -> EventAction<Action>
+```
+
+### `DispatchPreventDefaultAndStop`
+
+<small className="api-kind">コンストラクタ</small>
+
+既定動作を防ぎ、伝播を止めてからActionを送ることを表すEventActionの値を作ります。
+
+```text
+DispatchPreventDefaultAndStop<
+  Action
+>
+  Action
+  -> EventAction<Action>
+```
+
+### `DispatchStopPropagation`
+
+<small className="api-kind">コンストラクタ</small>
+
+伝播を止めてからActionを送ることを表すEventActionの値を作ります。
+
+```text
+DispatchStopPropagation<Action>
+  Action
+  -> EventAction<Action>
+```
+
+### `IgnoreEvent`
+
+<small className="api-kind">コンストラクタ</small>
+
+Actionを送らず、既定動作や伝播も変更しないことを表すEventActionの値です。
+
+```text
+IgnoreEvent
+  EventAction<Action>
+```
+
+### `InvalidAttributeName`
+
+<small className="api-kind">コンストラクタ</small>
+
+不正なcustom attributeの表記を報告します。
+
+```text
+InvalidAttributeName
+  String
+  -> HtmlBuildError
+```
+
+### `InvalidTagName`
+
+<small className="api-kind">コンストラクタ</small>
+
+拒否されたcustom-element名を報告します。
+
+```text
+InvalidTagName
+  String
+  -> HtmlBuildError
+```
+
+### `ReservedAttributeName`
+
+<small className="api-kind">コンストラクタ</small>
+
+typedまたはruntime所有propsと衝突するcustom attributeを報告します。
+
+```text
+ReservedAttributeName
+  String
+  -> HtmlBuildError
+```
+
+### `UnsafeWebUrlScheme`
+
+<small className="api-kind">コンストラクタ</small>
+
+scheme、credentials、control characterで拒否されたURLを報告します。
+
+```text
+UnsafeWebUrlScheme
+  String
+  -> HtmlBuildError
+```
+
+## 関数と演算子
+
+### `a`
+
+<small className="api-kind">関数</small>
+
+型付きnavigation propsを持つhyperlinkを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+a<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    href: WebUrl,
+    target?: String,
+    rel?: String,
+    download?: Bool,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `article`
+
+<small className="api-kind">関数</small>
+
+自己完結したarticle sectionを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+article<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `aside`
+
+<small className="api-kind">関数</small>
+
+周囲のsectionに関連するcontentを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+aside<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `attribute`
+
+<small className="api-kind">関数</small>
+
+escapeを迂回せず、custom・data・ARIA attributeを検査します。
+
+```text
+attribute
+  String
+  -> String
+  -> Either<
+       HtmlBuildError,
+       Attribute
+     >
+```
+
+### `audio`
+
+<small className="api-kind">関数</small>
+
+audio media elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+audio<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    src?: WebUrl,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `blockquote`
+
+<small className="api-kind">関数</small>
+
+block quotationを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+blockquote<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `body`
+
+<small className="api-kind">関数</small>
+
+document bodyのcontainerを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+body<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `br`
+
+<small className="api-kind">関数</small>
+
+childrenを持たないvoid line-break elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+br<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    )
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `button`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+button<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    disabled?: Bool,
+    buttonType?: String,
+    name?: String,
+    value?: String,
+    autoFocus?: Bool,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `caption`
+
+<small className="api-kind">関数</small>
+
+型付きdata tableのcaptionを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+caption<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `capturePointer`
+
+<small className="api-kind">関数</small>
+
+```text
+capturePointer<Action>
+  PointerEvent
+  -> EventAction<Action>
+  -> EventAction<Action>
+```
+
+### `code`
+
+<small className="api-kind">関数</small>
+
+inline code fragmentを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+code<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `custom`
+
+<small className="api-kind">関数</small>
+
+検査済みのTagからcustom elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+custom<Action, C>
+  Tag
+  -> {
+       elementRef?: ElementRef,
+       id?: String,
+       class?: String,
+       title?: String,
+       hidden?: Bool,
+       key?: String,
+       style?: Style,
+       attributes?: Array<Attribute>,
+       role?: String,
+       tabIndex?: Int,
+       lang?: String,
+       dir?: String,
+       draggable?: Bool,
+       contentEditable?: Bool,
+       inert?: Bool,
+       ariaLabel?: String,
+       ariaBusy?: Bool,
+       ariaExpanded?: Bool,
+       ariaHidden?: Bool,
+       ariaSelected?: Bool,
+       onClick?: Action,
+       preventClickDefault?: Bool,
+       stopClickPropagation?: Bool,
+       onFocus?: Action,
+       onBlur?: Action,
+       onKeyDown?: (
+         KeyboardEvent
+         -> EventAction<Action>
+       ),
+       onKeyUp?: (
+         KeyboardEvent
+         -> EventAction<Action>
+       ),
+       onMouseDown?: (
+         MouseEvent
+         -> EventAction<Action>
+       ),
+       onMouseUp?: (
+         MouseEvent
+         -> EventAction<Action>
+       ),
+       onPointerDown?: (
+         PointerEvent
+         -> EventAction<Action>
+       ),
+       onPointerMove?: (
+         PointerEvent
+         -> EventAction<Action>
+       ),
+       onPointerUp?: (
+         PointerEvent
+         -> EventAction<Action>
+       ),
+       onPointerCancel?: (
+         PointerEvent
+         -> EventAction<Action>
+       ),
+       onWheel?: (
+         WheelEvent
+         -> EventAction<Action>
+       ),
+       onDoubleClick?: (
+         MouseEvent
+         -> EventAction<Action>
+       ),
+       onContextMenu?: (
+         MouseEvent
+         -> EventAction<Action>
+       ),
+       onScroll?: (
+         ScrollEvent
+         -> EventAction<Action>
+       ),
+       children: C
+     }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `customTag`
+
+<small className="api-kind">関数</small>
+
+custom-element名を検査し、opaque Tagへ変換します。
+
+```text
+customTag
+  String
+  -> Either<HtmlBuildError, Tag>
+```
+
+### `details`
+
+<small className="api-kind">関数</small>
+
+型付きopen stateを持つdisclosure elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+details<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    open?: Bool,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `dialog`
+
+<small className="api-kind">関数</small>
+
+型付きopen stateを持つdialog elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+dialog<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    open?: Bool,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `div`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+div<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `elementRef`
+
+<small className="api-kind">関数</small>
+
+```text
+elementRef
+  String
+  -> ElementRef
+```
+
+### `em`
+
+<small className="api-kind">関数</small>
+
+強調したtextを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+em<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `fieldset`
+
+<small className="api-kind">関数</small>
+
+型付きformの関連controlをgroup化します。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+fieldset<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `footer`
+
+<small className="api-kind">関数</small>
+
+pageまたはsectionのfooter contentを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+footer<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `form`
+
+<small className="api-kind">関数</small>
+
+formのHtmlを作ります。onSubmitを指定した場合は、runtimeがnative submitの既定動作を防いでからActionを送ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+form<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    onSubmit?: Action,
+    name?: String,
+    autoComplete?: String,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `fragment`
+
+<small className="api-kind">関数</small>
+
+```text
+fragment<Action, C>
+  C
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+### `h1`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+h1<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `h2`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+h2<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `h3`
+
+<small className="api-kind">関数</small>
+
+型付きdocument headingを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+h3<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `h4`
+
+<small className="api-kind">関数</small>
+
+型付きdocument headingを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+h4<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `h5`
+
+<small className="api-kind">関数</small>
+
+型付きdocument headingを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+h5<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `h6`
+
+<small className="api-kind">関数</small>
+
+型付きdocument headingを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+h6<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `head`
+
+<small className="api-kind">関数</small>
+
+型付きdocumentのmetadata containerを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+head<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `header`
+
+<small className="api-kind">関数</small>
+
+pageまたはsectionの導入contentを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+header<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `hr`
+
+<small className="api-kind">関数</small>
+
+childrenを持たないvoid thematic-break elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+hr<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    )
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `html`
+
+<small className="api-kind">関数</small>
+
+型付きdocumentのroot html elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+html<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `img`
+
+<small className="api-kind">関数</small>
+
+sourceとalt textが必須の、childrenを持たないvoid image elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+img<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    src: WebUrl,
+    alt: String,
+    width?: Int,
+    height?: Int,
+    loading?: String
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `input`
+
+<small className="api-kind">関数</small>
+
+inputのHtmlを作ります。valueやcheckedは省略でき、onInputとonChangeには型付きのsnapshotを受け取る関数を指定できます。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+input<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    value?: String,
+    checked?: Bool,
+    name?: String,
+    disabled?: Bool,
+    required?: Bool,
+    readOnly?: Bool,
+    multiple?: Bool,
+    placeholder?: String,
+    autoComplete?: String,
+    autoFocus?: Bool,
+    min?: String,
+    max?: String,
+    step?: String,
+    pattern?: String,
+    inputType?: String,
+    onInput?: (InputEvent -> Action),
+    onChange?: (
+      ChangeEvent -> Action
+    ),
+    onFileChange?: (
+      FileChangeEvent -> Action
+    )
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `label`
+
+<small className="api-kind">関数</small>
+
+labelのHtmlを作ります。htmlForを指定すると、そのidを持つフォームのcontrolに関連付けます。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+label<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    htmlFor?: String,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `legend`
+
+<small className="api-kind">関数</small>
+
+fieldsetのcaptionを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+legend<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `li`
+
+<small className="api-kind">関数</small>
+
+list itemを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+li<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `link`
+
+<small className="api-kind">関数</small>
+
+childrenを持たないvoidなexternal-resource link elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+link<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    rel: String,
+    href: WebUrl
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `main`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+main<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `meta`
+
+<small className="api-kind">関数</small>
+
+childrenを持たないvoid metadata elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+meta<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    charSet?: String,
+    name?: String,
+    content?: String,
+    httpEquiv?: String
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `nav`
+
+<small className="api-kind">関数</small>
+
+navigation sectionを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+nav<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `ol`
+
+<small className="api-kind">関数</small>
+
+ordered listを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+ol<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `option`
+
+<small className="api-kind">関数</small>
+
+型付きselection controlのoptionを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+option<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    value?: String,
+    selected?: Bool,
+    disabled?: Bool,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `p`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+p<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `parseWebUrl`
+
+<small className="api-kind">関数</small>
+
+relative URLまたは許可したWeb URLを検査し、opaque値へ変換します。
+
+```text
+parseWebUrl
+  String
+  -> Either<HtmlBuildError, WebUrl>
+```
+
+### `picture`
+
+<small className="api-kind">関数</small>
+
+responsive imageのcontainerを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+picture<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `pre`
+
+<small className="api-kind">関数</small>
+
+整形済みtextを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+pre<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `releasePointer`
+
+<small className="api-kind">関数</small>
+
+```text
+releasePointer<Action>
+  PointerEvent
+  -> EventAction<Action>
+  -> EventAction<Action>
+```
+
+### `renderDocument`
+
+<small className="api-kind">関数</small>
+
+型付きHTMLを完全なdocument Stringへrenderします。
+
+```text
+renderDocument<Action>
+  Html<Action>
+  -> String
+```
+
+### `renderToString`
+
+<small className="api-kind">関数</small>
+
+型付きHTMLをescape済みfragment Stringへrenderします。
+
+```text
+renderToString<Action>
+  Html<Action>
+  -> String
+```
+
+### `section`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+section<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `select`
+
+<small className="api-kind">関数</small>
+
+共通のchange snapshotを使う型付きselection controlを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+select<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    name?: String,
+    value?: String,
+    disabled?: Bool,
+    required?: Bool,
+    multiple?: Bool,
+    autoFocus?: Bool,
+    onChange?: (
+      ChangeEvent -> Action
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `small`
+
+<small className="api-kind">関数</small>
+
+補足や小さな注記のtextを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+small<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `source`
+
+<small className="api-kind">関数</small>
+
+childrenを持たないvoid media source elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+source<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    src: WebUrl,
+    media?: String,
+    mimeType?: String
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `span`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+span<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `strong`
+
+<small className="api-kind">関数</small>
+
+強く強調したtextを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+strong<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `style`
+
+<small className="api-kind">関数</small>
+
+style recordを検査し、inline Styleへ変換します。
+
+```text
+style<R>
+  R
+  -> Style
+where
+  StyleRecord<R>
+```
+
+### `summary`
+
+<small className="api-kind">関数</small>
+
+disclosure elementの表示用summaryを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+summary<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `suppressCompatibilityClick`
+
+<small className="api-kind">関数</small>
+
+```text
+suppressCompatibilityClick<Action>
+  PointerEvent
+  -> EventAction<Action>
+  -> EventAction<Action>
+```
+
+### `table`
+
+<small className="api-kind">関数</small>
+
+型付きdata tableを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+table<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `tbody`
+
+<small className="api-kind">関数</small>
+
+型付きdata tableのbody rowをgroup化します。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+tbody<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `td`
+
+<small className="api-kind">関数</small>
+
+型付きspan propsを持つdata cellを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+td<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    colSpan?: Int,
+    rowSpan?: Int,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `text`
+
+<small className="api-kind">関数</small>
+
+```text
+text<Action>
+  String
+  -> Html<Action>
+```
+
+### `textarea`
+
+<small className="api-kind">関数</small>
+
+textareaのHtmlを作ります。valueは省略でき、onInputとonChangeには型付きのsnapshotを受け取る関数を指定できます。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+textarea<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    value?: String,
+    name?: String,
+    disabled?: Bool,
+    required?: Bool,
+    readOnly?: Bool,
+    placeholder?: String,
+    autoComplete?: String,
+    autoFocus?: Bool,
+    rows?: Int,
+    cols?: Int,
+    onInput?: (InputEvent -> Action),
+    onChange?: (
+      ChangeEvent -> Action
+    )
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `tfoot`
+
+<small className="api-kind">関数</small>
+
+型付きdata tableのfooter rowをgroup化します。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+tfoot<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `th`
+
+<small className="api-kind">関数</small>
+
+型付きspan propsを持つheader cellを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+th<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    colSpan?: Int,
+    rowSpan?: Int,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `thead`
+
+<small className="api-kind">関数</small>
+
+型付きdata tableのheader rowをgroup化します。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+thead<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `title`
+
+<small className="api-kind">関数</small>
+
+document title elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+title<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `tr`
+
+<small className="api-kind">関数</small>
+
+型付きdata tableのrowを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+tr<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `ul`
+
+<small className="api-kind">関数</small>
+
+unordered listを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+ul<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `video`
+
+<small className="api-kind">関数</small>
+
+video media elementを作ります。
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+video<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    src?: WebUrl,
+    width?: Int,
+    height?: Int,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/signals)
+- [用途からmoduleを探す](/docs/reference/library)
+- [Web UIの規則](/docs/reference/web-ui)

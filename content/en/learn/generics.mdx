@@ -1,0 +1,83 @@
+---
+title: "Generics"
+description: "Reuse data shapes and behavior while preserving each argument type."
+---
+
+Instead of separate containers for integers and strings, define `Box<A>` with a type parameter. `A` names a type within the declaration; it is not a runtime value.
+
+## Parameterize a type
+
+{/* example: examples/learn/generics.ssrg */}
+```seseragi title="generics.ssrg"
+struct Box<A> {
+  value: A,
+}
+
+fn unbox<A> box: Box<A> -> A =
+  box.value
+
+fn identity<A> value: A -> A =
+  value
+
+pub effect fn main = do {
+  let number = Box { value: 42 }
+  let text = Box { value: "hello" }
+  number
+  |> unbox
+  |> identity
+  |> show
+  |> println
+  text
+  |> unbox
+  |> identity
+  |> show
+  |> println
+}
+```
+
+```text title="Output"
+42
+hello
+```
+
+`Box { value: 42 }` is a `Box<Int>`, and `Box { value: "hello" }` is a `Box<String>`. The field value determines the type argument, so construction does not need an explicit type argument here.
+
+`unbox<A>` extracts an `A` from a `Box<A>`. It returns an integer for an integer box and a string for a string box, preserving the type relationship at each call. Before output, `show` converts the result to a `String` for `println`.
+
+## Use a type parameter within its declaration
+
+`identity<A> value: A -> A` returns the same type it receives. It does not describe two unrelated unknown types. The result of `identity 42` is an `Int`.
+
+The body cannot assume a particular `A`. Replacing the body with `value + 1` is rejected because an arbitrary `A` need not support integer addition. Use a [type class](/en/docs/learn/type-classes) constraint when a generic function needs a type-specific operation.
+
+## Supply a type when inference needs it
+
+Type arguments are inferred from arguments or the expected result type. You can also write `identity<String> "hello"` explicitly. There is no space between the function name and `<`.
+
+An empty collection has no values from which to infer an element type. `let empty: Array<Int> = []` supplies an expected type. When the compiler cannot determine a type, it requests an annotation instead of falling back to `Any`.
+
+## Reuse a data shape
+
+ADTs can have type parameters too. This fragment uses `A` for its successful payload:
+
+```text
+type Result<A> =
+  | Failed String
+  | Succeeded A
+```
+
+`Result<Int>` and `Result<String>` share the case structure while retaining different payload types. `Maybe<A>` and `Either<E, A>` also describe their contents with type arguments.
+
+If you only need another name for a type, use `alias Pair<A> = (A, A)`. An alias does not introduce a new nominal type identity. It serves a different purpose from a struct or newtype.
+
+## Reuse a function bound with let
+
+A function bound with a non-recursive `let` can be instantiated differently at each use. For example, bind `let same = \value -> value` inside a block and apply it separately to an integer and a string. This is called let-polymorphism.
+
+Generalization does not allow different element types within one Array. `Array<Int>` and `Array<String>` are different types. Nor does a `Box<Int>` implicitly convert to a `Box<Float>`.
+
+## Extract another type
+
+Change `Box { value: "hello" }` in the example to `Box { value: True }`. Without changing `unbox`, its result becomes a `Bool`. Then try adding 1 to every `unbox` result; the declaration no longer works for an arbitrary type argument.
+
+Continue to [Recursion](/en/docs/learn/recursion), a separate mechanism for repeating behavior by reducing the input. See [Types](/en/docs/reference/types) for precise type-argument rules.

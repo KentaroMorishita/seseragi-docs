@@ -1,0 +1,56 @@
+---
+title: "std/char"
+description: "Inspect and convert one Unicode scalar, distinct from Strings and grapheme clusters."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as char from "std/char"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Functions and operators
+
+### `codePoint`
+
+<small className="api-kind">Function</small>
+
+```text
+codePoint
+  Char
+  -> Int
+```
+
+### `fromCodePoint`
+
+<small className="api-kind">Function</small>
+
+```text
+fromCodePoint
+  Int
+  -> Maybe<Char>
+```
+
+### `toString`
+
+<small className="api-kind">Function</small>
+
+```text
+toString
+  Char
+  -> String
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/values-and-expressions)
+- [Browse modules by purpose](/en/docs/reference/library)

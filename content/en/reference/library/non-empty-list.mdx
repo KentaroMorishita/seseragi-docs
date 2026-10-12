@@ -1,0 +1,115 @@
+---
+title: "std/non-empty-list"
+description: "Represent sequences with at least one element and check emptiness when converting from List."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as non_empty_list
+  from "std/non-empty-list"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `NonEmptyList`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+NonEmptyList<_>
+```
+
+## Functions and operators
+
+### `cons`
+
+<small className="api-kind">Function</small>
+
+```text
+cons<A>
+  A
+  -> List<A>
+  -> NonEmptyList<A>
+```
+
+### `fromList`
+
+<small className="api-kind">Function</small>
+
+```text
+fromList<A>
+  List<A>
+  -> Maybe<NonEmptyList<A>>
+```
+
+### `head`
+
+<small className="api-kind">Function</small>
+
+Returns the first value of a NonEmptyList directly as A.
+
+```text
+head<A>
+  NonEmptyList<A>
+  -> A
+```
+
+### `reduce1`
+
+<small className="api-kind">Function</small>
+
+```text
+reduce1<A>
+  (A -> A -> A)
+  -> NonEmptyList<A>
+  -> A
+```
+
+### `singleton`
+
+<small className="api-kind">Function</small>
+
+```text
+singleton<A>
+  A
+  -> NonEmptyList<A>
+```
+
+### `tail`
+
+<small className="api-kind">Function</small>
+
+Returns the remaining values as a List, which is empty for a singleton NonEmptyList.
+
+```text
+tail<A>
+  NonEmptyList<A>
+  -> List<A>
+```
+
+### `toList`
+
+<small className="api-kind">Function</small>
+
+Converts a NonEmptyList to an ordinary List while preserving its head and remaining order.
+
+```text
+toList<A>
+  NonEmptyList<A>
+  -> List<A>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/arrays-and-lists)
+- [Browse modules by purpose](/en/docs/reference/library)

@@ -1,0 +1,113 @@
+---
+title: "std/bytes/hex"
+description: "Convert Bytes to and from hexadecimal text."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as bytes_hex
+  from "std/bytes/hex"
+```
+
+## Example
+
+{/* example: examples/library/bytes-hex.ssrg */}
+
+```seseragi
+import * as bytes from "std/bytes"
+import * as hex from "std/bytes/hex"
+
+pub effect fn main =
+  match bytes.fromInts [65, 66] {
+    Right value ->
+      value
+      |> hex.encode
+      |> println
+    Left _ -> println "Invalid byte"
+  }
+```
+
+Output:
+
+```text
+4142
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `HexDecodeError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes an invalid hexadecimal text input with a UTF-8 byte position.
+
+```text
+HexDecodeError
+```
+
+## Constructors and values
+
+### `InvalidHexDigit`
+
+<small className="api-kind">Constructor</small>
+
+Reports the UTF-8 byte offset of the first non-hexadecimal digit.
+
+```text
+InvalidHexDigit
+  { offset: Int }
+  -> HexDecodeError
+```
+
+### `OddHexLength`
+
+<small className="api-kind">Constructor</small>
+
+Reports an odd hexadecimal input length measured in UTF-8 bytes.
+
+```text
+OddHexLength
+  Int
+  -> HexDecodeError
+```
+
+## Functions and operators
+
+### `decode`
+
+<small className="api-kind">Function</small>
+
+Decodes ASCII hexadecimal text or reports the first typed failure.
+
+```text
+decode
+  String
+  -> Either<HexDecodeError, Bytes>
+```
+
+### `encode`
+
+<small className="api-kind">Function</small>
+
+Encodes Bytes as canonical lowercase hexadecimal text.
+
+```text
+encode
+  Bytes
+  -> String
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/records-and-structs)
+- [Browse modules by purpose](/en/docs/reference/library)

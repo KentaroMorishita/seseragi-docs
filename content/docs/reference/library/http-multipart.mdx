@@ -1,0 +1,156 @@
+---
+title: "std/http/multipart"
+description: "multipartのfieldとfile partを構築・解釈します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as http_multipart
+  from "std/http/multipart"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Multipart`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Multipart<_, _>
+```
+
+### `MultipartBuildError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+MultipartBuildError
+```
+
+## コンストラクタと値
+
+### `InvalidMultipartFieldName`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidMultipartFieldName
+  String
+  -> MultipartBuildError
+```
+
+### `InvalidMultipartFileName`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidMultipartFileName
+  String
+  -> MultipartBuildError
+```
+
+### `InvalidMultipartMimeType`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidMultipartMimeType
+  String
+  -> MultipartBuildError
+```
+
+## 関数と演算子
+
+### `appendBody`
+
+<small className="api-kind">関数</small>
+
+```text
+appendBody<R, E>
+  String
+  -> Maybe<String>
+  -> Maybe<String>
+  -> Body<R, E>
+  -> Multipart<R, E>
+  -> Either<
+       MultipartBuildError,
+       Multipart<R, E>
+     >
+```
+
+### `appendBytes`
+
+<small className="api-kind">関数</small>
+
+```text
+appendBytes<R, E>
+  String
+  -> Maybe<String>
+  -> Maybe<String>
+  -> Bytes
+  -> Multipart<R, E>
+  -> Either<
+       MultipartBuildError,
+       Multipart<R, E>
+     >
+```
+
+### `appendText`
+
+<small className="api-kind">関数</small>
+
+```text
+appendText<R, E>
+  String
+  -> String
+  -> Multipart<R, E>
+  -> Either<
+       MultipartBuildError,
+       Multipart<R, E>
+     >
+```
+
+### `body`
+
+<small className="api-kind">関数</small>
+
+```text
+body<R, E>
+  Multipart<R, E>
+  -> Body<R, E>
+```
+
+### `contentType`
+
+<small className="api-kind">関数</small>
+
+```text
+contentType<R, E>
+  Multipart<R, E>
+  -> String
+```
+
+### `empty`
+
+<small className="api-kind">関数</small>
+
+```text
+empty<R, E>
+  Unit
+  -> Multipart<R, E>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)

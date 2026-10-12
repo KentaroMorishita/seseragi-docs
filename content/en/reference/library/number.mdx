@@ -1,0 +1,90 @@
+---
+title: "std/number"
+description: "Shared numeric types, including rounding modes."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as number from "std/number"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `RoundingMode`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+RoundingMode
+```
+
+## Constructors and values
+
+### `AwayFromZero`
+
+<small className="api-kind">Constructor</small>
+
+```text
+AwayFromZero
+  RoundingMode
+```
+
+### `Ceiling`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Ceiling
+  RoundingMode
+```
+
+### `Floor`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Floor
+  RoundingMode
+```
+
+### `HalfEven`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HalfEven
+  RoundingMode
+```
+
+### `HalfUp`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HalfUp
+  RoundingMode
+```
+
+### `TowardZero`
+
+<small className="api-kind">Constructor</small>
+
+```text
+TowardZero
+  RoundingMode
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/values-and-expressions)
+- [Browse modules by purpose](/en/docs/reference/library)

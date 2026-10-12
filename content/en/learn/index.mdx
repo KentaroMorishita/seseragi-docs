@@ -1,0 +1,61 @@
+---
+title: "Learn Seseragi"
+description: "Learn values, functions, types, effects, and modules through runnable programs."
+---
+
+In Seseragi, types describe data, functions transform it, and Effects describe output and changes to external state. This course builds those ideas from small programs you can run and change.
+
+The course assumes familiarity with functions, arrays, objects, and conditionals. It does not assume knowledge of algebraic data types or type classes. For a focused comparison with TypeScript, see [Coming from TypeScript](/en/docs/guides/typescript-to-seseragi).
+
+## Run your first program
+
+[Your first program](/en/docs/learn/first-program) displays one string: run it, then change the string. [Local development](/en/docs/learn/local-development) sets up the CLI and editor so you can run the same Hello world locally.
+
+Each complete example includes a file name and expected output. Run the code unchanged, then try the exercise at the end of the chapter. Predict the result before running it to check your understanding of types and evaluation as well as syntax.
+
+## 1. Transform values with functions
+
+| Chapter | What you learn |
+| --- | --- |
+| [Values and expressions](/en/docs/learn/values-and-expressions) | Immutable values, types, blocks, and conditionals |
+| [Functions and pipelines](/en/docs/learn/functions-and-pipelines) | Application, partial application, lambdas, and composition |
+
+Learn to name a string, select a value with a condition, and call a function in separate examples. Combine functions after you can use those parts. The examples also introduce the distinction between an ordinary `fn` that returns a value and an `effect fn` that creates a computation such as output.
+
+## 2. Describe data and states
+
+| Chapter | What you learn |
+| --- | --- |
+| [Records and structs](/en/docs/learn/records-and-structs) | Group values and produce updated values without changing the originals |
+| [Algebraic data types](/en/docs/learn/algebraic-data-types) | Describe possible states as cases |
+| [Pattern matching](/en/docs/learn/pattern-matching) | Select cases and extract their data |
+| [Arrays and lists](/en/docs/learn/arrays-and-lists) | Transform, filter, and summarize collections |
+| [Maybe and Either](/en/docs/learn/maybe-and-either) | Distinguish an absent value from a failure with a reason |
+
+The shape of a type determines the inputs a function accepts and the cases it must handle. Consider representing a state directly before giving `null` several meanings or adding independent Boolean flags.
+
+## 3. Reuse behavior and use recursion
+
+| Chapter | What you learn |
+| --- | --- |
+| [Generics](/en/docs/learn/generics) | Functions and data types that work with different types |
+| [Recursion](/en/docs/learn/recursion) | Base cases, local functions, and tail recursion |
+
+Generics reuse behavior across data types. Recursion applies the same function to a smaller problem. Generalizing a type and repeating a calculation are separate mechanisms.
+
+## 4. Compose interactions with the outside world
+
+| Chapter | What you learn |
+| --- | --- |
+| [Effects](/en/docs/learn/effects) | Delayed computation, `do`, environments, and typed failures |
+| [Signals](/en/docs/learn/signals) | Reading and updating state, derived values, and transactions |
+| [Type classes](/en/docs/learn/type-classes) | Type-specific operations and constrained generic behavior |
+| [Modules](/en/docs/learn/modules) | File boundaries, visibility, and imports |
+
+Then use [CLI applications](/en/docs/guides/cli-app) or [Web applications](/en/docs/guides/web-app) to build a program with input, output, or a user interface.
+
+## Look up a specific rule
+
+Learn explains concepts in order. Use the [Reference](/en/docs/reference) to check syntax and contracts. The [standard library](/en/docs/reference/library) is the entry point for finding functions; the [CLI reference](/en/docs/reference/cli) lists commands.
+
+The complete runnable examples have been checked with Seseragi 0.61.25. The language and tools are under development. Run the examples again when updating your CLI to check that their types and behavior still match the explanations.

@@ -1,0 +1,97 @@
+---
+title: "Type classes"
+description: "Check type-directed traits, instances, constraints, deriving, operators, and do notation."
+---
+
+A type class describes operations a type supports. It is a contract resolved to one instance during type checking, rather than inheritance or a runtime object interface.
+
+## Traits and instances
+
+A trait declares method types; an instance supplies bodies. This example abstracts a Topic's label through Label.
+
+{/* example: examples/reference/type-classes.ssrg */}
+
+```seseragi title="type-classes.ssrg"
+trait Label<A> {
+  fn label value: A -> String
+}
+
+newtype Topic = String
+
+instance Label<Topic> {
+  fn label topic: Topic -> String =
+    match topic {
+      Topic name -> name
+    }
+}
+
+fn heading<A> value: A -> String
+where Label<A> =
+  label value
+
+pub effect fn main =
+  Topic "Language"
+  |> heading
+  |> println
+```
+
+The output is `Language`. Each method in `instance Label<Topic>` must match the trait method after replacing `A` with Topic.
+
+`impl Topic` declares type-specific methods. Use instance for a trait implementation. Writing `impl Label<Topic>` as though it declared an instance produces `SES-T0502`.
+
+## Constraints and selection
+
+`where Label<A>` requires an instance at the call site. Concrete types select an instance; generic code conceptually receives its constraint dictionary.
+
+If several traits introduce the same method name and types cannot determine the trait, qualify it, for example `Functor.map`. Instances are not rediscovered by inspecting runtime tags, JavaScript constructors, or object shapes.
+
+Standard collection Show instances require an element Show instance too. Empty Arrays and Nothing do not bypass this constraint based on their runtime value. A missing required instance produces `SES-T0201`.
+
+## Coherence and orphan rules
+
+A trait application has exactly one instance across the program. Declare it in the module defining the trait or the outermost nominal type in the instance head. There are no local instances, priorities, or overlapping instances.
+
+Aliases create no new instance identity; defining separate instances for an alias and its expansion does not avoid coherence. User code cannot add structural instances for anonymous records or tuples.
+
+Standard `Iterable<C, A>` determines `A` from `C`; arithmetic traits determine the result type from operand types. Instances violating these functional dependencies are coherence errors. User traits currently have no functional-dependency declaration syntax.
+
+## Standard traits and operators
+
+| Trait | Operations or syntax |
+| --- | --- |
+| `Eq<A>` | eq, `==`, `!=` |
+| `Ord<A>` | compare and ordering comparisons |
+| `Show<A>` | show and template interpolation |
+| `Hash<A>` | Hashing values for hash-based structures |
+| `Functor<F>` | map, `<$>` |
+| `Applicative<F>` | pure, apply, `<*>` |
+| `Monad<M>` | flatMap, `>>=`, do |
+| `Add<L, R, O>` and related traits | Arithmetic operators |
+
+`F<_>` and `M<_>` are type-constructor parameters, used in applications such as `Functor<Maybe>` or `Monad<Effect<R, E, _>>`. Ord requires a consistent total order. Float has no standard Ord instance and does not silently fall back to host comparisons.
+
+A standard operator declaration in a struct/newtype impl is sugar for the corresponding standard trait instance. Custom symbols and fixities use a separate module-level operator declaration.
+
+## Deriving and laws
+
+Supported deriving traits are Eq, Ord, Show, Debug, Hash, JsonEncode, and JsonDecode. Each required field or payload type must support the same trait. Generic types add the necessary conditions to the generated instance.
+
+Hash also requires Eq for the same type. Deriving and an explicit instance cannot define the same application twice. Derived Ord first compares variant declaration order, then payloads lexicographically. Newtype Show retains its constructor name.
+
+Laws for Eq, Ord, Functor, Applicative, and Monad are instance contracts. Type checking alone does not prove them. Check behavior with [Tests](/en/docs/guides/testing) too.
+
+## Do notation
+
+A do block is a bind sequence for one `Monad<M>`, not syntax exclusive to Effect.
+
+```text title="Do syntax"
+do {
+  value <- wrapped
+  let next = value + 1
+  pure next
+}
+```
+
+`<-` binds a monadic payload; let binds a pure value. An intermediate monadic expression discards its result and continues; the final monadic expression is the block result and is mandatory.
+
+All computations use the same type constructor. Explicitly convert an Either to Effect with an operation such as fromEither. Bind patterns must be irrefutable; failure is not inserted implicitly. See [Patterns](/en/docs/reference/patterns).

@@ -1,0 +1,89 @@
+---
+title: コンポーネントを作る
+description: propsからHTMLを作る純粋関数を、画面とSSRで再利用する。
+---
+
+配送のカードを、タイトルと説明を受け取る関数へ分けます。コンポーネントは通常の`fn`です。HTMLを返す計算と、DOMへ接続する副作用を分けるため、同じ関数をブラウザーでも文字列への描画でも使えます。
+
+propsには[レコード](/docs/learn/records-and-structs)、Actionの型には[ジェネリクス](/docs/learn/generics)を使います。画面への組み込み方は[Webアプリを作る](/docs/guides/web-app)の`view`をもとに説明します。
+
+## propsの形を決める
+
+このカードは`title`と`detail`の二つの文字列を必要とします。`CardProps`はその構造を表すレコードの別名です。
+
+propsには画面を作るための値を渡します。カードが呼ばれるたびに共有状態を読み書きする処理を入れず、状態が必要な場合は所有者から現在値を渡します。
+
+## 完成したカードを書く
+
+`components.ssrg`へ保存してください。
+
+{/* example: examples/guides/components.ssrg */}
+```seseragi title="components.ssrg"
+import * as html from "std/web/html"
+
+alias CardProps = {
+  title: String,
+  detail: String
+}
+
+fn card<Action> props: CardProps
+  -> html.Html<Action> =
+  html.section {
+    class: "card",
+    children: [
+      html.h2<Action, String> {
+        children: props.title
+      },
+      html.p<Action, String> {
+        children: props.detail
+      }
+    ]
+  }
+
+pub effect fn main =
+  card {
+    title: "Delivery",
+    detail: "Sent to Kyoto"
+  }
+  |> html.renderToString
+  |> println
+```
+
+`card<Action>`の`Action`は、HTMLが送るイベントの型です。このカードにはイベントがないため、周囲のActionに合わせて使えます。`html.h2<Action, String>`の型引数は、Actionの型とchildrenの型を明示しています。
+
+`String`はテキストとして子に置けます。数値は`show`で文字列へ変える必要があります。childrenの配列では、文字列とHTMLをそのまま混ぜず、テキストを`html.text`でHTMLへ包みます。
+
+## HTMLへ描画する
+
+```sh
+seseragi run components.ssrg
+```
+
+結果は、`section`の中に`h2`と`p`を持つ一行のHTMLです。読みやすいように改行すると次の構造になります。
+
+```html
+<section class="card">
+  <h2>Delivery</h2>
+  <p>Sent to Kyoto</p>
+</section>
+```
+
+`renderToString`は純粋関数で、DOMを生成しません。出力文字列をConsoleへ書く`println`がEffectです。
+
+## Webの画面から呼ぶ
+
+[Webアプリを作る](/docs/guides/web-app)の`view`へ`card { title: "Delivery", detail: "Sent to Kyoto" }`を子として渡せます。`card`は自分のDOMターゲットやイベントリスナーを持ちません。
+
+イベントを含むボタンの部品では、クリック時に送るActionをpropsに含めます。カード側で親の状態を変更する代わりに、親が渡したActionをHTMLのイベントへ置く形にできます。
+
+## 安全な値の描画を保つ
+
+`title`や`detail`の文字列はテキストとしてエスケープされます。値をHTMLソースへ連結する関数ではありません。`"<script>"`を渡しても、その文字列を表示するHTMLになります。
+
+リンクや画像には検証された`WebUrl`を渡します。`parseWebUrl`の失敗を型付き結果として扱い、文字列をURL型だと決めつけて渡しません。詳しいpropsと描画の契約は[Web UI Reference](/docs/reference/web-ui)にあります。
+
+## 状態を持つ部分を分ける
+
+純粋な部品へ現在値を渡す構成は、同じ状態を複数の部品で見せるときに使えます。部品ごとの独立した状態が必要な場合は、Signalを作るEffectの入口も別にします。
+
+[状態を持つ機能](/docs/guides/stateful-features)では、二つのカウンターを同じ親に置きながら、それぞれの値を独立して管理します。

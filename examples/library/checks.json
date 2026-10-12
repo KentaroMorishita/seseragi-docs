@@ -1,0 +1,47 @@
+[
+  {
+    "file": "examples/library/array.ssrg",
+    "mode": "run",
+    "stdout": "[2, 4]\n"
+  },
+  {
+    "file": "examples/library/list.ssrg",
+    "mode": "run",
+    "stdout": "[10, 20, 30]\n"
+  },
+  {
+    "file": "examples/library/maybe.ssrg",
+    "mode": "run",
+    "stdout": "42\n"
+  },
+  {
+    "file": "examples/library/either.ssrg",
+    "mode": "run",
+    "stdout": "Right 42\n"
+  },
+  {
+    "file": "examples/library/int.ssrg",
+    "mode": "run",
+    "stdout": "42\n"
+  },
+  {
+    "file": "examples/library/float.ssrg",
+    "mode": "run",
+    "stdout": "1.5\n"
+  },
+  {
+    "file": "examples/library/bytes-hex.ssrg",
+    "mode": "run",
+    "stdout": "4142\n"
+  },
+  {
+    "file": "examples/library/json.ssrg",
+    "mode": "run",
+    "stdout": "Valid JSON\n"
+  },
+  {
+    "file": "examples/library/web-html.ssrg",
+    "mode": "run",
+    "stdout": "<p>Hello</p>\n"
+  }
+]

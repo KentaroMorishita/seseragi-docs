@@ -1,0 +1,466 @@
+---
+title: "std/web/navigation"
+description: "browserのURLと履歴を操作します。DOM描画とは独立した能力です。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | browser |
+| 能力のidentity | `std/web/navigation::Navigation` |
+
+## import
+
+```seseragi
+import * as web_navigation
+  from "std/web/navigation"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Location`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Location
+```
+
+### `Navigation`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Navigation
+```
+
+### `NavigationError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+NavigationError
+```
+
+### `Query`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Query
+```
+
+### `Url`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Url
+```
+
+### `UrlBuildError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+UrlBuildError
+```
+
+## コンストラクタと値
+
+### `CrossOriginNavigation`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+CrossOriginNavigation
+  {
+    expected: String,
+    actual: String
+  }
+  -> NavigationError
+```
+
+### `emptyQuery`
+
+<small className="api-kind">値</small>
+
+```text
+Query
+```
+
+### `InvalidPercentEncoding`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidPercentEncoding
+  { offset: Int }
+  -> UrlBuildError
+```
+
+### `InvalidUrl`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidUrl
+  { offset: Int }
+  -> UrlBuildError
+```
+
+### `NavigationSecurityFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NavigationSecurityFailure
+  String
+  -> NavigationError
+```
+
+### `NavigationUnavailable`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NavigationUnavailable
+  String
+  -> NavigationError
+```
+
+### `UnsupportedUrlScheme`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+UnsupportedUrlScheme
+  String
+  -> UrlBuildError
+```
+
+### `UrlContainsUserInfo`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+UrlContainsUserInfo
+  UrlBuildError
+```
+
+## 関数と演算子
+
+### `appendQuery`
+
+<small className="api-kind">関数</small>
+
+```text
+appendQuery
+  String
+  -> String
+  -> Query
+  -> Query
+```
+
+### `back`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+back
+  Unit
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Unit
+     >
+```
+
+### `current`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+current
+  Unit
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Location
+     >
+```
+
+### `errorMessage`
+
+<small className="api-kind">関数</small>
+
+```text
+errorMessage
+  NavigationError
+  -> String
+```
+
+### `forward`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+forward
+  Unit
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Unit
+     >
+```
+
+### `locationSignal`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+locationSignal
+  Unit
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Signal<Location>
+     >
+```
+
+### `locationUrl`
+
+<small className="api-kind">関数</small>
+
+```text
+locationUrl
+  Location
+  -> Url
+```
+
+### `parseQuery`
+
+<small className="api-kind">関数</small>
+
+```text
+parseQuery
+  String
+  -> Either<UrlBuildError, Query>
+```
+
+### `parseUrl`
+
+<small className="api-kind">関数</small>
+
+```text
+parseUrl
+  String
+  -> Either<UrlBuildError, Url>
+```
+
+### `pathSegments`
+
+<small className="api-kind">関数</small>
+
+```text
+pathSegments
+  Url
+  -> Array<String>
+```
+
+### `push`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+push
+  Url
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Location
+     >
+```
+
+### `queryEntries`
+
+<small className="api-kind">関数</small>
+
+```text
+queryEntries
+  Query
+  -> Array<(String, String)>
+```
+
+### `queryValues`
+
+<small className="api-kind">関数</small>
+
+```text
+queryValues
+  String
+  -> Query
+  -> Array<String>
+```
+
+### `removeQuery`
+
+<small className="api-kind">関数</small>
+
+```text
+removeQuery
+  String
+  -> Query
+  -> Query
+```
+
+### `renderQuery`
+
+<small className="api-kind">関数</small>
+
+```text
+renderQuery
+  Query
+  -> String
+```
+
+### `renderUrl`
+
+<small className="api-kind">関数</small>
+
+```text
+renderUrl
+  Url
+  -> String
+```
+
+### `replace`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+replace
+  Url
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Location
+     >
+```
+
+### `resolveUrl`
+
+<small className="api-kind">関数</small>
+
+```text
+resolveUrl
+  String
+  -> Url
+  -> Either<UrlBuildError, Url>
+```
+
+### `setQuery`
+
+<small className="api-kind">関数</small>
+
+```text
+setQuery
+  String
+  -> String
+  -> Query
+  -> Query
+```
+
+### `toWebUrl`
+
+<small className="api-kind">関数</small>
+
+```text
+toWebUrl
+  Url
+  -> WebUrl
+```
+
+### `urlFragment`
+
+<small className="api-kind">関数</small>
+
+```text
+urlFragment
+  Url
+  -> Maybe<String>
+```
+
+### `urlOrigin`
+
+<small className="api-kind">関数</small>
+
+```text
+urlOrigin
+  Url
+  -> String
+```
+
+### `urlQuery`
+
+<small className="api-kind">関数</small>
+
+```text
+urlQuery
+  Url
+  -> Query
+```
+
+### `withFragment`
+
+<small className="api-kind">関数</small>
+
+```text
+withFragment
+  String
+  -> Url
+  -> Url
+```
+
+### `withoutFragment`
+
+<small className="api-kind">関数</small>
+
+```text
+withoutFragment
+  Url
+  -> Url
+```
+
+### `withPathSegments`
+
+<small className="api-kind">関数</small>
+
+```text
+withPathSegments
+  Array<String>
+  -> Url
+  -> Url
+```
+
+### `withQuery`
+
+<small className="api-kind">関数</small>
+
+```text
+withQuery
+  Query
+  -> Url
+  -> Url
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/signals)
+- [用途からmoduleを探す](/docs/reference/library)
+- [Web UIの規則](/docs/reference/web-ui)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

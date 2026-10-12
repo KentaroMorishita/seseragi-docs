@@ -1,0 +1,20 @@
+{
+  "title": "用途別ガイド",
+  "pages": [
+    "index",
+    "---言語を使い始める---",
+    "typescript-to-seseragi",
+    "cli-app",
+    "error-handling",
+    "---Webアプリを作る---",
+    "web-app",
+    "state-and-actions",
+    "components",
+    "forms",
+    "stateful-features",
+    "---開発と公開---",
+    "testing",
+    "typescript-bindings",
+    "packages-and-deployment"
+  ]
+}

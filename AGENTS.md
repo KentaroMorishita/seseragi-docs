@@ -10,4 +10,8 @@
 - The syntax grammar and brand assets are copied from the language repository; record provenance when updating them.
 - Use Node 24.14+ and Bun 1.3.11. Run `bun run check` and `bun run build` for site changes. Verify navigation, search, mobile layout, and hydration in a browser when UI changes.
 - Preserve unrelated work. Never commit `.env*`, `.vercel`, generated `dist`, browser state, or tokens.
-- The first slice is a design/content prototype; an automated browser check is not reader acceptance. Do not mass-produce placeholder docs pages.
+- This is the official documentation site. Maintain a complete learning path, task guides, exact language reference, and compiler-derived library reference. Do not publish placeholder pages. Automated checks and agent reviews are not real-reader acceptance.
+- Every page needs a full Japanese and English counterpart at the same relative path. Keep chapter order explicit in `meta.json`; keep explanations, task instructions, and exact contracts in their owning section.
+- Executable examples must be verified against the documented CLI version. Keep displayed code synchronized with the checked source through `{/* example: examples/... */}` markers. Distinguish signature fragments, expected errors, browser builds, and executed programs.
+- Update library snapshots only through `scripts/sync-library.mjs`. Never present contract-only modules or future CLI/specification proposals as released functionality.
+- Keep teaching examples focused on one concept at a time. The first program prints one string; introduce function calls, grouping, ADTs, effects, and composition in their own steps. A homepage showcase is not a universal tutorial example.

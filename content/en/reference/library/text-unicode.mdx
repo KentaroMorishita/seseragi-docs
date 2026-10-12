@@ -1,0 +1,453 @@
+---
+title: "std/text/unicode"
+description: "Use Unicode normalization, character properties, and case folding."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as text_unicode
+  from "std/text/unicode"
+```
+
+## Choosing operations
+
+- Choose a normalization form explicitly. Canonical NFC/NFD and compatibility NFKC/NFKD equate different sets of sequences.
+- String equality compares exact scalar sequences. Visually similar unnormalized sequences are not automatically equal.
+- simpleCaseFold maps one scalar to one; fullCaseFold may expand to several scalars. Both are locale-independent.
+- Unicode data versions are pinned and checked between toolchain and runtime. Semantics do not depend on host ICU or OS Unicode versions.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `NormalizationForm`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+NormalizationForm
+```
+
+### `UnicodeGeneralCategory`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+UnicodeGeneralCategory
+```
+
+## Constructors and values
+
+### `ClosePunctuation`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ClosePunctuation
+  UnicodeGeneralCategory
+```
+
+### `ConnectorPunctuation`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ConnectorPunctuation
+  UnicodeGeneralCategory
+```
+
+### `Control`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Control
+  UnicodeGeneralCategory
+```
+
+### `CurrencySymbol`
+
+<small className="api-kind">Constructor</small>
+
+```text
+CurrencySymbol
+  UnicodeGeneralCategory
+```
+
+### `DashPunctuation`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DashPunctuation
+  UnicodeGeneralCategory
+```
+
+### `DecimalNumber`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DecimalNumber
+  UnicodeGeneralCategory
+```
+
+### `EnclosingMark`
+
+<small className="api-kind">Constructor</small>
+
+```text
+EnclosingMark
+  UnicodeGeneralCategory
+```
+
+### `FinalPunctuation`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FinalPunctuation
+  UnicodeGeneralCategory
+```
+
+### `Format`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Format
+  UnicodeGeneralCategory
+```
+
+### `InitialPunctuation`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InitialPunctuation
+  UnicodeGeneralCategory
+```
+
+### `LetterNumber`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LetterNumber
+  UnicodeGeneralCategory
+```
+
+### `LineSeparator`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LineSeparator
+  UnicodeGeneralCategory
+```
+
+### `LowercaseLetter`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LowercaseLetter
+  UnicodeGeneralCategory
+```
+
+### `MathSymbol`
+
+<small className="api-kind">Constructor</small>
+
+```text
+MathSymbol
+  UnicodeGeneralCategory
+```
+
+### `ModifierLetter`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ModifierLetter
+  UnicodeGeneralCategory
+```
+
+### `ModifierSymbol`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ModifierSymbol
+  UnicodeGeneralCategory
+```
+
+### `NFC`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NFC
+  NormalizationForm
+```
+
+### `NFD`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NFD
+  NormalizationForm
+```
+
+### `NFKC`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NFKC
+  NormalizationForm
+```
+
+### `NFKD`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NFKD
+  NormalizationForm
+```
+
+### `NonspacingMark`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NonspacingMark
+  UnicodeGeneralCategory
+```
+
+### `OpenPunctuation`
+
+<small className="api-kind">Constructor</small>
+
+```text
+OpenPunctuation
+  UnicodeGeneralCategory
+```
+
+### `OtherLetter`
+
+<small className="api-kind">Constructor</small>
+
+```text
+OtherLetter
+  UnicodeGeneralCategory
+```
+
+### `OtherNumber`
+
+<small className="api-kind">Constructor</small>
+
+```text
+OtherNumber
+  UnicodeGeneralCategory
+```
+
+### `OtherPunctuation`
+
+<small className="api-kind">Constructor</small>
+
+```text
+OtherPunctuation
+  UnicodeGeneralCategory
+```
+
+### `OtherSymbol`
+
+<small className="api-kind">Constructor</small>
+
+```text
+OtherSymbol
+  UnicodeGeneralCategory
+```
+
+### `ParagraphSeparator`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ParagraphSeparator
+  UnicodeGeneralCategory
+```
+
+### `PrivateUse`
+
+<small className="api-kind">Constructor</small>
+
+```text
+PrivateUse
+  UnicodeGeneralCategory
+```
+
+### `SpaceSeparator`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SpaceSeparator
+  UnicodeGeneralCategory
+```
+
+### `SpacingMark`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SpacingMark
+  UnicodeGeneralCategory
+```
+
+### `TitlecaseLetter`
+
+<small className="api-kind">Constructor</small>
+
+```text
+TitlecaseLetter
+  UnicodeGeneralCategory
+```
+
+### `Unassigned`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Unassigned
+  UnicodeGeneralCategory
+```
+
+### `UppercaseLetter`
+
+<small className="api-kind">Constructor</small>
+
+```text
+UppercaseLetter
+  UnicodeGeneralCategory
+```
+
+## Functions and operators
+
+### `fullCaseFold`
+
+<small className="api-kind">Function</small>
+
+```text
+fullCaseFold
+  String
+  -> String
+```
+
+### `generalCategory`
+
+<small className="api-kind">Function</small>
+
+```text
+generalCategory
+  Char
+  -> UnicodeGeneralCategory
+```
+
+### `isAlphabetic`
+
+<small className="api-kind">Function</small>
+
+```text
+isAlphabetic
+  Char
+  -> Bool
+```
+
+### `isDecimalDigit`
+
+<small className="api-kind">Function</small>
+
+```text
+isDecimalDigit
+  Char
+  -> Bool
+```
+
+### `isMark`
+
+<small className="api-kind">Function</small>
+
+```text
+isMark
+  Char
+  -> Bool
+```
+
+### `isNormalized`
+
+<small className="api-kind">Function</small>
+
+```text
+isNormalized
+  NormalizationForm
+  -> String
+  -> Bool
+```
+
+### `isWhitespace`
+
+<small className="api-kind">Function</small>
+
+```text
+isWhitespace
+  Char
+  -> Bool
+```
+
+### `normalize`
+
+<small className="api-kind">Function</small>
+
+```text
+normalize
+  NormalizationForm
+  -> String
+  -> String
+```
+
+### `simpleCaseFold`
+
+<small className="api-kind">Function</small>
+
+```text
+simpleCaseFold
+  Char
+  -> Char
+```
+
+### `version`
+
+<small className="api-kind">Function</small>
+
+```text
+version
+  Unit
+  -> String
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/values-and-expressions)
+- [Browse modules by purpose](/en/docs/reference/library)

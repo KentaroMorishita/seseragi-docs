@@ -1,0 +1,602 @@
+---
+title: "std/child-process"
+description: "子processの起動と終了、入出力とresourceを管理します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process |
+| 能力のidentity | `std/child-process::ChildProcesses` |
+
+## import
+
+```seseragi
+import * as child_process
+  from "std/child-process"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `CapturedProcess`
+
+<small className="api-kind">struct</small>
+
+```text
+struct CapturedProcess {
+  status: ChildExitStatus,
+  stdout: Bytes,
+  stderr: Bytes
+}
+```
+
+- `status`: 子processが終了したときの結果。
+- `stdout`: captureした標準出力のBytes。
+- `stderr`: captureした標準エラー出力のBytes。
+
+### `CaptureLimit`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+CaptureLimit
+```
+
+### `ChildEvent`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ChildEvent
+```
+
+### `ChildExitStatus`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ChildExitStatus
+```
+
+### `ChildInput`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ChildInput
+```
+
+### `ChildOutputChannel`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ChildOutputChannel
+```
+
+### `ChildProcessConfigError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ChildProcessConfigError
+```
+
+### `ChildProcessError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ChildProcessError
+```
+
+### `ChildProcesses`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ChildProcesses
+```
+
+### `Command`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Command
+```
+
+### `Executable`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Executable
+```
+
+## コンストラクタと値
+
+### `ArgumentContainsNul`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ArgumentContainsNul
+  { index: Int, offset: Int }
+  -> ChildProcessConfigError
+```
+
+### `ChildExited`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildExited
+  Int
+  -> ChildExitStatus
+```
+
+### `ChildExitedWith`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildExitedWith
+  ChildExitStatus
+  -> ChildEvent
+```
+
+### `ChildHostTerminated`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildHostTerminated
+  String
+  -> ChildExitStatus
+```
+
+### `ChildInputAfterClose`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildInputAfterClose
+  ChildProcessError
+```
+
+### `ChildInputFailed`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildInputFailed
+  String
+  -> ChildProcessError
+```
+
+### `ChildOutputLimitExceeded`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildOutputLimitExceeded
+  {
+    channel: ChildOutputChannel,
+    limitBytes: Int
+  }
+  -> ChildProcessError
+```
+
+### `ChildOutputReadFailed`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildOutputReadFailed
+  {
+    channel: ChildOutputChannel,
+    detail: String
+  }
+  -> ChildProcessError
+```
+
+### `ChildSignaled`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildSignaled
+  ProcessSignal
+  -> ChildExitStatus
+```
+
+### `ChildSpawnFailed`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildSpawnFailed
+  {
+    executable: Executable,
+    detail: String
+  }
+  -> ChildProcessError
+```
+
+### `ChildStderr`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildStderr
+  ChildOutputChannel
+```
+
+### `ChildStderrChunk`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildStderrChunk
+  Bytes
+  -> ChildEvent
+```
+
+### `ChildStdout`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildStdout
+  ChildOutputChannel
+```
+
+### `ChildStdoutChunk`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildStdoutChunk
+  Bytes
+  -> ChildEvent
+```
+
+### `ChildTerminationFailed`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildTerminationFailed
+  String
+  -> ChildProcessError
+```
+
+### `ChildWaitFailed`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ChildWaitFailed
+  String
+  -> ChildProcessError
+```
+
+### `CloseChildStdin`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+CloseChildStdin
+  ChildInput
+```
+
+### `EmptyExecutableName`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+EmptyExecutableName
+  ChildProcessConfigError
+```
+
+### `EnvironmentNameContainsNul`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+EnvironmentNameContainsNul
+  String
+  -> ChildProcessConfigError
+```
+
+### `EnvironmentValueContainsNul`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+EnvironmentValueContainsNul
+  String
+  -> ChildProcessConfigError
+```
+
+### `ExecutableNameContainsSeparator`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ExecutableNameContainsSeparator
+  String
+  -> ChildProcessConfigError
+```
+
+### `ExecutablePath`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ExecutablePath
+  Path
+  -> Executable
+```
+
+### `InvalidCaptureLimit`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidCaptureLimit
+  Int
+  -> ChildProcessConfigError
+```
+
+### `KillChild`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+KillChild
+  ChildInput
+```
+
+### `SearchPath`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SearchPath
+  String
+  -> Executable
+```
+
+### `SignalChild`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SignalChild
+  ProcessSignal
+  -> ChildInput
+```
+
+### `UnsupportedChildSignal`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+UnsupportedChildSignal
+  ProcessSignal
+  -> ChildProcessError
+```
+
+### `WriteChildStdin`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+WriteChildStdin
+  Bytes
+  -> ChildInput
+```
+
+## 関数と演算子
+
+### `addArgument`
+
+<small className="api-kind">関数</small>
+
+```text
+addArgument
+  String
+  -> Command
+  -> Either<
+       ChildProcessConfigError,
+       Command
+     >
+```
+
+### `addArguments`
+
+<small className="api-kind">関数</small>
+
+```text
+addArguments
+  Array<String>
+  -> Command
+  -> Either<
+       ChildProcessConfigError,
+       Command
+     >
+```
+
+### `captureLimit`
+
+<small className="api-kind">関数</small>
+
+```text
+captureLimit
+  Int
+  -> Either<
+       ChildProcessConfigError,
+       CaptureLimit
+     >
+```
+
+### `clearEnvironment`
+
+<small className="api-kind">関数</small>
+
+```text
+clearEnvironment
+  Command
+  -> Command
+```
+
+### `command`
+
+<small className="api-kind">関数</small>
+
+```text
+command
+  Executable
+  -> Either<
+       ChildProcessConfigError,
+       Command
+     >
+```
+
+### `defaultCaptureLimit`
+
+<small className="api-kind">関数</small>
+
+```text
+defaultCaptureLimit
+  Unit
+  -> CaptureLimit
+```
+
+### `inDirectory`
+
+<small className="api-kind">関数</small>
+
+```text
+inDirectory
+  Path
+  -> Command
+  -> Command
+```
+
+### `outputBuffer`
+
+<small className="api-kind">関数</small>
+
+```text
+outputBuffer
+  BufferCapacity
+  -> Command
+  -> Command
+```
+
+### `runCaptured`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+runCaptured
+  CaptureLimit
+  -> Bytes
+  -> Command
+  -> Effect<
+       {
+         childProcesses:
+          ChildProcesses
+       },
+       ChildProcessError,
+       CapturedProcess
+     >
+```
+
+### `runInherited`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+runInherited
+  Command
+  -> Effect<
+       {
+         childProcesses:
+          ChildProcesses
+       },
+       ChildProcessError,
+       ChildExitStatus
+     >
+```
+
+### `runStreaming`
+
+<small className="api-kind">関数</small>
+
+```text
+runStreaming<R, E>
+  Stream<R, E, ChildInput>
+  -> Command
+  -> Stream<
+       R & {
+         childProcesses:
+          ChildProcesses
+       },
+       Either<E, ChildProcessError>,
+       ChildEvent
+     >
+```
+
+### `setEnvironment`
+
+<small className="api-kind">関数</small>
+
+```text
+setEnvironment
+  String
+  -> String
+  -> Command
+  -> Either<
+       ChildProcessConfigError,
+       Command
+     >
+```
+
+### `terminationGrace`
+
+<small className="api-kind">関数</small>
+
+```text
+terminationGrace
+  Duration
+  -> Command
+  -> Command
+```
+
+### `unsetEnvironment`
+
+<small className="api-kind">関数</small>
+
+```text
+unsetEnvironment
+  String
+  -> Command
+  -> Either<
+       ChildProcessConfigError,
+       Command
+     >
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

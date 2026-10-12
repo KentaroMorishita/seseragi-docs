@@ -1,0 +1,90 @@
+---
+title: "型クラス"
+description: "型ごとの操作を定義し、where制約で共通の関数から使う。"
+---
+
+同じ`map`がArrayやMaybeに使えるのは、それぞれの型が操作を提供しているからです。型クラスは、ある型で使える操作を表します。ここでは、値を表示する独自の操作を定義します。
+
+## traitで操作の型を宣言する
+
+{/* example: examples/learn/type-classes.ssrg */}
+```seseragi title="type-classes.ssrg"
+trait Render<A> {
+  fn render value: A -> String
+}
+
+struct Badge {
+  label: String,
+}
+
+instance Render<Badge> {
+  fn render value: Badge -> String =
+    value.label
+}
+
+fn framed<A> value: A -> String
+where Render<A> =
+  `<${render value}>`
+
+pub effect fn main =
+  Badge { label: "ADMIN" }
+  |> framed
+  |> println
+```
+
+```text title="実行結果"
+<ADMIN>
+```
+
+`trait Render<A>`は、`A`を受け取って`String`を返す`render`という操作を要求します。traitの中では型だけを書き、関数の本体は書きません。
+
+`Badge`は表示したいラベルを持つデータ型です。`instance Render<Badge>`に`render`の本体を書き、この型の値をどのように表示するかを決めます。
+
+## whereで必要な操作を示す
+
+`framed<A>`は任意の`A`を受け取りますが、`where Render<A>`で、その型のRenderが必要なことを示しています。`render value`を呼ぶための条件が、関数の型に含まれます。
+
+`Badge`には対応するinstanceがあるので、`framed`へ渡せます。対応するinstanceのない型へ適用するとコンパイルエラーです。値の実際のフィールドやJavaScriptのconstructorを調べて、実行時にinstanceを探す方式ではありません。
+
+## 同じ操作を違う型で使う
+
+標準の`map`は`Functor`の操作です。Arrayなら各要素、Maybeなら`Just`の中身、Eitherなら`Right`の中身を変換します。外側の構造を保って成功値を変換する、という共通の契約をそれぞれのinstanceが実装します。
+
+`Show`は値の文字列表現、`Eq`は等値比較の操作を提供します。型クラスごとに操作と契約があるので、同じ関数名ならどんな動作でもよい、という仕組みではありません。
+
+## 標準のinstanceを導出する
+
+単純なデータ型の`Eq`や`Show`は、`deriving`で導出できます。次の例では、ケースの等値比較と文字列化を使います。
+
+{/* example: examples/learn/deriving.ssrg */}
+```seseragi title="deriving.ssrg"
+type Phase deriving Eq, Show =
+  | Ready
+  | Done
+
+pub effect fn main = do {
+  println (show (Ready == Ready))
+  println (show Done)
+}
+```
+
+```text title="実行結果"
+True
+Done
+```
+
+payloadやフィールドを持つ型では、それらも導出する操作を提供する必要があります。たとえば、Showを持たないフィールドを含む型へ、無条件にShowを導出することはできません。独自のRenderを`deriving`で生成することもできません。
+
+## instanceの範囲と契約
+
+同じ型クラス適用に複数のinstanceは定義できません。instanceは、traitまたは対象の最外の型を定義したモジュールで宣言します。この規則で、importを増やしただけで既存の操作が別の実装へ切り替わることを防ぎます。
+
+`impl Badge`に書くメソッドと、`instance Render<Badge>`は別です。前者は型固有の名前付き操作、後者は型クラスの要件を満たす実装です。型クラスは継承階層やruntime objectのinterfaceを作る仕組みではありません。
+
+型検査は操作の型を確かめますが、Eqの反射律やFunctorの合成則といったlawを自動証明しません。独自のinstanceを定義するときは、その契約をテストで確かめます。詳しくは[型クラスリファレンス](/docs/reference/type-classes)を参照してください。
+
+## 別の型で同じ関数を使う
+
+`struct Tag { text: String }`と`instance Render<Tag>`を追加し、`framed`へ渡してみてください。`framed`の本体は変更せず、Tagの表示だけをinstanceで定義できます。対応するinstanceを削除した場合の診断も確認します。
+
+次は[モジュール](/docs/learn/modules)で、型とその操作をファイルへ分け、公開する範囲を決めます。

@@ -1,0 +1,843 @@
+---
+title: "std/web/dom"
+description: "HTMLとSignalをbrowserのDOMへ接続し、型の付いたActionとeventを配送します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | browser |
+| 能力のidentity | `std/web/dom::Dom` |
+
+## import
+
+```seseragi
+import * as web_dom
+  from "std/web/dom"
+```
+
+## 選び方と注意
+
+- DOM操作はbrowserのDom capabilityを要求します。processでHtmlをSSRできることと、実DOMを操作できることは別です。
+- DomContentのinitial Htmlとbinding planで、更新するsinkを明示します。leaf更新はElement identityやfocusを保ち、regionはそのchildrenを所有します。
+- Actionはbounded FIFOで逐次dispatchします。queue overflowはfailureで、Actionを黙ってdropしたり並列handlerへ変えたりしません。
+- mountのlistener、subscription、dispatchは同じスコープへ登録します。failure・キャンセル・unmountで解除し、DOMを残す後始末設定でもlistenerは残しません。
+- キーはregion内のdirect sibling identityです。global IDやcomponent stateの暗黙identityとして使いません。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `BindingTarget`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+BindingTarget<_, _>
+```
+
+### `CleanupMode`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+CleanupMode
+```
+
+### `Dom`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Dom
+```
+
+### `DomBinding`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+DomBinding<_>
+```
+
+### `DomContent`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+DomContent<_>
+```
+
+### `DomError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+DomError
+```
+
+### `DomMount`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+DomMount<_>
+```
+
+### `DomObservation`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+DomObservation<_>
+```
+
+### `DomOptions`
+
+<small className="api-kind">struct</small>
+
+```text
+struct DomOptions {
+  eventCapacity: Int,
+  hydration: HydrationMode,
+  cleanup: CleanupMode
+}
+```
+
+- `eventCapacity`: DOMから送られるActionのqueue容量。
+- `hydration`: 初回mountで既存DOMを扱う方針。
+- `cleanup`: unmount時に描画したDOMを扱う方針。
+
+### `DomRuntimeError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+DomRuntimeError<_>
+```
+
+### `DomTarget`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+DomTarget
+```
+
+### `ElementRect`
+
+<small className="api-kind">struct</small>
+
+```text
+struct ElementRect {
+  x: Float,
+  y: Float,
+  width: Float,
+  height: Float,
+  top: Float,
+  right: Float,
+  bottom: Float,
+  left: Float
+}
+```
+
+- `x`: 測定した矩形のx座標。
+- `y`: 測定した矩形のy座標。
+- `width`: 測定した矩形の幅。
+- `height`: 測定した矩形の高さ。
+- `top`: 測定した矩形の上端。
+- `right`: 測定した矩形の右端。
+- `bottom`: 測定した矩形の下端。
+- `left`: 測定した矩形の左端。
+
+### `HydrationMode`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+HydrationMode
+```
+
+## コンストラクタと値
+
+### `ClearRenderedDom`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ClearRenderedDom
+  CleanupMode
+```
+
+### `DispatchFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DispatchFailure<Failure>
+  Failure
+  -> DomRuntimeError<Failure>
+```
+
+### `DomEventQueueOverflow`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DomEventQueueOverflow
+  Int
+  -> DomError
+```
+
+### `DomFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DomFailure<Failure>
+  DomError
+  -> DomRuntimeError<Failure>
+```
+
+### `DomOperationFailed`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DomOperationFailed
+  String
+  -> DomError
+```
+
+### `DomTargetAlreadyMounted`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DomTargetAlreadyMounted
+  DomError
+```
+
+### `DomTargetNotFound`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DomTargetNotFound
+  String
+  -> DomError
+```
+
+### `DomTargetRemoved`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DomTargetRemoved
+  DomError
+```
+
+### `FreshMount`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FreshMount
+  HydrationMode
+```
+
+### `HydrateOrReplace`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HydrateOrReplace
+  HydrationMode
+```
+
+### `HydrateStrict`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HydrateStrict
+  HydrationMode
+```
+
+### `HydrationMismatch`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HydrationMismatch
+  {
+    path: Array<Int>,
+    expected: String,
+    actual: String
+  }
+  -> DomError
+```
+
+### `InvalidSelector`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidSelector
+  String
+  -> DomError
+```
+
+### `PreserveRenderedDom`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+PreserveRenderedDom
+  CleanupMode
+```
+
+## 関数と演算子
+
+### `app`
+
+<small className="api-kind">関数</small>
+
+型付きstate-update-viewアプリをDOM targetへmountします。
+
+```text
+app<State, Action>
+  {
+    target: String,
+    initial: State,
+    update: (
+      Action -> State -> State
+    ),
+    view: (State -> Html<Action>)
+  }
+  -> Effect<
+       { dom: Dom },
+       String,
+       Unit
+     >
+```
+
+### `ariaBooleanTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+ariaBooleanTarget<Action>
+  ElementRef
+  -> String
+  -> BindingTarget<Action, Bool>
+```
+
+### `ariaBusyTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+ariaBusyTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `ariaExpandedTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+ariaExpandedTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `ariaHiddenTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+ariaHiddenTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `ariaLabelTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+ariaLabelTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `ariaSelectedTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+ariaSelectedTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `attributeTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+attributeTarget<Action>
+  ElementRef
+  -> String
+  -> BindingTarget<
+       Action,
+       Maybe<String>
+     >
+```
+
+### `awaitMount`
+
+<small className="api-kind">関数</small>
+
+```text
+awaitMount<Failure>
+  DomMount<Failure>
+  -> Effect<
+       {},
+       DomRuntimeError<Failure>,
+       Unit
+     >
+```
+
+### `awaitObservation`
+
+<small className="api-kind">関数</small>
+
+```text
+awaitObservation<Failure>
+  DomObservation<Failure>
+  -> Effect<{}, Failure, Unit>
+```
+
+### `bind`
+
+<small className="api-kind">関数</small>
+
+```text
+bind<Action, Value>
+  BindingTarget<Action, Value>
+  -> Signal<Value>
+  -> DomBinding<Action>
+```
+
+### `bindAttribute`
+
+<small className="api-kind">関数</small>
+
+```text
+bindAttribute<Action>
+  String
+  -> String
+  -> Signal<Maybe<String>>
+  -> DomBinding<Action>
+```
+
+### `bindChecked`
+
+<small className="api-kind">関数</small>
+
+```text
+bindChecked<Action>
+  String
+  -> Signal<Bool>
+  -> DomBinding<Action>
+```
+
+### `bindRegion`
+
+<small className="api-kind">関数</small>
+
+```text
+bindRegion<Action>
+  String
+  -> Signal<DomContent<Action>>
+  -> DomBinding<Action>
+```
+
+### `bindStyle`
+
+<small className="api-kind">関数</small>
+
+```text
+bindStyle<Action>
+  String
+  -> String
+  -> Signal<Maybe<String>>
+  -> DomBinding<Action>
+```
+
+### `bindText`
+
+<small className="api-kind">関数</small>
+
+```text
+bindText<Action>
+  String
+  -> Signal<String>
+  -> DomBinding<Action>
+```
+
+### `bindValue`
+
+<small className="api-kind">関数</small>
+
+```text
+bindValue<Action>
+  String
+  -> Signal<String>
+  -> DomBinding<Action>
+```
+
+### `booleanAttributeTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+booleanAttributeTarget<Action>
+  ElementRef
+  -> String
+  -> BindingTarget<Action, Bool>
+```
+
+### `capturePointer`
+
+<small className="api-kind">関数</small>
+
+明示したDOM targetで、操作中のpointerをEffectとしてcaptureします。
+
+```text
+capturePointer
+  DomTarget
+  -> Int
+  -> Effect<
+       { dom: Dom },
+       DomError,
+       Unit
+     >
+```
+
+### `checkedTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+checkedTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `classTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+classTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `content`
+
+<small className="api-kind">関数</small>
+
+```text
+content<Action>
+  Html<Action>
+  -> Array<DomBinding<Action>>
+  -> DomContent<Action>
+```
+
+### `defaultOptions`
+
+<small className="api-kind">関数</small>
+
+```text
+defaultOptions
+  Unit
+  -> DomOptions
+```
+
+### `disabledTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+disabledTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `disconnect`
+
+<small className="api-kind">関数</small>
+
+```text
+disconnect<Failure>
+  DomObservation<Failure>
+  -> Effect<{}, Never, Unit>
+```
+
+### `hiddenTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+hiddenTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `inertTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+inertTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `initialHtml`
+
+<small className="api-kind">関数</small>
+
+```text
+initialHtml<Action>
+  DomContent<Action>
+  -> Html<Action>
+```
+
+### `measure`
+
+<small className="api-kind">関数</small>
+
+DOM capabilityでelementのbounding rectangleをsnapshotとして読みます。
+
+```text
+measure
+  DomTarget
+  -> Effect<
+       { dom: Dom },
+       DomError,
+       ElementRect
+     >
+```
+
+### `mount`
+
+<small className="api-kind">関数</small>
+
+```text
+mount<R, Action, Failure>
+  DomOptions
+  -> DomTarget
+  -> (
+       Action
+       -> Effect<R, Failure, Unit>
+     )
+  -> Signal<Html<Action>>
+  -> Effect<
+       R & { dom: Dom },
+       DomError,
+       DomMount<Failure>
+     >
+```
+
+### `mountContent`
+
+<small className="api-kind">関数</small>
+
+```text
+mountContent<R, Action, Failure>
+  DomOptions
+  -> DomTarget
+  -> (
+       Action
+       -> Effect<R, Failure, Unit>
+     )
+  -> DomContent<Action>
+  -> Effect<
+       R & { dom: Dom },
+       DomError,
+       DomMount<Failure>
+     >
+```
+
+### `observeResize`
+
+<small className="api-kind">関数</small>
+
+明示した解放可能なresource lifetimeでelementのgeometryを観測します。
+
+```text
+observeResize<R, Failure>
+  DomTarget
+  -> (
+       ElementRect
+       -> Effect<R, Failure, Unit>
+     )
+  -> Effect<
+       R & { dom: Dom },
+       DomError,
+       DomObservation<Failure>
+     >
+```
+
+### `query`
+
+<small className="api-kind">関数</small>
+
+```text
+query
+  String
+  -> Effect<
+       { dom: Dom },
+       DomError,
+       DomTarget
+     >
+```
+
+### `regionTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+regionTarget<Action>
+  ElementRef
+  -> BindingTarget<
+       Action,
+       DomContent<Action>
+     >
+```
+
+### `releasePointer`
+
+<small className="api-kind">関数</small>
+
+明示したDOM targetのpointer captureをEffectとして解除します。
+
+```text
+releasePointer
+  DomTarget
+  -> Int
+  -> Effect<
+       { dom: Dom },
+       DomError,
+       Unit
+     >
+```
+
+### `run`
+
+<small className="api-kind">関数</small>
+
+```text
+run<R, Action, Failure>
+  DomOptions
+  -> DomTarget
+  -> (
+       Action
+       -> Effect<R, Failure, Unit>
+     )
+  -> Signal<Html<Action>>
+  -> Effect<
+       R & { dom: Dom },
+       DomRuntimeError<Failure>,
+       Unit
+     >
+```
+
+### `runContent`
+
+<small className="api-kind">関数</small>
+
+```text
+runContent<R, Action, Failure>
+  DomOptions
+  -> DomTarget
+  -> (
+       Action
+       -> Effect<R, Failure, Unit>
+     )
+  -> DomContent<Action>
+  -> Effect<
+       R & { dom: Dom },
+       DomRuntimeError<Failure>,
+       Unit
+     >
+```
+
+### `styleTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+styleTarget<Action>
+  ElementRef
+  -> String
+  -> BindingTarget<
+       Action,
+       Maybe<String>
+     >
+```
+
+### `textTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+textTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `titleTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+titleTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `unmount`
+
+<small className="api-kind">関数</small>
+
+```text
+unmount<Failure>
+  DomMount<Failure>
+  -> Effect<{}, Never, Unit>
+```
+
+### `valueTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+valueTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/signals)
+- [用途からmoduleを探す](/docs/reference/library)
+- [Web UIの規則](/docs/reference/web-ui)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

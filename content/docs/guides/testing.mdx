@@ -1,0 +1,107 @@
+---
+title: テストを書く
+description: 公開APIをstd/testで検証し、境界値を継続して確かめる。
+---
+
+小計3000以上なら送料0、それより小さければ400になる関数をテストします。境界の直前、境界そのもの、境界の直後を固定し、変更で条件をずらしていないか確認します。
+
+[関数とパイプライン](/docs/learn/functions-and-pipelines)、[モジュール](/docs/learn/modules)、[Effect](/docs/learn/effects)の構文を使います。テストのファイル構成とrunnerの操作は、以下で準備します。
+
+## テスト用のパッケージを作る
+
+`shipping/`に次の構成を作ります。CLIとBunが必要です。テストは`tests/`、通常の関数は`src/`へ置きます。
+
+```text
+shipping/
+  seseragi.toml
+  src/
+    shipping.ssrg
+  tests/
+    shipping.ssrg
+```
+
+```toml title="seseragi.toml"
+[package]
+name = "docs/shipping"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[exports]
+"." = "shipping"
+
+[test]
+target = "node"
+jobs = 1
+```
+
+`[exports]`の`"." = "shipping"`が公開の入口です。`[test]`の`target = "node"`は現在のテストランナーのターゲットで、アプリの`run.target`とは別の設定です。
+
+## 公開する関数を書く
+
+{/* example: examples/guides/testing/src/shipping.ssrg */}
+```seseragi title="src/shipping.ssrg"
+pub fn fee subtotal: Int -> Int =
+  if subtotal >= 3000 then 0 else 400
+```
+
+関数を公開する`pub`と、モジュールを公開するexport mapの両方が必要です。テスト側はパッケージの公開入口から`fee`をimportします。
+
+## テストの木を作る
+
+{/* example: examples/guides/testing/tests/shipping.ssrg */}
+```seseragi title="tests/shipping.ssrg"
+import * as test from "std/test"
+import { fee } from "docs/shipping"
+
+pub let tests: test.Test =
+  test.suite "fee" [
+    test.test "below threshold"
+      (test.equal 400 (fee 2999)),
+    test.test "at threshold"
+      (test.equal 0 (fee 3000)),
+    test.test "above threshold"
+      (test.equal 0 (fee 3001))
+  ]
+```
+
+`test.equal`は期待値、実際の値の順です。`pub let tests: test.Test`がランナーに読み取られる入口です。ここでの`let`はテスト定義を公開する契約で、実行用の固定入力を名前だけ付けて並べる束縛とは役割が異なります。
+
+`test.suite`と`test.test`は通常の値を作ります。テスト本文のEffectは、ランナーがそのケースを実行するまで実行されません。
+
+## 実行する
+
+`shipping/`で次を実行してください。
+
+```sh
+seseragi lock update
+seseragi test
+```
+
+```text
+PASS shipping::fee::below threshold
+PASS shipping::fee::at threshold
+PASS shipping::fee::above threshold
+3 passed; 0 failed; 0 skipped
+```
+
+関数の条件を`subtotal > 3000`へ変えて保存したら、もう一度`seseragi lock update`を実行し、`seseragi test`で確かめてください。`at threshold`が失敗し、2 passed・1 failedになります。元の`>=`へ戻した後も、ロックを更新してからテストを実行します。
+
+通常のソース変更はロックに含まれる内容を変えるため、更新前のテストは`SES-K0102`で止まります。テスト失敗は終了コード1、古いロックを含む設定・コンパイル・探索の問題は2です。
+
+## 一部だけを実行する
+
+```sh
+seseragi test --filter threshold
+seseragi test --exact \
+  shipping::fee::at\ threshold
+```
+
+`--filter`は完全名に対する大文字小文字を区別する部分文字列です。正規表現ではありません。`--exact`は完全なケース名を指定します。どちらも0件を成功として扱わず、終了コード2になります。
+
+`--jobs`で並列実行数を指定できます。各ケースは独立した環境とリソーススコープで実行され、レポートは定義順で出ます。
+
+## 検証する範囲を選ぶ
+
+このテストは送料の規則を検証し、フォームの入力やブラウザーの操作は検証しません。UIの入力・フォーカス・イベントの確認は、ブラウザーでも行います。純粋な更新関数は同じ`test.equal`で直接確認できます。
+
+[状態とAction](/docs/guides/state-and-actions)にUIから分けた更新関数の例があります。ランナーのtimeout、filter、終了コードは[CLI Reference](/docs/reference/cli)で確認できます。

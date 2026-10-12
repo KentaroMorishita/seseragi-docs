@@ -1,0 +1,6 @@
+import * as clock from "std/clock"
+
+pub effect fn main = do {
+  _ <- clock.now ()
+  println "Clock ready"
+}

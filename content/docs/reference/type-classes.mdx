@@ -1,0 +1,97 @@
+---
+title: "型クラス"
+description: "型で選ぶtrait、instance、constraint、deriving、operator、doの規則を確認する。"
+---
+
+型クラスは、型がどの操作を実装できるかを表します。継承やruntime objectのinterfaceではなく、型検査時に一意に選ぶinstanceの契約です。
+
+## traitとinstance
+
+traitはmethodの型を宣言し、instanceが本体を与えます。次の例では、`Topic`の値を表示する操作を`Label`で抽象化しています。
+
+{/* example: examples/reference/type-classes.ssrg */}
+
+```seseragi title="type-classes.ssrg"
+trait Label<A> {
+  fn label value: A -> String
+}
+
+newtype Topic = String
+
+instance Label<Topic> {
+  fn label topic: Topic -> String =
+    match topic {
+      Topic name -> name
+    }
+}
+
+fn heading<A> value: A -> String
+where Label<A> =
+  label value
+
+pub effect fn main =
+  Topic "Language"
+  |> heading
+  |> println
+```
+
+出力は`Language`です。`instance Label<Topic>`のmethod型は、traitの`A`を`Topic`へ置き換えた型と一致する必要があります。
+
+`impl Topic`はその型固有のmethod用です。traitを実装するときは`instance`を使います。`impl Label<Topic>`をtrait instanceのつもりで書くと`SES-T0502`です。
+
+## constraintと選択
+
+`where Label<A>`は、その関数を呼ぶ場所でinstanceが必要という制約です。具体型が決まるとinstanceを選び、generic codeは制約の辞書を受け取る意味になります。
+
+同じ名前のtrait methodがscopeへ複数入り、型からtrait自体を選べない場合は、`Functor.map`のように修飾します。runtime tag、JavaScriptのconstructor名、objectのshapeを調べてinstanceを再探索することはありません。
+
+standard collectionの`Show`などは要素型のinstanceも必要です。空Arrayや`Nothing`であっても、値を見て要素のconstraintを省略しません。必要なinstanceがない場合は`SES-T0201`です。
+
+## coherenceとorphan rule
+
+同じtrait適用には、プログラム全体で一つのinstanceだけ存在できます。instanceを置けるのはtraitを定義したmodule、またはheadの最外nominal型を定義したmoduleです。局所instance、重複候補への優先順位、overlapはありません。
+
+aliasはinstance identityを作りません。aliasと展開先に別のinstanceを定義して回避することはできません。匿名recordやtupleへuser-definedなstructural instanceを追加することもできません。
+
+標準の`Iterable<C, A>`は`C`から`A`、算術traitはoperand型から結果型を一意に決めます。このfunctional dependencyに反するinstanceもcoherence errorです。user traitへfunctional dependencyを宣言する構文は現在ありません。
+
+## 標準traitとoperator
+
+| trait | 操作・構文 |
+| --- | --- |
+| `Eq<A>` | `eq`、`==`、`!=` |
+| `Ord<A>` | `compare`、順序比較 |
+| `Show<A>` | `show`、template interpolation |
+| `Hash<A>` | Hash構造で使う値のhash |
+| `Functor<F>` | `map`、`<$>` |
+| `Applicative<F>` | `pure`、`apply`、`<*>` |
+| `Monad<M>` | `flatMap`、`>>=`、`do` |
+| `Add<L, R, O>`など | 算術operator |
+
+`F<_>`や`M<_>`は型構築子parameterです。`Functor<Maybe>`や`Monad<Effect<R, E, _>>`のように使います。`Ord`は一貫した全順序が必要で、Floatにはstandard `Ord`がありません。Floatの比較をhostの比較へ暗黙に迂回しません。
+
+struct/newtypeの`impl`内の標準`operator`宣言は、対応する標準trait instanceの糖衣です。独自symbolや優先順位は別のトップレベル`operator`宣言で定義します。
+
+## derivingとlaws
+
+`deriving`で導出できるのは`Eq`、`Ord`、`Show`、`Debug`、`Hash`、`JsonEncode`、`JsonDecode`です。必要なfield/payload型にも同じtraitのinstanceが必要です。generic型なら、その条件を生成instanceへ加えます。
+
+`Hash`には同じ型の`Eq`も必要です。derivingと明示instanceで同じ適用を二重定義するとエラーです。導出した`Ord`はvariantの宣言順、その後にpayloadの辞書式順序を使います。newtypeのShowはconstructor名を残します。
+
+Eq、Ord、Functor、Applicative、Monadなどのlawはinstanceの契約です。型検査だけでlawを証明することはありません。[テスト](/docs/guides/testing)でも動作を確認してください。
+
+## do notation
+
+`do`は一つの`Monad<M>`のbind列です。Effectだけの構文ではありません。
+
+```text title="doの構文"
+do {
+  value <- wrapped
+  let next = value + 1
+  pure next
+}
+```
+
+`<-`はmonadのpayloadを束縛し、`let`はpureな値を束縛します。途中のmonadic expressionは結果を捨てて続け、最後のmonadic expressionがblock全体の結果です。最後の式は必須です。
+
+すべての計算を同じ型構築子へ揃えます。EitherをEffectへ混ぜるなら`fromEither`などで明示変換します。bind patternは必ず一致する必要があり、refutable patternを暗黙の失敗へ変換しません。[パターン](/docs/reference/patterns)も参照してください。

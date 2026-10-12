@@ -1,0 +1,9 @@
+pub type Parcel =
+  | Packing
+  | Sent String
+
+pub fn label parcel: Parcel -> String =
+  match parcel {
+    Packing -> "Preparing"
+    Sent city -> `Sent to ${city}`
+  }

@@ -1,0 +1,120 @@
+---
+title: "std/semaphore"
+description: "Limit concurrent operations with permits."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as semaphore
+  from "std/semaphore"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Permit`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Permit
+```
+
+### `Semaphore`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Semaphore
+```
+
+### `SemaphoreCreateError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+SemaphoreCreateError
+```
+
+## Constructors and values
+
+### `NonPositivePermits`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NonPositivePermits
+  Int
+  -> SemaphoreCreateError
+```
+
+## Functions and operators
+
+### `acquire`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+acquire
+  Semaphore
+  -> Effect<{}, Never, Permit>
+```
+
+### `available`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+available
+  Semaphore
+  -> Effect<{}, Never, Int>
+```
+
+### `make`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+make
+  Int
+  -> Effect<
+       {},
+       SemaphoreCreateError,
+       Semaphore
+     >
+```
+
+### `release`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+release
+  Permit
+  -> Effect<{}, Never, Unit>
+```
+
+### `withPermit`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+withPermit<R, E, A>
+  Semaphore
+  -> Effect<R, E, A>
+  -> Effect<R, E, A>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)

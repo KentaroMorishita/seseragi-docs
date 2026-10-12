@@ -1,0 +1,8 @@
+pub effect fn main = {
+  let verdict =
+    if 82 >= 80 then
+      "pass"
+    else
+      "retry"
+  println verdict
+}

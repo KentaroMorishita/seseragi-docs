@@ -1,0 +1,686 @@
+---
+title: "std/fs"
+description: "FileSystemの能力でfileを読み書きします。resourceは利用範囲を明確にして扱います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+| 能力のidentity | `std/fs::FileSystem` |
+
+## import
+
+```seseragi
+import * as fs from "std/fs"
+```
+
+## 選び方と注意
+
+- Pathのparse/normalizeはlexicalな操作です。symlinkを解決せず、sandboxの認可境界にもならないため、filesystemへの権限判断と分けます。
+- existsはNotFoundなどをFalseにしますが、権限やI/O障害を不在へ変換しません。型付き失敗を別に扱います。
+- readBytes/readTextUtf8は全内容をメモリへ保持するsmall-file APIです。大きなfileにはreadChunksを使い、textのstrict UTF-8検査も意識します。
+- readChunksやdirectory streamはterminal スコープでリソースを所有します。途中終了・failure・キャンセルでもhandleを閉じ、iteratorを外へ保持してlifetimeを延ばさない構成にします。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `DirectoryEntry`
+
+<small className="api-kind">struct</small>
+
+```text
+struct DirectoryEntry {
+  name: String,
+  path: Path,
+  fileType: Maybe<FileType>
+}
+```
+
+- `name`: directory内のentry名。
+- `path`: entryのpath。
+- `fileType`: entryの種類。提供されなければNothing。
+
+### `FileMetadata`
+
+<small className="api-kind">struct</small>
+
+```text
+struct FileMetadata {
+  fileType: FileType,
+  sizeBytes: Int,
+  modified: Maybe<Instant>,
+  created: Maybe<Instant>
+}
+```
+
+- `fileType`: 対象fileの種類。
+- `sizeBytes`: 取得したバイト数。
+- `modified`: 更新時刻。取得できなければNothing。
+- `created`: 作成時刻。取得できなければNothing。
+
+### `FileSystem`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+FileSystem
+```
+
+### `FileSystemError`
+
+<small className="api-kind">struct</small>
+
+```text
+struct FileSystemError {
+  operation: FileSystemOperation,
+  path: Path,
+  otherPath: Maybe<Path>,
+  kind: FileSystemErrorKind
+}
+```
+
+- `operation`: 失敗したfilesystem操作の種類。
+- `path`: 失敗した操作の対象path。
+- `otherPath`: 二つのpathを使う操作の追加path。ない場合はNothing。
+- `kind`: 失敗の種類。
+
+### `FileSystemErrorKind`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+FileSystemErrorKind
+```
+
+### `FileSystemOperation`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+FileSystemOperation
+```
+
+### `FileTextError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+FileTextError
+```
+
+### `FileType`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+FileType
+```
+
+### `WriteMode`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+WriteMode
+```
+
+## コンストラクタと値
+
+### `Append`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Append
+  WriteMode
+```
+
+### `CanonicalizePath`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+CanonicalizePath
+  FileSystemOperation
+```
+
+### `CreateDirectory`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+CreateDirectory
+  FileSystemOperation
+```
+
+### `CreateNew`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+CreateNew
+  WriteMode
+```
+
+### `CreateTemporary`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+CreateTemporary
+  FileSystemOperation
+```
+
+### `CrossDeviceMove`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+CrossDeviceMove
+  FileSystemErrorKind
+```
+
+### `Directory`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Directory
+  FileType
+```
+
+### `DirectoryNotEmpty`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DirectoryNotEmpty
+  FileSystemErrorKind
+```
+
+### `FileAccessFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FileAccessFailure
+  FileSystemError
+  -> FileTextError
+```
+
+### `FileAlreadyExists`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FileAlreadyExists
+  FileSystemErrorKind
+```
+
+### `FileNotFound`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FileNotFound
+  FileSystemErrorKind
+```
+
+### `FileSystemUnavailable`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FileSystemUnavailable
+  FileSystemErrorKind
+```
+
+### `FileUtf8Failure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FileUtf8Failure
+  Utf8DecodeError
+  -> FileTextError
+```
+
+### `IsADirectory`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+IsADirectory
+  FileSystemErrorKind
+```
+
+### `MovePath`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+MovePath
+  FileSystemOperation
+```
+
+### `NotADirectory`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NotADirectory
+  FileSystemErrorKind
+```
+
+### `OpenDirectory`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+OpenDirectory
+  FileSystemOperation
+```
+
+### `OtherFileSystemError`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+OtherFileSystemError
+  String
+  -> FileSystemErrorKind
+```
+
+### `OtherFileType`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+OtherFileType
+  FileType
+```
+
+### `PathNotSupported`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+PathNotSupported
+  FileSystemErrorKind
+```
+
+### `PermissionDenied`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+PermissionDenied
+  FileSystemErrorKind
+```
+
+### `ReadFile`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ReadFile
+  FileSystemOperation
+```
+
+### `ReadMetadata`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ReadMetadata
+  FileSystemOperation
+```
+
+### `RegularFile`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+RegularFile
+  FileType
+```
+
+### `RemovePath`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+RemovePath
+  FileSystemOperation
+```
+
+### `Replace`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Replace
+  WriteMode
+```
+
+### `SymbolicLink`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SymbolicLink
+  FileType
+```
+
+### `SymbolicLinkLoop`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SymbolicLinkLoop
+  FileSystemErrorKind
+```
+
+### `WriteFile`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+WriteFile
+  FileSystemOperation
+```
+
+## 関数と演算子
+
+### `canonicalize`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+canonicalize
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Path
+     >
+```
+
+### `createDirectories`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+createDirectories
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `createDirectory`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+createDirectory
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `exists`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+exists
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Bool
+     >
+```
+
+### `list`
+
+<small className="api-kind">関数</small>
+
+```text
+list
+  Path
+  -> Stream<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       DirectoryEntry
+     >
+```
+
+### `metadata`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+metadata
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       FileMetadata
+     >
+```
+
+### `move`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+move
+  Path
+  -> Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `readBytes`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+readBytes
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Bytes
+     >
+```
+
+### `readChunks`
+
+<small className="api-kind">関数</small>
+
+```text
+readChunks
+  BufferCapacity
+  -> Path
+  -> Stream<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Bytes
+     >
+```
+
+### `readTextUtf8`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+readTextUtf8
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileTextError,
+       String
+     >
+```
+
+### `removeDirectory`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+removeDirectory
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `removeFile`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+removeFile
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `symlinkMetadata`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+symlinkMetadata
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       FileMetadata
+     >
+```
+
+### `withTemporaryDirectory`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+withTemporaryDirectory<R, E, A>
+  String
+  -> (Path -> Effect<R, E, A>)
+  -> Effect<
+       R & {
+         fileSystem: FileSystem
+       },
+       Either<FileSystemError, E>,
+       A
+     >
+```
+
+### `withTemporaryFile`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+withTemporaryFile<R, E, A>
+  String
+  -> (Path -> Effect<R, E, A>)
+  -> Effect<
+       R & {
+         fileSystem: FileSystem
+       },
+       Either<FileSystemError, E>,
+       A
+     >
+```
+
+### `writeAtomic`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+writeAtomic
+  Bytes
+  -> Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `writeBytes`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+writeBytes
+  WriteMode
+  -> Bytes
+  -> Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `writeChunks`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+writeChunks<R, E>
+  WriteMode
+  -> Stream<R, E, Bytes>
+  -> Path
+  -> Effect<
+       R & {
+         fileSystem: FileSystem
+       },
+       Either<E, FileSystemError>,
+       Unit
+     >
+```
+
+### `writeTextUtf8`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+writeTextUtf8
+  WriteMode
+  -> String
+  -> Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

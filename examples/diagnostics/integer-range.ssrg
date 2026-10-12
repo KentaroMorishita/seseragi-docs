@@ -1,0 +1,4 @@
+pub effect fn main =
+  9007199254740992
+  |> show
+  |> println

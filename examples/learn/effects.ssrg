@@ -1,0 +1,11 @@
+effect fn greet name: String -> Unit
+with Console
+fails ConsoleError =
+  println `Hello, ${name}`
+
+pub effect fn main = do {
+  let greeting = greet "Aki"
+  println "Before greeting"
+  greeting
+  greeting
+}

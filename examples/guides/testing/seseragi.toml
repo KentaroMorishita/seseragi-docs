@@ -1,0 +1,11 @@
+[package]
+name = "docs/shipping"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[exports]
+"." = "shipping"
+
+[test]
+target = "node"
+jobs = 1

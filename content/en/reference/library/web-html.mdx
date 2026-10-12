@@ -1,0 +1,6228 @@
+---
+title: "std/web/html"
+description: "Create pure HTML trees from props records and children. Rendering and DOM attachment are separate operations."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as web_html
+  from "std/web/html"
+```
+
+## Example
+
+{/* example: examples/library/web-html.ssrg */}
+
+```seseragi
+import * as html from "std/web/html"
+
+pub effect fn main =
+  html.p { children: "Hello" }
+  |> html.renderToString
+  |> println
+```
+
+Output:
+
+```text
+<p>Hello</p>
+```
+
+## Choosing operations
+
+- Html is a pure immutable tree, and components are ordinary functions. Construction alone creates no DOM, subscriptions, or hook state.
+- Children accept String, Html, and their supported Array/List forms. Convert numbers explicitly with show/text; do not arbitrarily mix String and Html in one Array.
+- Text escapes once at SSR/DOM sinks. Use validated URLs and custom attributes rather than inserting unchecked raw HTML Strings.
+- SSR executes no events and emits neither event props nor keys as attributes. Browser DOM connections belong in std/web/dom.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `AnchorProps`
+
+<small className="api-kind">Type alias</small>
+
+```text
+AnchorProps<_, _>
+```
+
+### `Attribute`
+
+<small className="api-kind">Opaque type</small>
+
+Validated opaque custom HTML attribute name and value.
+
+```text
+Attribute
+```
+
+### `ButtonProps`
+
+<small className="api-kind">Type alias</small>
+
+```text
+ButtonProps<_, _>
+```
+
+### `ChangeEvent`
+
+<small className="api-kind">Opaque struct</small>
+
+Immutable form-control snapshot containing value and optional checked state: Just for checkbox/radio, Nothing for value controls.
+
+```text
+ChangeEvent
+```
+
+### `ElementProps`
+
+<small className="api-kind">Type alias</small>
+
+```text
+ElementProps<_, _>
+```
+
+### `ElementRef`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ElementRef
+```
+
+### `EventAction`
+
+<small className="api-kind">Opaque type</small>
+
+Explicit event outcome describing dispatch, default prevention, and propagation control.
+
+```text
+EventAction<_>
+```
+
+### `FileChangeEvent`
+
+<small className="api-kind">Opaque struct</small>
+
+```text
+FileChangeEvent
+```
+
+### `FormProps`
+
+<small className="api-kind">Type alias</small>
+
+```text
+FormProps<_, _>
+```
+
+### `Html`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Html<_>
+```
+
+### `HtmlBuildError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes a rejected custom HTML value or unsafe Web URL.
+
+```text
+HtmlBuildError
+```
+
+### `ImageProps`
+
+<small className="api-kind">Type alias</small>
+
+```text
+ImageProps<_>
+```
+
+### `InputEvent`
+
+<small className="api-kind">Opaque struct</small>
+
+Immutable text-input snapshot containing only the current String value.
+
+```text
+InputEvent
+```
+
+### `InputProps`
+
+<small className="api-kind">Type alias</small>
+
+```text
+InputProps<_>
+```
+
+### `IntoChildren`
+
+<small className="api-kind">Type class</small>
+
+```text
+IntoChildren<_, _>
+```
+
+### `KeyboardEvent`
+
+<small className="api-kind">Opaque struct</small>
+
+Immutable keyboard snapshot containing key identity, repeat state, and modifier keys.
+
+```text
+KeyboardEvent
+```
+
+### `LabelProps`
+
+<small className="api-kind">Type alias</small>
+
+```text
+LabelProps<_, _>
+```
+
+### `MouseEvent`
+
+<small className="api-kind">Opaque struct</small>
+
+Immutable mouse snapshot containing button, coordinates, and modifier keys.
+
+```text
+MouseEvent
+```
+
+### `PointerEvent`
+
+<small className="api-kind">Opaque struct</small>
+
+Immutable pointer snapshot distinguishing mouse, touch, and pen input.
+
+```text
+PointerEvent
+```
+
+### `ScrollEvent`
+
+<small className="api-kind">Opaque struct</small>
+
+Immutable scroll snapshot containing the current element offsets.
+
+```text
+ScrollEvent
+```
+
+### `Style`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Style
+```
+
+### `StyleRecord`
+
+<small className="api-kind">Type class</small>
+
+```text
+StyleRecord<_>
+```
+
+### `Tag`
+
+<small className="api-kind">Opaque type</small>
+
+Validated opaque name for a custom HTML element.
+
+```text
+Tag
+```
+
+### `TextareaProps`
+
+<small className="api-kind">Type alias</small>
+
+```text
+TextareaProps<_>
+```
+
+### `WebUrl`
+
+<small className="api-kind">Opaque type</small>
+
+Validated opaque URL for security-sensitive HTML attributes.
+
+```text
+WebUrl
+```
+
+### `WheelEvent`
+
+<small className="api-kind">Opaque struct</small>
+
+Immutable wheel snapshot containing deltas, mode, coordinates, and modifiers.
+
+```text
+WheelEvent
+```
+
+## Constructors and values
+
+### `Dispatch`
+
+<small className="api-kind">Constructor</small>
+
+Constructs an EventAction value requesting Action dispatch without changing browser defaults or propagation.
+
+```text
+Dispatch<Action>
+  Action
+  -> EventAction<Action>
+```
+
+### `DispatchPreventDefault`
+
+<small className="api-kind">Constructor</small>
+
+Constructs an EventAction value requesting default prevention before Action dispatch.
+
+```text
+DispatchPreventDefault<Action>
+  Action
+  -> EventAction<Action>
+```
+
+### `DispatchPreventDefaultAndStop`
+
+<small className="api-kind">Constructor</small>
+
+Constructs an EventAction value requesting both default prevention and propagation control before Action dispatch.
+
+```text
+DispatchPreventDefaultAndStop<
+  Action
+>
+  Action
+  -> EventAction<Action>
+```
+
+### `DispatchStopPropagation`
+
+<small className="api-kind">Constructor</small>
+
+Constructs an EventAction value requesting propagation control before Action dispatch.
+
+```text
+DispatchStopPropagation<Action>
+  Action
+  -> EventAction<Action>
+```
+
+### `IgnoreEvent`
+
+<small className="api-kind">Constructor</small>
+
+An EventAction value requesting no Action dispatch and no change to browser defaults or propagation.
+
+```text
+IgnoreEvent
+  EventAction<Action>
+```
+
+### `InvalidAttributeName`
+
+<small className="api-kind">Constructor</small>
+
+Reports an invalid custom attribute spelling.
+
+```text
+InvalidAttributeName
+  String
+  -> HtmlBuildError
+```
+
+### `InvalidTagName`
+
+<small className="api-kind">Constructor</small>
+
+Reports a rejected custom-element name.
+
+```text
+InvalidTagName
+  String
+  -> HtmlBuildError
+```
+
+### `ReservedAttributeName`
+
+<small className="api-kind">Constructor</small>
+
+Reports a custom attribute that collides with typed or runtime-owned props.
+
+```text
+ReservedAttributeName
+  String
+  -> HtmlBuildError
+```
+
+### `UnsafeWebUrlScheme`
+
+<small className="api-kind">Constructor</small>
+
+Reports a URL rejected for its scheme, credentials, or control characters.
+
+```text
+UnsafeWebUrlScheme
+  String
+  -> HtmlBuildError
+```
+
+## Functions and operators
+
+### `a`
+
+<small className="api-kind">Function</small>
+
+Creates a hyperlink with typed navigation props.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+a<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    href: WebUrl,
+    target?: String,
+    rel?: String,
+    download?: Bool,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `article`
+
+<small className="api-kind">Function</small>
+
+Creates a self-contained article section.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+article<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `aside`
+
+<small className="api-kind">Function</small>
+
+Creates content related to the surrounding section.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+aside<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `attribute`
+
+<small className="api-kind">Function</small>
+
+Validates a custom, data, or ARIA attribute without bypassing escaping.
+
+```text
+attribute
+  String
+  -> String
+  -> Either<
+       HtmlBuildError,
+       Attribute
+     >
+```
+
+### `audio`
+
+<small className="api-kind">Function</small>
+
+Creates an audio media element.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+audio<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    src?: WebUrl,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `blockquote`
+
+<small className="api-kind">Function</small>
+
+Creates a block quotation.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+blockquote<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `body`
+
+<small className="api-kind">Function</small>
+
+Creates the document body container.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+body<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `br`
+
+<small className="api-kind">Function</small>
+
+Creates a void line-break element without children.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+br<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    )
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `button`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+button<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    disabled?: Bool,
+    buttonType?: String,
+    name?: String,
+    value?: String,
+    autoFocus?: Bool,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `caption`
+
+<small className="api-kind">Function</small>
+
+Creates a caption for a typed data table.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+caption<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `capturePointer`
+
+<small className="api-kind">Function</small>
+
+```text
+capturePointer<Action>
+  PointerEvent
+  -> EventAction<Action>
+  -> EventAction<Action>
+```
+
+### `code`
+
+<small className="api-kind">Function</small>
+
+Creates an inline code fragment.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+code<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `custom`
+
+<small className="api-kind">Function</small>
+
+Creates a custom element from a validated Tag.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+custom<Action, C>
+  Tag
+  -> {
+       elementRef?: ElementRef,
+       id?: String,
+       class?: String,
+       title?: String,
+       hidden?: Bool,
+       key?: String,
+       style?: Style,
+       attributes?: Array<Attribute>,
+       role?: String,
+       tabIndex?: Int,
+       lang?: String,
+       dir?: String,
+       draggable?: Bool,
+       contentEditable?: Bool,
+       inert?: Bool,
+       ariaLabel?: String,
+       ariaBusy?: Bool,
+       ariaExpanded?: Bool,
+       ariaHidden?: Bool,
+       ariaSelected?: Bool,
+       onClick?: Action,
+       preventClickDefault?: Bool,
+       stopClickPropagation?: Bool,
+       onFocus?: Action,
+       onBlur?: Action,
+       onKeyDown?: (
+         KeyboardEvent
+         -> EventAction<Action>
+       ),
+       onKeyUp?: (
+         KeyboardEvent
+         -> EventAction<Action>
+       ),
+       onMouseDown?: (
+         MouseEvent
+         -> EventAction<Action>
+       ),
+       onMouseUp?: (
+         MouseEvent
+         -> EventAction<Action>
+       ),
+       onPointerDown?: (
+         PointerEvent
+         -> EventAction<Action>
+       ),
+       onPointerMove?: (
+         PointerEvent
+         -> EventAction<Action>
+       ),
+       onPointerUp?: (
+         PointerEvent
+         -> EventAction<Action>
+       ),
+       onPointerCancel?: (
+         PointerEvent
+         -> EventAction<Action>
+       ),
+       onWheel?: (
+         WheelEvent
+         -> EventAction<Action>
+       ),
+       onDoubleClick?: (
+         MouseEvent
+         -> EventAction<Action>
+       ),
+       onContextMenu?: (
+         MouseEvent
+         -> EventAction<Action>
+       ),
+       onScroll?: (
+         ScrollEvent
+         -> EventAction<Action>
+       ),
+       children: C
+     }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `customTag`
+
+<small className="api-kind">Function</small>
+
+Validates a custom-element name into an opaque Tag.
+
+```text
+customTag
+  String
+  -> Either<HtmlBuildError, Tag>
+```
+
+### `details`
+
+<small className="api-kind">Function</small>
+
+Creates a disclosure element with typed open state.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+details<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    open?: Bool,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `dialog`
+
+<small className="api-kind">Function</small>
+
+Creates a dialog element with typed open state.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+dialog<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    open?: Bool,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `div`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+div<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `elementRef`
+
+<small className="api-kind">Function</small>
+
+```text
+elementRef
+  String
+  -> ElementRef
+```
+
+### `em`
+
+<small className="api-kind">Function</small>
+
+Creates emphasized text.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+em<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `fieldset`
+
+<small className="api-kind">Function</small>
+
+Groups related controls in a typed form.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+fieldset<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `footer`
+
+<small className="api-kind">Function</small>
+
+Creates footer content for a page or section.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+footer<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `form`
+
+<small className="api-kind">Function</small>
+
+Constructs form Html. When onSubmit is supplied, the runtime prevents native submission before dispatching its Action.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+form<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    onSubmit?: Action,
+    name?: String,
+    autoComplete?: String,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `fragment`
+
+<small className="api-kind">Function</small>
+
+```text
+fragment<Action, C>
+  C
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+### `h1`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+h1<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `h2`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+h2<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `h3`
+
+<small className="api-kind">Function</small>
+
+Creates a typed document heading.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+h3<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `h4`
+
+<small className="api-kind">Function</small>
+
+Creates a typed document heading.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+h4<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `h5`
+
+<small className="api-kind">Function</small>
+
+Creates a typed document heading.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+h5<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `h6`
+
+<small className="api-kind">Function</small>
+
+Creates a typed document heading.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+h6<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `head`
+
+<small className="api-kind">Function</small>
+
+Creates the metadata container for a typed document.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+head<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `header`
+
+<small className="api-kind">Function</small>
+
+Creates introductory content for a page or section.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+header<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `hr`
+
+<small className="api-kind">Function</small>
+
+Creates a void thematic-break element without children.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+hr<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    )
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `html`
+
+<small className="api-kind">Function</small>
+
+Creates the root html element for a typed document.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+html<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `img`
+
+<small className="api-kind">Function</small>
+
+Creates a void image element with required source and alt text.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+img<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    src: WebUrl,
+    alt: String,
+    width?: Int,
+    height?: Int,
+    loading?: String
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `input`
+
+<small className="api-kind">Function</small>
+
+Constructs input Html with optional value and checked props and typed snapshot callbacks for onInput and onChange.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+input<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    value?: String,
+    checked?: Bool,
+    name?: String,
+    disabled?: Bool,
+    required?: Bool,
+    readOnly?: Bool,
+    multiple?: Bool,
+    placeholder?: String,
+    autoComplete?: String,
+    autoFocus?: Bool,
+    min?: String,
+    max?: String,
+    step?: String,
+    pattern?: String,
+    inputType?: String,
+    onInput?: (InputEvent -> Action),
+    onChange?: (
+      ChangeEvent -> Action
+    ),
+    onFileChange?: (
+      FileChangeEvent -> Action
+    )
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `label`
+
+<small className="api-kind">Function</small>
+
+Constructs label Html. An optional htmlFor prop associates it with a form control of that id.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+label<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    htmlFor?: String,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `legend`
+
+<small className="api-kind">Function</small>
+
+Creates a caption for a fieldset.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+legend<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `li`
+
+<small className="api-kind">Function</small>
+
+Creates a list item.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+li<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `link`
+
+<small className="api-kind">Function</small>
+
+Creates a void external-resource link element without children.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+link<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    rel: String,
+    href: WebUrl
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `main`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+main<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `meta`
+
+<small className="api-kind">Function</small>
+
+Creates a void metadata element without children.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+meta<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    charSet?: String,
+    name?: String,
+    content?: String,
+    httpEquiv?: String
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `nav`
+
+<small className="api-kind">Function</small>
+
+Creates a navigation section.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+nav<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `ol`
+
+<small className="api-kind">Function</small>
+
+Creates an ordered list.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+ol<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `option`
+
+<small className="api-kind">Function</small>
+
+Creates an option for a typed selection control.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+option<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    value?: String,
+    selected?: Bool,
+    disabled?: Bool,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `p`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+p<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `parseWebUrl`
+
+<small className="api-kind">Function</small>
+
+Validates a relative or allowlisted Web URL into an opaque value.
+
+```text
+parseWebUrl
+  String
+  -> Either<HtmlBuildError, WebUrl>
+```
+
+### `picture`
+
+<small className="api-kind">Function</small>
+
+Creates a responsive image container.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+picture<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `pre`
+
+<small className="api-kind">Function</small>
+
+Creates preformatted text.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+pre<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `releasePointer`
+
+<small className="api-kind">Function</small>
+
+```text
+releasePointer<Action>
+  PointerEvent
+  -> EventAction<Action>
+  -> EventAction<Action>
+```
+
+### `renderDocument`
+
+<small className="api-kind">Function</small>
+
+Renders typed HTML as a complete document string.
+
+```text
+renderDocument<Action>
+  Html<Action>
+  -> String
+```
+
+### `renderToString`
+
+<small className="api-kind">Function</small>
+
+Renders typed HTML to an escaped fragment string.
+
+```text
+renderToString<Action>
+  Html<Action>
+  -> String
+```
+
+### `section`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+section<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `select`
+
+<small className="api-kind">Function</small>
+
+Creates a typed selection control using the shared change snapshot.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+select<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    name?: String,
+    value?: String,
+    disabled?: Bool,
+    required?: Bool,
+    multiple?: Bool,
+    autoFocus?: Bool,
+    onChange?: (
+      ChangeEvent -> Action
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `small`
+
+<small className="api-kind">Function</small>
+
+Creates secondary or fine-print text.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+small<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `source`
+
+<small className="api-kind">Function</small>
+
+Creates a void media source element without children.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+source<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    src: WebUrl,
+    media?: String,
+    mimeType?: String
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `span`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+span<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `strong`
+
+<small className="api-kind">Function</small>
+
+Creates strongly emphasized text.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+strong<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `style`
+
+<small className="api-kind">Function</small>
+
+Validates and converts a style record into inline Style.
+
+```text
+style<R>
+  R
+  -> Style
+where
+  StyleRecord<R>
+```
+
+### `summary`
+
+<small className="api-kind">Function</small>
+
+Creates the visible summary for a disclosure element.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+summary<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `suppressCompatibilityClick`
+
+<small className="api-kind">Function</small>
+
+```text
+suppressCompatibilityClick<Action>
+  PointerEvent
+  -> EventAction<Action>
+  -> EventAction<Action>
+```
+
+### `table`
+
+<small className="api-kind">Function</small>
+
+Creates a typed data table.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+table<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `tbody`
+
+<small className="api-kind">Function</small>
+
+Groups body rows in a typed data table.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+tbody<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `td`
+
+<small className="api-kind">Function</small>
+
+Creates a data cell with typed span props.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+td<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    colSpan?: Int,
+    rowSpan?: Int,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `text`
+
+<small className="api-kind">Function</small>
+
+```text
+text<Action>
+  String
+  -> Html<Action>
+```
+
+### `textarea`
+
+<small className="api-kind">Function</small>
+
+Constructs textarea Html with an optional value prop and typed snapshot callbacks for onInput and onChange.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+textarea<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    value?: String,
+    name?: String,
+    disabled?: Bool,
+    required?: Bool,
+    readOnly?: Bool,
+    placeholder?: String,
+    autoComplete?: String,
+    autoFocus?: Bool,
+    rows?: Int,
+    cols?: Int,
+    onInput?: (InputEvent -> Action),
+    onChange?: (
+      ChangeEvent -> Action
+    )
+  }
+  -> Html<Action>
+```
+
+</details>
+
+### `tfoot`
+
+<small className="api-kind">Function</small>
+
+Groups footer rows in a typed data table.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+tfoot<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `th`
+
+<small className="api-kind">Function</small>
+
+Creates a header cell with typed span props.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+th<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    colSpan?: Int,
+    rowSpan?: Int,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `thead`
+
+<small className="api-kind">Function</small>
+
+Groups header rows in a typed data table.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+thead<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `title`
+
+<small className="api-kind">Function</small>
+
+Creates the document title element.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+title<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `tr`
+
+<small className="api-kind">Function</small>
+
+Creates a row in a typed data table.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+tr<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `ul`
+
+<small className="api-kind">Function</small>
+
+Creates an unordered list.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+ul<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+### `video`
+
+<small className="api-kind">Function</small>
+
+Creates a video media element.
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+video<Action, C>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    title?: String,
+    hidden?: Bool,
+    key?: String,
+    style?: Style,
+    attributes?: Array<Attribute>,
+    role?: String,
+    tabIndex?: Int,
+    lang?: String,
+    dir?: String,
+    draggable?: Bool,
+    contentEditable?: Bool,
+    inert?: Bool,
+    ariaLabel?: String,
+    ariaBusy?: Bool,
+    ariaExpanded?: Bool,
+    ariaHidden?: Bool,
+    ariaSelected?: Bool,
+    onClick?: Action,
+    preventClickDefault?: Bool,
+    stopClickPropagation?: Bool,
+    onFocus?: Action,
+    onBlur?: Action,
+    onKeyDown?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onKeyUp?: (
+      KeyboardEvent
+      -> EventAction<Action>
+    ),
+    onMouseDown?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onMouseUp?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    onDoubleClick?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onContextMenu?: (
+      MouseEvent
+      -> EventAction<Action>
+    ),
+    onScroll?: (
+      ScrollEvent
+      -> EventAction<Action>
+    ),
+    src?: WebUrl,
+    width?: Int,
+    height?: Int,
+    children: C
+  }
+  -> Html<Action>
+where
+  IntoChildren<C, Action>
+```
+
+</details>
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/signals)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Web UI contract](/en/docs/reference/web-ui)

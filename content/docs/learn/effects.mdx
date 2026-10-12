@@ -1,0 +1,77 @@
+---
+title: "Effect"
+description: "外部処理を遅延された計算として表し、doで順番と依存を組み立てる。"
+---
+
+文字列を計算することと、その文字列を出力することは違います。`Effect`は、出力、状態の読み書き、非同期処理などを、実行できる計算の値として表します。
+
+## 計算を作ることと実行すること
+
+{/* example: examples/learn/effects.ssrg */}
+```seseragi title="effects.ssrg"
+effect fn greet name: String -> Unit
+with Console
+fails ConsoleError =
+  println `Hello, ${name}`
+
+pub effect fn main = do {
+  let greeting = greet "Aki"
+  println "Before greeting"
+  greeting
+  greeting
+}
+```
+
+```text title="実行結果"
+Before greeting
+Hello, Aki
+Hello, Aki
+```
+
+`let greeting = greet "Aki"`は出力するEffectを作り、名前を付けます。その行で挨拶を出力しないので、最初の出力は`Before greeting`です。その後で同じ`greeting`を二度実行すると、挨拶も二度出力されます。
+
+Effectはcoldな計算です。作っただけでは外部処理は始まらず、同じ計算を再び実行すれば外部処理も再び行います。計算済みの結果を保存したPromiseのように考えると、この違いを見落とします。通常の純粋な式や関数の引数はstrictに評価される規則のままです。
+
+## 三つの型で契約を表す
+
+`Effect<R, E, A>`の`R`は必要な環境、`E`は回復可能な失敗、`A`は成功時の結果です。例の`greet`は、Consoleを必要とし、ConsoleErrorで失敗しうる、Unitを返す計算です。
+
+```text
+Effect<
+  { console: Console },
+  ConsoleError,
+  Unit
+>
+```
+
+`effect fn`の`-> Unit`は、この成功型を示します。`with Console`は環境、`fails ConsoleError`は失敗の型です。関数を呼んでもUnitが直ちに得られるのではなく、Unitで成功するEffectが得られます。
+
+## doで順番を決める
+
+`do`の中では、Effectを順番に実行する計算を組み合わせます。途中で成功値が必要なら`value <- effect`と書き、その後の処理で`value`を使います。途中の`let`は純粋な値の束縛で、Effectを実行しません。
+
+最後にはEffectを返します。普通の値を成功結果にしたい場合は、`succeed value`または`pure value`で持ち上げます。通常のブロックに複数のEffectを書いただけでは、`do`の逐次合成を代わりに行うわけではありません。
+
+`do`はMaybeやEitherにも使えるMonadの合成構文です。使う型がEffectなら外部処理、Maybeなら欠如、Eitherなら同期の失敗に応じて次へ進むかが決まります。
+
+## 推論する宣言と明示する宣言
+
+例の`greet`は契約を明示しています。`main`のように`->`、`with`、`fails`を全部省く形では、本体から環境、失敗、成功の型を推論します。
+
+`effect fn ... -> Unit`まで書いた契約の形で`with`や`fails`を省くと、環境は`{}`、失敗は`Never`です。省いた部分を本体から補う形ではありません。Consoleへ出力する明示契約なら、例のようにConsoleとConsoleErrorを含めます。
+
+推論する場合も公開された型には結果の契約が残ります。環境は必要なフィールドを合わせますが、異なる失敗型を自動で合併しません。失敗をどう分類するかは、ADTと`mapError`などで決めます。
+
+## 失敗と実行の境界
+
+同じ`do`で組み合わせる回復可能な失敗の型は揃えます。`Never`は失敗しない型として必要な失敗型へ広げられます。予想する失敗は`fail`や標準APIの失敗値で表し、`recover`で回復できます。
+
+defectやキャンセルは、回復可能な失敗とは別です。`recover`をすべての異常を捕まえる`catch`のように扱いません。処理の設計は[エラー処理](/docs/guides/error-handling)で扱います。
+
+CLIは公開された`main`のEffectを実行します。普通の`fn`も、型を明示すればEffectを値として返せます。`effect fn`はEffectを返す関数の宣言を読みやすくする構文で、別の実行モデルではありません。
+
+## 実行回数を変える
+
+`greeting`を実行する行を一つ削除すると、挨拶も一回になります。`let greeting = ...`だけ残して実行する行を両方削除すると、挨拶は出力されません。計算の作成と実行を分けて確かめてください。
+
+次は[Signal](/docs/learn/signals)で、変化する状態をEffectから読み書きします。契約の詳細は[Effectリファレンス](/docs/reference/effects)を参照してください。

@@ -1,0 +1,88 @@
+---
+title: "Patterns"
+description: "Check pattern forms, bindings, guards, exhaustiveness, and refutable destructuring."
+---
+
+Patterns check the shape of a value and bind names to its contents. `match`, `let`, `do` bindings, comprehensions, and effectful `for` use the same pattern-typing rules. Their differences are binding scope and what happens when a pattern does not match.
+
+## Pattern forms
+
+| Pattern | Meaning |
+| --- | --- |
+| `value` | Bind the entire value |
+| `_` | Ignore the value |
+| `42`, `"ready"` | Match a literal |
+| `Just value` | Match a constructor and payload |
+| `(x, y)` | Destructure a tuple of the same arity |
+| `{ name, age: years }` | Select and destructure record fields |
+| `User { name }` | Destructure fields of a nominal struct |
+| `[first, ...rest]` | Array prefix and remainder |
+| `` `[first, ...rest] `` | List prefix and shared tail |
+
+Patterns may nest. A name cannot be bound twice within one pattern. Constructor and field types come from the input type; mismatched tuple arity or payload shape is a type error.
+
+## Match evaluation and exhaustiveness
+
+The scrutinee is evaluated once. Arms are tried from top to bottom, and only the first body whose pattern and guard match is evaluated. Every body must have the same result type.
+
+{/* example: examples/reference/patterns.ssrg */}
+
+```seseragi title="patterns.ssrg"
+fn firstLabel values: Array<String>
+  -> String =
+  match values {
+    [] -> "Empty"
+    [first, ..._] -> first
+  }
+
+pub effect fn main = do {
+  println $ firstLabel []
+  println $ firstLabel ["Aki", "Mio"]
+}
+```
+
+The output is `Empty`, then `Aki`. `[]` covers length zero, and `[first, ..._]` covers every nonempty Array. Without a rest, `[first]` matches exactly one element.
+
+A nonexhaustive match is rejected at compile time. An arm entirely covered by earlier arms is rejected as unreachable too. Literal patterns alone cannot cover every Int or String; add a final binding or wildcard when needed.
+
+## Guards
+
+Write a guard with `when` followed by a Bool expression. The guard may use names bound by the pattern. These are arm fragments:
+
+```text title="Guarded arms"
+Just value when value > 0 ->
+  "positive"
+Just _ -> "other"
+Nothing -> "missing"
+```
+
+Guarded arms do not contribute to exhaustiveness. Even `Just value when True` needs an unguarded arm covering `Just`. A guard is evaluated only after its pattern matches.
+
+## Binding contexts
+
+An irrefutable pattern always matches its input type. A refutable pattern can fail.
+
+| Context | Input | Refutable pattern |
+| --- | --- | --- |
+| `let pattern = value` | RHS type | Forbidden |
+| `let` within `do` | Pure RHS type | Forbidden |
+| `pattern <- computation` | Monad payload type | Forbidden |
+| `match` arm | Scrutinee type | Allowed |
+| Comprehension generator | Iterable element type | Filters nonmatching elements |
+| Effectful `for` | Iterable element type | Forbidden |
+
+Names and `_` are irrefutable. Tuples, records, and structs are irrefutable when all nested patterns are. A single-variant constructor, including a newtype constructor, is irrefutable when its payload pattern is. For Array/List, only a rest-only pattern with no fixed elements always matches.
+
+`let Just value = maybeValue` is not allowed. Use a match that also handles `Nothing`. Refutable bindings are not silently converted into exceptions or `MonadFail`.
+
+## Records and optional queries
+
+Record patterns ignore unspecified fields. Struct patterns also ignore unspecified fields, while respecting nominal identity and visibility. There is no spread inside a pattern.
+
+Use `{ id? }` or `{ id?: pattern }` for an optional field. `id?` binds presence as `Maybe<A>`; `id?: Just value` matches only when present. Querying a required field always produces `Just`. A regular `{ id }` pattern cannot extract an optional field.
+
+## Scope and cost
+
+A binding's input expression cannot refer to names introduced by that binding. Match names are scoped to the same arm's guard and body; `let` and `do` names are available only to later items. Names are introduced after the whole pattern succeeds, so partially bound states are unobservable.
+
+A List rest shares its existing tail. An Array rest constructs the remaining Array, so recursively consuming an entire Array with `[head, ...tail]` takes quadratic time. Use operations such as `reduce` for large Arrays. See [Performance](/en/docs/reference/performance).

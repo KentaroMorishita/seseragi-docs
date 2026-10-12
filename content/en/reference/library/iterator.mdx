@@ -1,0 +1,58 @@
+---
+title: "std/iterator"
+description: "Create and consume iterators. Use their state and consumption model deliberately."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as iterator
+  from "std/iterator"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Iterator`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Iterator<_>
+```
+
+## Functions and operators
+
+### `next`
+
+<small className="api-kind">Function</small>
+
+```text
+next<A>
+  Iterator<A>
+  -> Maybe<(A, Iterator<A>)>
+```
+
+### `unfold`
+
+<small className="api-kind">Function</small>
+
+```text
+unfold<S, A>
+  (S -> Maybe<(A, S)>)
+  -> S
+  -> Iterator<A>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/arrays-and-lists)
+- [Browse modules by purpose](/en/docs/reference/library)

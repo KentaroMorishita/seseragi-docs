@@ -1,0 +1,48 @@
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+
+type Action =
+  | Increment
+  | Reset
+
+alias View = html.Html<Action>
+
+fn update action: Action -> n: Int
+  -> Int =
+  match action {
+    Increment -> n + 1
+    Reset -> 0
+  }
+
+fn view count: Int -> View =
+  html.main {
+    style: html.style {
+      margin: "32px auto",
+      maxWidth: "32rem",
+      padding: "24px"
+    },
+    children: [
+      html.h1 { children: "Counter" },
+      html.p {
+        children: `Count: ${count}`
+      },
+      html.button {
+        buttonType: "button",
+        onClick: Increment,
+        children: "Add one"
+      },
+      html.button {
+        buttonType: "button",
+        onClick: Reset,
+        children: "Reset"
+      }
+    ]
+  }
+
+pub effect fn main =
+  dom.app {
+    target: "#app",
+    initial: 0,
+    update,
+    view
+  }

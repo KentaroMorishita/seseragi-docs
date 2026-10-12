@@ -1,0 +1,8 @@
+import * as json from "std/json"
+
+pub effect fn main =
+  match json.parse
+    "{\"ready\":true}" {
+    Right _ -> println "Valid JSON"
+    Left _ -> println "Invalid JSON"
+  }

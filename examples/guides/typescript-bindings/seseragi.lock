@@ -1,0 +1,24 @@
+schema = 1
+language = "0.1.0"
+standard_library = "0.1.0"
+unicode = "17.0.0"
+timezone_database = "2025b"
+root = "docs/typescript-bindings@0.1.0#workspace:."
+
+[[packages]]
+id = "docs/typescript-bindings@0.1.0#workspace:."
+name = "docs/typescript-bindings"
+version = "0.1.0"
+source_kind = "workspace"
+source = "."
+manifest_digest = "sha256:0ad1138bb787fda022fff6fa98ee12a09403d848f8f3840a67946a411119f4db"
+content_digest = "sha256:d32e9573752220013e98af22f5c85b033c0dae69f3f263430b0d0a6d4c7a5200"
+dependencies = []
+
+[[foreign_modules]]
+package = "docs/typescript-bindings@0.1.0#workspace:."
+declaration = "src/format.ssrg#0-129"
+specifier = "../host/format.ts"
+exact_identity = "workspace:host/format.ts"
+declaration_digest = "sha256:babbaf4c771d0f80a9fa3ce8c7205990a6a156edd49060534526cb8217a63d5b"
+content_digest = "sha256:02175c6eec37f508492c1bf0f44374f55c6ce70b1ea826481eefd36a9ab0c563"

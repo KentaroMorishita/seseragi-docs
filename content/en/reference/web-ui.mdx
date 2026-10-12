@@ -1,0 +1,74 @@
+---
+title: "Web UI"
+description: "Check pure Html, props, actions, SSR, DOM resources, Signal bindings, and state ownership."
+---
+
+Web UI constructs immutable Html trees with pure functions and connects them to the DOM through Effects. Components are ordinary functions. There are no component classes, hooks, JSX-only syntax, or hidden state derived from call order.
+
+## Html and children
+
+std/web/html provides pure Html and SSR on every target. `Html<Action>` is a tree that may produce Actions from events. It does not contain DOM nodes or subscriptions.
+
+Children accept Unit, String, Html with the same Action type, or an Array/List of such Html. String becomes a text node; numbers require explicit show/text conversion. Arrays cannot arbitrarily mix String and Html through union types.
+
+{/* example: examples/reference/web-ui.ssrg */}
+
+```seseragi title="web-ui.ssrg"
+import * as html from "std/web/html"
+
+fn view -> html.Html<Unit> =
+  html.h1 {
+    children: "Seseragi & you",
+  }
+
+pub effect fn main =
+  view ()
+  |> html.renderToString
+  |> println
+```
+
+The output is `<h1>Seseragi &amp; you</h1>`. Construction retains the String; the SSR sink escapes it once.
+
+## Props and safe construction
+
+Props are structural records. Common fields such as class, id, title, style, and events are optional; required tag-specific fields remain mandatory. Child-bearing tags require children, while void elements forbid children.
+
+Use class rather than className. Styles are built from typed properties; URL props require checked WebUrl values. The standard API has no unchecked raw-HTML String insertion.
+
+renderToString renders a fragment; renderDocument adds the document doctype. Events and keys are not emitted as HTML attributes, and SSR does not execute Actions. Html has no Eq/Ord/Hash/Show instances.
+
+## Actions and input snapshots
+
+Event props produce Actions describing intent. onClick carries an Action value; input mappers derive Actions from immutable snapshots. Applications do not receive host Event objects or mutable targets.
+
+InputEvent.value is String. ChangeEvent contains value and `checked: Maybe<Bool>`: checkbox/radio carry Just checked; text inputs and other controls carry Nothing. File input onFileChange provides an Array of opaque Files.
+
+Actions may be ADTs or Tasks supplied by child features. Do not ignore fallible work: map errors into the dispatch error type or recover within the feature.
+
+## DOM connection and lifetime
+
+std/web/dom is browser-only and requires the Dom service. Rendering Html on a process target does not provide DOM manipulation.
+
+Use query to obtain a target and mount/mountContent to connect a managed subtree. awaitMount waits on the resulting DomMount; unmount releases it explicitly. Higher-level operations such as run use the same resource rules.
+
+Listeners, subscriptions, event queues, and dispatch Fibers belong to the mount scope. Scope exit, failure, or cancellation stops acceptance and cleans them up. Actions dispatch sequentially through a bounded FIFO; overflow is not silently dropped.
+
+Hydration modes are FreshMount, strict HydrateStrict, and HydrateOrReplace on mismatch. A cleanup policy preserving DOM still removes its listeners.
+
+## Signal binding boundaries
+
+| Update unit | Owned area |
+| --- | --- |
+| Static Html | A subtree without value-update subscriptions |
+| Leaf binding | One text, attribute, value, checked, or style sink |
+| Structural region | One Element's children and their resources |
+
+Canonical DomContent pairs pure initial Html with a binding plan. bind connects a typed `BindingTarget<Action, Value>` to `Signal<Value>` and checks the sink's value type. ElementRef is a logical identity shared by tree and plan, not a host Node or global ID.
+
+Only stable transaction publications are applied. Leaf updates preserve Element identity, focus, selection, and listeners. Region updates leave outside nodes untouched, releasing old subscriptions before attaching new content. Keys identify direct siblings within a region; they do not create component state.
+
+## State ownership
+
+A feature constructor owns local state, the nearest shared parent owns shared state, and the root feature owns application-wide state. Create state once through an Effect and pass read-only Signals or permitted operations to children. State must not depend on import-time global singletons or component call order.
+
+See [Web applications](/en/docs/guides/web-app), [State and actions](/en/docs/guides/state-and-actions), [Forms](/en/docs/guides/forms), and [Stateful features](/en/docs/guides/stateful-features) for working flows. Look up operation signatures in the [Standard library](/en/docs/reference/library).

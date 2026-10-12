@@ -1,0 +1,118 @@
+---
+title: "std/text/grapheme"
+description: "Split and access text by extended grapheme clusters."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as text_grapheme
+  from "std/text/grapheme"
+```
+
+## Choosing operations
+
+- Use extended grapheme clusters for display cursors and character limits, avoiding cuts based only on scalars inside combining sequences or emoji.
+- Segmentation follows Unicode UAX #29 but performs no normalization. Concatenating clusters reproduces the original String byte for byte.
+- at returns Nothing out of range; slice returns a typed error for invalid end-exclusive ranges. Indices are not silently clamped.
+- Each operation traverses input bytes. For repeated positions, consider computing clusters or byteBoundaries once.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `GraphemeSliceError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+GraphemeSliceError
+```
+
+## Constructors and values
+
+### `InvalidGraphemeRange`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidGraphemeRange
+  {
+    start: Int,
+    end: Int,
+    length: Int
+  }
+  -> GraphemeSliceError
+```
+
+## Functions and operators
+
+### `at`
+
+<small className="api-kind">Function</small>
+
+```text
+at
+  Int
+  -> String
+  -> Maybe<String>
+```
+
+### `byteBoundaries`
+
+<small className="api-kind">Function</small>
+
+```text
+byteBoundaries
+  String
+  -> Array<Int>
+```
+
+### `clusters`
+
+<small className="api-kind">Function</small>
+
+```text
+clusters
+  String
+  -> Array<String>
+```
+
+### `length`
+
+<small className="api-kind">Function</small>
+
+Counts extended grapheme clusters in a String, rather than Unicode scalars or UTF-8 bytes.
+
+```text
+length
+  String
+  -> Int
+```
+
+### `slice`
+
+<small className="api-kind">Function</small>
+
+```text
+slice
+  Int
+  -> Int
+  -> String
+  -> Either<
+       GraphemeSliceError,
+       String
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/values-and-expressions)
+- [Browse modules by purpose](/en/docs/reference/library)

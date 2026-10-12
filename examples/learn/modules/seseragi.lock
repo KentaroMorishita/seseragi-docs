@@ -1,0 +1,16 @@
+schema = 1
+language = "0.1.0"
+standard_library = "0.1.0"
+unicode = "17.0.0"
+timezone_database = "2025b"
+root = "docs/learn-modules@0.0.0#workspace:."
+
+[[packages]]
+id = "docs/learn-modules@0.0.0#workspace:."
+name = "docs/learn-modules"
+version = "0.0.0"
+source_kind = "workspace"
+source = "."
+manifest_digest = "sha256:6c02276e4d403aabca6a16160dd6d49da5b57e99eea38d9aacad2c69926b2eda"
+content_digest = "sha256:bd691dc2b715337f5dd1abdb19abbfcb2c45a917c1c9d974f8181d78fe47ae73"
+dependencies = []

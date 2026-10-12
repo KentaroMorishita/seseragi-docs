@@ -1,71 +1,81 @@
 ---
-title: Functions
-description: Function declarations, application with spaces, and partial application.
+title: "Functions"
+description: "Check declarations, application, partial application, lambdas, local functions, recursion, and methods."
 ---
 
-## Declaration
+Functions are values. They accept one argument at a time, can be passed to other functions, and can be returned from a function body. Ordinary `fn` computes pure values; a computation performing external operations is returned as an [Effect](/en/docs/reference/effects).
 
-```seseragi
+## Declarations and types
+
+Separate parameter names and types with `->`, ending with the result type. Ordinary functions require parameter and result annotations.
+
+```text title="Declaration syntax"
 fn add x: Int -> y: Int -> Int =
   x + y
 ```
 
-Write the parameters after the function name, followed by the result type. The expression after `=` is the body.
+The type of `add` is `Int -> Int -> Int`, meaning `Int -> (Int -> Int)`. Even an apparently parameterless declaration such as `fn ready -> Bool` takes one unnamed Unit parameter and is called as `ready ()`.
 
-| Part | Meaning |
-| --- | --- |
-| `add` | Function name |
-| `x: Int` | First parameter and its type |
-| `y: Int` | Next parameter and its type |
-| Final `Int` | Result type |
+Add `pub` to export a function. Type parameters follow the name, as in `fn identity<A> value: A -> A`. See [Types](/en/docs/reference/types) and [Type classes](/en/docs/reference/type-classes) for inference and constraints.
 
-## Application
+## Application and partial application
 
-```seseragi
-pub effect fn main =
-  add 20 22
-  |> println
-```
+`add 20 22` supplies two arguments, `20` and `22`, separated by spaces. Supplying only some arguments produces a function accepting the remaining ones.
 
-Pass arguments separated by spaces. `add 20 22` returns 42. The `|>` operator passes that value to `println`.
+Application proceeds from the left, so `add 20 22` is equivalent to `(add 20) 22`. Here parentheses group the expression `add 20`. In `add (20 + 1) 22`, the grouped calculation produces 21 as the first argument.
 
-## Partial application
+{/* example: examples/reference/functions.ssrg */}
 
-Supplying some arguments produces a function that accepts the remaining ones.
+```seseragi title="functions.ssrg"
+fn add x: Int -> y: Int -> Int =
+  x + y
 
-```seseragi
-pub effect fn main = {
+pub effect fn main = do {
   let increment = add 1
-  increment 41
+  41
+  |> increment
+  |> show
   |> println
 }
 ```
 
-`increment` takes an integer and returns it plus 1. Here, `let` gives that function a name local to `main`. The output is 42.
+`increment` has type `Int -> Int`. show converts the Int to String before println, and the output is 42. `value |> function` is ordinary `function value` application. Standard collection operations put data last, making a partially applied operation convenient as a pipeline stage.
 
-## Effectful functions
+## Evaluation and lambdas
 
-Mark functions containing operations such as `println` with `effect`. An ordinary `fn` cannot directly print output. [Your first program](/en/docs/learn/first-program) composes a function that returns text with an operation that prints it.
+Seseragi evaluates strictly. Arguments are evaluated once from left to right, followed by the applied body. Partial application produces a function awaiting the remaining parameters; arguments not yet supplied are not evaluated. Calling a function that returns an Effect is separate from executing that Effect.
 
-## Types and arguments
+Write a lambda as `\x -> x + 1`, or with multiple parameters as `\x y -> x + y`. Parameter annotations may be omitted when context determines the types. Otherwise annotate, for example `\x: Int -> x + 1`.
 
-An ordinary `fn` declaration specifies the type of each parameter and the result. The type of `add` is `Int -> Int -> Int`, equivalent to `Int -> (Int -> Int)`. Supplying the first integer returns a function that accepts the next one.
+```text title="Higher-order application syntax"
+map (\value: Int -> value + 1) [1, 2]
+```
 
-You cannot pass a string where an `Int` is expected, as in `add 20 "22"`. The type mismatch is detected before execution.
+Lambdas capture needed lexical bindings. Type parameters are not runtime values, so generic code cannot inspect a type name and branch on it.
 
-Arguments are evaluated once, from left to right. The body is then evaluated using those values.
+## Blocks and local functions
 
-## Block bodies
+A block returns its final expression. A `let` binding cannot be reassigned and is visible from the following item to the end of the block. A local `fn` is visible in its own body and after its declaration. It may capture earlier bindings, but not later ones.
 
-Use `{ ... }` when the body needs multiple declarations. A block returns the value of its final expression.
-
-```seseragi
-fn twice x: Int -> Int = {
-  let doubled = x + x
-  doubled
+```text title="Local-function syntax"
+fn twice value: Int -> Int = {
+  fn double x: Int -> Int = x + x
+  double value
 }
 ```
 
-`doubled` is local to this block and cannot be referenced outside it.
+Declaring a function does not execute its body or any Effect. Place mutually recursive local functions in `rec { ... }`. Local functions cannot be public.
 
-See [Your first program](/en/docs/learn/first-program#compose-functions-and-print) for a pipeline in a complete program. [Local development](/en/docs/learn/local-development) explains how to run it on your machine.
+## Recursion
+
+Named functions may call themselves. Mutually recursive functions belong to the same `rec` group. An ordinary `let` cannot reference itself from its initializer.
+
+A fully applied direct self tail call in a pure named function does not grow the host stack with input size. This guarantee does not cover mutual recursion, operations on a recursive result, or calls from inside a lambda. See [Performance](/en/docs/reference/performance) for a checked example.
+
+## Methods and Effect functions
+
+`value.method arg` resolves statically to `Type.method value arg`. Put methods in `impl Type` within the module defining the nominal type; their first parameter is `self: Type`. There is no dynamic dispatch or inheritance.
+
+`effect fn` declares a function returning an Effect, with the same currying rules as ordinary functions. A body containing an ordinary value must explicitly wrap it with an operation such as `succeed`. See [Effects and failure](/en/docs/reference/effects) for contract and compact forms.
+
+For a guided explanation, read [Functions and pipelines](/en/docs/learn/functions-and-pipelines).

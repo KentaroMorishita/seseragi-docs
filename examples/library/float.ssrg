@@ -1,0 +1,11 @@
+import * as floats from "std/float"
+
+pub effect fn main =
+  match floats.parse "1.5" {
+    Right value ->
+      value
+      |> floats.format
+      |> println
+    Left _ ->
+      println "Invalid number"
+  }

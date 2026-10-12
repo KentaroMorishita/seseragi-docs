@@ -1,0 +1,255 @@
+---
+title: From TypeScript to Seseragi
+description: Compare calls, expressions, and data separately before moving to Effects and Web UI.
+---
+
+Start from familiar TypeScript functions and arrays, then compare one concept at a time. Each Seseragi example is an independent file you can save and run. See [Your first program](/en/docs/learn/first-program) and [Use Seseragi locally](/en/docs/learn/local-development) for CLI setup and the role of `main`.
+
+## Pass a number to a function
+
+First compare a function that only doubles an integer.
+
+```typescript
+function double(value: number) {
+  return value * 2;
+}
+
+console.log(double(21));
+```
+
+Seseragi's `fn` defines a function. `n: Int` is the parameter; the final `Int` is the result type. `double 21` passes 21 as `n` and returns 42. Use `printValue` to display that integer.
+
+Save this as `migration.ssrg`.
+
+{/* example: examples/guides/migration.ssrg */}
+
+```seseragi title="migration.ssrg"
+fn double n: Int -> Int = n * 2
+
+pub effect fn main = {
+  let answer = double 21
+  printValue answer
+}
+```
+
+```sh
+seseragi run migration.ssrg
+```
+
+Output
+
+```text
+42
+```
+
+## Group the argument expression
+
+The TypeScript calculation is:
+
+```typescript
+console.log(double(20 + 1));
+```
+
+Seseragi writes `double (20 + 1)`. The parentheses group the argument expression `20 + 1`. Its value, 21, is passed to the same `double` function.
+
+Save the following as `migration-grouping.ssrg`. This separates function application from grouping an expression used as its argument.
+
+{/* example: examples/guides/migration-grouping.ssrg */}
+
+```seseragi title="migration-grouping.ssrg"
+fn double n: Int -> Int = n * 2
+
+pub effect fn main = {
+  let answer = double (20 + 1)
+  printValue answer
+}
+```
+
+```sh
+seseragi run migration-grouping.ssrg
+```
+
+Output
+
+```text
+42
+```
+
+[Values and expressions](/en/docs/learn/values-and-expressions) explains expression composition and evaluation order.
+
+## Accept arguments one at a time
+
+A curried addition in TypeScript uses two functions.
+
+```typescript
+const add = (x: number) =>
+  (y: number) => x + y;
+
+const addTwenty = add(20);
+console.log(addTwenty(22));
+```
+
+Seseragi's `add 20 22` also supplies arguments in sequence. Applying only `add 20` produces a function waiting for the remaining `Int`. Bind that function to `addTwenty`, then supply 22.
+
+Save this as `migration-partial.ssrg`.
+
+{/* example: examples/guides/migration-partial.ssrg */}
+
+```seseragi title="migration-partial.ssrg"
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+pub effect fn main = {
+  let addTwenty = add 20
+  let answer = addTwenty 22
+  printValue answer
+}
+```
+
+```sh
+seseragi run migration-partial.ssrg
+```
+
+Output
+
+```text
+42
+```
+
+The final `Int` in `Int -> Int -> Int` is the calculation's result. [Functions and pipelines](/en/docs/learn/functions-and-pipelines) provides more practice with currying and partial application.
+
+## Put an array transformation in a pipeline
+
+TypeScript doubles an array with:
+
+```typescript
+console.log([1, 2, 3].map(double));
+```
+
+Seseragi passes the array to `map double`. This is the same partial application from the previous section: `map double` waits for an array. `|>` passes the value on its left to the function on its right. Align the input and each stage vertically.
+
+Save this as `migration-pipeline.ssrg`.
+
+{/* example: examples/guides/migration-pipeline.ssrg */}
+
+```seseragi title="migration-pipeline.ssrg"
+fn double n: Int -> Int = n * 2
+
+pub effect fn main =
+  [1, 2, 3]
+  |> map double
+  |> printValue
+```
+
+```sh
+seseragi run migration-pipeline.ssrg
+```
+
+Output
+
+```text
+[2, 4, 6]
+```
+
+`map` returns a new array containing the transformed elements. Continue with [Arrays and Lists](/en/docs/learn/arrays-and-lists) for searching and filtering.
+
+## Read a record field
+
+TypeScript can group named values in an object.
+
+```typescript
+const point = { x: 3, y: 4 };
+console.log(point.x);
+```
+
+In Seseragi, `{ x: 3, y: 4 }` is a record value, and `point.x` reads its field. Save this as `migration-record.ssrg`.
+
+{/* example: examples/guides/migration-record.ssrg */}
+
+```seseragi title="migration-record.ssrg"
+pub effect fn main = {
+  let point = { x: 3, y: 4 }
+  printValue point.x
+}
+```
+
+```sh
+seseragi run migration-record.ssrg
+```
+
+Output
+
+```text
+3
+```
+
+Record values are immutable. [Records and structs](/en/docs/learn/records-and-structs) explains constructing new values and using named structs.
+
+## Construct a case of a data type
+
+Now compare data construction separately from the numerical functions. TypeScript can represent the cases with a discriminated union.
+
+```typescript
+type Delivery =
+  | { kind: "preparing" }
+  | { kind: "sent"; city: string };
+
+const delivery: Delivery = {
+  kind: "sent",
+  city: "Kyoto",
+};
+```
+
+Seseragi defines `Preparing` and `Sent String` as cases of `Delivery`. The uppercase `Sent` is a constructor: `Sent "Kyoto"` builds a `Delivery` value carrying its destination. `label` is an ordinary function accepting that value.
+
+Save this as `migration-data.ssrg`. It uses `match` to select a case and extract the city from `Sent city`.
+
+{/* example: examples/guides/migration-data.ssrg */}
+
+```seseragi title="migration-data.ssrg"
+type Delivery =
+  | Preparing
+  | Sent String
+
+fn label d: Delivery -> String =
+  match d {
+    Preparing -> "Preparing"
+    Sent city -> city
+  }
+
+pub effect fn main = {
+  let delivery = Sent "Kyoto"
+  println (label delivery)
+}
+```
+
+```sh
+seseragi run migration-data.ssrg
+```
+
+Output
+
+```text
+Kyoto
+```
+
+[Algebraic data types](/en/docs/learn/algebraic-data-types) explains case definitions; [Pattern matching](/en/docs/learn/pattern-matching) explains extracting their values.
+
+## Relate absence, failure, and effects
+
+| What you represent in TypeScript | Seseragi representation |
+| --- | --- |
+| A possibly absent value | `Maybe<A>` |
+| Success or an explained failure | `Either<E, A>` |
+| A delayed computation with effects | `Effect<R, E, A>` |
+| A calculation determined by arguments | An ordinary `fn` |
+
+`Either` is an evaluated result. `Effect<R, E, A>` describes a computation requiring environment R, failing with E, or succeeding with A. An execution boundary such as `main` or the DOM runtime executes the constructed Effect.
+
+Learn the difference through [Maybe and Either](/en/docs/learn/maybe-and-either) and [Effects](/en/docs/learn/effects), then implement input validation and recovery in [Handle failures](/en/docs/guides/error-handling).
+
+## Relate React props and state
+
+A Seseragi component is an ordinary function accepting props and returning `Html<Action>`. Events produce Actions, and a pure `update` returns the next state. `dom.app` manages the state Signal and DOM connection.
+
+[Build a Web application](/en/docs/guides/web-app) creates a counter, while [Components](/en/docs/guides/components) extracts a function producing a card from props. These are separate tasks. Continue with [Stateful features](/en/docs/guides/stateful-features) when a feature needs independent state.

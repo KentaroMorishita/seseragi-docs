@@ -1,0 +1,247 @@
+---
+title: "std/random"
+description: "seedで再現できる擬似乱数と、列の並べ替えを扱います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+| 能力のidentity | `std/random::Random` |
+
+## import
+
+```seseragi
+import * as random from "std/random"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Random`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Random
+```
+
+### `RandomConfigError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+RandomConfigError
+```
+
+### `RandomRangeError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+RandomRangeError
+```
+
+### `RandomSize`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+RandomSize
+```
+
+## コンストラクタと値
+
+### `EmptyRandomIntRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+EmptyRandomIntRange
+  {
+    lower: Int,
+    upperExclusive: Int
+  }
+  -> RandomRangeError
+```
+
+### `InvalidProbability`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidProbability
+  Float
+  -> RandomRangeError
+```
+
+### `NonPositiveRandomSize`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NonPositiveRandomSize
+  Int
+  -> RandomConfigError
+```
+
+### `RandomSizeTooLarge`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+RandomSizeTooLarge
+  Int
+  -> RandomConfigError
+```
+
+## 関数と演算子
+
+### `algorithmId`
+
+<small className="api-kind">関数</small>
+
+```text
+algorithmId
+  Unit
+  -> Effect<
+       { random: Random },
+       Never,
+       String
+     >
+```
+
+### `chance`
+
+<small className="api-kind">関数</small>
+
+```text
+chance
+  Float
+  -> Effect<
+       { random: Random },
+       RandomRangeError,
+       Bool
+     >
+```
+
+### `choose`
+
+<small className="api-kind">関数</small>
+
+```text
+choose<A>
+  NonEmptyList<A>
+  -> Effect<
+       { random: Random },
+       Never,
+       A
+     >
+```
+
+### `intBetween`
+
+<small className="api-kind">関数</small>
+
+```text
+intBetween
+  Int
+  -> Int
+  -> Effect<
+       { random: Random },
+       RandomRangeError,
+       Int
+     >
+```
+
+### `nextBool`
+
+<small className="api-kind">関数</small>
+
+```text
+nextBool
+  Unit
+  -> Effect<
+       { random: Random },
+       Never,
+       Bool
+     >
+```
+
+### `nextInt`
+
+<small className="api-kind">関数</small>
+
+```text
+nextInt
+  Unit
+  -> Effect<
+       { random: Random },
+       Never,
+       Int
+     >
+```
+
+### `randomBytes`
+
+<small className="api-kind">関数</small>
+
+```text
+randomBytes
+  RandomSize
+  -> Effect<
+       { random: Random },
+       Never,
+       Bytes
+     >
+```
+
+### `randomSize`
+
+<small className="api-kind">関数</small>
+
+```text
+randomSize
+  Int
+  -> Either<
+       RandomConfigError,
+       RandomSize
+     >
+```
+
+### `shuffle`
+
+<small className="api-kind">関数</small>
+
+```text
+shuffle<A>
+  Array<A>
+  -> Effect<
+       { random: Random },
+       Never,
+       Array<A>
+     >
+```
+
+### `unitFloat`
+
+<small className="api-kind">関数</small>
+
+```text
+unitFloat
+  Unit
+  -> Effect<
+       { random: Random },
+       Never,
+       Float
+     >
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

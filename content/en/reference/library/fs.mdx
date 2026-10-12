@@ -1,0 +1,686 @@
+---
+title: "std/fs"
+description: "Read and write files using FileSystem capability and explicit resource scope."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+| Capability identities | `std/fs::FileSystem` |
+
+## Import
+
+```seseragi
+import * as fs from "std/fs"
+```
+
+## Choosing operations
+
+- Path parsing/normalization is lexical. It does not resolve symlinks or authorize sandbox access; keep filesystem permission decisions separate.
+- exists maps absence such as NotFound to False, but not permission or I/O failures. Handle typed failures separately.
+- readBytes/readTextUtf8 retain complete contents as small-file APIs. Use readChunks for large files, and account for strict UTF-8 validation when reading text.
+- Chunk and directory streams own resources in terminal scopes. Early termination, failure, and cancellation close handles; avoid extending lifetimes by retaining iterators outside their intended scope.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `DirectoryEntry`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct DirectoryEntry {
+  name: String,
+  path: Path,
+  fileType: Maybe<FileType>
+}
+```
+
+- `name`: Entry name within the directory.
+- `path`: Path of the directory entry.
+- `fileType`: Entry type, or Nothing when not supplied.
+
+### `FileMetadata`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct FileMetadata {
+  fileType: FileType,
+  sizeBytes: Int,
+  modified: Maybe<Instant>,
+  created: Maybe<Instant>
+}
+```
+
+- `fileType`: File type reported for the path.
+- `sizeBytes`: Reported size in bytes.
+- `modified`: Modification time, or Nothing when unavailable.
+- `created`: Creation time, or Nothing when unavailable.
+
+### `FileSystem`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+FileSystem
+```
+
+### `FileSystemError`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct FileSystemError {
+  operation: FileSystemOperation,
+  path: Path,
+  otherPath: Maybe<Path>,
+  kind: FileSystemErrorKind
+}
+```
+
+- `operation`: Filesystem operation that failed.
+- `path`: Primary path associated with the failure.
+- `otherPath`: Additional path for a two-path operation, or Nothing when absent.
+- `kind`: Filesystem failure classification.
+
+### `FileSystemErrorKind`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+FileSystemErrorKind
+```
+
+### `FileSystemOperation`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+FileSystemOperation
+```
+
+### `FileTextError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+FileTextError
+```
+
+### `FileType`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+FileType
+```
+
+### `WriteMode`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+WriteMode
+```
+
+## Constructors and values
+
+### `Append`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Append
+  WriteMode
+```
+
+### `CanonicalizePath`
+
+<small className="api-kind">Constructor</small>
+
+```text
+CanonicalizePath
+  FileSystemOperation
+```
+
+### `CreateDirectory`
+
+<small className="api-kind">Constructor</small>
+
+```text
+CreateDirectory
+  FileSystemOperation
+```
+
+### `CreateNew`
+
+<small className="api-kind">Constructor</small>
+
+```text
+CreateNew
+  WriteMode
+```
+
+### `CreateTemporary`
+
+<small className="api-kind">Constructor</small>
+
+```text
+CreateTemporary
+  FileSystemOperation
+```
+
+### `CrossDeviceMove`
+
+<small className="api-kind">Constructor</small>
+
+```text
+CrossDeviceMove
+  FileSystemErrorKind
+```
+
+### `Directory`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Directory
+  FileType
+```
+
+### `DirectoryNotEmpty`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DirectoryNotEmpty
+  FileSystemErrorKind
+```
+
+### `FileAccessFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FileAccessFailure
+  FileSystemError
+  -> FileTextError
+```
+
+### `FileAlreadyExists`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FileAlreadyExists
+  FileSystemErrorKind
+```
+
+### `FileNotFound`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FileNotFound
+  FileSystemErrorKind
+```
+
+### `FileSystemUnavailable`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FileSystemUnavailable
+  FileSystemErrorKind
+```
+
+### `FileUtf8Failure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FileUtf8Failure
+  Utf8DecodeError
+  -> FileTextError
+```
+
+### `IsADirectory`
+
+<small className="api-kind">Constructor</small>
+
+```text
+IsADirectory
+  FileSystemErrorKind
+```
+
+### `MovePath`
+
+<small className="api-kind">Constructor</small>
+
+```text
+MovePath
+  FileSystemOperation
+```
+
+### `NotADirectory`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NotADirectory
+  FileSystemErrorKind
+```
+
+### `OpenDirectory`
+
+<small className="api-kind">Constructor</small>
+
+```text
+OpenDirectory
+  FileSystemOperation
+```
+
+### `OtherFileSystemError`
+
+<small className="api-kind">Constructor</small>
+
+```text
+OtherFileSystemError
+  String
+  -> FileSystemErrorKind
+```
+
+### `OtherFileType`
+
+<small className="api-kind">Constructor</small>
+
+```text
+OtherFileType
+  FileType
+```
+
+### `PathNotSupported`
+
+<small className="api-kind">Constructor</small>
+
+```text
+PathNotSupported
+  FileSystemErrorKind
+```
+
+### `PermissionDenied`
+
+<small className="api-kind">Constructor</small>
+
+```text
+PermissionDenied
+  FileSystemErrorKind
+```
+
+### `ReadFile`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ReadFile
+  FileSystemOperation
+```
+
+### `ReadMetadata`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ReadMetadata
+  FileSystemOperation
+```
+
+### `RegularFile`
+
+<small className="api-kind">Constructor</small>
+
+```text
+RegularFile
+  FileType
+```
+
+### `RemovePath`
+
+<small className="api-kind">Constructor</small>
+
+```text
+RemovePath
+  FileSystemOperation
+```
+
+### `Replace`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Replace
+  WriteMode
+```
+
+### `SymbolicLink`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SymbolicLink
+  FileType
+```
+
+### `SymbolicLinkLoop`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SymbolicLinkLoop
+  FileSystemErrorKind
+```
+
+### `WriteFile`
+
+<small className="api-kind">Constructor</small>
+
+```text
+WriteFile
+  FileSystemOperation
+```
+
+## Functions and operators
+
+### `canonicalize`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+canonicalize
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Path
+     >
+```
+
+### `createDirectories`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+createDirectories
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `createDirectory`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+createDirectory
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `exists`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+exists
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Bool
+     >
+```
+
+### `list`
+
+<small className="api-kind">Function</small>
+
+```text
+list
+  Path
+  -> Stream<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       DirectoryEntry
+     >
+```
+
+### `metadata`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+metadata
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       FileMetadata
+     >
+```
+
+### `move`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+move
+  Path
+  -> Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `readBytes`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+readBytes
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Bytes
+     >
+```
+
+### `readChunks`
+
+<small className="api-kind">Function</small>
+
+```text
+readChunks
+  BufferCapacity
+  -> Path
+  -> Stream<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Bytes
+     >
+```
+
+### `readTextUtf8`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+readTextUtf8
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileTextError,
+       String
+     >
+```
+
+### `removeDirectory`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+removeDirectory
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `removeFile`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+removeFile
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `symlinkMetadata`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+symlinkMetadata
+  Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       FileMetadata
+     >
+```
+
+### `withTemporaryDirectory`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+withTemporaryDirectory<R, E, A>
+  String
+  -> (Path -> Effect<R, E, A>)
+  -> Effect<
+       R & {
+         fileSystem: FileSystem
+       },
+       Either<FileSystemError, E>,
+       A
+     >
+```
+
+### `withTemporaryFile`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+withTemporaryFile<R, E, A>
+  String
+  -> (Path -> Effect<R, E, A>)
+  -> Effect<
+       R & {
+         fileSystem: FileSystem
+       },
+       Either<FileSystemError, E>,
+       A
+     >
+```
+
+### `writeAtomic`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+writeAtomic
+  Bytes
+  -> Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `writeBytes`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+writeBytes
+  WriteMode
+  -> Bytes
+  -> Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+### `writeChunks`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+writeChunks<R, E>
+  WriteMode
+  -> Stream<R, E, Bytes>
+  -> Path
+  -> Effect<
+       R & {
+         fileSystem: FileSystem
+       },
+       Either<E, FileSystemError>,
+       Unit
+     >
+```
+
+### `writeTextUtf8`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+writeTextUtf8
+  WriteMode
+  -> String
+  -> Path
+  -> Effect<
+       { fileSystem: FileSystem },
+       FileSystemError,
+       Unit
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

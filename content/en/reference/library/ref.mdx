@@ -1,0 +1,99 @@
+---
+title: "std/ref"
+description: "Read and change references inside Effect, separately from Signal notifications."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as ref from "std/ref"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Ref`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Ref<_>
+```
+
+## Functions and operators
+
+### `get`
+
+<small className="api-kind">Function returning Effect</small>
+
+Returns an Effect that atomically reads the current Ref value when executed.
+
+```text
+get<A>
+  Ref<A>
+  -> Effect<{}, Never, A>
+```
+
+### `make`
+
+<small className="api-kind">Function returning Effect</small>
+
+Returns an Effect that creates a fresh Ref with the initial value on each execution. The resulting Ref can be passed to later Effects.
+
+```text
+make<A>
+  A
+  -> Effect<{}, Never, Ref<A>>
+```
+
+### `modify`
+
+<small className="api-kind">Function returning Effect</small>
+
+Returns a result and updates a Ref in one atomic callback.
+
+```text
+modify<A, B>
+  (A -> (B, A))
+  -> Ref<A>
+  -> Effect<{}, Never, B>
+```
+
+### `set`
+
+<small className="api-kind">Function returning Effect</small>
+
+Replaces the current Ref value atomically.
+
+```text
+set<A>
+  A
+  -> Ref<A>
+  -> Effect<{}, Never, Unit>
+```
+
+### `update`
+
+<small className="api-kind">Function returning Effect</small>
+
+Updates a Ref with one pure atomic callback.
+
+```text
+update<A>
+  (A -> A)
+  -> Ref<A>
+  -> Effect<{}, Never, Unit>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)

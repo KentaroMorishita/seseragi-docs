@@ -1,28 +1,55 @@
 ---
 title: Seseragiとは
-description: データの形と処理の流れを、型と関数で表すプログラミング言語。
+description: 値を型で表し、関数でつなぎ、Effectで外部の処理を組み立てる言語。
 ---
 
-Seseragiでは、値を関数で変換し、型でデータの形を表します。計算と、出力や状態の更新を伴う処理を区別して書けます。
+Seseragiは、静的な型を持つ関数型プログラミング言語です。計算は値を返す式として書き、入出力や状態の変更はEffectで表します。CLIアプリとブラウザのWebアプリを、同じ言語の型と関数で組み立てられます。
 
-## まず、一つ動かしてみる
+このサイトはSeseragiの公式ドキュメントです。まず動くコードから学び、アプリを作り、必要になったときに規則とAPIを調べられるように構成しています。
 
-[最初のプログラム](/docs/learn/first-program)では、配送状態を型で表し、表示する文字列へ変換します。短いコードを読みながら、型、パターンマッチ、関数のつなぎ方を確認してください。
+## 最初の一歩
 
-ブラウザで試すなら、[Playground](https://seseragi.vercel.app/)を開いてください。コードを編集して実行できます。[Tour](https://seseragi.vercel.app/tour/)では、Hello worldからWeb UIまで順に試せます。
+[最初のプログラム](/docs/learn/first-program)では、文字列を一行表示し、内容を変えて再実行します。続いて、値と式、関数、データの型を、それぞれの小さな例で学びます。
+
+インストールせずに試すなら[Playground](https://seseragi.vercel.app/)、手元で開発するなら[ローカルで使う](/docs/learn/local-development)へ進んでください。
+
+## 押さえる四つの考え方
+
+| 考え方 | コードで何を表すか | 学ぶ場所 |
+| --- | --- | --- |
+| 値と式 | 計算した結果を、次の式へ渡す | [値と式](/docs/learn/values-and-expressions) |
+| 型とパターン | データの形と、状態ごとの扱いを決める | [代数的データ型](/docs/learn/algebraic-data-types)、[パターンマッチ](/docs/learn/pattern-matching) |
+| 関数の合成 | 小さな変換を、部分適用とパイプラインでつなぐ | [関数とパイプライン](/docs/learn/functions-and-pipelines) |
+| Effect | 必要な環境、失敗、成功値を型で保った処理を作る | [Effect](/docs/learn/effects) |
+
+`if`も`match`も値を返します。出力などの処理はEffectという値で表します。`effect fn`は処理を組み立てるための宣言で、結果のEffect型へ展開されます。Effect値を作ることと、その実行で出力することを区別できます。
 
 ## TypeScriptから来た方へ
 
-Seseragiの関数は、`label (Sent "Kyoto")`のように空白で引数を渡します。複数の引数を受け取る関数へ、一部だけ渡すこともできます。
+次の`add`は、整数を二つ受け取り、その和を返す関数です。
 
-TypeScriptでは計算も出力も同じ関数構文で書きます。Seseragiでは、通常の`fn`で計算を、`effect fn`で出力などを伴う処理を書きます。[学習ページ](/docs/learn/first-program#関数をつないで出力する)で、両方を並べて読めます。
+```seseragi title="二つの整数を足す関数"
+fn add x: Int -> y: Int -> Int =
+  x + y
+```
 
-## 手元で使う
+呼び出す式は`add 2 3`です。関数名の後へ、空白で区切って`2`と`3`を渡します。結果は`5`です。TypeScriptでは、同じ呼び出しを`add(2, 3)`と書きます。
 
-[ローカルで使う](/docs/learn/local-development)では、CLIの導入、ファイルの実行、Webアプリの作成からビルドまでを説明しています。
+`add 2`のように一つだけ渡すと、もう一つの整数を受け取る関数になります。部分適用と、括弧で式をまとめる書き方は[関数とパイプライン](/docs/learn/functions-and-pipelines)で順に学べます。`let`は値に名前をつける定義であり、あとから代入する変数ではありません。
 
-## 開発中の言語
+欠如は`Maybe`、成功と失敗は`Either`、状態ごとのデータは代数的データ型で表します。Webの状態はSignalで保持し、イベントをActionへ変換して次の状態を求めます。
 
-Seseragiは実験段階の言語です。構文や機能は開発に伴って変更されることがあります。
+[TypeScriptからSeseragiへ](/docs/guides/typescript-to-seseragi)で、関数、型、失敗、非同期処理の書き方を比較できます。Reactの経験がある方は、続いて[状態とAction](/docs/guides/state-and-actions)と[コンポーネント](/docs/guides/components)を読むと、画面を組み立てる流れが分かります。
 
-このサイトでは、[最初のプログラム](/docs/learn/first-program)で型とパターンマッチ、[関数リファレンス](/docs/reference/functions)で宣言と呼び出しの規則を読めます。
+## 目的に合わせて読む
+
+- [学ぶ](/docs/learn): 値と式からデータ、Effect、Signal、型クラス、moduleへ順に進む。
+- [用途別ガイド](/docs/guides): CLI、Web画面、フォーム、テスト、TypeScriptとの連携、公開の手順を読む。
+- [言語リファレンス](/docs/reference): 構文、型、評価、失敗、module、開発ツールの正確な規則を調べる。
+- [標準ライブラリ](/docs/reference/library): 用途からmoduleを選び、関数の型・制約・対応環境を確認する。
+
+## 対応する版
+
+本文と実行例はSeseragi **0.61.25**を対象にしています。CLIはRustで実装され、現在のコンパイル経路ではTypeScriptとランタイムを使ってプログラムを実行します。ブラウザのPlaygroundはRustコンパイラのWASM版を使います。
+
+Seseragiは開発中の言語です。構文や機能が変わる場合があります。このサイトでは、現在使える機能と、まだ実装へ接続されていない契約を区別しています。

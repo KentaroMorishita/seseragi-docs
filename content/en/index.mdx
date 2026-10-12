@@ -1,28 +1,55 @@
 ---
 title: What is Seseragi?
-description: A programming language for expressing the shape of data and the flow of computation.
+description: Model values with types, connect them with functions, and compose external operations with Effect.
 ---
 
-In Seseragi, you transform values with functions and describe data with types. You write calculations separately from operations that produce output or update state.
+Seseragi is a statically typed functional programming language. Computations are expressions that return values; input/output and state changes are represented by Effect. You can build CLI applications and browser Web applications using the same language's types and functions.
 
-## Run something small
+This is the official Seseragi documentation. Start with working code, build an application, then look up precise rules and APIs when you need them.
 
-In [Your first program](/en/docs/learn/first-program), you model delivery states and turn them into text. Follow the code to see how types, pattern matching, and function composition fit together.
+## Take the first step
 
-To try it in your browser, open the [Playground](https://seseragi.vercel.app/). You can edit and run code without installing the CLI. The [Tour](https://seseragi.vercel.app/tour/) takes you from Hello world to Web UI.
+[Your first program](/en/docs/learn/first-program) prints one line of text, then lets you change it and run again. Continue with small, focused examples for values and expressions, functions, and data types.
+
+Try the [Playground](https://seseragi.vercel.app/) without installing anything, or follow [Local development](/en/docs/learn/local-development) to work on your machine.
+
+## Four ideas to understand
+
+| Idea | What it expresses | Learn more |
+| --- | --- | --- |
+| Values and expressions | Pass a computed result to the next expression | [Values and expressions](/en/docs/learn/values-and-expressions) |
+| Types and patterns | Model data shapes and handle each state | [Algebraic data types](/en/docs/learn/algebraic-data-types), [Pattern matching](/en/docs/learn/pattern-matching) |
+| Function composition | Connect small transformations with partial application and pipelines | [Functions and pipelines](/en/docs/learn/functions-and-pipelines) |
+| Effect | Build operations while preserving requirements, failure, and success in their types | [Effect](/en/docs/learn/effects) |
+
+Both `if` and `match` return values. Operations such as output are represented as Effect values. An `effect fn` declaration builds a computation and expands to an Effect result type. Creating an Effect value is distinct from producing output by executing it.
 
 ## Coming from TypeScript
 
-Seseragi passes arguments using spaces: `label (Sent "Kyoto")`. You can also pass only some arguments to a function and get a new function that accepts the rest.
+The following `add` function accepts two integers and returns their sum.
 
-In TypeScript, calculations and output use the same function syntax. In Seseragi, ordinary `fn` declarations express calculations, while `effect fn` declarations can perform operations such as printing. Compare both versions in the [first program](/en/docs/learn/first-program#compose-functions-and-print).
+```seseragi title="Adding two integers"
+fn add x: Int -> y: Int -> Int =
+  x + y
+```
 
-## Work locally
+Call it with `add 2 3`. Place `2` and `3` after the function name, separated by spaces. The result is `5`. The corresponding TypeScript call is `add(2, 3)`.
 
-[Local development](/en/docs/learn/local-development) covers installing the CLI, running a source file, and creating and building a Web app.
+Passing only `2`, as in `add 2`, produces a function accepting the other integer. [Functions and pipelines](/en/docs/learn/functions-and-pipelines) introduces partial application and then parentheses for grouping expressions. A `let` definition names a value; it is not a variable you can reassign.
 
-## An experimental language
+Model absence with `Maybe`, success and failure with `Either`, and states carrying different data with algebraic data types. Web state lives in Signals; events become Actions that produce the next state.
 
-Seseragi is experimental. Its syntax and features may change during development.
+[TypeScript to Seseragi](/en/docs/guides/typescript-to-seseragi) compares functions, types, failure, and asynchronous computation. If you know React, continue with [State and actions](/en/docs/guides/state-and-actions) and [Components](/en/docs/guides/components) to understand how views are built.
 
-Read [Your first program](/en/docs/learn/first-program) for types and pattern matching, or the [function reference](/en/docs/reference/functions) for declarations and application rules.
+## Read for your goal
+
+- [Learn](/en/docs/learn): Follow values and expressions through data, Effect, Signal, type classes, and modules.
+- [Guides](/en/docs/guides): Build CLI apps, Web views, forms, tests, TypeScript integrations, and deployment workflows.
+- [Language reference](/en/docs/reference): Look up precise syntax, types, evaluation, failure, modules, and tooling contracts.
+- [Standard library](/en/docs/reference/library): Choose modules by purpose and check function types, constraints, and execution environments.
+
+## Documented version
+
+The text and executable examples target Seseragi **0.61.25**. The CLI is implemented in Rust. The current compilation path executes programs using TypeScript and the runtime. The browser Playground uses the Rust compiler's WASM build.
+
+Seseragi is under development, and syntax or features may change. This site distinguishes features you can use now from contracts not yet connected to an implementation.

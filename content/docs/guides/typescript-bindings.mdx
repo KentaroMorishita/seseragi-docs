@@ -1,0 +1,150 @@
+---
+title: TypeScriptとの接続
+description: pureとtaskを選び、TypeScriptの関数と例外を型付き境界で扱う。
+---
+
+ローカルのTypeScriptモジュールをSeseragiから呼びます。文字列を加工する純粋な関数と、Promiseが失敗する関数を別の呼び出し契約でbindします。外部ライブラリを追加しないため、ネットワークなしで動かせる例です。
+
+[モジュール](/docs/learn/modules)のimportと、[Effect](/docs/learn/effects)の実行・失敗を使います。TypeScriptとの境界を宣言する`foreign`の構文は、このガイドで説明します。
+
+## ファイルを用意する
+
+次の構成を作ってください。host側のmanifestとロックは、Seseragi自身のmanifest・ロックとは別の入力です。
+
+```text
+bindings/
+  seseragi.toml
+  host/
+    package.json
+    bun.lock
+    format.ts
+  src/
+    format.ssrg
+    main.ssrg
+```
+
+```toml title="seseragi.toml"
+[package]
+name = "docs/typescript-bindings"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[run]
+entry = "main"
+target = "process"
+
+[foreign.typescript]
+resolver = "node"
+manifest = "host/package.json"
+lockfile = "host/bun.lock"
+```
+
+```json title="host/package.json"
+{
+  "name": "docs-host",
+  "version": "0.1.0",
+  "type": "module"
+}
+```
+
+host側には依存がないため、`host/bun.lock`は次の内容で保存できます。Bunが依存なしのinstallで空ロックを削除した場合も、宣言した入力が存在する必要があります。
+
+```json title="host/bun.lock"
+{
+  "lockfileVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "docs-host",
+      "version": "0.1.0"
+    }
+  },
+  "packages": {}
+}
+```
+
+## ホスト側の関数を書く
+
+{/* example: examples/guides/typescript-bindings/host/format.ts */}
+
+```typescript title="host/format.ts"
+export function bracket(
+  value: string,
+) {
+  return `[${value}]`;
+}
+
+export async function loadLabel() {
+  throw new Error(
+    "Temporarily unavailable",
+  );
+}
+```
+
+`bracket`は同期的に文字列を作ります。`loadLabel`は、失敗の扱いを確かめるために意図的にPromiseをrejectします。モジュールを読み込むだけでは、この関数の本体は実行されません。
+
+## foreignで呼び出し方を宣言する
+
+{/* example: examples/guides/typescript-bindings/src/format.ssrg */}
+```seseragi title="src/format.ssrg"
+pub foreign "typescript"
+from "../host/format.ts" {
+  pure fn bracket value: String
+    -> String
+  task fn loadLabel -> String
+}
+```
+
+`pure`は、同期的・決定的・例外を投げない・外部状態を観測も変更もしないことをbindingの作者が保証する宣言です。単に「軽い処理だから」という理由では選びません。
+
+`task`はEffectとして見えます。最後の`String`は成功値の型で、実際の呼び出しは`Effect<{}, Js.Error, String>`です。同期的なthrowやPromiseのrejectionは`Js.Error`の失敗として渡されます。
+
+同じホストモジュールに`pure`のmemberがある場合、モジュール全体はpure-loadです。この例ではモジュールの初期化も副作用を起こしません。初期化自体に副作用や失敗があるライブラリは、pureのmemberを宣言せずtask-loadにする必要があります。
+
+## Seseragi側から使う
+
+{/* example: examples/guides/typescript-bindings/src/main.ssrg */}
+```seseragi title="src/main.ssrg"
+import * as effects from "std/effect"
+import { bracket, loadLabel }
+  from "./format"
+
+pub effect fn main = do {
+  "ready"
+  |> bracket
+  |> println
+  result <-
+    loadLabel ()
+    |> effects.attempt
+  let message = match result {
+    Right value -> value
+    Left _ -> "Please try again"
+  }
+  println message
+}
+```
+
+`bracket`は通常の関数としてパイプラインへ置けます。`loadLabel`はTaskを作り、`attempt`で失敗を結果の値へ戻します。外部例外をSeseragiの`try/catch`で捕捉する構文はありません。
+
+## 実行して境界を確かめる
+
+`bindings/`で実行してください。
+
+```sh
+seseragi lock update
+seseragi run .
+```
+
+```text
+[ready]
+Please try again
+```
+
+`task fn loadLabel`を呼ぶだけではホスト関数は実行されません。この例では`main`の`do`がTaskを順に実行し、意図的なrejectionを`attempt`が受け止めています。
+
+## bindingをアプリの型へ包む
+
+ホストが`null`や`undefined`を返す場合、raw bindingには`Js.NullOr`や`Js.UndefinedOr`などの境界型を使います。アプリへ公開する関数で`Maybe`へ変換し、意味のある不在として扱います。可変オブジェクトを不変レコードとして共有する宣言にはしません。
+
+大きなライブラリでは`seseragi dts convert`でbinding候補を生成できます。`.d.ts`だけから純粋性や例外を推測せず、未変換項目のレポートを確認し、生成物をimportする手書きadapterを置きます。公開APIに生成fileそのものを使う構成ではありません。
+
+変換規則、nullable、opaque型、エラーのphaseは[TypeScript interop Reference](/docs/reference/typescript-interop)にあります。[パッケージと配布](/docs/guides/packages-and-deployment)でadapterを公開する入口を分けられます。

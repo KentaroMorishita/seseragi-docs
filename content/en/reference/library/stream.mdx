@@ -1,0 +1,312 @@
+---
+title: "std/stream"
+description: "Transform values over time with explicit consumption, cancellation, and resource lifetimes."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as stream from "std/stream"
+```
+
+## Choosing operations
+
+- Streams are cold; each terminal execution creates its own producer and scope. Executing the same Stream twice does not share subscriptions.
+- The default is pull-based. buffer suspends a full producer; dropping policies are explicit through operations such as bufferDropping.
+- flatMap consumes each inner stream completely, in sequence. merge is a separate concurrent composition with its own ordering and failure-selection rules.
+- Use runCollect for finite streams. An infinite stream never completes and retains collected values; limit it with take when needed. Early termination and cancellation still close upstream resources.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `BufferCapacity`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+BufferCapacity
+```
+
+### `BufferCapacityError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+BufferCapacityError
+```
+
+### `Stream`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Stream<_, _, _>
+```
+
+## Constructors and values
+
+### `NonPositiveBufferCapacity`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NonPositiveBufferCapacity
+  Int
+  -> BufferCapacityError
+```
+
+## Functions and operators
+
+### `buffer`
+
+<small className="api-kind">Function</small>
+
+```text
+buffer<R, E, A>
+  BufferCapacity
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `bufferCapacity`
+
+<small className="api-kind">Function</small>
+
+```text
+bufferCapacity
+  Int
+  -> Either<
+       BufferCapacityError,
+       BufferCapacity
+     >
+```
+
+### `concat`
+
+<small className="api-kind">Function</small>
+
+Returns a stream that consumes the second argument to completion before opening the first. In a pipeline, pass the suffix stream first.
+
+```text
+concat<R, E, A>
+  Stream<R, E, A>
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `drop`
+
+<small className="api-kind">Function</small>
+
+Returns the elements after skipping the requested leading count.
+
+```text
+drop<R, E, A>
+  Int
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `empty`
+
+<small className="api-kind">Function</small>
+
+```text
+empty
+  Stream<R, E, A>
+```
+
+### `filter`
+
+<small className="api-kind">Function</small>
+
+Keeps collection elements whose predicate returns True.
+
+```text
+filter<R, E, A>
+  (A -> Bool)
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `filterMap`
+
+<small className="api-kind">Function</small>
+
+Transforms collection elements and drops Nothing results.
+
+```text
+filterMap<R, E, A, B>
+  (A -> Maybe<B>)
+  -> Stream<R, E, A>
+  -> Stream<R, E, B>
+```
+
+### `flatMap`
+
+<small className="api-kind">Function</small>
+
+Transforms each element to a collection and flattens the results.
+
+```text
+flatMap<R, E, A, B>
+  (A -> Stream<R, E, B>)
+  -> Stream<R, E, A>
+  -> Stream<R, E, B>
+```
+
+### `fromArray`
+
+<small className="api-kind">Function</small>
+
+```text
+fromArray<R, E, A>
+  Array<A>
+  -> Stream<R, E, A>
+```
+
+### `fromEffect`
+
+<small className="api-kind">Function</small>
+
+```text
+fromEffect<R, E, A>
+  Effect<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `fromIterable`
+
+<small className="api-kind">Function</small>
+
+```text
+fromIterable<C, R, E, A>
+  C
+  -> Stream<R, E, A>
+where
+  Iterable<C, A>
+```
+
+### `map`
+
+<small className="api-kind">Function</small>
+
+```text
+map<R, E, A, B>
+  (A -> B)
+  -> Stream<R, E, A>
+  -> Stream<R, E, B>
+```
+
+### `mapError`
+
+<small className="api-kind">Function</small>
+
+```text
+mapError<R, E, F, A>
+  (E -> F)
+  -> Stream<R, E, A>
+  -> Stream<R, F, A>
+```
+
+### `merge`
+
+<small className="api-kind">Function</small>
+
+```text
+merge<R, E, A>
+  Stream<R, E, A>
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `runCollect`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+runCollect<R, E, A>
+  Stream<R, E, A>
+  -> Effect<R, E, Array<A>>
+```
+
+### `runFold`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+runFold<R, E, A, B>
+  B
+  -> (B -> A -> B)
+  -> Stream<R, E, A>
+  -> Effect<R, E, B>
+```
+
+### `runForEach`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+runForEach<R, E, A>
+  (A -> Effect<R, E, Unit>)
+  -> Stream<R, E, A>
+  -> Effect<R, E, Unit>
+```
+
+### `singleton`
+
+<small className="api-kind">Function</small>
+
+```text
+singleton<R, E, A>
+  A
+  -> Stream<R, E, A>
+```
+
+### `take`
+
+<small className="api-kind">Function</small>
+
+Returns at most the requested number of leading elements.
+
+```text
+take<R, E, A>
+  Int
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `unfold`
+
+<small className="api-kind">Function</small>
+
+```text
+unfold<S, R, E, A>
+  (S -> Maybe<(A, S)>)
+  -> S
+  -> Stream<R, E, A>
+```
+
+### `zip`
+
+<small className="api-kind">Function</small>
+
+```text
+zip<R, E, A, B>
+  Stream<R, E, B>
+  -> Stream<R, E, A>
+  -> Stream<R, E, (A, B)>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)

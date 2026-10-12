@@ -1,0 +1,8 @@
+type Phase deriving Eq, Show =
+  | Ready
+  | Done
+
+pub effect fn main = do {
+  println (show (Ready == Ready))
+  println (show Done)
+}

@@ -1,0 +1,74 @@
+---
+title: "Web UI"
+description: "pureなHtml、props、Action、SSR、DOM resource、Signal bindingと状態所有を確認する。"
+---
+
+Web UIでは、pure関数で不変のHtml treeを作り、DOMへの接続をEffectへ置きます。componentは普通の関数です。class、hook、JSX専用構文、関数の呼び出し順から生まれるhidden stateはありません。
+
+## Htmlとchildren
+
+`std/web/html`は全targetで使えるpureなHtmlとSSRを提供します。`Html<Action>`は、eventからActionを作る可能性のあるtreeです。DOM nodeやsubscriptionを内部へ保持しません。
+
+childrenへ渡せるのは`Unit`、`String`、同じAction型の`Html`、そのArray/Listです。Stringはtext nodeへなり、数値は`show`や`html.text`で明示変換します。ArrayにStringとHtmlを混在させるarbitrary unionはありません。
+
+{/* example: examples/reference/web-ui.ssrg */}
+
+```seseragi title="web-ui.ssrg"
+import * as html from "std/web/html"
+
+fn view -> html.Html<Unit> =
+  html.h1 {
+    children: "Seseragi & you",
+  }
+
+pub effect fn main =
+  view ()
+  |> html.renderToString
+  |> println
+```
+
+出力は`<h1>Seseragi &amp; you</h1>`です。tree構築時はStringを保持し、SSRのsinkで一度escapeしています。
+
+## propsと安全な構築
+
+propsはstructural recordです。共通の`class`、`id`、`title`、`style`、eventなどはoptional fieldで、tagが要求するfieldは必須です。子を持つtagでは`children`が必要です。void elementにはchildrenを指定できません。
+
+`className`ではなく`class`を使います。`style`は型付きpropertyから構築し、URLを必要とするpropsには検査済みの`WebUrl`を渡します。raw HTML Stringをuncheckedに挿入する標準APIはありません。
+
+`renderToString`はfragment、`renderDocument`はdoctypeを含むdocumentを作ります。eventやkeyはHTML attributeに出さず、SSRはActionを実行しません。HtmlにEq/Ord/Hash/Show instanceはありません。
+
+## Actionと入力snapshot
+
+event propsは操作の意図を表すActionを作ります。`onClick`はAction値、入力eventは不変snapshotからActionを返すmapperです。hostのEventやmutable targetをアプリへ渡しません。
+
+`InputEvent.value`はStringです。`ChangeEvent`は`value`と`checked: Maybe<Bool>`を持ち、checkbox/radioだけcheckedが`Just`になります。文字入力などは`Nothing`です。file inputの`onFileChange`はopaque FileのArrayを渡します。
+
+ActionはADTでも、子featureが返した`Task<Unit>`でも構成できます。fallibleな操作をそのまま無視せず、dispatchのerror型へ写すか、feature内でrecoverしてください。
+
+## DOMへの接続とlifetime
+
+`std/web/dom`はDom serviceを要求するbrowser専用moduleです。processでHtmlをSSRできることと、DOMを操作できることは別です。
+
+`query`で対象を取得し、`mount`/`mountContent`でmanaged subtreeへ接続します。取得したDomMountを`awaitMount`で待ち、`unmount`で明示解除できます。`run`などの高水準operationも同じresource規則を使います。
+
+listener、subscription、event queue、dispatch Fiberはmountのscopeへ属します。scope終了・failure・cancellationで受付を止め、解除します。Actionはbounded FIFOで逐次dispatchし、queue overflowを黙ってdropしません。
+
+hydration modeはFreshMount、厳密な一致を要求するHydrateStrict、不一致で作り直すHydrateOrReplaceです。cleanupでDOMを残す設定でも、listenerを残すことはありません。
+
+## Signal bindingの更新単位
+
+| 更新単位 | 所有する範囲 |
+| --- | --- |
+| static Html | mount後の値更新を購読しない部分 |
+| leaf binding | text、attribute、value、checked、styleなど一つのsink |
+| structural region | 対象Elementのchildrenと、その内側のresource |
+
+canonicalな`DomContent`はpureなinitial Htmlとbinding planを組にします。型付き`BindingTarget<Action, Value>`と`Signal<Value>`を`bind`で接続し、sinkの値型を検査します。`ElementRef`はtreeとplanが共有するlogical identityで、host Nodeやglobal IDではありません。
+
+transactionの安定した公開値だけを反映します。leaf更新はElement identity、focus、selection、listenerを置き換えません。region更新はregion外へ影響せず、旧subscriptionを解除して新しいcontentを接続します。keyはregion内のdirect sibling identityで、component stateを作る鍵ではありません。
+
+## 状態の所有
+
+local stateはfeature constructor、shared stateは最も近い共通親、app-wide stateはroot featureが所有します。作成はEffectで一度行い、子へread-only Signalや許可した操作を渡します。module import時のglobal singletonやcomponent呼び出し順へstateを依存させません。
+
+実際に組む手順は[Webアプリ](/docs/guides/web-app)、[状態とAction](/docs/guides/state-and-actions)、[フォーム](/docs/guides/forms)、[stateful feature](/docs/guides/stateful-features)を参照してください。関数ごとの署名は[標準ライブラリ](/docs/reference/library)で確認できます。

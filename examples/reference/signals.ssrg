@@ -1,0 +1,16 @@
+import * as signals from "std/signal"
+
+fn double value: Int -> Int =
+  value * 2
+
+pub effect fn main = do {
+  count <- signals.make 1
+  let doubled =
+    signals.map double count
+
+  count := 3
+  value <- *doubled
+  value
+  |> show
+  |> println
+}

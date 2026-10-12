@@ -1,0 +1,162 @@
+{
+  "overrides": {
+    "std/map::get": {
+      "ja": "キーのEqとHashを使って対応する値を検索し、キーがなければNothingを返します。",
+      "en": "Looks up a key using its Eq and Hash instances, returning Nothing when the key is absent."
+    },
+    "std/ref::get": {
+      "ja": "実行時にRefの現在値をatomicに読み取るEffectを返します。",
+      "en": "Returns an Effect that atomically reads the current Ref value when executed."
+    },
+    "std/transformer/state::get": {
+      "ja": "現在の状態を結果として返し、その状態を変更せず次の計算へ渡すStateTを作ります。",
+      "en": "Constructs a StateT computation that returns the current state and passes it on unchanged."
+    },
+    "std/web/storage::get": {
+      "ja": "指定したstorage領域のキーを読むEffectを返します。キーがなければNothingを返し、読み取りが失敗すればStorageErrorで失敗します。",
+      "en": "Returns an Effect that reads a key in the selected storage area, returning Nothing for a missing key or a typed StorageError on failure."
+    },
+    "std/non-empty-list::head": {
+      "ja": "NonEmptyListの先頭の値を返します。結果の型はAです。",
+      "en": "Returns the first value of a NonEmptyList directly as A."
+    },
+    "std/non-empty-list::tail": {
+      "ja": "先頭を除いた残りをListとして返します。要素が一つなら空のListを返します。",
+      "en": "Returns the remaining values as a List, which is empty for a singleton NonEmptyList."
+    },
+    "std/non-empty-list::toList": {
+      "ja": "先頭と残りの順序を保ち、NonEmptyListを通常のListへ変換します。",
+      "en": "Converts a NonEmptyList to an ordinary List while preserving its head and remaining order."
+    },
+    "std/set::toArray": {
+      "ja": "Setの要素を反復順に並べたArrayを返します。",
+      "en": "Returns the Set elements as an Array in iteration order."
+    },
+    "std/set::toList": {
+      "ja": "Setの要素を反復順に並べたListを返します。",
+      "en": "Returns the Set elements as a List in iteration order."
+    },
+    "std/queue::take": {
+      "ja": "Queueから一つの値を取り出すEffectを返します。空なら値を待ち、閉じられたQueueに残りの値がなければQueueClosedで失敗します。",
+      "en": "Returns an Effect that removes one queue value, waits when empty, and fails with QueueClosed when the queue is closed and drained."
+    },
+    "std/prelude::Semigroup::append": {
+      "ja": "選ばれたSemigroupのinstanceで二つの値を結合します。結合律を満たす操作で、数値のwrapperなどにも使います。",
+      "en": "Combines two values through their associative Semigroup operation, including instances such as numeric wrappers."
+    },
+    "std/prelude::Monad::flatMap": {
+      "ja": "Monadの値と、その値に依存して次の計算を選ぶ関数を合成します。",
+      "en": "Sequences a Monad with a value-dependent next computation."
+    },
+    "std/stream::concat": {
+      "ja": "二つ目の引数のStreamを終端まで読み、その後に一つ目の引数のStreamを開始するStreamを返します。パイプラインでは連結する後半のStreamを先に渡します。",
+      "en": "Returns a stream that consumes the second argument to completion before opening the first. In a pipeline, pass the suffix stream first."
+    },
+    "std/text::concat": {
+      "ja": "Arrayに入っているStringを順に連結し、一つのStringを返します。",
+      "en": "Concatenates the Strings in Array order into one String."
+    },
+    "std/regex::find": {
+      "ja": "左端優先で最初のmatchを探し、UTF-8のバイト範囲とcaptureを含むRegexMatchを返します。見つからなければNothingです。",
+      "en": "Finds the first leftmost match and returns a RegexMatch with UTF-8 byte spans and captures, or Nothing when no match exists."
+    },
+    "std/text/grapheme::length": {
+      "ja": "Stringに含まれる拡張書記素クラスタの数を返します。Unicode scalar数やUTF-8のバイト数とは異なる単位です。",
+      "en": "Counts extended grapheme clusters in a String, rather than Unicode scalars or UTF-8 bytes."
+    },
+    "std/web/html::input": {
+      "ja": "inputのHtmlを作ります。valueやcheckedは省略でき、onInputとonChangeには型付きのsnapshotを受け取る関数を指定できます。",
+      "en": "Constructs input Html with optional value and checked props and typed snapshot callbacks for onInput and onChange."
+    },
+    "std/web/html::textarea": {
+      "ja": "textareaのHtmlを作ります。valueは省略でき、onInputとonChangeには型付きのsnapshotを受け取る関数を指定できます。",
+      "en": "Constructs textarea Html with an optional value prop and typed snapshot callbacks for onInput and onChange."
+    },
+    "std/web/html::label": {
+      "ja": "labelのHtmlを作ります。htmlForを指定すると、そのidを持つフォームのcontrolに関連付けます。",
+      "en": "Constructs label Html. An optional htmlFor prop associates it with a form control of that id."
+    },
+    "std/web/html::form": {
+      "ja": "formのHtmlを作ります。onSubmitを指定した場合は、runtimeがnative submitの既定動作を防いでからActionを送ります。",
+      "en": "Constructs form Html. When onSubmit is supplied, the runtime prevents native submission before dispatching its Action."
+    },
+    "std/ref::make": {
+      "ja": "実行するたびに初期値を持つ新しいRefを作るEffectを返します。作られたRefは後続のEffectへ渡せます。",
+      "en": "Returns an Effect that creates a fresh Ref with the initial value on each execution. The resulting Ref can be passed to later Effects."
+    },
+    "std/effect::provide": {
+      "ja": "指定した環境で元のEffectを実行する新しいEffectを返します。この関数の呼び出しだけでは元のEffectを実行しません。",
+      "en": "Returns a new Effect that executes the source with a fixed environment. Calling provide does not itself execute the source."
+    },
+    "std/http::responseHeaders": {
+      "ja": "Responseが持つ不変のHeadersを返します。新しいHeadersのコピーは作りません。",
+      "en": "Returns the immutable Headers held by the Response without constructing a copy."
+    },
+    "std/collection::Next": {
+      "ja": "次のaccumulatorでreduceUntilを続けることを表すReduceStepの値を作ります。",
+      "en": "Constructs a ReduceStep value requesting that reduceUntil continue with the new accumulator."
+    },
+    "std/collection::Done": {
+      "ja": "この結果でreduceUntilを終えることを表すReduceStepの値を作ります。",
+      "en": "Constructs a ReduceStep value requesting that reduceUntil stop with the final result."
+    },
+    "std/web/html::IgnoreEvent": {
+      "ja": "Actionを送らず、既定動作や伝播も変更しないことを表すEventActionの値です。",
+      "en": "An EventAction value requesting no Action dispatch and no change to browser defaults or propagation."
+    },
+    "std/web/html::Dispatch": {
+      "ja": "既定動作や伝播を変更せずActionを送ることを表すEventActionの値を作ります。",
+      "en": "Constructs an EventAction value requesting Action dispatch without changing browser defaults or propagation."
+    },
+    "std/web/html::DispatchPreventDefault": {
+      "ja": "既定動作を防いでからActionを送ることを表すEventActionの値を作ります。",
+      "en": "Constructs an EventAction value requesting default prevention before Action dispatch."
+    },
+    "std/web/html::DispatchStopPropagation": {
+      "ja": "伝播を止めてからActionを送ることを表すEventActionの値を作ります。",
+      "en": "Constructs an EventAction value requesting propagation control before Action dispatch."
+    },
+    "std/web/html::DispatchPreventDefaultAndStop": {
+      "ja": "既定動作を防ぎ、伝播を止めてからActionを送ることを表すEventActionの値を作ります。",
+      "en": "Constructs an EventAction value requesting both default prevention and propagation control before Action dispatch."
+    },
+    "std/big-int::checkedDivide": {
+      "ja": "二つ目の引数を一つ目の引数で割り、商を0方向へ切り捨てたBigIntを返します。除数が0ならBigIntDivisionByZeroを返します。",
+      "en": "Divides the second argument by the first, returning a BigInt quotient truncated toward zero or BigIntDivisionByZero for a zero divisor."
+    }
+  },
+  "suppressDescriptions": [
+    "Builds or transforms a cold standard Effect value.",
+    "Compiler-owned standard library symbol.",
+    "Compiles, searches, splits, or replaces with the portable Regex engine.",
+    "Constructs or computes with standard time values.",
+    "Creates a pure namespaced SVG scene or explicitly bridges it to Html.",
+    "Creates or renders typed HTML through the standard HTML surface.",
+    "Creates or transforms reactive values through the standard Signal surface.",
+    "Parses, converts, or computes exact decimals with explicit rounding.",
+    "Parses, formats, classifies, or explicitly converts an IEEE 754 Float.",
+    "Parses, formats, or computes with Int under the safe integer contract.",
+    "Performs HTTP client operations through the standard HttpClient capability.",
+    "Performs an atomic operation on a standard Ref.",
+    "Pure portable mathematics on Float; angles are radians and atan2 takes y then x.",
+    "Reads or waits through the standard Clock capability.",
+    "Runs typed browser DOM behavior through the standard DOM surface.",
+    "Selects an explicit numeric rounding mode.",
+    "Standard function provided by the compiler-owned library surface.",
+    "Standard type class used for generic dispatch.",
+    "Type from the checked safe integer surface.",
+    "Type from the exact arbitrary-precision decimal surface.",
+    "Type from the explicit Float conversion surface.",
+    "Type from the portable Regex surface.",
+    "Type from the shared numeric rounding surface.",
+    "Type from the standard Clock capability surface.",
+    "Type from the standard DOM capability surface.",
+    "Type from the standard Effect control surface.",
+    "Type from the standard HTTP client capability surface.",
+    "Type from the standard SVG scene surface.",
+    "Type from the standard Signal surface.",
+    "Type from the standard mutable Ref surface.",
+    "Type from the standard time surface.",
+    "Type or trait from the standard HTML surface."
+  ]
+}

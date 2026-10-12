@@ -1,0 +1,356 @@
+---
+title: "std/regex"
+description: "Compile patterns and search or replace text, with typed errors for invalid patterns."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as regex from "std/regex"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Regex`
+
+<small className="api-kind">Opaque type</small>
+
+Opaque compiled portable regular expression with pinned Unicode semantics.
+
+```text
+Regex
+```
+
+### `RegexCapture`
+
+<small className="api-kind">Struct</small>
+
+Captured source text together with its UTF-8 byte span.
+
+```text
+struct RegexCapture {
+  span: RegexSpan,
+  text: String
+}
+```
+
+- `span`: UTF-8 byte span of the capture.
+- `text`: Input text corresponding to the capture span.
+
+### `RegexCompileError`
+
+<small className="api-kind">Struct</small>
+
+Reports a compile failure at a UTF-8 byte offset in the pattern.
+
+```text
+struct RegexCompileError {
+  kind: RegexCompileErrorKind,
+  offset: Int
+}
+```
+
+- `kind`: Classification of the pattern compilation failure.
+- `offset`: Zero-based UTF-8 byte offset in the pattern.
+
+### `RegexCompileErrorKind`
+
+<small className="api-kind">Opaque type</small>
+
+Classifies a portable regular-expression compile failure.
+
+```text
+RegexCompileErrorKind
+```
+
+### `RegexMatch`
+
+<small className="api-kind">Struct</small>
+
+A leftmost match with ordered and named captures.
+
+```text
+struct RegexMatch {
+  span: RegexSpan,
+  text: String,
+  captures: Array<
+    Maybe<RegexCapture>
+  >,
+  named: Map<
+    String,
+    Maybe<RegexCapture>
+  >
+}
+```
+
+- `span`: UTF-8 byte span of the complete match.
+- `text`: Input text of the complete match.
+- `captures`: Captures in opening-parenthesis order, excluding group 0; unmatched groups are Nothing.
+- `named`: Named captures in declaration order; unmatched groups retain their keys with Nothing values.
+
+### `RegexOptions`
+
+<small className="api-kind">Struct</small>
+
+Controls case folding, multiline anchors, and dot-newline matching.
+
+```text
+struct RegexOptions {
+  caseInsensitive: Bool,
+  multiline: Bool,
+  dotMatchesNewline: Bool
+}
+```
+
+- `caseInsensitive`: Whether to use locale-independent Unicode simple case folding.
+- `multiline`: Whether ^ and $ may also match at line boundaries.
+- `dotMatchesNewline`: Whether . also matches line terminators.
+
+### `RegexSpan`
+
+<small className="api-kind">Struct</small>
+
+Half-open UTF-8 byte span in the searched text.
+
+```text
+struct RegexSpan {
+  start: Int,
+  end: Int
+}
+```
+
+- `start`: Inclusive, zero-based UTF-8 byte offset at the start.
+- `end`: Exclusive UTF-8 byte offset at the end.
+
+## Constructors and values
+
+### `DuplicateCaptureName`
+
+<small className="api-kind">Constructor</small>
+
+Reports a repeated named-capture identifier.
+
+```text
+DuplicateCaptureName
+  String
+  -> RegexCompileErrorKind
+```
+
+### `InvalidRegexEscape`
+
+<small className="api-kind">Constructor</small>
+
+Reports an invalid or incomplete regular-expression escape.
+
+```text
+InvalidRegexEscape
+  RegexCompileErrorKind
+```
+
+### `InvalidRegexQuantifier`
+
+<small className="api-kind">Constructor</small>
+
+Reports a malformed or misplaced quantifier.
+
+```text
+InvalidRegexQuantifier
+  RegexCompileErrorKind
+```
+
+### `InvalidRegexRange`
+
+<small className="api-kind">Constructor</small>
+
+Reports an invalid character-class range.
+
+```text
+InvalidRegexRange
+  RegexCompileErrorKind
+```
+
+### `UnexpectedRegexEnd`
+
+<small className="api-kind">Constructor</small>
+
+Reports a pattern that ends before its syntax is complete.
+
+```text
+UnexpectedRegexEnd
+  RegexCompileErrorKind
+```
+
+### `UnexpectedRegexToken`
+
+<small className="api-kind">Constructor</small>
+
+Reports an unexpected pattern character.
+
+```text
+UnexpectedRegexToken
+  Char
+  -> RegexCompileErrorKind
+```
+
+### `UnsupportedRegexFeature`
+
+<small className="api-kind">Constructor</small>
+
+Reports syntax intentionally excluded from the portable Regex contract.
+
+```text
+UnsupportedRegexFeature
+  String
+  -> RegexCompileErrorKind
+```
+
+## Functions and operators
+
+### `compile`
+
+<small className="api-kind">Function</small>
+
+Compiles a portable pattern or returns a typed error without throwing.
+
+```text
+compile
+  String
+  -> Either<
+       RegexCompileError,
+       Regex
+     >
+```
+
+### `compileWith`
+
+<small className="api-kind">Function</small>
+
+Compiles a portable pattern using explicit RegexOptions.
+
+```text
+compileWith
+  RegexOptions
+  -> String
+  -> Either<
+       RegexCompileError,
+       Regex
+     >
+```
+
+### `defaultOptions`
+
+<small className="api-kind">Function</small>
+
+Returns the portable Regex defaults with every option disabled.
+
+```text
+defaultOptions
+  Unit
+  -> RegexOptions
+```
+
+### `escape`
+
+<small className="api-kind">Function</small>
+
+Escapes text so it denotes a literal portable Regex fragment.
+
+```text
+escape
+  String
+  -> String
+```
+
+### `find`
+
+<small className="api-kind">Function</small>
+
+Finds the first leftmost match and returns a RegexMatch with UTF-8 byte spans and captures, or Nothing when no match exists.
+
+```text
+find
+  Regex
+  -> String
+  -> Maybe<RegexMatch>
+```
+
+### `findAll`
+
+<small className="api-kind">Function</small>
+
+Returns non-overlapping matches and advances one scalar after an empty match.
+
+```text
+findAll
+  Regex
+  -> String
+  -> Array<RegexMatch>
+```
+
+### `isMatch`
+
+<small className="api-kind">Function</small>
+
+Reports whether the leftmost-first engine finds a match.
+
+```text
+isMatch
+  Regex
+  -> String
+  -> Bool
+```
+
+### `replaceAll`
+
+<small className="api-kind">Function</small>
+
+Replaces every match with literal text; capture markers are not expanded.
+
+```text
+replaceAll
+  Regex
+  -> String
+  -> String
+  -> String
+```
+
+### `replaceAllWith`
+
+<small className="api-kind">Function</small>
+
+Replaces matches by invoking a callback in source order.
+
+```text
+replaceAllWith
+  Regex
+  -> (RegexMatch -> String)
+  -> String
+  -> String
+```
+
+### `split`
+
+<small className="api-kind">Function</small>
+
+Splits text at non-overlapping portable Regex matches.
+
+```text
+split
+  Regex
+  -> String
+  -> Array<String>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/values-and-expressions)
+- [Browse modules by purpose](/en/docs/reference/library)

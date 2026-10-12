@@ -1,0 +1,105 @@
+---
+title: "値と式"
+description: "値に名前を付け、条件式と文字列テンプレートを一つずつ使う。"
+---
+
+[最初のプログラム](/docs/learn/first-program)では、一つの文字列を表示しました。ここでは、その文字列に名前を付けるところから始めます。条件による選択と文字列への埋め込みは、その後に別々の例で扱います。
+
+## 値には型がある
+
+`82`は`Int`、`True`は`Bool`、`"pass"`は`String`です。数値でも`82.0`は`Float`で、`Int`とは別の型です。`Int`と`Float`を暗黙に変換して足すことはできません。
+
+型は、その値に使える操作を決めます。たとえば、整数どうしの`20 + 22`は42になり、比較の`82 >= 80`は`True`になります。比較の結果は整数ではなく`Bool`です。
+
+## letで値に名前を付ける
+
+`let message = "Hello, Seseragi"`は、文字列に`message`という名前を付けます。`main`の本体を`{ ... }`で囲み、その中へ束縛と出力を順に書きます。
+
+{/* example: examples/learn/values-and-expressions.ssrg */}
+```seseragi title="values-and-expressions.ssrg"
+pub effect fn main = {
+  let message = "Hello, Seseragi"
+  println message
+}
+```
+
+```text title="実行結果"
+Hello, Seseragi
+```
+
+`println message`では、名前が指す文字列を渡しています。`message`の型は右辺から`String`と推論されるので、ここでは注釈を省けます。型を明示する場合の束縛は、次の断片の形です。
+
+```text
+let message: String = "Hello"
+```
+
+`let`で束縛した値には再代入できません。元の値を参照できるのは、それを束縛したブロックの中です。内側のブロックで同じ名前を使うshadowingは、外側の値を変更する操作とは異なります。
+
+## ifで値を選ぶ
+
+次の例では、条件式だけを加えます。82が80以上なら`"pass"`、それ以外なら`"retry"`を選び、結果に`verdict`という名前を付けます。
+
+{/* example: examples/learn/conditional-expressions.ssrg */}
+```seseragi title="conditional-expressions.ssrg"
+pub effect fn main = {
+  let verdict =
+    if 82 >= 80 then
+      "pass"
+    else
+      "retry"
+  println verdict
+}
+```
+
+```text title="実行結果"
+pass
+```
+
+`if ... then ... else ...`全体が一つの式です。この例では、どちらの分岐も`String`なので、式全体も`String`になります。`else`は必須で、二つの分岐は同じ型の値を返します。
+
+条件は`Bool`です。整数の0や空文字列を条件として扱いません。選ばれた分岐だけを評価し、選ばれなかった分岐は評価しません。
+
+## 文字列に値を埋め込む
+
+条件式から離れ、文字列の作り方を試します。ダブルクォートは通常の文字列、バッククォートは値を埋め込める文字列テンプレートです。
+
+{/* example: examples/learn/string-templates.ssrg */}
+```seseragi title="string-templates.ssrg"
+pub effect fn main = {
+  let name = "Aki"
+  println `Hello, ${name}`
+}
+```
+
+```text title="実行結果"
+Hello, Aki
+```
+
+`${name}`の位置に、`name`の値を文字列として埋め込みます。テンプレートを作ることと、それを`println`で出力することは別の操作です。整数などの表示にも使えます。型ごとの文字列化は、後の[型クラス](/docs/learn/type-classes)で扱います。
+
+## ブロックの最後の式が結果になる
+
+ブロックを使うと、途中の値に名前を付けたうえで、一つの結果を返せます。次の断片では、右辺のブロックが`"Hello, Aki"`を返し、その結果を`message`へ束縛します。
+
+```text
+let message = {
+  let name = "Aki"
+  `Hello, ${name}`
+}
+```
+
+最後の式が結果なので、`return`は要りません。`name`を参照できるのは、この内側のブロックだけです。ブロックの外で使う結果には、`message`という名前が付いています。
+
+## ほかの値の表記を調べる
+
+`Int`は−9007199254740991から9007199254740991までの正確な整数です。範囲を超える計算は自動で丸めたり循環したりせず停止します。より大きい整数や小数を扱う型と関数は[標準ライブラリ](/docs/reference/library)で確認できます。
+
+`'a'`は一つのUnicode scalar valueを表す`Char`、`"a"`は`String`です。`Unit`の唯一の値`()`と空レコード`{}`も別の値です。型と表記の一覧は[型リファレンス](/docs/reference/types)にあります。
+
+## 一つずつ変えて確かめる
+
+最初の例では、`message`へ束縛する文字列を変えてください。条件式の例では、82を79へ変えると`retry`を出力し、80なら`pass`を出力します。次に`else`の結果だけを整数0へ変えると、分岐の型が合わず、実行前にエラーになります。
+
+文字列テンプレートの例では、`name`を`"Haru"`へ変えると`Hello, Haru`を出力します。変更する箇所を一つに絞り、どの値が出力へ影響したかを確かめてください。
+
+次は[関数とパイプライン](/docs/learn/functions-and-pipelines)で、計算に名前を付け、値を引数として渡します。表記の詳細は[構文](/docs/reference/syntax)を参照してください。

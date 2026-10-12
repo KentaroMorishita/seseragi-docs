@@ -1,0 +1,17 @@
+[
+  {
+    "file": "examples/diagnostics/integer-range.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-P0203"
+  },
+  {
+    "file": "examples/diagnostics/non-exhaustive.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-T0301"
+  },
+  {
+    "file": "examples/diagnostics/type-mismatch.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-T0101"
+  }
+]

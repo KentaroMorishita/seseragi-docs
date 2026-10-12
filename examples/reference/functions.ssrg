@@ -1,0 +1,10 @@
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+pub effect fn main = do {
+  let increment = add 1
+  41
+  |> increment
+  |> show
+  |> println
+}

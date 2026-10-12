@@ -1,0 +1,226 @@
+---
+title: "std/signal"
+description: "Represent current and derived values and manage updates and subscription lifetimes."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as signal from "std/signal"
+```
+
+## Choosing operations
+
+- Reading current values and updating sources are Effects. Pure map/combine explicitly declare dependencies rather than tracking reads inside functions.
+- Setting the same value notifies by default. Request duplicate suppression explicitly with distinct, which requires Eq.
+- A transaction commits updates once and publishes stable derived values. Separate reads do not guarantee one snapshot; combine signals and read the combined value once.
+- subscribe emits the current value once, then invokes observers in order. Observers must have Never failure; release subscriptions on scope exit or with unsubscribe.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `MutableSignal`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+MutableSignal<_>
+```
+
+### `Signal`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Signal<_>
+```
+
+### `SignalChange`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+SignalChange
+```
+
+### `Subscription`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Subscription
+```
+
+## Functions and operators
+
+### `combine`
+
+<small className="api-kind">Function</small>
+
+```text
+combine<A, B, C>
+  (A -> B -> C)
+  -> Signal<A>
+  -> Signal<B>
+  -> Signal<C>
+```
+
+### `constant`
+
+<small className="api-kind">Function</small>
+
+```text
+constant<A>
+  A
+  -> Signal<A>
+```
+
+### `distinct`
+
+<small className="api-kind">Function</small>
+
+```text
+distinct<A>
+  Signal<A>
+  -> Signal<A>
+where
+  Eq<A>
+```
+
+### `make`
+
+<small className="api-kind">Function</small>
+
+Creates a mutable Signal inside Effect.
+
+```text
+make<A>
+  A
+  -> Effect<
+       {},
+       Never,
+       MutableSignal<A>
+     >
+```
+
+### `map`
+
+<small className="api-kind">Function</small>
+
+Derives a Signal by transforming each current value.
+
+```text
+map<A, B>
+  (A -> B)
+  -> Signal<A>
+  -> Signal<B>
+```
+
+### `planSet`
+
+<small className="api-kind">Function</small>
+
+```text
+planSet<A>
+  A
+  -> MutableSignal<A>
+  -> SignalChange
+```
+
+### `planUpdate`
+
+<small className="api-kind">Function</small>
+
+```text
+planUpdate<A>
+  (A -> A)
+  -> MutableSignal<A>
+  -> SignalChange
+```
+
+### `read`
+
+<small className="api-kind">Function</small>
+
+```text
+read<A>
+  Signal<A>
+  -> Effect<{}, Never, A>
+```
+
+### `set`
+
+<small className="api-kind">Function</small>
+
+```text
+set<A>
+  A
+  -> MutableSignal<A>
+  -> Effect<{}, Never, Unit>
+```
+
+### `subscribe`
+
+<small className="api-kind">Function</small>
+
+```text
+subscribe<R, A>
+  (A -> Effect<R, Never, Unit>)
+  -> Signal<A>
+  -> Effect<R, Never, Subscription>
+```
+
+### `switchMap`
+
+<small className="api-kind">Function</small>
+
+```text
+switchMap<A, B>
+  (A -> Signal<B>)
+  -> Signal<A>
+  -> Signal<B>
+```
+
+### `transaction`
+
+<small className="api-kind">Function</small>
+
+```text
+transaction
+  Array<SignalChange>
+  -> Effect<{}, Never, Unit>
+```
+
+### `unsubscribe`
+
+<small className="api-kind">Function</small>
+
+```text
+unsubscribe
+  Subscription
+  -> Effect<{}, Never, Unit>
+```
+
+### `update`
+
+<small className="api-kind">Function</small>
+
+```text
+update<A>
+  (A -> A)
+  -> MutableSignal<A>
+  -> Effect<{}, Never, Unit>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/signals)
+- [Browse modules by purpose](/en/docs/reference/library)

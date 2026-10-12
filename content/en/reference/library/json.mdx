@@ -1,0 +1,499 @@
+---
+title: "std/json"
+description: "Parse and render JSON and compose typed codecs."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as json from "std/json"
+```
+
+## Example
+
+{/* example: examples/library/json.ssrg */}
+
+```seseragi
+import * as json from "std/json"
+
+pub effect fn main =
+  match json.parse
+    "{\"ready\":true}" {
+    Right _ -> println "Valid JSON"
+    Left _ -> println "Invalid JSON"
+  }
+```
+
+Output:
+
+```text
+Valid JSON
+```
+
+## Choosing operations
+
+- JSON numbers parse as exact Decimals. Duplicate object fields are errors rather than last-wins; NaN, infinity, comments, and trailing commas are rejected.
+- Syntax failures and domain decode failures are distinct. Decoder error paths retain root-to-field/index location; keep that information rather than collapsing it to a String.
+- A required Maybe field must still be present; Nothing is explicit null. This differs from a missing optional field, so define presence in the schema.
+- stringify preserves object insertion order. Maps whose equality ignores order do not necessarily serialize to identical bytes.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `DecodeError`
+
+<small className="api-kind">Opaque struct</small>
+
+Reports the root-to-leaf path and kind of a decode failure.
+
+```text
+DecodeError
+```
+
+### `DecodeErrorKind`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DecodeErrorKind
+```
+
+### `Decoder`
+
+<small className="api-kind">Type alias</small>
+
+Pure Json decoder that reports a typed path-aware DecodeError.
+
+```text
+Decoder<_>
+```
+
+### `Encoder`
+
+<small className="api-kind">Type alias</small>
+
+Pure function that encodes a value as Json.
+
+```text
+Encoder<_>
+```
+
+### `Json`
+
+<small className="api-kind">Opaque type</small>
+
+Exact JSON value with Decimal numbers and ordered object fields.
+
+```text
+Json
+```
+
+### `JsonParseError`
+
+<small className="api-kind">Opaque type</small>
+
+Reports invalid syntax or a duplicate object field.
+
+```text
+JsonParseError
+```
+
+### `JsonPathSegment`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+JsonPathSegment
+```
+
+### `JsonReadError`
+
+<small className="api-kind">Opaque type</small>
+
+Distinguishes JSON syntax failure from value decode failure.
+
+```text
+JsonReadError
+```
+
+## Constructors and values
+
+### `DuplicateJsonField`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DuplicateJsonField
+  {
+    path: Array<JsonPathSegment>,
+    field: String
+  }
+  -> JsonParseError
+```
+
+### `ExpectedJsonType`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ExpectedJsonType
+  String
+  -> DecodeErrorKind
+```
+
+### `InvalidJsonSyntax`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidJsonSyntax
+  { offset: Int, message: String }
+  -> JsonParseError
+```
+
+### `InvalidJsonValue`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidJsonValue
+  String
+  -> DecodeErrorKind
+```
+
+### `JsonArray`
+
+<small className="api-kind">Constructor</small>
+
+```text
+JsonArray
+  Array<Json>
+  -> Json
+```
+
+### `JsonBool`
+
+<small className="api-kind">Constructor</small>
+
+```text
+JsonBool
+  Bool
+  -> Json
+```
+
+### `JsonDecodeFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+JsonDecodeFailure
+  DecodeError
+  -> JsonReadError
+```
+
+### `JsonField`
+
+<small className="api-kind">Constructor</small>
+
+```text
+JsonField
+  String
+  -> JsonPathSegment
+```
+
+### `JsonIndex`
+
+<small className="api-kind">Constructor</small>
+
+```text
+JsonIndex
+  Int
+  -> JsonPathSegment
+```
+
+### `JsonNull`
+
+<small className="api-kind">Constructor</small>
+
+```text
+JsonNull
+  Json
+```
+
+### `JsonNumber`
+
+<small className="api-kind">Constructor</small>
+
+```text
+JsonNumber
+  Decimal
+  -> Json
+```
+
+### `JsonObject`
+
+<small className="api-kind">Constructor</small>
+
+```text
+JsonObject
+  Map<String, Json>
+  -> Json
+```
+
+### `JsonString`
+
+<small className="api-kind">Constructor</small>
+
+```text
+JsonString
+  String
+  -> Json
+```
+
+### `JsonSyntaxFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+JsonSyntaxFailure
+  JsonParseError
+  -> JsonReadError
+```
+
+### `MissingJsonField`
+
+<small className="api-kind">Constructor</small>
+
+```text
+MissingJsonField
+  String
+  -> DecodeErrorKind
+```
+
+### `UnknownJsonField`
+
+<small className="api-kind">Constructor</small>
+
+```text
+UnknownJsonField
+  String
+  -> DecodeErrorKind
+```
+
+### `UnknownJsonTag`
+
+<small className="api-kind">Constructor</small>
+
+```text
+UnknownJsonTag
+  String
+  -> DecodeErrorKind
+```
+
+## Functions and operators
+
+### `array`
+
+<small className="api-kind">Function</small>
+
+Decodes every JSON array element in source order.
+
+```text
+array<A>
+  (Json -> Either<DecodeError, A>)
+  -> Json
+  -> Either<DecodeError, Array<A>>
+```
+
+### `decodeString`
+
+<small className="api-kind">Function</small>
+
+Parses and decodes text through its selected JsonDecode dictionary.
+
+```text
+decodeString<A>
+  String
+  -> Either<JsonReadError, A>
+where
+  JsonDecode<A>
+```
+
+### `encodeString`
+
+<small className="api-kind">Function</small>
+
+Encodes a value through its selected JsonEncode dictionary.
+
+```text
+encodeString<A>
+  A
+  -> String
+where
+  JsonEncode<A>
+```
+
+### `field`
+
+<small className="api-kind">Function</small>
+
+Decodes a required object field and prepends its path segment on failure.
+
+```text
+field<A>
+  String
+  -> (
+       Json
+       -> Either<DecodeError, A>
+     )
+  -> Json
+  -> Either<DecodeError, A>
+```
+
+### `flatMap`
+
+<small className="api-kind">Function</small>
+
+Selects a following decoder from a successful decoder result.
+
+```text
+flatMap<A, B>
+  (
+    A
+    -> Json
+    -> Either<DecodeError, B>
+  )
+  -> (
+       Json
+       -> Either<DecodeError, A>
+     )
+  -> Json
+  -> Either<DecodeError, B>
+```
+
+### `index`
+
+<small className="api-kind">Function</small>
+
+Decodes one array position and prepends its index on failure.
+
+```text
+index<A>
+  Int
+  -> (
+       Json
+       -> Either<DecodeError, A>
+     )
+  -> Json
+  -> Either<DecodeError, A>
+```
+
+### `map`
+
+<small className="api-kind">Function</small>
+
+Transforms a successful decoder result.
+
+```text
+map<A, B>
+  (A -> B)
+  -> (
+       Json
+       -> Either<DecodeError, A>
+     )
+  -> Json
+  -> Either<DecodeError, B>
+```
+
+### `oneOf`
+
+<small className="api-kind">Function</small>
+
+Tries decoders in order and returns the first successful result.
+
+```text
+oneOf<A>
+  Array<
+    (Json -> Either<DecodeError, A>)
+  >
+  -> Json
+  -> Either<DecodeError, A>
+```
+
+### `optionalField`
+
+<small className="api-kind">Function</small>
+
+Decodes an object field as Maybe and accepts only a missing field as Nothing.
+
+```text
+optionalField<A>
+  String
+  -> (
+       Json
+       -> Either<DecodeError, A>
+     )
+  -> Json
+  -> Either<DecodeError, Maybe<A>>
+```
+
+### `parse`
+
+<small className="api-kind">Function</small>
+
+Parses RFC 8259 JSON with exact Decimal numbers and duplicate-field rejection.
+
+```text
+parse
+  String
+  -> Either<JsonParseError, Json>
+```
+
+### `record`
+
+<small className="api-kind">Function</small>
+
+Decodes a declared homogeneous object field set and rejects unknown fields.
+
+```text
+record<A>
+  Array<
+    (
+      String,
+      (
+        Json
+        -> Either<DecodeError, A>
+      )
+    )
+  >
+  -> Json
+  -> Either<
+       DecodeError,
+       Array<(String, A)>
+     >
+```
+
+### `stringify`
+
+<small className="api-kind">Function</small>
+
+Writes compact deterministic JSON with minimal escaping.
+
+```text
+stringify
+  Json
+  -> String
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/records-and-structs)
+- [Browse modules by purpose](/en/docs/reference/library)

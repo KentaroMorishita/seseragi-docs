@@ -1,0 +1,226 @@
+---
+title: "std/signal"
+description: "現在値と派生値を扱い、更新とsubscriptionの寿命を管理します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as signal from "std/signal"
+```
+
+## 選び方と注意
+
+- 現在値のreadと元Signalの更新はEffectです。pureなmap/combineはdependencyを明示し、関数内のreadを自動追跡しません。
+- 同じ値のsetも既定では通知します。重複を止める場合はEqを必要とするdistinctを明示します。
+- 複数更新はtransactionで一度commitし、安定したderived値だけを通知します。複数readが同じsnapshotになる保証はないため、組のsnapshotにはcombineしたSignalを一度readします。
+- subscribeは現在値を一度通知し、その後も順番にobserverを実行します。observerのfailureはNeverへ揃え、購読はスコープ終了かunsubscribeで解除します。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `MutableSignal`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+MutableSignal<_>
+```
+
+### `Signal`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Signal<_>
+```
+
+### `SignalChange`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+SignalChange
+```
+
+### `Subscription`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Subscription
+```
+
+## 関数と演算子
+
+### `combine`
+
+<small className="api-kind">関数</small>
+
+```text
+combine<A, B, C>
+  (A -> B -> C)
+  -> Signal<A>
+  -> Signal<B>
+  -> Signal<C>
+```
+
+### `constant`
+
+<small className="api-kind">関数</small>
+
+```text
+constant<A>
+  A
+  -> Signal<A>
+```
+
+### `distinct`
+
+<small className="api-kind">関数</small>
+
+```text
+distinct<A>
+  Signal<A>
+  -> Signal<A>
+where
+  Eq<A>
+```
+
+### `make`
+
+<small className="api-kind">関数</small>
+
+Effect内でmutable Signalを作ります。
+
+```text
+make<A>
+  A
+  -> Effect<
+       {},
+       Never,
+       MutableSignal<A>
+     >
+```
+
+### `map`
+
+<small className="api-kind">関数</small>
+
+各現在値を変換するderived Signalを作ります。
+
+```text
+map<A, B>
+  (A -> B)
+  -> Signal<A>
+  -> Signal<B>
+```
+
+### `planSet`
+
+<small className="api-kind">関数</small>
+
+```text
+planSet<A>
+  A
+  -> MutableSignal<A>
+  -> SignalChange
+```
+
+### `planUpdate`
+
+<small className="api-kind">関数</small>
+
+```text
+planUpdate<A>
+  (A -> A)
+  -> MutableSignal<A>
+  -> SignalChange
+```
+
+### `read`
+
+<small className="api-kind">関数</small>
+
+```text
+read<A>
+  Signal<A>
+  -> Effect<{}, Never, A>
+```
+
+### `set`
+
+<small className="api-kind">関数</small>
+
+```text
+set<A>
+  A
+  -> MutableSignal<A>
+  -> Effect<{}, Never, Unit>
+```
+
+### `subscribe`
+
+<small className="api-kind">関数</small>
+
+```text
+subscribe<R, A>
+  (A -> Effect<R, Never, Unit>)
+  -> Signal<A>
+  -> Effect<R, Never, Subscription>
+```
+
+### `switchMap`
+
+<small className="api-kind">関数</small>
+
+```text
+switchMap<A, B>
+  (A -> Signal<B>)
+  -> Signal<A>
+  -> Signal<B>
+```
+
+### `transaction`
+
+<small className="api-kind">関数</small>
+
+```text
+transaction
+  Array<SignalChange>
+  -> Effect<{}, Never, Unit>
+```
+
+### `unsubscribe`
+
+<small className="api-kind">関数</small>
+
+```text
+unsubscribe
+  Subscription
+  -> Effect<{}, Never, Unit>
+```
+
+### `update`
+
+<small className="api-kind">関数</small>
+
+```text
+update<A>
+  (A -> A)
+  -> MutableSignal<A>
+  -> Effect<{}, Never, Unit>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/signals)
+- [用途からmoduleを探す](/docs/reference/library)

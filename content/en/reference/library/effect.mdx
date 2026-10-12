@@ -1,0 +1,633 @@
+---
+title: "std/effect"
+description: "Build computations as values and compose failures, requirements, timing, resources, and concurrency."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as effect from "std/effect"
+```
+
+## Choosing operations
+
+- Effects are cold. Construction or provide does not execute them; each execution repeats the computation. Use defer when construction must happen per execution.
+- recover and attempt handle typed failures only, not defects or cancellation. Explicitly align distinct errors into an application ADT with mapError or related operations.
+- do/flatMap run sequentially. Request parallelism explicitly and follow that operation’s ordering and resource-ownership contract.
+- Register resources with scopes through bracket or acquireRelease. Finalizers run once in reverse order and cannot leave typed failure unhandled.
+- Timeout cancels the source and waits for cleanup. retry/repeat rerun the operation; check whether duplicate external writes are acceptable.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Fiber`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Fiber<_, _>
+```
+
+### `FiberExit`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+FiberExit<_, _>
+```
+
+### `LoopControl`
+
+<small className="api-kind">Opaque type</small>
+
+Normal-success control for sequential Effect traversal: Continue or Break.
+
+```text
+LoopControl
+```
+
+### `Parallelism`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Parallelism
+```
+
+### `ParallelismError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ParallelismError
+```
+
+### `Schedule`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Schedule<_>
+```
+
+### `ScheduleDecision`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ScheduleDecision<_>
+```
+
+### `ScheduleError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ScheduleError
+```
+
+## Constructors and values
+
+### `Break`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Break
+  LoopControl
+```
+
+### `Continue`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Continue
+  LoopControl
+```
+
+### `FiberCancelled`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FiberCancelled
+  FiberExit<E, A>
+```
+
+### `FiberFailed`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FiberFailed<E, A>
+  E
+  -> FiberExit<E, A>
+```
+
+### `FiberSucceeded`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FiberSucceeded<E, A>
+  A
+  -> FiberExit<E, A>
+```
+
+### `NegativeRecurrences`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NegativeRecurrences
+  Int
+  -> ScheduleError
+```
+
+### `NonPositiveParallelism`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NonPositiveParallelism
+  Int
+  -> ParallelismError
+```
+
+### `ScheduleContinue`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ScheduleContinue<A>
+  Duration
+  -> ScheduleDecision<A>
+```
+
+### `ScheduleStop`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ScheduleStop
+  ScheduleDecision<A>
+```
+
+## Functions and operators
+
+### `acquireRelease`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+acquireRelease<R, E, A>
+  Effect<R, E, A>
+  -> (A -> Effect<R, Never, Unit>)
+  -> Effect<R, E, A>
+```
+
+### `attempt`
+
+<small className="api-kind">Function returning Effect</small>
+
+Moves typed failure into Either while preserving defects and cancellation.
+
+```text
+attempt<R, E, A>
+  Effect<R, E, A>
+  -> Effect<R, Never, Either<E, A>>
+```
+
+### `await`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+await<E, A>
+  Fiber<E, A>
+  -> Effect<
+       {},
+       Never,
+       FiberExit<E, A>
+     >
+```
+
+### `defer`
+
+<small className="api-kind">Function returning Effect</small>
+
+Defers construction of a cold Effect until each execution.
+
+```text
+defer<R, E, A>
+  (Unit -> Effect<R, E, A>)
+  -> Effect<R, E, A>
+```
+
+### `fail`
+
+<small className="api-kind">Function returning Effect / Function</small>
+
+Creates an Effect that fails with a typed error.
+
+```text
+fail<E>
+  E
+  -> Effect<{}, E, Never>
+```
+
+### `forEachParallel`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+forEachParallel<C, R, E, A>
+  Parallelism
+  -> (A -> Effect<R, E, Unit>)
+  -> C
+  -> Effect<R, E, Unit>
+where
+  Reducible<C, A>
+```
+
+### `forEachUntil`
+
+<small className="api-kind">Function returning Effect</small>
+
+Runs cold actions sequentially in Iterable order, stopping successfully at Break without pulling the next element.
+
+```text
+forEachUntil<C, R, E, A>
+  (A -> Effect<R, E, LoopControl>)
+  -> C
+  -> Effect<R, E, Unit>
+where
+  Iterable<C, A>
+```
+
+### `fork`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+fork<R, E, A>
+  Effect<R, E, A>
+  -> Effect<R, Never, Fiber<E, A>>
+```
+
+### `fromEither`
+
+<small className="api-kind">Function returning Effect / Function</small>
+
+Lifts Either into Effect without performing an external operation.
+
+```text
+fromEither<E, A>
+  Either<E, A>
+  -> Effect<{}, E, A>
+```
+
+### `fromMaybe`
+
+<small className="api-kind">Function returning Effect</small>
+
+Lifts Maybe into Effect with an explicit missing-value error.
+
+```text
+fromMaybe<E, A>
+  E
+  -> Maybe<A>
+  -> Effect<{}, E, A>
+```
+
+### `interrupt`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+interrupt<E, A>
+  Fiber<E, A>
+  -> Effect<{}, Never, Unit>
+```
+
+### `join`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+join<E, A>
+  Fiber<E, A>
+  -> Effect<{}, E, A>
+```
+
+### `mapError`
+
+<small className="api-kind">Function returning Effect / Function</small>
+
+Transforms an Effect failure while preserving its success value.
+
+```text
+mapError<R, E, F, A>
+  (E -> F)
+  -> Effect<R, E, A>
+  -> Effect<R, F, A>
+```
+
+### `parallel`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+parallel<R, E, A>
+  Array<Effect<R, E, A>>
+  -> Effect<R, E, Array<A>>
+```
+
+### `parallelism`
+
+<small className="api-kind">Function</small>
+
+```text
+parallelism
+  Int
+  -> Either<
+       ParallelismError,
+       Parallelism
+     >
+```
+
+### `poll`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+poll<E, A>
+  Fiber<E, A>
+  -> Effect<
+       {},
+       Never,
+       Maybe<FiberExit<E, A>>
+     >
+```
+
+### `provide`
+
+<small className="api-kind">Function returning Effect</small>
+
+Returns a new Effect that executes the source with a fixed environment. Calling provide does not itself execute the source.
+
+```text
+provide<R, E, A>
+  R
+  -> Effect<R, E, A>
+  -> Effect<{}, E, A>
+```
+
+### `provideSome`
+
+<small className="api-kind">Function returning Effect</small>
+
+Projects an outer environment into the environment required by an Effect.
+
+```text
+provideSome<R0, R, E, A>
+  (R0 -> R)
+  -> Effect<R, E, A>
+  -> Effect<R0, E, A>
+```
+
+### `race`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+race<R, E, A>
+  Effect<R, E, A>
+  -> Effect<R, E, A>
+  -> Effect<R, E, A>
+```
+
+### `recover`
+
+<small className="api-kind">Function returning Effect</small>
+
+Recovers a typed Effect failure without catching defects or cancellation.
+
+```text
+recover<R, E, F, A>
+  (E -> Effect<R, F, A>)
+  -> Effect<R, E, A>
+  -> Effect<R, F, A>
+```
+
+### `recurs`
+
+<small className="api-kind">Function</small>
+
+Builds a zero-delay Schedule with a bounded number of reruns.
+
+```text
+recurs<A>
+  Int
+  -> Either<
+       ScheduleError,
+       Schedule<A>
+     >
+```
+
+### `repeat`
+
+<small className="api-kind">Function returning Effect</small>
+
+Repeats successes according to a Schedule and Clock.
+
+```text
+repeat<R, E, A>
+  Schedule<A>
+  -> Effect<R, E, A>
+  -> Effect<
+       R & { clock: Clock },
+       E,
+       A
+     >
+```
+
+The 0.61.25 API catalog omits the source environment R from the result. This signature restores R according to the specification and runtime. Execution still requires R together with Clock; any required service providers must still be supplied.
+
+### `retry`
+
+<small className="api-kind">Function returning Effect</small>
+
+Retries typed failures according to a Schedule and Clock.
+
+```text
+retry<R, E, A>
+  Schedule<E>
+  -> Effect<R, E, A>
+  -> Effect<
+       R & { clock: Clock },
+       E,
+       A
+     >
+```
+
+The 0.61.25 API catalog omits the source environment R from the result. This signature restores R according to the specification and runtime. Execution still requires R together with Clock; any required service providers must still be supplied.
+
+### `schedule`
+
+<small className="api-kind">Function</small>
+
+```text
+schedule<A>
+  (Int -> A -> ScheduleDecision<A>)
+  -> Schedule<A>
+```
+
+### `scoped`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+scoped<R, E, A>
+  Effect<R, E, A>
+  -> Effect<R, E, A>
+```
+
+### `service`
+
+<small className="api-kind">Function returning Effect</small>
+
+Selects one value from the execution environment.
+
+```text
+service<R, S>
+  (R -> S)
+  -> Effect<R, Never, S>
+```
+
+### `spaced`
+
+<small className="api-kind">Function</small>
+
+Builds a fixed-delay Schedule with bounded reruns.
+
+```text
+spaced<A>
+  Int
+  -> Duration
+  -> Either<
+       ScheduleError,
+       Schedule<A>
+     >
+```
+
+### `succeed`
+
+<small className="api-kind">Function returning Effect / Function</small>
+
+Creates an Effect that succeeds with a value.
+
+```text
+succeed<A>
+  A
+  -> Effect<{}, Never, A>
+```
+
+### `timeout`
+
+<small className="api-kind">Function returning Effect</small>
+
+Applies a Clock-backed timeout and returns Maybe on expiry.
+
+```text
+timeout<R, E, A>
+  Duration
+  -> Effect<R, E, A>
+  -> Effect<
+       R & { clock: Clock },
+       E,
+       Maybe<A>
+     >
+```
+
+The 0.61.25 API catalog omits the source environment R from the result. This signature restores R according to the specification and runtime. Execution still requires R together with Clock; any required service providers must still be supplied.
+
+### `timeoutFail`
+
+<small className="api-kind">Function returning Effect</small>
+
+Applies a Clock-backed timeout with an explicit typed failure on expiry.
+
+```text
+timeoutFail<R, E, A>
+  E
+  -> Duration
+  -> Effect<R, E, A>
+  -> Effect<
+       R & { clock: Clock },
+       E,
+       A
+     >
+```
+
+The 0.61.25 API catalog omits the source environment R from the result. This signature restores R according to the specification and runtime. Execution still requires R together with Clock; any required service providers must still be supplied.
+
+### `traverseParallel`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+traverseParallel<C, R, E, A, B>
+  Parallelism
+  -> (A -> Effect<R, E, B>)
+  -> C
+  -> Effect<R, E, Array<B>>
+where
+  Reducible<C, A>
+```
+
+### `unboundedParallelism`
+
+<small className="api-kind">Function</small>
+
+```text
+unboundedParallelism
+  Unit
+  -> Parallelism
+```
+
+### `whileInput`
+
+<small className="api-kind">Function</small>
+
+Builds a Schedule that continues while a predicate is true.
+
+```text
+whileInput<A>
+  (A -> Bool)
+  -> Schedule<A>
+```
+
+### `yieldNow`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+yieldNow
+  Unit
+  -> Effect<{}, Never, Unit>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)

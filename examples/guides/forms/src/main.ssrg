@@ -1,0 +1,87 @@
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+
+struct Model {
+  draft: String,
+  message: String
+}
+
+type Action =
+  | Edited String
+  | Submitted
+
+alias View = html.Html<Action>
+
+fn update action: Action
+  -> model: Model -> Model =
+  match action {
+    Edited draft -> Model {
+      ...model,
+      draft,
+      message: ""
+    }
+    Submitted ->
+      if model.draft == "" then
+        Model {
+          ...model,
+          message: "Enter your name"
+        }
+      else
+        Model {
+          ...model,
+          message:
+            `Hello, ${model.draft}`
+        }
+  }
+
+fn edited event: html.InputEvent
+  -> Action =
+  Edited event.value
+
+fn view model: Model -> View =
+  html.main {
+    style: html.style {
+      margin: "32px auto",
+      maxWidth: "32rem",
+      padding: "24px"
+    },
+    children: [
+      html.h1 {
+        children: "Greeting"
+      },
+      html.form {
+        onSubmit: Submitted,
+        children: [
+          html.label {
+            htmlFor: "name",
+            children: "Your name"
+          },
+          html.input {
+            id: "name",
+            name: "name",
+            value: model.draft,
+            onInput: edited
+          },
+          html.button {
+            buttonType: "submit",
+            children: "Greet"
+          }
+        ]
+      },
+      html.p {
+        role: "status",
+        children: model.message
+      }
+    ]
+  }
+
+pub effect fn main =
+  dom.app {
+    target: "#app",
+    initial: Model {
+      draft: "",
+      message: ""
+    },
+    update,
+    view
+  }

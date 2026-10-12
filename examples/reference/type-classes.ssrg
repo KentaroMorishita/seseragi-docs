@@ -1,0 +1,21 @@
+trait Label<A> {
+  fn label value: A -> String
+}
+
+newtype Topic = String
+
+instance Label<Topic> {
+  fn label topic: Topic -> String =
+    match topic {
+      Topic name -> name
+    }
+}
+
+fn heading<A> value: A -> String
+where Label<A> =
+  label value
+
+pub effect fn main =
+  Topic "Language"
+  |> heading
+  |> println

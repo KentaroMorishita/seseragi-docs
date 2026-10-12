@@ -1,0 +1,103 @@
+---
+title: "モジュール"
+description: "型と関数をファイルへ分け、公開APIとpackageの境界を作る。"
+---
+
+一つの`.ssrg`ファイルが一つのモジュールです。配送の型と表示する関数を`parcel.ssrg`へ置き、`main.ssrg`から利用します。複数ファイルをまとめるpackageとして、実行する入口も指定します。
+
+## ファイルの役割を分ける
+
+新しいディレクトリへ、次の構成でファイルを保存します。
+
+```text
+parcel-app/
+  seseragi.toml
+  src/
+    main.ssrg
+    parcel.ssrg
+```
+
+`parcel.ssrg`は配送の型と計算、`main.ssrg`は出力する入口です。`src`の下の相対パスが、このpackage内でのモジュールの場所になります。ソースの先頭へmodule名を宣言する必要はありません。
+
+## 型と関数を公開する
+
+`src/parcel.ssrg`へ保存してください。
+
+{/* example: examples/learn/modules/src/parcel.ssrg */}
+```seseragi title="parcel.ssrg"
+pub type Parcel =
+  | Packing
+  | Sent String
+
+pub fn label parcel: Parcel -> String =
+  match parcel {
+    Packing -> "Preparing"
+    Sent city -> `Sent to ${city}`
+  }
+```
+
+宣言は既定でモジュール内だけに公開されます。他のファイルから使う型と関数へ`pub`を付けます。この`Parcel`はopaqueではないので、`Packing`と`Sent`というコンストラクターも型と一緒に公開されます。
+
+`label`は表示する文字列を返すだけです。このファイルをimportしても、出力などのI/Oは始まりません。
+
+## 名前をimportする
+
+`src/main.ssrg`へ保存してください。
+
+{/* example: examples/learn/modules/src/main.ssrg */}
+```seseragi title="main.ssrg"
+import { label, Sent } from "./parcel"
+
+pub effect fn main =
+  Sent "Kyoto"
+  |> label
+  |> println
+```
+
+`import { label, Sent }`は、必要な公開名だけを現在のスコープへ導入します。`"./parcel"`は、現在のファイルと同じディレクトリの`parcel.ssrg`です。現在の作業ディレクトリや、別の拡張子、ディレクトリのindexを総当たりして探す規則ではありません。
+
+名前が衝突する場合は`import { label as parcelLabel } from "./parcel"`と別名を付けられます。`import * as parcels from "./parcel"`なら、`parcels.label`や`parcels.Sent`で参照します。importはファイルの先頭に置きます。
+
+## manifestで実行の入口を指定する
+
+`seseragi.toml`へ次を保存します。
+
+```toml title="seseragi.toml"
+[package]
+name = "docs/learn-modules"
+version = "0.0.0"
+language = ">=0.1.0 <0.2.0"
+
+[run]
+entry = "main"
+target = "process"
+```
+
+`parcel-app`へ移動して、lockfileを作り、packageを実行します。
+
+```sh
+seseragi lock update .
+seseragi run .
+```
+
+```text title="実行結果"
+Sent to Kyoto
+```
+
+最初のコマンドは`seseragi.lock`を生成します。package実行はmanifestとlockfileを使用します。単一ファイルだけを渡す実行と、複数モジュールを解決するpackage実行を区別してください。設定の契約は[プロジェクト設定](/docs/reference/project-configuration)で扱います。
+
+## 公開範囲と依存を保つ
+
+公開された型や関数の契約には、利用側が理解できる型を使います。内部表現を隠す必要がある型には`pub opaque struct`や`pub opaque type`を使い、公開関数を通じて操作します。
+
+`self/`は現在のpackage、`std/`は標準ライブラリ、その他のpackage名はmanifestへ宣言した直接依存を指します。packageの境界を相対importで越えたり、依存先の非公開ファイルへ直接入ったりすることはできません。
+
+モジュール間の循環importは禁止です。互いの型を必要とするファイルが出てきたら、共有する型を第三のモジュールへ分けるなど、依存を一方向にします。同じモジュール内の相互再帰には`rec`を使います。
+
+## 公開APIを変えてみる
+
+ファイルを変更した後は、`seseragi lock update .`でロックを更新してから`seseragi run .`を実行します。
+
+`label`の`pub`を外して、import側の診断を確認してください。次に`pub`を戻し、`main`の入力を`Packing`へ変えます。named importへ`Packing`を追加すると、`Preparing`を出力できます。
+
+Learnの基本コースはここまでです。次は[CLIアプリ](/docs/guides/cli-app)または[Webアプリ](/docs/guides/web-app)へ進んで、入力や画面と組み合わせてください。公開APIの詳細は[モジュールリファレンス](/docs/reference/modules)、依存管理と公開手順は[パッケージとデプロイ](/docs/guides/packages-and-deployment)で確認できます。

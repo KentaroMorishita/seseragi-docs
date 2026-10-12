@@ -1,0 +1,156 @@
+---
+title: "std/http/multipart"
+description: "Construct and inspect multipart fields and file parts."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as http_multipart
+  from "std/http/multipart"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Multipart`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Multipart<_, _>
+```
+
+### `MultipartBuildError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+MultipartBuildError
+```
+
+## Constructors and values
+
+### `InvalidMultipartFieldName`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidMultipartFieldName
+  String
+  -> MultipartBuildError
+```
+
+### `InvalidMultipartFileName`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidMultipartFileName
+  String
+  -> MultipartBuildError
+```
+
+### `InvalidMultipartMimeType`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidMultipartMimeType
+  String
+  -> MultipartBuildError
+```
+
+## Functions and operators
+
+### `appendBody`
+
+<small className="api-kind">Function</small>
+
+```text
+appendBody<R, E>
+  String
+  -> Maybe<String>
+  -> Maybe<String>
+  -> Body<R, E>
+  -> Multipart<R, E>
+  -> Either<
+       MultipartBuildError,
+       Multipart<R, E>
+     >
+```
+
+### `appendBytes`
+
+<small className="api-kind">Function</small>
+
+```text
+appendBytes<R, E>
+  String
+  -> Maybe<String>
+  -> Maybe<String>
+  -> Bytes
+  -> Multipart<R, E>
+  -> Either<
+       MultipartBuildError,
+       Multipart<R, E>
+     >
+```
+
+### `appendText`
+
+<small className="api-kind">Function</small>
+
+```text
+appendText<R, E>
+  String
+  -> String
+  -> Multipart<R, E>
+  -> Either<
+       MultipartBuildError,
+       Multipart<R, E>
+     >
+```
+
+### `body`
+
+<small className="api-kind">Function</small>
+
+```text
+body<R, E>
+  Multipart<R, E>
+  -> Body<R, E>
+```
+
+### `contentType`
+
+<small className="api-kind">Function</small>
+
+```text
+contentType<R, E>
+  Multipart<R, E>
+  -> String
+```
+
+### `empty`
+
+<small className="api-kind">Function</small>
+
+```text
+empty<R, E>
+  Unit
+  -> Multipart<R, E>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)

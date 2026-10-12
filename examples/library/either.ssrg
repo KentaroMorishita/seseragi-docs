@@ -1,0 +1,10 @@
+import * as either from "std/either"
+
+pub effect fn main = {
+  let result: Either<String, Int> =
+    Right 41
+  result
+  |> either.mapRight (\n -> n + 1)
+  |> show
+  |> println
+}

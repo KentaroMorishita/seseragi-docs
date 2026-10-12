@@ -1,0 +1,118 @@
+---
+title: "std/text/grapheme"
+description: "拡張書記素クラスタを単位に、文字列を分割・取得します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as text_grapheme
+  from "std/text/grapheme"
+```
+
+## 選び方と注意
+
+- 表示上のcursor移動や文字数制限には、extended grapheme clusterを使います。結合文字やemojiをscalar数だけで切らないためのAPIです。
+- 分割はUnicodeのUAX #29規則に従いますが、正規化はしません。clusterを連結すると元のStringへバイト単位で戻ります。
+- atは範囲外をNothing、sliceは不正な終端を含まない範囲を型付きエラーで返します。indexを暗黙にclampしません。
+- 各操作は入力バイト数に対する走査を必要とします。繰り返し位置を使う場合は、clustersやバイトBoundariesを一度求める構成を検討してください。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `GraphemeSliceError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+GraphemeSliceError
+```
+
+## コンストラクタと値
+
+### `InvalidGraphemeRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidGraphemeRange
+  {
+    start: Int,
+    end: Int,
+    length: Int
+  }
+  -> GraphemeSliceError
+```
+
+## 関数と演算子
+
+### `at`
+
+<small className="api-kind">関数</small>
+
+```text
+at
+  Int
+  -> String
+  -> Maybe<String>
+```
+
+### `byteBoundaries`
+
+<small className="api-kind">関数</small>
+
+```text
+byteBoundaries
+  String
+  -> Array<Int>
+```
+
+### `clusters`
+
+<small className="api-kind">関数</small>
+
+```text
+clusters
+  String
+  -> Array<String>
+```
+
+### `length`
+
+<small className="api-kind">関数</small>
+
+Stringに含まれる拡張書記素クラスタの数を返します。Unicode scalar数やUTF-8のバイト数とは異なる単位です。
+
+```text
+length
+  String
+  -> Int
+```
+
+### `slice`
+
+<small className="api-kind">関数</small>
+
+```text
+slice
+  Int
+  -> Int
+  -> String
+  -> Either<
+       GraphemeSliceError,
+       String
+     >
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/values-and-expressions)
+- [用途からmoduleを探す](/docs/reference/library)

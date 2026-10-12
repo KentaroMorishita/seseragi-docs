@@ -1,0 +1,846 @@
+---
+title: "std/web/svg"
+description: "Build SVG trees with typed props and compose them into HTML views."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as web_svg
+  from "std/web/svg"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Svg`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Svg<_>
+```
+
+## Functions and operators
+
+### `ariaLabelTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+ariaLabelTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `circle`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+circle<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `cxTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+cxTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `cyTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+cyTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `fillTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+fillTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `g`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+g<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    children: Array<Svg<Action>>
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `heightTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+heightTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `line`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+line<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `opacityTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+opacityTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `path`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+path<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    d: String
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `pathDataTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+pathDataTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `pointerEventsTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+pointerEventsTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `pointsTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+pointsTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `polygon`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+polygon<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    points: String
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `polyline`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+polyline<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    points: String
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `radiusTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+radiusTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `rect`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+rect<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `rxTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+rxTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `ryTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+ryTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `strokeTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+strokeTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `strokeWidthTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+strokeWidthTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `svg`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+svg<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    viewBox?: String,
+    preserveAspectRatio?: String,
+    children: Array<Svg<Action>>
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `text`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+text<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    textAnchor?: String,
+    dominantBaseline?: String,
+    children: String
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `toHtml`
+
+<small className="api-kind">Function</small>
+
+```text
+toHtml<Action>
+  Svg<Action>
+  -> Html<Action>
+```
+
+### `transformTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+transformTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `viewBoxTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+viewBoxTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `widthTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+widthTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `x1Target`
+
+<small className="api-kind">Function</small>
+
+```text
+x1Target<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `x2Target`
+
+<small className="api-kind">Function</small>
+
+```text
+x2Target<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `xTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+xTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `y1Target`
+
+<small className="api-kind">Function</small>
+
+```text
+y1Target<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `y2Target`
+
+<small className="api-kind">Function</small>
+
+```text
+y2Target<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `yTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+yTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/signals)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Web UI contract](/en/docs/reference/web-ui)

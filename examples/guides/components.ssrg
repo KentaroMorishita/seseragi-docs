@@ -1,0 +1,28 @@
+import * as html from "std/web/html"
+
+alias CardProps = {
+  title: String,
+  detail: String
+}
+
+fn card<Action> props: CardProps
+  -> html.Html<Action> =
+  html.section {
+    class: "card",
+    children: [
+      html.h2<Action, String> {
+        children: props.title
+      },
+      html.p<Action, String> {
+        children: props.detail
+      }
+    ]
+  }
+
+pub effect fn main =
+  card {
+    title: "Delivery",
+    detail: "Sent to Kyoto"
+  }
+  |> html.renderToString
+  |> println

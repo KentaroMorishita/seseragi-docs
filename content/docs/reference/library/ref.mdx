@@ -1,0 +1,99 @@
+---
+title: "std/ref"
+description: "Effectの中で参照値を取得・変更します。Signalの通知とは別の用途です。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as ref from "std/ref"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Ref`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Ref<_>
+```
+
+## 関数と演算子
+
+### `get`
+
+<small className="api-kind">Effectを返す関数</small>
+
+実行時にRefの現在値をatomicに読み取るEffectを返します。
+
+```text
+get<A>
+  Ref<A>
+  -> Effect<{}, Never, A>
+```
+
+### `make`
+
+<small className="api-kind">Effectを返す関数</small>
+
+実行するたびに初期値を持つ新しいRefを作るEffectを返します。作られたRefは後続のEffectへ渡せます。
+
+```text
+make<A>
+  A
+  -> Effect<{}, Never, Ref<A>>
+```
+
+### `modify`
+
+<small className="api-kind">Effectを返す関数</small>
+
+一つのatomic callbackで、結果を返すと同時にRefを更新します。
+
+```text
+modify<A, B>
+  (A -> (B, A))
+  -> Ref<A>
+  -> Effect<{}, Never, B>
+```
+
+### `set`
+
+<small className="api-kind">Effectを返す関数</small>
+
+Refの現在値をatomicに置き換えます。
+
+```text
+set<A>
+  A
+  -> Ref<A>
+  -> Effect<{}, Never, Unit>
+```
+
+### `update`
+
+<small className="api-kind">Effectを返す関数</small>
+
+一つのpureなatomic callbackでRefを更新します。
+
+```text
+update<A>
+  (A -> A)
+  -> Ref<A>
+  -> Effect<{}, Never, Unit>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)

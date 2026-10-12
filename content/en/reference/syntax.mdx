@@ -1,0 +1,95 @@
+---
+title: "Syntax"
+description: "Check literals, declarations, line breaks, application, precedence, and associativity."
+---
+
+A source file is UTF-8 text with a `.ssrg` extension. Names are case-sensitive. Types, constructors, and traits begin with an uppercase letter; values, functions, fields, and module aliases begin with a lowercase letter. `_` is a wildcard, not a usable name.
+
+## Literals and comments
+
+| Spelling | Type or meaning |
+| --- | --- |
+| `42`, `0x2A`, `0b101010`, `0o52` | `Int` |
+| `1_000` | `Int` with a digit separator |
+| `3.14`, `1.0e-9` | `Float` |
+| `True`, `False` | `Bool` |
+| `'λ'` | `Char`, one Unicode scalar |
+| `"text"` | `String` |
+| `` `hello ${name}` `` | String template using `Show` |
+| `[1, 2]` | `Array<Int>` |
+| `` `[1, 2] `` | `List<Int>` |
+| `()` | The only `Unit` value |
+
+`//` starts a comment extending to the end of the line. There are no block comments. Identifiers may contain Unicode characters and a trailing apostrophe; `account'` is one identifier.
+
+A numeric `_` must occur singly between two digits. `01`, `1__0`, `1.`, `.5`, and incomplete exponents are rejected. Invalid numeric spelling or an out-of-range literal produces `SES-P0203`. See [Types](/en/docs/reference/types) for numeric ranges and arithmetic boundaries.
+
+Char and String escapes include `\n`, `\r`, `\t`, `\0`, `\\`, and `\u{03BB}`. A decoded Char must still contain exactly one scalar. Unknown escapes produce `SES-P0201`; a Char containing multiple scalars produces `SES-P0202`. Templates can contain line breaks and evaluate interpolations once, from left to right.
+
+## Declarations and expressions
+
+At module level, write imports and declarations. A bare expression such as `println "hello"` is not allowed there. Executable work belongs in the Effect returned by public `main`.
+
+`if`, `match`, and blocks are expressions. An `if` condition must be `Bool`; `else` is mandatory, and the result types must agree. This program prints `pass`.
+
+{/* example: examples/reference/syntax.ssrg */}
+
+```seseragi title="syntax.ssrg"
+fn grade score: Int -> String =
+  if score >= 80 then
+    "pass"
+  else
+    "retry"
+
+pub effect fn main =
+  grade 88
+  |> println
+```
+
+A `{ ... }` block returns its final expression. A declarations-only block returns `Unit`. Empty `{}` is an empty record, so a no-op block is written `{ () }`.
+
+## Line breaks and continuation
+
+Indentation width does not change meaning. A newline or `;` separates declarations or expressions; line breaks are free inside parentheses. A newline continues an expression if the preceding token requires a right-hand side, or if the next token is a continuation operator such as pipeline, arithmetic, or comparison.
+
+Place a pipeline's initial value and each `|>` stage at the same indentation, on separate lines. When splitting ordinary whitespace application, use parentheses or `$` to make continuation explicit. A semicolon always separates expressions.
+
+## Application and precedence
+
+`add 1 2` means `(add 1) 2`. There is no multi-argument `f(x, y)` call syntax. Both `x |> f` and `f $ x` mean `f x`. `$` associates right, so `f $ g $ x` means `f (g x)`. Neither operator defers evaluation or runs an Effect.
+
+From highest precedence to lowest:
+
+| Level | Operators or syntax | Associativity |
+| --- | --- | --- |
+| 9 | Field, method, indexing | Left |
+| 8 | Whitespace application | Left |
+| 7 | `!`, prefix `-`, Signal read prefix `*` | Right |
+| 6 | `**` | Right |
+| 5 | `*`, `/`, `%` | Left |
+| 4 | `+`, `-`, List cons `:` | Only `:` is right |
+| 3 | `==`, `!=`, `<`, `<=`, `>`, `>=` | Non-associative |
+| 2 | `&&` | Left, short-circuiting |
+| 1 | <code>&#124;&#124;</code> | Left, short-circuiting |
+| 0 | `??` | Right, short-circuiting |
+| -1 | `>>=`, `<$>`, `<*>`, pipeline | Left |
+| -2 | `$` | Right |
+| -3 | `:=` | Right |
+
+`a < b < c` is rejected; write `a < b && b < c`. Non-short-circuiting binary operators evaluate the left operand, then the right operand, once each.
+
+## Operator values and custom operators
+
+Binary operators such as `(+)` can be used as curried function values. Short-circuiting operators, pipeline, `$`, Signal operators, and prefix operators cannot be referenced as function values.
+
+Declare custom binary operators at module level. This is declaration syntax rather than a standalone program:
+
+```text title="Declaration syntax"
+operator infixl 4 <+>
+  left: String
+  -> right: String
+  -> String =
+  left + right
+```
+
+Precedence is an integer from 0 to 8; fixity is `infixl`, `infixr`, or non-associative `infix`. Standard operators and reserved symbols cannot be redefined. Import custom operators explicitly in their separate namespace. See [Modules](/en/docs/reference/modules) and [Type classes](/en/docs/reference/type-classes).

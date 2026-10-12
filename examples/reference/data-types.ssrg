@@ -1,0 +1,25 @@
+newtype TicketId deriving Eq, Show =
+  Int
+
+struct Ticket {
+  id: TicketId,
+  title: String,
+}
+
+type Status =
+  | Open Ticket
+  | Closed TicketId
+
+fn summary status: Status -> String =
+  match status {
+    Open ticket -> ticket.title
+    Closed id -> `Closed ${id}`
+  }
+
+pub effect fn main =
+  Open (Ticket {
+    id: TicketId 1,
+    title: "Read the docs",
+  })
+  |> summary
+  |> println

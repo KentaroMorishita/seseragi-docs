@@ -1,0 +1,81 @@
+---
+title: "Signals"
+description: "Check read permissions, current values, derived graphs, transactions, subscriptions, and lifetimes."
+---
+
+A Signal represents a value changing over time through an explicit dependency graph. Merely holding a Signal does not make a pure function's result change implicitly. Reading current values and updating sources are Effects.
+
+## Signal and MutableSignal
+
+| Type or operation | Meaning |
+| --- | --- |
+| `Signal<A>` | Read-only Signal |
+| `MutableSignal<A>` | Writable source, usable as a Signal |
+| `signals.make initial` | Constructs `Task<MutableSignal<A>>` |
+| `*source` | `signals.read source`, with type `Task<A>` |
+| `source := value` | `signals.set value source`, with type `Task<Unit>` |
+| `signals.update f source` | Atomic update using a pure function of the current value |
+
+A MutableSignal may forget write permission and be passed as Signal. The reverse is forbidden. `:=` cannot assign to an ordinary let binding or struct field.
+
+{/* example: examples/reference/signals.ssrg */}
+
+```seseragi title="signals.ssrg"
+import * as signals from "std/signal"
+
+fn double value: Int -> Int =
+  value * 2
+
+pub effect fn main = do {
+  count <- signals.make 1
+  let doubled =
+    signals.map double count
+
+  count := 3
+  value <- *doubled
+  value
+  |> show
+  |> println
+}
+```
+
+The output is 6. `*doubled` is not a pure dereference; it is a Task that reads a snapshot at execution time. The do block creates, updates, and reads the source in sequence.
+
+## Derived graphs
+
+map derives a Signal from one source; combine derives one from two. Their transformation functions are pure. There is no implicit dependency tracking from reads inside a function.
+
+constant has no source. distinct uses Eq to suppress publications equal to the previous published value. Setting the same value does not suppress notifications by default.
+
+Signal has Functor and Applicative instances, but no Monad instance. Use switchMap for explicit dynamic dependency switching. A switch detaches the old inner Signal and publishes the stable current value of the new one.
+
+## Transactions
+
+set and update each perform a one-change transaction. For multiple sources, place SignalChanges created by planSet/planUpdate in an Array and pass them to transaction.
+
+```text title="Multiple-update syntax"
+signals.transaction [
+  signals.planSet 3 width,
+  signals.planSet 4 height,
+]
+```
+
+Changes apply in Array order. A later planUpdate on the same source sees the staged value from earlier changes. A defect or cancellation before commit publishes none of them. Successful changes commit once; affected derived nodes are recomputed at most once in dependency order before subscribers are notified. No intermediate inconsistent combination is observable.
+
+A transaction makes Signal updates atomic. It does not wrap arbitrary I/O or a whole Effect computation.
+
+## Snapshot boundaries
+
+A read returns the value published at its execution point. Multiple reads in the same do block do not freeze a shared snapshot: another transaction may commit between them.
+
+To read several sources together, combine them into a derived tuple or record and read that Signal once. The resulting immutable value does not change with subsequent publications, but it does not lock out updates during later asynchronous work.
+
+## Subscriptions and cleanup
+
+Successful subscribe calls the observer once with the current value. Later notifications are processed in order, without overlapping calls to the same observer. An observer updating a source queues a new transaction after the current transaction.
+
+The observer's Effect must have Never failure. Handle recoverable errors internally or convert to a Stream consumer with a failure channel.
+
+A successful subscription returns Subscription. unsubscribe is idempotent. Scoped subscriptions are released on scope exit, failure, and cancellation. Constructing or reading a derived Signal alone does not start a subscription.
+
+See [Web UI](/en/docs/reference/web-ui) for state ownership and DOM update boundaries, or [Signals](/en/docs/learn/signals) for a guided introduction.

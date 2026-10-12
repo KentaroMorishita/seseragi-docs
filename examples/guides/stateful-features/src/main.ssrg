@@ -1,0 +1,46 @@
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { create } from "./counter"
+
+alias View = html.Html<Task<Unit>>
+
+fn layout first: View -> second: View
+  -> View =
+  html.main {
+    style: html.style {
+      margin: "32px auto",
+      maxWidth: "32rem",
+      padding: "24px"
+    },
+    children: [first, second]
+  }
+
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+
+pub effect fn main = do {
+  first <- create "Today"
+  second <- create "Tomorrow"
+  let content =
+    signals.combine layout first $
+      second
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let options = dom.defaultOptions ()
+  (
+    dom.run options target perform $
+      content
+  )
+  |> mapError runtimeError
+}

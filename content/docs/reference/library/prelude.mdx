@@ -1,0 +1,1066 @@
+---
+title: "std/prelude"
+description: "基本の型・型クラス・関数。importせずに使えます。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+Preludeの名前はimportせずに使えます。用途ごとの操作は明示的なmoduleへ分けられています。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Add`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Add
+```
+
+### `Applicative`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Applicative
+```
+
+### `Debug`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Debug
+```
+
+### `Div`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Div
+```
+
+### `Either`
+
+<small className="api-kind">型</small>
+
+型付き失敗または成功値を表します。
+
+```text
+Either<E, A>
+```
+
+### `Eq`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Eq
+```
+
+### `Functor`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Functor
+```
+
+### `Hash`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Hash
+```
+
+### `Iterable`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Iterable
+```
+
+### `JsonDecode`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait JsonDecode
+```
+
+### `JsonEncode`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait JsonEncode
+```
+
+### `Maybe`
+
+<small className="api-kind">型</small>
+
+optionalな値をNothingまたはJustで表します。
+
+```text
+Maybe<A>
+```
+
+### `Monad`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Monad
+```
+
+### `Monoid`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Monoid
+```
+
+### `Mul`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Mul
+```
+
+### `One`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait One
+```
+
+### `Ord`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Ord
+```
+
+### `Ordering`
+
+<small className="api-kind">型</small>
+
+全順序の比較結果をLess、Equal、Greaterで表します。
+
+```text
+Ordering
+```
+
+### `Pow`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Pow
+```
+
+### `Reducible`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Reducible
+```
+
+### `Rem`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Rem
+```
+
+### `Semigroup`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Semigroup
+```
+
+### `Show`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Show
+```
+
+### `Sub`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Sub
+```
+
+### `Task`
+
+<small className="api-kind">型alias</small>
+
+environmentと回復可能なfailureを持たないEffectの透明aliasです。
+
+```text
+alias Task<A> = Effect<{}, Never, A>
+```
+
+### `Traversable`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Traversable
+```
+
+### `Zero`
+
+<small className="api-kind">型クラス</small>
+
+```text
+trait Zero
+```
+
+## コンストラクタと値
+
+### `Equal`
+
+<small className="api-kind">コンストラクタ</small>
+
+等しいことを表すOrderingを作ります。
+
+```text
+Equal
+  Ordering
+```
+
+### `Greater`
+
+<small className="api-kind">コンストラクタ</small>
+
+大きいことを表すOrderingを作ります。
+
+```text
+Greater
+  Ordering
+```
+
+### `Just`
+
+<small className="api-kind">コンストラクタ</small>
+
+値があるMaybeを作ります。
+
+```text
+Just
+  A
+  -> Maybe<A>
+```
+
+### `Left`
+
+<small className="api-kind">コンストラクタ</small>
+
+Eitherの失敗側を作ります。
+
+```text
+Left
+  E
+  -> Either<E, A>
+```
+
+### `Less`
+
+<small className="api-kind">コンストラクタ</small>
+
+小さいことを表すOrderingを作ります。
+
+```text
+Less
+  Ordering
+```
+
+### `Nothing`
+
+<small className="api-kind">コンストラクタ</small>
+
+値がないMaybeを作ります。
+
+```text
+Nothing
+  Maybe<A>
+```
+
+### `Product`
+
+<small className="api-kind">コンストラクタ / 型</small>
+
+nominal wrapperで乗算を選びます。MonoidにはOneと同種Mulの証拠が必要です。
+
+```text
+Product
+  A
+  -> Product<A>
+```
+
+### `Right`
+
+<small className="api-kind">コンストラクタ</small>
+
+Eitherの成功側を作ります。
+
+```text
+Right
+  A
+  -> Either<E, A>
+```
+
+### `Sum`
+
+<small className="api-kind">コンストラクタ / 型</small>
+
+nominal wrapperで加算を選びます。MonoidにはZeroと同種Addの証拠が必要です。
+
+```text
+Sum
+  A
+  -> Sum<A>
+```
+
+## 関数と演算子
+
+### `-` / Sub.sub
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+- via Sub.sub
+```
+
+### `:` / List cons
+
+<small className="api-kind">演算子</small>
+
+persistent Listのconsです。優先順位4・右結合で、head、tailを一度ずつ評価し、tailをO(1)で共有します。(:)はcurriedな関数です。
+
+```text
+A : List<A> -> List<A>
+```
+
+### `!=` / Eq.eq
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+!= via Eq.eq
+```
+
+### `??` / List cons
+
+<small className="api-kind">演算子</small>
+
+Maybe専用fallbackです。優先順位0・右結合で、左辺を一度評価し、Nothingのときだけfallbackを評価します。構文専用で、operator sectionやoverloadはありません。
+
+```text
+Maybe<A> ?? A -> A
+```
+
+### `*` / Mul.mul
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+* via Mul.mul
+```
+
+### `**` / Pow.pow
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+** via Pow.pow
+```
+
+### `/` / Div.div
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+/ via Div.div
+```
+
+### `%` / Rem.rem
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+% via Rem.rem
+```
+
+### `+` / Add.add
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
++ via Add.add
+```
+
+### `<` / Ord.compare
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+< via Ord.compare
+```
+
+### `<*>` / Applicative.apply
+
+<small className="api-kind">演算子</small>
+
+標準trait methodを表すoperatorの表記です。
+
+```text
+<*> via Applicative.apply
+```
+
+### `<=` / Ord.compare
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+<= via Ord.compare
+```
+
+### `<$>` / Functor.map
+
+<small className="api-kind">演算子</small>
+
+標準trait methodを表すoperatorの表記です。
+
+```text
+<$> via Functor.map
+```
+
+### `==` / Eq.eq
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+== via Eq.eq
+```
+
+### `>` / Ord.compare
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+> via Ord.compare
+```
+
+### `>=` / Ord.compare
+
+<small className="api-kind">演算子</small>
+
+operandの型で選択された標準trait instanceへdispatchします。
+
+```text
+>= via Ord.compare
+```
+
+### `>>=` / Monad.flatMap
+
+<small className="api-kind">演算子</small>
+
+標準trait methodを表すoperatorの表記です。
+
+```text
+>>= via Monad.flatMap
+```
+
+### `add`
+
+<small className="api-kind">関数</small>
+
+選択された算術traitのinstanceを適用します。
+
+```text
+add<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Add<L, R, O>
+```
+
+### `all`
+
+<small className="api-kind">関数</small>
+
+条件が拒否した最初の要素でFalseを返します。
+
+```text
+all<C, A>
+  (A -> Bool)
+  -> C
+  -> Bool
+where
+  Iterable<C, A>
+```
+
+### `any`
+
+<small className="api-kind">関数</small>
+
+条件が受理した最初の要素でTrueを返します。
+
+```text
+any<C, A>
+  (A -> Bool)
+  -> C
+  -> Bool
+where
+  Iterable<C, A>
+```
+
+### `append`
+
+<small className="api-kind">関数</small>
+
+選ばれたSemigroupのinstanceで二つの値を結合します。結合律を満たす操作で、数値のwrapperなどにも使います。
+
+```text
+append<A>
+  A
+  -> A
+  -> A
+where
+  Semigroup<A>
+```
+
+### `apply`
+
+<small className="api-kind">関数</small>
+
+Applicativeの中にある関数を適用します。
+
+```text
+apply<F<_>, A, B>
+  F<(A -> B)>
+  -> F<A>
+  -> F<B>
+where
+  Applicative<F<_>>
+```
+
+### `combine`
+
+<small className="api-kind">関数</small>
+
+Monoid instanceを使って、Reducibleなcollectionを結合します。
+
+```text
+combine<C, A>
+  C
+  -> A
+where
+  Reducible<C, A>,
+  Monoid<A>
+```
+
+### `compare`
+
+<small className="api-kind">関数</small>
+
+選択された全順序で二つの値を比較します。
+
+```text
+compare<A>
+  A
+  -> A
+  -> Ordering
+where
+  Ord<A>
+```
+
+### `debug`
+
+<small className="api-kind">関数</small>
+
+```text
+debug<A>
+  A
+  -> String
+where
+  Debug<A>
+```
+
+### `decodeJson`
+
+<small className="api-kind">関数</small>
+
+```text
+decodeJson<A>
+  Json
+  -> Either<DecodeError, A>
+where
+  JsonDecode<A>
+```
+
+### `div`
+
+<small className="api-kind">関数</small>
+
+選択された算術traitのinstanceを適用します。
+
+```text
+div<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Div<L, R, O>
+```
+
+### `empty`
+
+<small className="api-kind">関数</small>
+
+Monoidの単位元を返します。
+
+```text
+empty<A>
+  Unit
+  -> A
+where
+  Monoid<A>
+```
+
+### `encodeJson`
+
+<small className="api-kind">関数</small>
+
+```text
+encodeJson<A>
+  A
+  -> Json
+where
+  JsonEncode<A>
+```
+
+### `eq`
+
+<small className="api-kind">関数</small>
+
+選択されたEq instanceで二つの値が等しいか調べます。
+
+```text
+eq<A>
+  A
+  -> A
+  -> Bool
+where
+  Eq<A>
+```
+
+### `flatMap`
+
+<small className="api-kind">関数</small>
+
+Monadの値と、その値に依存して次の計算を選ぶ関数を合成します。
+
+```text
+flatMap<M<_>, A, B>
+  (A -> M<B>)
+  -> M<A>
+  -> M<B>
+where
+  Monad<M<_>>
+```
+
+### `forEach`
+
+<small className="api-kind">関数</small>
+
+Iterable instanceが返す各値について、一つのEffectを実行します。
+
+```text
+forEach<C, R, E, A>
+  (A -> Effect<R, E, Unit>)
+  -> C
+  -> Effect<R, E, Unit>
+where
+  Iterable<C, A>
+```
+
+### `hash`
+
+<small className="api-kind">関数</small>
+
+選択されたHash instanceが定義するhashを計算します。
+
+```text
+hash<A>
+  A
+  -> Int
+where
+  Hash<A>
+```
+
+### `iterate`
+
+<small className="api-kind">関数</small>
+
+collectionを走査するIteratorを作ります。
+
+```text
+iterate<C, A>
+  C
+  -> Iterator<A>
+where
+  Iterable<C, A>
+```
+
+### `join`
+
+<small className="api-kind">関数</small>
+
+ReducibleなString collectionをseparatorで連結します。
+
+```text
+join<C>
+  String
+  -> C
+  -> String
+where
+  Reducible<C, String>
+```
+
+### `map`
+
+<small className="api-kind">関数</small>
+
+Functorの形を保ったまま内部の値を変換します。
+
+```text
+map<F<_>, A, B>
+  (A -> B)
+  -> F<A>
+  -> F<B>
+where
+  Functor<F<_>>
+```
+
+### `mul`
+
+<small className="api-kind">関数</small>
+
+選択された算術traitのinstanceを適用します。
+
+```text
+mul<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Mul<L, R, O>
+```
+
+### `next`
+
+<small className="api-kind">関数</small>
+
+Iteratorの次の値と、残りのIteratorを読みます。
+
+```text
+next<A>
+  Iterator<A>
+  -> Maybe<(A, Iterator<A>)>
+```
+
+### `one`
+
+<small className="api-kind">関数</small>
+
+選択された型の数値1を返します。
+
+```text
+one<A>
+  Unit
+  -> A
+where
+  One<A>
+```
+
+### `pow`
+
+<small className="api-kind">関数</small>
+
+選択された算術traitのinstanceを適用します。
+
+```text
+pow<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Pow<L, R, O>
+```
+
+### `print`
+
+<small className="api-kind">関数</small>
+
+Consoleでtextを出力し、改行は追加しません。
+
+```text
+print
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `println`
+
+<small className="api-kind">関数</small>
+
+Consoleでtextの後に改行を出力します。
+
+```text
+println
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `printValue`
+
+<small className="api-kind">関数</small>
+
+Show instanceで値を文字列化し、Consoleで出力します。
+
+```text
+printValue<A>
+  A
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+where
+  Show<A>
+```
+
+### `product`
+
+<small className="api-kind">関数</small>
+
+Reducibleなcollectionの全要素を、1から掛け合わせます。
+
+```text
+product<C, A>
+  C
+  -> A
+where
+  Reducible<C, A>,
+  One<A>,
+  Mul<A, A, A>
+```
+
+### `pure`
+
+<small className="api-kind">関数</small>
+
+値をApplicativeへliftします。
+
+```text
+pure<F<_>, A>
+  A
+  -> F<A>
+where
+  Applicative<F<_>>
+```
+
+### `readLine`
+
+<small className="api-kind">関数</small>
+
+Stdinを通して一行をMaybeとして読みます。
+
+```text
+readLine
+  Unit
+  -> Effect<
+       { stdin: Stdin },
+       StdinError,
+       Maybe<String>
+     >
+```
+
+### `reduce`
+
+<small className="api-kind">関数</small>
+
+Reducibleなcollectionを一つのaccumulator値へfoldします。
+
+```text
+reduce<C, A, B>
+  B
+  -> (B -> A -> B)
+  -> C
+  -> B
+where
+  Reducible<C, A>
+```
+
+### `rem`
+
+<small className="api-kind">関数</small>
+
+選択された算術traitのinstanceを適用します。
+
+```text
+rem<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Rem<L, R, O>
+```
+
+### `show`
+
+<small className="api-kind">関数</small>
+
+```text
+show<A>
+  A
+  -> String
+where
+  Show<A>
+```
+
+### `sub`
+
+<small className="api-kind">関数</small>
+
+選択された算術traitのinstanceを適用します。
+
+```text
+sub<L, R, O>
+  L
+  -> R
+  -> O
+where
+  Sub<L, R, O>
+```
+
+### `sum`
+
+<small className="api-kind">関数</small>
+
+Reducibleなcollectionの全要素を、0から足し合わせます。
+
+```text
+sum<C, A>
+  C
+  -> A
+where
+  Reducible<C, A>,
+  Zero<A>,
+  Add<A, A, A>
+```
+
+### `traverse`
+
+<small className="api-kind">関数</small>
+
+Functorの形を保ち、ApplicativeなEffectで走査します。
+
+```text
+traverse<F<_>, G<_>, A, B>
+  (A -> G<B>)
+  -> F<A>
+  -> G<F<B>>
+where
+  Traversable<F<_>>,
+  Applicative<G<_>>
+```
+
+### `unfold`
+
+<small className="api-kind">関数</small>
+
+初期状態とstep関数から、遅延評価するIteratorを作ります。
+
+```text
+unfold<S, A>
+  (S -> Maybe<(A, S)>)
+  -> S
+  -> Iterator<A>
+```
+
+### `zero`
+
+<small className="api-kind">関数</small>
+
+選択された型の数値0を返します。
+
+```text
+zero<A>
+  Unit
+  -> A
+where
+  Zero<A>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/maybe-and-either)
+- [用途からmoduleを探す](/docs/reference/library)

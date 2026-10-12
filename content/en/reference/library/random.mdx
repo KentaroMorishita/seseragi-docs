@@ -1,0 +1,247 @@
+---
+title: "std/random"
+description: "Generate reproducible pseudo-random values and shuffle sequences."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+| Capability identities | `std/random::Random` |
+
+## Import
+
+```seseragi
+import * as random from "std/random"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Random`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Random
+```
+
+### `RandomConfigError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+RandomConfigError
+```
+
+### `RandomRangeError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+RandomRangeError
+```
+
+### `RandomSize`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+RandomSize
+```
+
+## Constructors and values
+
+### `EmptyRandomIntRange`
+
+<small className="api-kind">Constructor</small>
+
+```text
+EmptyRandomIntRange
+  {
+    lower: Int,
+    upperExclusive: Int
+  }
+  -> RandomRangeError
+```
+
+### `InvalidProbability`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidProbability
+  Float
+  -> RandomRangeError
+```
+
+### `NonPositiveRandomSize`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NonPositiveRandomSize
+  Int
+  -> RandomConfigError
+```
+
+### `RandomSizeTooLarge`
+
+<small className="api-kind">Constructor</small>
+
+```text
+RandomSizeTooLarge
+  Int
+  -> RandomConfigError
+```
+
+## Functions and operators
+
+### `algorithmId`
+
+<small className="api-kind">Function</small>
+
+```text
+algorithmId
+  Unit
+  -> Effect<
+       { random: Random },
+       Never,
+       String
+     >
+```
+
+### `chance`
+
+<small className="api-kind">Function</small>
+
+```text
+chance
+  Float
+  -> Effect<
+       { random: Random },
+       RandomRangeError,
+       Bool
+     >
+```
+
+### `choose`
+
+<small className="api-kind">Function</small>
+
+```text
+choose<A>
+  NonEmptyList<A>
+  -> Effect<
+       { random: Random },
+       Never,
+       A
+     >
+```
+
+### `intBetween`
+
+<small className="api-kind">Function</small>
+
+```text
+intBetween
+  Int
+  -> Int
+  -> Effect<
+       { random: Random },
+       RandomRangeError,
+       Int
+     >
+```
+
+### `nextBool`
+
+<small className="api-kind">Function</small>
+
+```text
+nextBool
+  Unit
+  -> Effect<
+       { random: Random },
+       Never,
+       Bool
+     >
+```
+
+### `nextInt`
+
+<small className="api-kind">Function</small>
+
+```text
+nextInt
+  Unit
+  -> Effect<
+       { random: Random },
+       Never,
+       Int
+     >
+```
+
+### `randomBytes`
+
+<small className="api-kind">Function</small>
+
+```text
+randomBytes
+  RandomSize
+  -> Effect<
+       { random: Random },
+       Never,
+       Bytes
+     >
+```
+
+### `randomSize`
+
+<small className="api-kind">Function</small>
+
+```text
+randomSize
+  Int
+  -> Either<
+       RandomConfigError,
+       RandomSize
+     >
+```
+
+### `shuffle`
+
+<small className="api-kind">Function</small>
+
+```text
+shuffle<A>
+  Array<A>
+  -> Effect<
+       { random: Random },
+       Never,
+       Array<A>
+     >
+```
+
+### `unitFloat`
+
+<small className="api-kind">Function</small>
+
+```text
+unitFloat
+  Unit
+  -> Effect<
+       { random: Random },
+       Never,
+       Float
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

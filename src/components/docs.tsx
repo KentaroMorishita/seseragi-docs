@@ -35,8 +35,9 @@ function layoutOptions(pathname: string) {
   return {
     nav: { title: brand, url: base || "/" },
     links: [
-      { text: en ? "Learn" : "学ぶ", url: `${base}/docs/learn/first-program`, active: "nested-url" as const },
-      { text: en ? "Reference" : "リファレンス", url: `${base}/docs/reference/functions`, active: "nested-url" as const },
+      { text: en ? "Learn" : "学ぶ", url: `${base}/docs/learn`, active: "nested-url" as const },
+      { text: en ? "Guides" : "用途別ガイド", url: `${base}/docs/guides`, active: "nested-url" as const },
+      { text: en ? "Reference" : "リファレンス", url: `${base}/docs/reference`, active: "nested-url" as const },
       { text: "Playground ↗", url: "https://seseragi.vercel.app/", external: true },
       { text: en ? "日本語" : "English", url: en ? pathname.replace(/^\/en/, "") || "/" : `/en${pathname === "/" ? "" : pathname}`, active: "none" as const },
     ],

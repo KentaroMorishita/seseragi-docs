@@ -1,0 +1,14 @@
+fn describe point: (Int, Int)
+  -> String =
+  match point {
+    (0, 0) -> "origin"
+    (x, 0) when x > 0 -> "east"
+    (_, 0) -> "horizontal axis"
+    (0, _) -> "vertical axis"
+    _ -> "off the axes"
+  }
+
+pub effect fn main =
+  (3, 0)
+  |> describe
+  |> println

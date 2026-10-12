@@ -1,0 +1,377 @@
+---
+title: "std/int"
+description: "safe integerの解析・書式化・算術を扱います。失敗を値で受け取るchecked操作を選べます。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as int from "std/int"
+```
+
+## 使ってみる
+
+{/* example: examples/library/int.ssrg */}
+
+```seseragi
+import * as ints from "std/int"
+
+pub effect fn main =
+  match ints.parse "42" {
+    Right value ->
+      value
+      |> ints.format
+      |> println
+    Left _ ->
+      println "Invalid integer"
+  }
+```
+
+出力:
+
+```text
+42
+```
+
+## 選び方と注意
+
+- Intはsafe integerです。通常の算術overflowはdefectなので、入力から起こりうるoverflowにはchecked operationを使います。saturating operationは境界へclampする別の方針です。
+- parseは文字列用の規則です。空白、`_`、`0x`などの元の処理 literal表記を受理しないため、必要な前処理やradixを明示します。
+- 整数除算は商を0方向へ切り捨て、剰余はdividendと同符号です。checkedな除算・剰余は除数0を型付き失敗にし、Intの負のゼロは0へ正規化します。
+- IntとFloatは暗黙変換しません。範囲を越える整数にはBigIntを使い、Intへ戻すときも範囲検査を行います。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `IntDivisionError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+IntDivisionError
+```
+
+### `IntParseError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+IntParseError
+```
+
+### `IntPowerError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+IntPowerError
+```
+
+## コンストラクタと値
+
+### `EmptyInt`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+EmptyInt
+  IntParseError
+```
+
+### `IntDivisionByZero`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+IntDivisionByZero
+  IntDivisionError
+```
+
+### `IntOutsideRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+IntOutsideRange
+  IntParseError
+```
+
+### `IntPowerOverflow`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+IntPowerOverflow
+  IntPowerError
+```
+
+### `InvalidIntDigit`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidIntDigit
+  { offset: Int, radix: Int }
+  -> IntParseError
+```
+
+### `InvalidIntRadix`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidIntRadix
+  Int
+  -> IntParseError
+```
+
+### `NegativeIntExponent`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NegativeIntExponent
+  Int
+  -> IntPowerError
+```
+
+## 関数と演算子
+
+### `abs`
+
+<small className="api-kind">関数</small>
+
+```text
+abs
+  Int
+  -> Int
+```
+
+### `checkedAdd`
+
+<small className="api-kind">関数</small>
+
+```text
+checkedAdd
+  Int
+  -> Int
+  -> Maybe<Int>
+```
+
+### `checkedDivide`
+
+<small className="api-kind">関数</small>
+
+```text
+checkedDivide
+  Int
+  -> Int
+  -> Either<IntDivisionError, Int>
+```
+
+### `checkedMultiply`
+
+<small className="api-kind">関数</small>
+
+```text
+checkedMultiply
+  Int
+  -> Int
+  -> Maybe<Int>
+```
+
+### `checkedPower`
+
+<small className="api-kind">関数</small>
+
+```text
+checkedPower
+  Int
+  -> Int
+  -> Either<IntPowerError, Int>
+```
+
+### `checkedRemainder`
+
+<small className="api-kind">関数</small>
+
+```text
+checkedRemainder
+  Int
+  -> Int
+  -> Either<IntDivisionError, Int>
+```
+
+### `checkedSubtract`
+
+<small className="api-kind">関数</small>
+
+```text
+checkedSubtract
+  Int
+  -> Int
+  -> Maybe<Int>
+```
+
+### `clamp`
+
+<small className="api-kind">関数</small>
+
+```text
+clamp
+  Int
+  -> Int
+  -> Int
+  -> Int
+```
+
+### `format`
+
+<small className="api-kind">関数</small>
+
+```text
+format
+  Int
+  -> String
+```
+
+### `formatRadix`
+
+<small className="api-kind">関数</small>
+
+```text
+formatRadix
+  Int
+  -> Int
+  -> Either<IntParseError, String>
+```
+
+### `maximum`
+
+<small className="api-kind">関数</small>
+
+```text
+maximum
+  Int
+  -> Int
+  -> Int
+```
+
+### `maxValue`
+
+<small className="api-kind">関数</small>
+
+```text
+maxValue
+  Unit
+  -> Int
+```
+
+### `minimum`
+
+<small className="api-kind">関数</small>
+
+```text
+minimum
+  Int
+  -> Int
+  -> Int
+```
+
+### `minValue`
+
+<small className="api-kind">関数</small>
+
+```text
+minValue
+  Unit
+  -> Int
+```
+
+### `parse`
+
+<small className="api-kind">関数</small>
+
+```text
+parse
+  String
+  -> Either<IntParseError, Int>
+```
+
+### `parseRadix`
+
+<small className="api-kind">関数</small>
+
+```text
+parseRadix
+  Int
+  -> String
+  -> Either<IntParseError, Int>
+```
+
+### `saturatingAdd`
+
+<small className="api-kind">関数</small>
+
+```text
+saturatingAdd
+  Int
+  -> Int
+  -> Int
+```
+
+### `saturatingMultiply`
+
+<small className="api-kind">関数</small>
+
+```text
+saturatingMultiply
+  Int
+  -> Int
+  -> Int
+```
+
+### `saturatingPower`
+
+<small className="api-kind">関数</small>
+
+```text
+saturatingPower
+  Int
+  -> Int
+  -> Either<IntPowerError, Int>
+```
+
+### `saturatingSubtract`
+
+<small className="api-kind">関数</small>
+
+```text
+saturatingSubtract
+  Int
+  -> Int
+  -> Int
+```
+
+### `sign`
+
+<small className="api-kind">関数</small>
+
+```text
+sign
+  Int
+  -> Int
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/values-and-expressions)
+- [用途からmoduleを探す](/docs/reference/library)

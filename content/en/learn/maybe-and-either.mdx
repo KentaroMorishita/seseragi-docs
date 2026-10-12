@@ -1,0 +1,78 @@
+---
+title: "Maybe and Either"
+description: "Distinguish an absent value from a failure that needs a reason."
+---
+
+A missing search result and an invalid input are different outcomes. Use `Maybe` for normal absence and `Either` when a failure needs a reason. Here we retrieve a candidate port number and then validate its range.
+
+## Represent presence and absence with Maybe
+
+`Maybe<A>` has two cases: `Just A`, containing a value, and `Nothing`, containing none. `ports[0]` has type `Maybe<Int>` and describes whether a first candidate exists.
+
+`maybeValue ?? fallback` returns the payload of `Just` or uses the right-hand value for `Nothing`. The fallback is evaluated only for `Nothing`. This operator is specific to Maybe; it does not extract success values from Either.
+
+## Preserve a failure reason with Either
+
+`Either<E, A>` is either `Left E`, a failure, or `Right A`, a success. In this example, `PortError` is the error type and `Int` is the success type. `PortResult` is a type alias for this `Either<PortError, Int>`.
+
+{/* example: examples/learn/maybe-and-either.ssrg */}
+```seseragi title="maybe-and-either.ssrg"
+type PortError =
+  | OutOfRange Int
+
+alias PortResult =
+  Either<PortError, Int>
+
+fn validPort n: Int -> PortResult =
+  if n >= 1 && n <= 65535 then
+    Right n
+  else
+    Left (OutOfRange n)
+
+fn explain result: PortResult
+  -> String =
+  match result {
+    Right port -> `Port: ${port}`
+    Left (OutOfRange n) ->
+      `Invalid port: ${n}`
+  }
+
+pub effect fn main = do {
+  let ports = [8080]
+  let candidate = ports[0] ?? 3000
+  candidate
+  |> validPort
+  |> explain
+  |> println
+}
+```
+
+```text title="Output"
+Port: 8080
+```
+
+If no candidate exists, use 3000. Pass that integer to `validPort`: a number from 1 through 65535 produces `Right n`; anything else produces `Left (OutOfRange n)`. Keeping the rejected input in the error payload lets the display include it.
+
+## Handle the result with patterns
+
+`explain` extracts a successful port with `Right port` and a rejected integer with `Left (OutOfRange n)`. Both branches return a display `String`.
+
+Constructing `Left` does not throw an exception. An Either is an already evaluated ordinary value, available to `match` and other functions. Output still happens through the Effect returned by the final `println`.
+
+## Transform a payload or continue a computation
+
+`map f` transforms only the success payload of `Just` or `Right`. It leaves `Nothing` and `Left` unchanged.
+
+If the next function itself returns a Maybe or Either, `map` alone produces a nested result. `flatMap` or `>>=` continues from the first success value and stops on absence or failure. Chained Either calculations must share an error type. `do` is readable syntax for this sequential composition; it is not exclusive to Effects.
+
+## Separate synchronous results from external work
+
+The port validator is a pure, synchronous calculation from input to result. A network connection itself belongs in an Effect, rather than being hidden inside an Either.
+
+Maybe does not preserve why a value is absent. When you need to display an input rejection or distinguish failure cases, an Either with an ADT error type is suitable. Discarding an error by turning it into `Nothing` should be an explicit decision by the consumer.
+
+## Try absence and failure separately
+
+Change `ports` to an annotated empty array, `let ports: Array<Int> = []`. The output becomes `Port: 3000`. Change it to `[-1]`: a candidate exists but fails validation, producing `Invalid port: -1`. Check the difference between no value and an invalid existing value.
+
+Continue to [Generics](/en/docs/learn/generics) to define your own type-parameterized data and functions. [Effects](/en/docs/learn/effects) and [Error handling](/en/docs/guides/error-handling) cover failures during external work.

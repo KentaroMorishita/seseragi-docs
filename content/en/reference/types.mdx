@@ -1,0 +1,83 @@
+---
+title: "Types"
+description: "Check primitive types, annotations, generics, compatibility, inference, and ambiguity."
+---
+
+Every expression has a type before execution. A program that fails type checking is not run. Unresolved types do not silently become `Any`; add an annotation where inference needs it.
+
+## Primitive types
+
+| Type | Values and constraints |
+| --- | --- |
+| `Int` | Exact integers from -9007199254740991 to 9007199254740991 |
+| `Float` | IEEE 754 binary64, separate from `Int` |
+| `Bool` | `True` or `False`; no truthy/falsy conversion |
+| `Char` | One Unicode scalar |
+| `String` | An immutable sequence of Unicode scalars |
+| `Unit` | Its only value is `()` |
+| `Never` | A bottom type with no values |
+
+`Int` arithmetic never wraps. An out-of-range result or division by zero is a runtime defect. `Int` has no negative zero. Float NaN and infinity are named standard-library values rather than literal spellings. For arbitrary-precision integers, use `std/big-int` in the [Standard library](/en/docs/reference/library).
+
+`Never` may appear wherever another type is required. It represents the absence of a value, unlike `Unit`, which returns the ordinary value `()`.
+
+## Type syntax
+
+| Type expression | Meaning |
+| --- | --- |
+| `Array<A>`, `List<A>` | Distinct immutable collections |
+| `Maybe<A>` | A value that may be absent |
+| `Either<E, A>` | An already-evaluated failure or success |
+| `Effect<R, E, A>` | A deferred computation with environment, failure, and success |
+| `Task<A>` | Transparent alias for `Effect<{}, Never, A>` |
+| `(A, B)` | Tuple |
+| `{ name: String }` | Structural record |
+| `A -> B -> C` | Right-associative `A -> (B -> C)` |
+
+Type arguments are comma-separated and may nest. A value type must supply every argument: bare `Maybe` or `Either<String>` is not a value type. `Maybe` and `Either<String, _>` may be passed where a type-constructor parameter such as `F<_>` is required.
+
+## Annotations and generics
+
+Ordinary `fn` declarations require parameter and result types. Private `let` bindings may infer their types; public `let` bindings need complete annotations. The compact [Effect function](/en/docs/reference/effects) form is an exception: it infers a normalized Effect type from the body.
+
+Declare type parameters immediately after the declaration name. They are scoped to that declaration. Each call to `identity` independently instantiates its parameter.
+
+{/* example: examples/reference/generics.ssrg */}
+
+```seseragi title="generics.ssrg"
+fn identity<A> value: A -> A =
+  value
+
+pub effect fn main = do {
+  let number = identity 42
+  let text = identity "ready"
+  println `${number}: ${text}`
+}
+```
+
+The output is `42: ready`. Explicit arguments are also supported: `identity<String> "ready"`. Supply every type argument, in declaration order, and ensure it agrees with value arguments and the expected type.
+
+Nonrecursive bindings such as `let identity = \value -> value` are generalized too. Polymorphism is rank-1: a function parameter or record field cannot itself contain a higher-rank function whose type changes on every call.
+
+## Type compatibility
+
+ADTs, structs, and newtypes are nominal. Distinct declarations remain distinct types even with identical fields or representation. An alias creates no new identity; it is the same type as its expansion.
+
+Records support width subtyping. A function requiring `{ name: String }` may receive `{ id: Int, name: String }`. Corresponding field types must be identical; there is no implicit depth subtyping inside fields.
+
+Accessing a field from `{ id?: String }` returns `Maybe<String>`. An optional field may be absent; this differs from the required field in `{ id: Maybe<String> }`. Optional fields do not implicitly become required.
+
+## Conversions and errors
+
+| Conversion | Required action |
+| --- | --- |
+| `Int` to `Float` | Call an explicit conversion |
+| `A` to `Maybe<A>` | Wrap with `Just` |
+| Underlying value to newtype | Apply its constructor |
+| Struct to a same-shaped record | Construct a record explicitly |
+| `Array<A>` to `List<A>` | Call a conversion function |
+| `Js.Nullable<A>` to `Maybe<A>` | Use a boundary adapter |
+
+User-defined constructors and collections are invariant. Record width subtyping does not make an array of one record type implicitly compatible with an array of another. Convert explicitly with `map` when necessary.
+
+The exceptions are `Never`, record width subtyping, Effect requirement/failure widening, and forgetting write permission from `MutableSignal<A>` to `Signal<A>`. See [Effects](/en/docs/reference/effects) and [Signals](/en/docs/reference/signals) for their precise conditions. Missing type arguments, cyclic aliases, unresolved result-only parameters, and kind mismatches are compile-time errors.

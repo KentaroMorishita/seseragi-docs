@@ -1,0 +1,368 @@
+---
+title: "std/http/server"
+description: "Start process HTTP servers and manage request handling and shutdown."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process |
+| Capability identities | `std/http/server::HttpServer` |
+
+## Import
+
+```seseragi
+import * as http_server
+  from "std/http/server"
+```
+
+## Choosing operations
+
+- The current request body is a Bytes snapshot. Decode text/JSON explicitly rather than manipulating a host Request object.
+- Server-boundary handlers have Never failure. Map application errors to responses with recoverHandler or recovery instead of relying on implicit 500 responses.
+- Servers and requests have parent/child resource scopes. Close, client disconnect, and root cancellation end request work or stream bodies and perform cleanup.
+- streamResponse chunks must be nonempty and at most 64 KiB. Send according to write demand, keeping defects/cancellation separate from typed startup failures.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Handler`
+
+<small className="api-kind">Type alias</small>
+
+```text
+Handler<_, _>
+```
+
+### `HttpHeader`
+
+<small className="api-kind">Type alias</small>
+
+```text
+HttpHeader
+```
+
+### `HttpServer`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+HttpServer
+```
+
+### `HttpServerError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+HttpServerError
+```
+
+### `HttpServerHandle`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+HttpServerHandle
+```
+
+### `HttpServerRequest`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+HttpServerRequest
+```
+
+### `HttpServerResponse`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+HttpServerResponse
+```
+
+## Functions and operators
+
+### `bytesResponse`
+
+<small className="api-kind">Function</small>
+
+```text
+bytesResponse
+  Int
+  -> Array<HttpHeader>
+  -> Bytes
+  -> HttpServerResponse
+```
+
+### `close`
+
+<small className="api-kind">Function</small>
+
+```text
+close
+  HttpServerHandle
+  -> Effect<
+       { httpServer: HttpServer },
+       Never,
+       Unit
+     >
+```
+
+### `emptyResponse`
+
+<small className="api-kind">Function</small>
+
+```text
+emptyResponse
+  Int
+  -> Array<HttpHeader>
+  -> HttpServerResponse
+```
+
+### `errorMessage`
+
+<small className="api-kind">Function</small>
+
+```text
+errorMessage
+  HttpServerError
+  -> String
+```
+
+### `header`
+
+<small className="api-kind">Function</small>
+
+```text
+header
+  String
+  -> String
+  -> HttpHeader
+```
+
+### `jsonResponse`
+
+<small className="api-kind">Function</small>
+
+```text
+jsonResponse
+  Int
+  -> Array<HttpHeader>
+  -> String
+  -> HttpServerResponse
+```
+
+### `listen`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+listen<R>
+  {
+    hostname?: String,
+    port: Int,
+    handler: (
+      HttpServerRequest
+      -> Effect<
+          R,
+          Never,
+          HttpServerResponse
+         >
+    )
+  }
+  -> Effect<
+       R & {
+         httpServer: HttpServer
+       },
+       HttpServerError,
+       HttpServerHandle
+     >
+```
+
+</details>
+
+### `pureHandler`
+
+<small className="api-kind">Function</small>
+
+```text
+pureHandler
+  (
+    HttpServerRequest
+    -> HttpServerResponse
+  )
+  -> HttpServerRequest
+  -> Effect<
+       {},
+       Never,
+       HttpServerResponse
+     >
+```
+
+### `recoverHandler`
+
+<small className="api-kind">Function</small>
+
+```text
+recoverHandler<R, E>
+  (E -> HttpServerResponse)
+  -> (
+       HttpServerRequest
+       -> Effect<
+          R,
+          E,
+          HttpServerResponse
+          >
+     )
+  -> HttpServerRequest
+  -> Effect<
+       R,
+       Never,
+       HttpServerResponse
+     >
+```
+
+### `requestBody`
+
+<small className="api-kind">Function</small>
+
+```text
+requestBody
+  HttpServerRequest
+  -> Bytes
+```
+
+### `requestHeaders`
+
+<small className="api-kind">Function</small>
+
+```text
+requestHeaders
+  HttpServerRequest
+  -> Array<HttpHeader>
+```
+
+### `requestHeaderValues`
+
+<small className="api-kind">Function</small>
+
+```text
+requestHeaderValues
+  String
+  -> HttpServerRequest
+  -> Array<String>
+```
+
+### `requestMethod`
+
+<small className="api-kind">Function</small>
+
+```text
+requestMethod
+  HttpServerRequest
+  -> String
+```
+
+### `requestPath`
+
+<small className="api-kind">Function</small>
+
+```text
+requestPath
+  HttpServerRequest
+  -> String
+```
+
+### `requestQuery`
+
+<small className="api-kind">Function</small>
+
+```text
+requestQuery
+  HttpServerRequest
+  -> Maybe<String>
+```
+
+### `requestUrl`
+
+<small className="api-kind">Function</small>
+
+```text
+requestUrl
+  HttpServerRequest
+  -> String
+```
+
+### `serveOnce`
+
+<small className="api-kind">Function</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+serveOnce<R>
+  {
+    hostname?: String,
+    port: Int,
+    handler: (
+      HttpServerRequest
+      -> Effect<
+          R,
+          Never,
+          HttpServerResponse
+         >
+    )
+  }
+  -> Effect<
+       R & {
+         httpServer: HttpServer
+       },
+       HttpServerError,
+       Unit
+     >
+```
+
+</details>
+
+### `streamResponse`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+streamResponse<R>
+  Int
+  -> Array<HttpHeader>
+  -> Stream<R, Never, Bytes>
+  -> Effect<
+       R,
+       Never,
+       HttpServerResponse
+     >
+```
+
+### `textResponse`
+
+<small className="api-kind">Function</small>
+
+```text
+textResponse
+  Int
+  -> Array<HttpHeader>
+  -> String
+  -> HttpServerResponse
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

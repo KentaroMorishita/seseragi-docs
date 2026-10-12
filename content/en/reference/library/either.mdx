@@ -1,0 +1,151 @@
+---
+title: "std/either"
+description: "Transform and combine Left failures and Right successes."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as either from "std/either"
+```
+
+## Example
+
+{/* example: examples/library/either.ssrg */}
+
+```seseragi
+import * as either from "std/either"
+
+pub effect fn main = {
+  let result: Either<String, Int> =
+    Right 41
+  result
+  |> either.mapRight (\n -> n + 1)
+  |> show
+  |> println
+}
+```
+
+Output:
+
+```text
+Right 42
+```
+
+## Choosing operations
+
+- Either is an evaluated synchronous result. Constructing Left/Right does not execute deferred work.
+- mapLeft, bimap, and fold invoke only the selected branch callback, once. Use flatMap when later success depends on the earlier value.
+- traverse retains the first Left in source order, but does not guarantee short-circuiting later pure callbacks. Use reduceUntil for early termination.
+- Use Validation to accumulate errors from independent inputs. Explicitly lift an Either into Effect with fromEither.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Functions and operators
+
+### `bimap`
+
+<small className="api-kind">Function</small>
+
+Transforms the selected Left or Right branch once.
+
+```text
+bimap<E, F, A, B>
+  (E -> F)
+  -> (A -> B)
+  -> Either<E, A>
+  -> Either<F, B>
+```
+
+### `fold`
+
+<small className="api-kind">Function</small>
+
+Eliminates Either by calling only the selected branch function.
+
+```text
+fold<E, A, B>
+  (E -> B)
+  -> (A -> B)
+  -> Either<E, A>
+  -> B
+```
+
+### `mapLeft`
+
+<small className="api-kind">Function</small>
+
+Transforms only the Left payload.
+
+```text
+mapLeft<E, F, A>
+  (E -> F)
+  -> Either<E, A>
+  -> Either<F, A>
+```
+
+### `mapRight`
+
+<small className="api-kind">Function</small>
+
+Transforms only the Right payload using the standard Functor instance.
+
+```text
+mapRight<E, A, B>
+  (A -> B)
+  -> Either<E, A>
+  -> Either<E, B>
+```
+
+### `sequence`
+
+<small className="api-kind">Function</small>
+
+Traverses wrapped values with identity, preserving source shape and order.
+
+```text
+sequence<F<_>, E, A>
+  F<Either<E, A>>
+  -> Either<E, F<A>>
+where
+  Traversable<F<_>>
+```
+
+### `swap`
+
+<small className="api-kind">Function</small>
+
+Exchanges Left and Right without changing the payload.
+
+```text
+swap<E, A>
+  Either<E, A>
+  -> Either<A, E>
+```
+
+### `traverse`
+
+<small className="api-kind">Function</small>
+
+Uses the source Traversable and the module's Applicative without a separate traversal implementation.
+
+```text
+traverse<F<_>, E, A, B>
+  (A -> Either<E, B>)
+  -> F<A>
+  -> Either<E, F<B>>
+where
+  Traversable<F<_>>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/maybe-and-either)
+- [Browse modules by purpose](/en/docs/reference/library)

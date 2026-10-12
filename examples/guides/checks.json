@@ -1,0 +1,80 @@
+[
+  {
+    "file": "examples/guides/migration.ssrg",
+    "mode": "run",
+    "stdout": "42"
+  },
+  {
+    "file": "examples/guides/migration-grouping.ssrg",
+    "mode": "run",
+    "stdout": "42"
+  },
+  {
+    "file": "examples/guides/migration-partial.ssrg",
+    "mode": "run",
+    "stdout": "42"
+  },
+  {
+    "file": "examples/guides/migration-pipeline.ssrg",
+    "mode": "run",
+    "stdout": "[2, 4, 6]"
+  },
+  {
+    "file": "examples/guides/migration-record.ssrg",
+    "mode": "run",
+    "stdout": "3"
+  },
+  {
+    "file": "examples/guides/migration-data.ssrg",
+    "mode": "run",
+    "stdout": "Kyoto\n"
+  },
+  {
+    "file": "examples/guides/cli-app.ssrg",
+    "mode": "run",
+    "stdin": "3\n",
+    "stdout": "Total: 1440\n"
+  },
+  {
+    "file": "examples/guides/state.ssrg",
+    "mode": "run",
+    "stdout": "2\n0\n"
+  },
+  {
+    "file": "examples/guides/components.ssrg",
+    "mode": "run",
+    "stdout": "<section class=\"card\"><h2>Delivery</h2><p>Sent to Kyoto</p></section>\n"
+  },
+  {
+    "file": "examples/guides/errors.ssrg",
+    "mode": "run",
+    "stdout": "Quantity: 3\nEnter a number\nUse 1 to 1000\n"
+  },
+  {
+    "file": "examples/guides/web-app",
+    "mode": "build"
+  },
+  {
+    "file": "examples/guides/forms",
+    "mode": "build"
+  },
+  {
+    "file": "examples/guides/stateful-features",
+    "mode": "build"
+  },
+  {
+    "file": "examples/guides/testing",
+    "mode": "test",
+    "stdout": "PASS shipping::fee::below threshold\nPASS shipping::fee::at threshold\nPASS shipping::fee::above threshold\n3 passed; 0 failed; 0 skipped\n"
+  },
+  {
+    "file": "examples/guides/packages/app",
+    "mode": "run",
+    "stdout": "400\n"
+  },
+  {
+    "file": "examples/guides/typescript-bindings",
+    "mode": "run",
+    "stdout": "[ready]\nPlease try again\n"
+  }
+]

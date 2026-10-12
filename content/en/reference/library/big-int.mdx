@@ -1,0 +1,308 @@
+---
+title: "std/big-int"
+description: "Work with arbitrary-precision integers without implicitly mixing them with Int."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as big_int
+  from "std/big-int"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `BigInt`
+
+<small className="api-kind">Opaque type</small>
+
+Opaque arbitrary-precision signed integer value.
+
+```text
+BigInt
+```
+
+### `BigIntConversionError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes a BigInt that cannot be narrowed to Int exactly.
+
+```text
+BigIntConversionError
+```
+
+### `BigIntDivisionError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes checked BigInt division or remainder by zero.
+
+```text
+BigIntDivisionError
+```
+
+### `BigIntParseError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes an invalid BigInt text or radix without a magnitude limit.
+
+```text
+BigIntParseError
+```
+
+### `BigIntPowerError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes a checked negative BigInt exponent.
+
+```text
+BigIntPowerError
+```
+
+## Constructors and values
+
+### `BigIntDivisionByZero`
+
+<small className="api-kind">Constructor</small>
+
+Reports a zero BigInt divisor.
+
+```text
+BigIntDivisionByZero
+  BigIntDivisionError
+```
+
+### `BigIntOutsideIntRange`
+
+<small className="api-kind">Constructor</small>
+
+Reports a BigInt outside the safe Int range.
+
+```text
+BigIntOutsideIntRange
+  BigIntConversionError
+```
+
+### `EmptyBigInt`
+
+<small className="api-kind">Constructor</small>
+
+Reports an empty BigInt input.
+
+```text
+EmptyBigInt
+  BigIntParseError
+```
+
+### `InvalidBigIntDigit`
+
+<small className="api-kind">Constructor</small>
+
+Reports the first invalid BigInt digit at a UTF-8 byte offset.
+
+```text
+InvalidBigIntDigit
+  { offset: Int, radix: Int }
+  -> BigIntParseError
+```
+
+### `InvalidBigIntRadix`
+
+<small className="api-kind">Constructor</small>
+
+Reports a BigInt radix outside the inclusive range 2 through 36.
+
+```text
+InvalidBigIntRadix
+  Int
+  -> BigIntParseError
+```
+
+### `NegativeBigIntExponent`
+
+<small className="api-kind">Constructor</small>
+
+Reports a negative Int exponent.
+
+```text
+NegativeBigIntExponent
+  Int
+  -> BigIntPowerError
+```
+
+## Functions and operators
+
+### `abs`
+
+<small className="api-kind">Function</small>
+
+Returns the exact non-negative magnitude of a BigInt.
+
+```text
+abs
+  BigInt
+  -> BigInt
+```
+
+### `checkedDivide`
+
+<small className="api-kind">Function</small>
+
+Divides the second argument by the first, returning a BigInt quotient truncated toward zero or BigIntDivisionByZero for a zero divisor.
+
+```text
+checkedDivide
+  BigInt
+  -> BigInt
+  -> Either<
+       BigIntDivisionError,
+       BigInt
+     >
+```
+
+### `checkedPower`
+
+<small className="api-kind">Function</small>
+
+Raises a BigInt by a non-negative Int using exact exponentiation.
+
+```text
+checkedPower
+  Int
+  -> BigInt
+  -> Either<
+       BigIntPowerError,
+       BigInt
+     >
+```
+
+### `checkedRemainder`
+
+<small className="api-kind">Function</small>
+
+Computes truncating BigInt remainder or returns a typed zero-divisor failure.
+
+```text
+checkedRemainder
+  BigInt
+  -> BigInt
+  -> Either<
+       BigIntDivisionError,
+       BigInt
+     >
+```
+
+### `format`
+
+<small className="api-kind">Function</small>
+
+Formats a BigInt as canonical decimal text.
+
+```text
+format
+  BigInt
+  -> String
+```
+
+### `formatRadix`
+
+<small className="api-kind">Function</small>
+
+Formats a BigInt in radix 2 through 36.
+
+```text
+formatRadix
+  Int
+  -> BigInt
+  -> Either<
+       BigIntParseError,
+       String
+     >
+```
+
+### `fromInt`
+
+<small className="api-kind">Function</small>
+
+Converts Int to BigInt exactly.
+
+```text
+fromInt
+  Int
+  -> BigInt
+```
+
+### `parse`
+
+<small className="api-kind">Function</small>
+
+Parses canonical decimal text into an exact BigInt.
+
+```text
+parse
+  String
+  -> Either<
+       BigIntParseError,
+       BigInt
+     >
+```
+
+### `parseRadix`
+
+<small className="api-kind">Function</small>
+
+Parses signed BigInt text in radix 2 through 36.
+
+```text
+parseRadix
+  Int
+  -> String
+  -> Either<
+       BigIntParseError,
+       BigInt
+     >
+```
+
+### `sign`
+
+<small className="api-kind">Function</small>
+
+Returns minus one, zero, or one for a BigInt.
+
+```text
+sign
+  BigInt
+  -> Int
+```
+
+### `toInt`
+
+<small className="api-kind">Function</small>
+
+Narrows BigInt to Int with a typed range failure.
+
+```text
+toInt
+  BigInt
+  -> Either<
+       BigIntConversionError,
+       Int
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/values-and-expressions)
+- [Browse modules by purpose](/en/docs/reference/library)

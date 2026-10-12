@@ -1,0 +1,52 @@
+schema = 1
+language = "0.1.0"
+standard_library = "0.1.0"
+unicode = "17.0.0"
+timezone_database = "2025b"
+root = "docs/provider-clock@0.0.0#workspace:."
+
+[[packages]]
+id = "docs/provider-clock@0.0.0#workspace:."
+name = "docs/provider-clock"
+version = "0.0.0"
+source_kind = "workspace"
+source = "."
+manifest_digest = "sha256:75544e9c5cd1dc2d71a45bb72ccca184265b806d67919ec0ac05f875c33d7943"
+content_digest = "sha256:48fcd0c80b1722d7f939fac157376db2a4c43d5ae2caf0acece3ec4063088b4f"
+dependencies = []
+
+[[providers]]
+field = "clock"
+service = "std/clock::Clock"
+required_contract = "1.0"
+provider_contract = "1.0"
+provider = "seseragi/runtime-browser#clock"
+package_version = "0.61.25"
+package_source = "toolchain:seseragi/runtime-browser@0.61.25"
+package_digest = "sha256:d4d05e41d7803d72cb5f02a70209683c13567ca4275f99c24fecf7d98732dd13"
+artifact_digest = "sha256:33e156e81d0830c6c7c33e72a5690aa12ad61e7e7c3e994ffb16ebd31a4816c2"
+backend = "typescript"
+backend_abi_major = 1
+target = "browser"
+entry_module = "seseragi/runtime-browser/clock"
+entry_export = "provider"
+runtime_features = ["foreign.task-load"]
+host_packages = []
+
+[[providers]]
+field = "clock"
+service = "std/clock::Clock"
+required_contract = "1.0"
+provider_contract = "1.0"
+provider = "seseragi/runtime-bun#clock"
+package_version = "0.61.25"
+package_source = "toolchain:seseragi/runtime-bun@0.61.25"
+package_digest = "sha256:8237aa2d4468dbd239df3feb2c0e6bef27d8fa1be975969386417a57e0d5821a"
+artifact_digest = "sha256:9c3afe724bf24b2fdeed6479bdeb40c54a70e15d8e1c262260e256b1b2ee23cc"
+backend = "typescript"
+backend_abi_major = 1
+target = "bun-process"
+entry_module = "seseragi/runtime-bun/clock"
+entry_export = "provider"
+runtime_features = ["foreign.task-load"]
+host_packages = []

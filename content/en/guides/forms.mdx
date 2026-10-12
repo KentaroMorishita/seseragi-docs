@@ -1,0 +1,141 @@
+---
+title: Build a form
+description: Connect input values, Actions, and validation results in a greeting form.
+---
+
+Build a form that greets an entered name when “Greet” is submitted. Empty input displays “Enter your name”. Store the input and its result in one `Model`, and update them with a pure function.
+
+State, Actions, and `view` have the same roles as in [Build a Web application](/en/docs/guides/web-app). The `Model` declaration and updates use [Records and structs](/en/docs/learn/records-and-structs).
+
+## Prepare a project
+
+```sh
+seseragi new web greeting-form
+cd greeting-form
+```
+
+Replace `src/main.ssrg` with the example below. Its entry point does not use the generated `app.ssrg`. Install the CLI and Bun through [Local development](/en/docs/learn/local-development).
+
+## Write the complete form
+
+{/* example: examples/guides/forms/src/main.ssrg */}
+```seseragi title="src/main.ssrg"
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+
+struct Model {
+  draft: String,
+  message: String
+}
+
+type Action =
+  | Edited String
+  | Submitted
+
+alias View = html.Html<Action>
+
+fn update action: Action
+  -> model: Model -> Model =
+  match action {
+    Edited draft -> Model {
+      ...model,
+      draft,
+      message: ""
+    }
+    Submitted ->
+      if model.draft == "" then
+        Model {
+          ...model,
+          message: "Enter your name"
+        }
+      else
+        Model {
+          ...model,
+          message:
+            `Hello, ${model.draft}`
+        }
+  }
+
+fn edited event: html.InputEvent
+  -> Action =
+  Edited event.value
+
+fn view model: Model -> View =
+  html.main {
+    style: html.style {
+      margin: "32px auto",
+      maxWidth: "32rem",
+      padding: "24px"
+    },
+    children: [
+      html.h1 {
+        children: "Greeting"
+      },
+      html.form {
+        onSubmit: Submitted,
+        children: [
+          html.label {
+            htmlFor: "name",
+            children: "Your name"
+          },
+          html.input {
+            id: "name",
+            name: "name",
+            value: model.draft,
+            onInput: edited
+          },
+          html.button {
+            buttonType: "submit",
+            children: "Greet"
+          }
+        ]
+      },
+      html.p {
+        role: "status",
+        children: model.message
+      }
+    ]
+  }
+
+pub effect fn main =
+  dom.app {
+    target: "#app",
+    initial: Model {
+      draft: "",
+      message: ""
+    },
+    update,
+    view
+  }
+```
+
+`draft` holds the text being edited. `message` holds the submission result. `Edited` changes the draft and clears the previous message. `Submitted` validates the current draft.
+
+## Turn an input event into an Action
+
+`html.InputEvent.value` captures the input text when the event occurs. `edited` creates an `Edited` Action from that text. It does not store the browser's mutable `Event` or `target` in application state.
+
+`value: model.draft` supplies the current value, and `onInput: edited` maps changes back into Actions. Matching `htmlFor: "name"` on the label and `id: "name"` on the input connects the label to its field.
+
+## Submit and validate
+
+```sh
+seseragi lock update
+seseragi dev --open
+```
+
+Enter `Ada` and submit to display “Hello, Ada”. Submitting an empty string displays “Enter your name”. A form with `onSubmit` synchronously prevents the browser's default submission and dispatches the Action. Pressing Enter in the input also submits the form.
+
+This example accepts whitespace-only names. Add string normalization before validation if your requirement rejects them. It does not send data to a server or persist it.
+
+## Return validation to the interface
+
+`Submitted` returns an input problem in the next model's `message` rather than failing the DOM runtime. A paragraph with `role: "status"` displays the result.
+
+If you add external persistence, distinguish input validation from failure of its Effect. Invalid input requires correction; a failed external operation may require a retry. [Handle failures](/en/docs/guides/error-handling) introduces typed failures.
+
+## Divide the interface into parts
+
+Repeated label and field layouts can become functions accepting props and returning HTML. If you render two independently stateful forms, give each a separate owner that creates its Signal.
+
+[Components](/en/docs/guides/components) and [Stateful features](/en/docs/guides/stateful-features) explain these two boundaries. [Web UI Reference](/en/docs/reference/web-ui) describes input, change, and keyboard event contracts.

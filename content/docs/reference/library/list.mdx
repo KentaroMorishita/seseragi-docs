@@ -1,0 +1,438 @@
+---
+title: "std/list"
+description: "永続的なListを走査・変換します。Arrayとの変換は元の要素順を保ちます。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as list from "std/list"
+```
+
+## 使ってみる
+
+{/* example: examples/library/list.ssrg */}
+
+```seseragi
+import * as lists from "std/list"
+
+pub effect fn main =
+  `[10, 20, 30]
+  |> lists.toArray
+  |> show
+  |> println
+```
+
+出力:
+
+```text
+[10, 20, 30]
+```
+
+## 選び方と注意
+
+- 先頭を追加しながら組み立てる列にはListを使います。consとtailはO(1)で、既存tailを共有できます。
+- `length`、`get`、`last`、`init`は線形走査です。添字を繰り返し使う処理にはArrayを検討してください。
+- `append suffix values`はvaluesの後へsuffixを連結し、valuesの長さに比例します。末尾へのappendを繰り返す構成はコストが積み重なります。
+- Arrayへの変換は順序を保つコピーです。Listの結果もstrictなので、遅延した無限列としては使いません。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 関数と演算子
+
+### `append`
+
+<small className="api-kind">関数</small>
+
+collectionの値の後ろへsuffixを連結します。
+
+```text
+append<A>
+  List<A>
+  -> List<A>
+  -> List<A>
+```
+
+### `chunksOf`
+
+<small className="api-kind">関数</small>
+
+```text
+chunksOf<A>
+  Int
+  -> List<A>
+  -> Either<
+       SizeError,
+       List<List<A>>
+     >
+```
+
+### `concat`
+
+<small className="api-kind">関数</small>
+
+入れ子collectionを一段だけsource順に平坦化します。
+
+```text
+concat<A>
+  List<List<A>>
+  -> List<A>
+```
+
+### `drop`
+
+<small className="api-kind">関数</small>
+
+指定数の先頭要素を飛ばした残りを返します。
+
+```text
+drop<A>
+  Int
+  -> List<A>
+  -> List<A>
+```
+
+### `dropWhile`
+
+<small className="api-kind">関数</small>
+
+```text
+dropWhile<A>
+  (A -> Bool)
+  -> List<A>
+  -> List<A>
+```
+
+### `empty`
+
+<small className="api-kind">関数</small>
+
+```text
+empty<A>
+  Unit
+  -> List<A>
+```
+
+### `filter`
+
+<small className="api-kind">関数</small>
+
+条件がTrueになるcollection要素を残します。
+
+```text
+filter<A>
+  (A -> Bool)
+  -> List<A>
+  -> List<A>
+```
+
+### `filterMap`
+
+<small className="api-kind">関数</small>
+
+collection要素を変換し、Nothingの結果を除外します。
+
+```text
+filterMap<A, B>
+  (A -> Maybe<B>)
+  -> List<A>
+  -> List<B>
+```
+
+### `find`
+
+<small className="api-kind">関数</small>
+
+最初に一致した要素を返し、一致がなければNothingを返します。
+
+```text
+find<A>
+  (A -> Bool)
+  -> List<A>
+  -> Maybe<A>
+```
+
+### `findIndex`
+
+<small className="api-kind">関数</small>
+
+```text
+findIndex<A>
+  (A -> Bool)
+  -> List<A>
+  -> Maybe<Int>
+```
+
+### `flatMap`
+
+<small className="api-kind">関数</small>
+
+各要素をcollectionへ変換し、結果を平坦化します。
+
+```text
+flatMap<A, B>
+  (A -> List<B>)
+  -> List<A>
+  -> List<B>
+```
+
+### `fromIterable`
+
+<small className="api-kind">関数</small>
+
+```text
+fromIterable<C, A>
+  C
+  -> List<A>
+where
+  Iterable<C, A>
+```
+
+### `get`
+
+<small className="api-kind">関数</small>
+
+指定indexの要素を返し、不正なindexならNothingを返します。
+
+```text
+get<A>
+  Int
+  -> List<A>
+  -> Maybe<A>
+```
+
+### `groupBy`
+
+<small className="api-kind">関数</small>
+
+```text
+groupBy<A, K>
+  (A -> K)
+  -> List<A>
+  -> Map<K, List<A>>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `head`
+
+<small className="api-kind">関数</small>
+
+最初の要素を返し、空collectionならNothingを返します。
+
+```text
+head<A>
+  List<A>
+  -> Maybe<A>
+```
+
+### `init`
+
+<small className="api-kind">関数</small>
+
+```text
+init<A>
+  List<A>
+  -> Maybe<List<A>>
+```
+
+### `isEmpty`
+
+<small className="api-kind">関数</small>
+
+collectionに要素がないかを返します。
+
+```text
+isEmpty<A>
+  List<A>
+  -> Bool
+```
+
+### `last`
+
+<small className="api-kind">関数</small>
+
+```text
+last<A>
+  List<A>
+  -> Maybe<A>
+```
+
+### `length`
+
+<small className="api-kind">関数</small>
+
+collectionの要素数を返します。
+
+```text
+length<A>
+  List<A>
+  -> Int
+```
+
+### `reduceRight`
+
+<small className="api-kind">関数</small>
+
+```text
+reduceRight<A, B>
+  B
+  -> (A -> B -> B)
+  -> List<A>
+  -> B
+```
+
+### `reverse`
+
+<small className="api-kind">関数</small>
+
+collection要素を逆順で返します。
+
+```text
+reverse<A>
+  List<A>
+  -> List<A>
+```
+
+### `singleton`
+
+<small className="api-kind">関数</small>
+
+```text
+singleton<A>
+  A
+  -> List<A>
+```
+
+### `sort`
+
+<small className="api-kind">関数</small>
+
+```text
+sort<A>
+  List<A>
+  -> List<A>
+where
+  Ord<A>
+```
+
+### `sortBy`
+
+<small className="api-kind">関数</small>
+
+```text
+sortBy<A, K>
+  (A -> K)
+  -> List<A>
+  -> List<A>
+where
+  Ord<K>
+```
+
+### `tail`
+
+<small className="api-kind">関数</small>
+
+最初の要素を除いた残りを返し、空collectionならNothingを返します。
+
+```text
+tail<A>
+  List<A>
+  -> Maybe<List<A>>
+```
+
+### `take`
+
+<small className="api-kind">関数</small>
+
+指定した数を上限として先頭要素を返します。
+
+```text
+take<A>
+  Int
+  -> List<A>
+  -> List<A>
+```
+
+### `takeWhile`
+
+<small className="api-kind">関数</small>
+
+```text
+takeWhile<A>
+  (A -> Bool)
+  -> List<A>
+  -> List<A>
+```
+
+### `toArray`
+
+<small className="api-kind">関数</small>
+
+Listの要素をsource順にArrayへcopyします。
+
+```text
+toArray<A>
+  List<A>
+  -> Array<A>
+```
+
+### `unzip`
+
+<small className="api-kind">関数</small>
+
+```text
+unzip<A, B>
+  List<(A, B)>
+  -> (List<A>, List<B>)
+```
+
+### `windows`
+
+<small className="api-kind">関数</small>
+
+```text
+windows<A>
+  Int
+  -> List<A>
+  -> Either<
+       SizeError,
+       List<List<A>>
+     >
+```
+
+### `zip`
+
+<small className="api-kind">関数</small>
+
+```text
+zip<A, B>
+  List<B>
+  -> List<A>
+  -> List<(A, B)>
+```
+
+### `zipWith`
+
+<small className="api-kind">関数</small>
+
+```text
+zipWith<A, B, C>
+  (A -> B -> C)
+  -> List<B>
+  -> List<A>
+  -> List<C>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/arrays-and-lists)
+- [用途からmoduleを探す](/docs/reference/library)

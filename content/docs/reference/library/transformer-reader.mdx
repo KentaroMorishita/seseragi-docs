@@ -1,0 +1,101 @@
+---
+title: "std/transformer/reader"
+description: "共有する環境を、別のMonadを使う計算へ渡します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as transformer_reader
+  from "std/transformer/reader"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `ReaderT`
+
+<small className="api-kind">struct</small>
+
+```text
+struct ReaderT<R, M<_>, A> {
+  run: R -> M<A>
+}
+```
+
+- `run`: 環境Rを受け取り、型構築子Mに入ったAの値を返す関数。
+
+## 関数と演算子
+
+### `ask`
+
+<small className="api-kind">関数</small>
+
+```text
+ask<R, M<_>>
+  Unit
+  -> ReaderT<R, M<_>, R>
+where
+  Monad<M<_>>
+```
+
+### `asks`
+
+<small className="api-kind">関数</small>
+
+```text
+asks<R, M<_>, A>
+  (R -> A)
+  -> ReaderT<R, M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `lift`
+
+<small className="api-kind">関数</small>
+
+```text
+lift<R, M<_>, A>
+  M<A>
+  -> ReaderT<R, M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `local`
+
+<small className="api-kind">関数</small>
+
+```text
+local<R, M<_>, A>
+  (R -> R)
+  -> ReaderT<R, M<_>, A>
+  -> ReaderT<R, M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `run`
+
+<small className="api-kind">関数</small>
+
+```text
+run<R, M<_>, A>
+  R
+  -> ReaderT<R, M<_>, A>
+  -> M<A>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/type-classes)
+- [用途からmoduleを探す](/docs/reference/library)

@@ -1,0 +1,341 @@
+---
+title: "std/text"
+description: "Stringの検索・分割・変換を行います。文字数や位置の単位は各APIで確認してください。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as text from "std/text"
+```
+
+## 選び方と注意
+
+- indexの単位はUnicode scalarです。UTF-8バイト長や、画面上の一文字を数えるgrapheme APIとは使い分けます。
+- split・replaceはliteral Stringを使い、replacementの`$`などは展開しません。正規表現を使う場合は`std/regex`を明示します。
+- scalar sliceは終端を含まない範囲を検査し、不正なindexをclampしません。scalarAtなどの走査をO(1)の添字による直接参照として扱わないでください。
+- case変換とtrimは共有Unicode規則を使い、ロケール固有の変換はしません。trimはU+FEFFを削除しません。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `TextSliceError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+TextSliceError
+```
+
+### `Utf8DecodeError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+最初の不正なUTF-8 sequenceのbyte offsetを報告します。
+
+```text
+Utf8DecodeError
+```
+
+## コンストラクタと値
+
+### `InvalidScalarRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidScalarRange
+  {
+    start: Int,
+    end: Int,
+    length: Int
+  }
+  -> TextSliceError
+```
+
+### `InvalidUtf8`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidUtf8
+  { offset: Int }
+  -> Utf8DecodeError
+```
+
+## 関数と演算子
+
+### `caseFold`
+
+<small className="api-kind">関数</small>
+
+```text
+caseFold
+  String
+  -> String
+```
+
+### `concat`
+
+<small className="api-kind">関数</small>
+
+Arrayに入っているStringを順に連結し、一つのStringを返します。
+
+```text
+concat
+  Array<String>
+  -> String
+```
+
+### `contains`
+
+<small className="api-kind">関数</small>
+
+```text
+contains
+  String
+  -> String
+  -> Bool
+```
+
+### `decodeUtf8`
+
+<small className="api-kind">関数</small>
+
+UTF-8を厳密に復号し、最初の不正なbyte offsetを報告します。
+
+```text
+decodeUtf8
+  Bytes
+  -> Either<Utf8DecodeError, String>
+```
+
+### `decodeUtf8Lossy`
+
+<small className="api-kind">関数</small>
+
+UTF-8を復号し、不正なsequenceを置換します。
+
+```text
+decodeUtf8Lossy
+  Bytes
+  -> String
+```
+
+### `encodeUtf8`
+
+<small className="api-kind">関数</small>
+
+StringをUTF-8 Bytesへencodeします。
+
+```text
+encodeUtf8
+  String
+  -> Bytes
+```
+
+### `endsWith`
+
+<small className="api-kind">関数</small>
+
+```text
+endsWith
+  String
+  -> String
+  -> Bool
+```
+
+### `isEmpty`
+
+<small className="api-kind">関数</small>
+
+collectionに要素がないかを返します。
+
+```text
+isEmpty
+  String
+  -> Bool
+```
+
+### `join`
+
+<small className="api-kind">関数</small>
+
+```text
+join
+  String
+  -> Array<String>
+  -> String
+```
+
+### `lengthBytes`
+
+<small className="api-kind">関数</small>
+
+```text
+lengthBytes
+  String
+  -> Int
+```
+
+### `lengthScalars`
+
+<small className="api-kind">関数</small>
+
+```text
+lengthScalars
+  String
+  -> Int
+```
+
+### `lines`
+
+<small className="api-kind">関数</small>
+
+```text
+lines
+  String
+  -> Array<String>
+```
+
+### `replace`
+
+<small className="api-kind">関数</small>
+
+```text
+replace
+  String
+  -> String
+  -> String
+  -> String
+```
+
+### `replaceAll`
+
+<small className="api-kind">関数</small>
+
+```text
+replaceAll
+  String
+  -> String
+  -> String
+  -> String
+```
+
+### `scalarAt`
+
+<small className="api-kind">関数</small>
+
+```text
+scalarAt
+  Int
+  -> String
+  -> Maybe<Char>
+```
+
+### `sliceScalars`
+
+<small className="api-kind">関数</small>
+
+```text
+sliceScalars
+  Int
+  -> Int
+  -> String
+  -> Either<TextSliceError, String>
+```
+
+### `split`
+
+<small className="api-kind">関数</small>
+
+```text
+split
+  String
+  -> String
+  -> Array<String>
+```
+
+### `startsWith`
+
+<small className="api-kind">関数</small>
+
+```text
+startsWith
+  String
+  -> String
+  -> Bool
+```
+
+### `toLower`
+
+<small className="api-kind">関数</small>
+
+```text
+toLower
+  String
+  -> String
+```
+
+### `toUpper`
+
+<small className="api-kind">関数</small>
+
+```text
+toUpper
+  String
+  -> String
+```
+
+### `trim`
+
+<small className="api-kind">関数</small>
+
+```text
+trim
+  String
+  -> String
+```
+
+### `trimEnd`
+
+<small className="api-kind">関数</small>
+
+```text
+trimEnd
+  String
+  -> String
+```
+
+### `trimStart`
+
+<small className="api-kind">関数</small>
+
+```text
+trimStart
+  String
+  -> String
+```
+
+### `words`
+
+<small className="api-kind">関数</small>
+
+```text
+words
+  String
+  -> Array<String>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/values-and-expressions)
+- [用途からmoduleを探す](/docs/reference/library)

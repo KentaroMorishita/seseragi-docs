@@ -1,0 +1,86 @@
+---
+title: "CLI"
+description: "配布版CLIのコマンド、target、profile、診断、テストと終了statusを確認する。"
+---
+
+このページは配布版0.61.25の`seseragi --help`で確認したコマンドを説明します。手元のbinaryを確認するには、`seseragi --version`または`seseragi --version-json`を使います。インストールは[ローカルで使う](/docs/learn/local-development)を参照してください。
+
+## コマンド一覧
+
+| コマンド | 用途 |
+| --- | --- |
+| `new web PATH` | Web starterとlockを生成する |
+| `run FILE_OR_PACKAGE` | processアプリを実行する |
+| `build FILE_OR_PACKAGE` | process/Webの配布物を生成する |
+| `dev [PACKAGE]` | Webの監視buildとpreviewを開始する |
+| `lock update [PACKAGE]` | packageとProviderのlockを明示更新する |
+| `lint FILE_OR_PACKAGE` | lint診断を出す |
+| `format [--check] FILE` | sourceを整形する、または整形済みか調べる |
+| `test [PACKAGE]` | tests rootのTest treeを実行する |
+| `benchmark [PACKAGE]` | benchmarks rootを計測する |
+| `doc [PACKAGE] --test` | declarationのdocument exampleを検査する |
+| `dts convert [PACKAGE]` | 設定されたTypeScript bindingを生成する |
+
+`new`が提供するtemplateは現在`web`だけです。既存directoryへ上書き生成しません。`doc`は現在`--test`の経路を提供し、一般のAPIサイト出力を作るcommandではありません。
+
+## runとtarget
+
+単一fileはscratchとして実行できます。複数moduleやdependencyを使う場合は、`seseragi.toml`と`seseragi.lock`を持つpackageを渡します。
+
+```bash
+seseragi run main.ssrg
+seseragi run . --profile release
+```
+
+logical targetは`process`と`web`です。現在`run`はprocess、`dev`はwebを実行し、`build`は両方に対応します。optionの値として受理しても、commandが未対応の組み合わせを別targetへfallbackしません。
+
+targetはCLI override、`run.target`、commandのcapability判定・既定値から選びます。必須serviceを提供できないtargetは実行前に拒否します。HTTP serverはprocessアプリで、静的Web appへ自動分類しません。
+
+## buildと開発server
+
+```bash
+seseragi build . --profile release
+seseragi dev \
+  --host 127.0.0.1 \
+  --port 3000
+```
+
+buildは`--out-dir PATH`、`--source-map emit|omit`を受理します。profileの選択順はCLI、`[build].profile`、developmentです。source mapはdevelopmentでemit、releaseでomitが既定です。process developmentのentryは`entry.ts`、first-party releaseは`entry.js`です。出力には`artifact-manifest.json`を含み、実際のentryを確認できます。
+
+devは保存したsourceを監視し、同じWeb builderで再生成します。devはexactなdependency graphを保ち、通常sourceの編集をeditable workspaceとして許容します。通常のbuild/testではsource変更もlockのdigest不一致になるため、lock updateが必要です。manifest・dependency・Provider要件の変更はdevでも明示更新します。`--open`でbrowserを開きます。
+
+## 診断と整形
+
+`run`・`lint`は`--diagnostic-format text|json`を受理します。JSON形式ではANSI色を含めず、toolはmessageの文言よりstableな`SES-*` codeで分類します。`lint --deny-warnings`はwarningも失敗として扱います。
+
+```bash
+seseragi lint . --deny-warnings
+seseragi format --check main.ssrg
+```
+
+formatterはsourceの意味を保ちます。スタイルはcanonicalで、indentやquoteの独自設定をCLIへ渡す方式ではありません。document/site用には、読めるsourceを先に書き、画面幅のCSSだけで折り返すことへ依存しないでください。
+
+## test、benchmark、document test
+
+```bash
+seseragi test . --target node
+seseragi benchmark . --target node
+seseragi doc . --test --target node
+```
+
+testは`--filter TEXT`または`--exact NAME`でcaseを選び、`--jobs`、`--timeout`、`--seed`を指定できます。Test treeは`pub let tests: test.Test`で公開します。
+
+benchmarkは`pub let benchmarks: benchmark.Benchmark`を公開し、`--warmup`、`--samples`、`--minimum-sample-ms`、`--json`、`--baseline`、`--save-baseline`、`--regression-threshold-percent`などを使えます。targetの指定が曖昧にならないよう、上の例ではnodeを明示しています。詳しくは[テスト](/docs/guides/testing)と[性能](/docs/reference/performance)を参照してください。
+
+## processの実行optionと終了
+
+`run`は`--signal-mode cancel|forward`、`--shutdown-grace-ms`、`--hash-seed entropy|INT`、`--random-seed entropy|INT`も受理します。対応manifest値をその実行だけ上書きし、sourceやlockを書き換えません。固定random seedは再現用で、secure entropyを固定する設定ではありません。
+
+| status | 意味 |
+| --- | --- |
+| 0 | 正常終了 |
+| 1 | 未処理のtyped failure、またはtest/lintなどの不合格 |
+| 2 | command・compile・manifest・targetなどの事前エラー |
+| 70 | 実行後のruntime defect |
+
+signalによる終了はhostのsignal status規則へ従います。cancel modeではroot Effectへcancellationを要求し、grace期間内にfinalizerを実行します。forward modeやgraceの設定はtargetのcapabilityに従い、未対応の設定は事前エラーになります。

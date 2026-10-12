@@ -1,0 +1,214 @@
+---
+title: "std/path"
+description: "file pathを解析・結合します。パスの値を作る操作とfilesystemへのI/Oを分けます。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as path from "std/path"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Path`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Path
+```
+
+### `PathError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+PathError
+```
+
+## コンストラクタと値
+
+### `AbsoluteChildPath`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+AbsoluteChildPath
+  PathError
+```
+
+### `EmptyPath`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+EmptyPath
+  PathError
+```
+
+### `InvalidDriveRoot`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidDriveRoot
+  PathError
+```
+
+### `InvalidPathSegment`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidPathSegment
+  String
+  -> PathError
+```
+
+### `InvalidUncRoot`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidUncRoot
+  PathError
+```
+
+### `PathContainsBackslash`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+PathContainsBackslash
+  { offset: Int }
+  -> PathError
+```
+
+### `PathContainsNul`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+PathContainsNul
+  { offset: Int }
+  -> PathError
+```
+
+## 関数と演算子
+
+### `child`
+
+<small className="api-kind">関数</small>
+
+```text
+child
+  String
+  -> Path
+  -> Either<PathError, Path>
+```
+
+### `current`
+
+<small className="api-kind">関数</small>
+
+```text
+current
+  Unit
+  -> Path
+```
+
+### `extension`
+
+<small className="api-kind">関数</small>
+
+```text
+extension
+  Path
+  -> Maybe<String>
+```
+
+### `fileName`
+
+<small className="api-kind">関数</small>
+
+```text
+fileName
+  Path
+  -> Maybe<String>
+```
+
+### `isAbsolute`
+
+<small className="api-kind">関数</small>
+
+```text
+isAbsolute
+  Path
+  -> Bool
+```
+
+### `join`
+
+<small className="api-kind">関数</small>
+
+```text
+join
+  Path
+  -> Path
+  -> Either<PathError, Path>
+```
+
+### `normalize`
+
+<small className="api-kind">関数</small>
+
+```text
+normalize
+  Path
+  -> Path
+```
+
+### `parent`
+
+<small className="api-kind">関数</small>
+
+```text
+parent
+  Path
+  -> Maybe<Path>
+```
+
+### `parse`
+
+<small className="api-kind">関数</small>
+
+```text
+parse
+  String
+  -> Either<PathError, Path>
+```
+
+### `render`
+
+<small className="api-kind">関数</small>
+
+```text
+render
+  Path
+  -> String
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)

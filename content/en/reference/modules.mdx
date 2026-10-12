@@ -1,0 +1,82 @@
+---
+title: "Modules"
+description: "Check visibility, imports, re-exports, name resolution, cycles, and initialization."
+---
+
+One `.ssrg` file is one module. Source does not declare a module name. A regular module's identity combines package identity with its source-root-relative path, rather than its absolute filesystem path.
+
+## Visibility
+
+Declarations are module-private by default. Add pub to functions, values, types, structs, newtypes, aliases, traits, and other declarations used externally. A public signature cannot expose a private type.
+
+Public ADT/newtype constructors and public struct fields normally accompany the type. `pub opaque` exposes the type name and public operations while hiding constructors, fields, and destructuring inside the defining module.
+
+Inherent methods are private by default too. Trait instances do not take pub; an instance is considered when its module belongs to the transitive import closure.
+
+## Imports and a two-file example
+
+labels.ssrg exports a type and its display function. This is the declaration file:
+
+```text title="src/labels.ssrg"
+pub type Stage =
+  | Draft
+  | Published String
+
+pub fn title stage: Stage -> String =
+  match stage {
+    Draft -> "Draft"
+    Published name -> name
+  }
+```
+
+main.ssrg in the same source directory imports the public names. Running this two-file package prints Seseragi.
+
+{/* example: examples/reference/modules-project/src/main.ssrg */}
+
+```seseragi title="main.ssrg"
+import { Published, title }
+  from "./labels"
+
+pub effect fn main =
+  Published "Seseragi"
+  |> title
+  |> println
+```
+
+Imports belong at the start of the module. Use `import { parse as parseText }` for a local alias, or `import * as text from "std/text"` for qualified namespace access. Namespace imports introduce references such as text.trim; there is no wildcard syntax importing every name unqualified.
+
+## Specifier resolution
+
+| Prefix | Resolution |
+| --- | --- |
+| `./`, `../` | Relative file within the current root |
+| `self/` | Private source module in the current package |
+| `std/` | Canonical standard module |
+| `gen/` | Generated binding in the current package |
+| Bare specifier | Declared direct dependency and its public subpath |
+
+`./labels` resolves exactly to labels.ssrg. There is no directory-index search, extension search, or working-directory fallback. Relative imports cannot cross source/test/generated roots.
+
+Dependencies expose only subpaths in their export maps. To import a transitive dependency directly, declare it as your own direct dependency too. See [Project configuration](/en/docs/reference/project-configuration) for layout and exports.
+
+## Re-exports and namespaces
+
+`pub import { Name } from "./module"` adds a public API name while preserving its original identity. `pub import * as tools from "./tools"` adds a public namespace.
+
+Types/traits, values/functions/constructors, fields/methods, module aliases, and custom operators have separate namespaces. A same-spelled newtype and constructor can both be introduced by one named import.
+
+Unqualified lookup searches local bindings, current-module declarations, explicit imports, then the prelude. Same-level ambiguity is not resolved arbitrarily. Import operators separately with `import { operator <+> }`; their fixities come from the interface.
+
+## Cycles and initialization
+
+Module import cycles are forbidden, including type-only cycles. Move shared types to a third module, and place same-module mutually recursive functions in rec.
+
+Modules initialize once in dependency order, with top-level lets evaluated in source order. Calling code that reads an uninitialized later binding produces `SES-N0201`. Importing the same module from several places does not construct its top-level values twice.
+
+Imports do not execute Seseragi Effects. Foreign-module loading has its own explicit contract; see [TypeScript interop](/en/docs/reference/typescript-interop).
+
+## Executable modules
+
+An executable package resolves one public main from run.entry. main succeeds with Unit and has a closed record requirement. A library needs no main, and importing a module never implicitly runs its main.
+
+Single-file scratch execution does not infer package dependencies or a multi-file graph. Use a package with a manifest and lock for applications such as this two-file example. See [Packages and deployment](/en/docs/guides/packages-and-deployment).

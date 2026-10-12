@@ -1,0 +1,81 @@
+---
+title: "Signal"
+description: "読み取り権限、現在値、derived graph、transaction、購読とlifetimeを確認する。"
+---
+
+Signalは時間とともに変わる値を、明示的なdependency graphで表します。値を保持しているだけで、pure関数の結果が勝手に変わることはありません。現在値のreadとsourceの更新はEffectです。
+
+## SignalとMutableSignal
+
+| 型・操作 | 意味 |
+| --- | --- |
+| `Signal<A>` | 読み取り専用のSignal |
+| `MutableSignal<A>` | 更新できるsource。Signalとしても渡せる |
+| `signals.make initial` | `Task<MutableSignal<A>>`を作る |
+| `*source` | `signals.read source`、型は`Task<A>` |
+| `source := value` | `signals.set value source`、型は`Task<Unit>` |
+| `signals.update f source` | 現在値へpure関数を適用するatomic更新 |
+
+書き込み権限を落として`MutableSignal<A>`を`Signal<A>`へ渡せます。逆変換はできません。`:=`は普通の`let`やstruct fieldへの代入には使えません。
+
+{/* example: examples/reference/signals.ssrg */}
+
+```seseragi title="signals.ssrg"
+import * as signals from "std/signal"
+
+fn double value: Int -> Int =
+  value * 2
+
+pub effect fn main = do {
+  count <- signals.make 1
+  let doubled =
+    signals.map double count
+
+  count := 3
+  value <- *doubled
+  value
+  |> show
+  |> println
+}
+```
+
+出力は6です。`*doubled`は値を返すpure dereferenceではなく、実行時点のsnapshotを読むTaskです。`count`の作成・変更・readを`do`で順に実行しています。
+
+## derived graph
+
+`map`は一つのsource、`combine`は二つのsourceからderived Signalを作ります。構築に使う関数はpureです。関数内のreadを追跡する暗黙dependency trackingはありません。
+
+`constant`はsourceを持たず、`distinct`は`Eq`を使って直前の公開値と等しい更新を止めます。sourceへ同じ値をsetしただけでは、既定で通知を止めません。
+
+SignalはFunctorとApplicativeを持ちますが、Monadは持ちません。動的なdependency切り替えは`switchMap`で明示します。切り替え時は古いinnerを解除し、新しいinnerの安定した現在値を公開します。
+
+## transaction
+
+`set`と`update`は一件のtransactionです。複数sourceをまとめる場合は、`planSet`・`planUpdate`で作った`SignalChange`をArrayへ並べ、`transaction`へ渡します。
+
+```text title="複数更新の構文"
+signals.transaction [
+  signals.planSet 3 width,
+  signals.planSet 4 height,
+]
+```
+
+changeをArray順に適用し、同じsourceの後続`planUpdate`はstaging済みの値を受け取ります。commit前のdefectやcancellationでは一件も公開しません。成功後に一度commitし、影響するderived nodeをdependency順に高々一度再計算してからsubscriberへ通知します。途中の不整合な組み合わせは見えません。
+
+transactionがatomicにするのはSignal更新です。任意のI/OやEffect全体をtransactionへ入れる仕組みではありません。
+
+## snapshotの範囲
+
+readはその実行時点で公開済みの値を返します。複数の`*source`を同じdoに置いても、途中で別transactionがcommitすると後のreadは新しい値を読みます。
+
+複数sourceを同じ公開時点の組として読みたい場合は、`combine`でtupleやrecordを返すderived Signalを作り、そのSignalを一度readします。得た不変値は後の更新で変わりませんが、その後の非同期処理を排他制御するものではありません。
+
+## 購読と解除
+
+`subscribe observer source`の成功時は、現在値でobserverを一度呼びます。その後の通知も順番に処理し、同じobserverの実行を重ねません。observerがsourceを更新した場合は、現在transactionの後へ新しいtransactionをqueueします。
+
+observerのEffectはfailure型が`Never`でなければなりません。回復可能な失敗を内部で処理するか、failure channelを持つStream consumerへ変換します。
+
+成功した購読は`Subscription`を返します。`unsubscribe`は何度呼んでも安全です。購読resourceはscope終了・failure・cancellationで解除します。derived Signalの構築やreadだけで購読を始めることはありません。
+
+Webの状態所有とDOMの更新単位は[Web UI](/docs/reference/web-ui)、小さな例で順に学ぶなら[Signal](/docs/learn/signals)を参照してください。

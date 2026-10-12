@@ -1,0 +1,105 @@
+---
+title: "Values and expressions"
+description: "Name values, then try conditionals and string templates in separate examples."
+---
+
+[Your first program](/en/docs/learn/first-program) displayed one string. This chapter starts by giving that string a name. Selecting a value with a condition and inserting a value into a string follow as separate examples.
+
+## Values have types
+
+`82` is an `Int`, `True` is a `Bool`, and `"pass"` is a `String`. The number `82.0` is a `Float`, a different type from `Int`. Addition does not implicitly convert between `Int` and `Float`.
+
+A type determines which operations accept a value. For example, integer addition `20 + 22` produces 42, while the comparison `82 >= 80` produces `True`. A comparison returns a `Bool` rather than an integer.
+
+## Name a value with let
+
+`let message = "Hello, Seseragi"` gives a string the name `message`. Enclose the body of `main` in `{ ... }` to place the binding and output inside it.
+
+{/* example: examples/learn/values-and-expressions.ssrg */}
+```seseragi title="values-and-expressions.ssrg"
+pub effect fn main = {
+  let message = "Hello, Seseragi"
+  println message
+}
+```
+
+```text title="Output"
+Hello, Seseragi
+```
+
+`println message` receives the string referred to by the name. The right-hand side determines that `message` is a `String`, so an annotation is optional here. This fragment shows an explicit annotation:
+
+```text
+let message: String = "Hello"
+```
+
+A value bound with `let` cannot be reassigned. Its name is available inside the block that defines it. Shadowing a name in an inner block does not change the value in the outer block.
+
+## Select a value with if
+
+The next example adds only a conditional. It selects `"pass"` when 82 is at least 80 and `"retry"` otherwise, then binds the result to `verdict`.
+
+{/* example: examples/learn/conditional-expressions.ssrg */}
+```seseragi title="conditional-expressions.ssrg"
+pub effect fn main = {
+  let verdict =
+    if 82 >= 80 then
+      "pass"
+    else
+      "retry"
+  println verdict
+}
+```
+
+```text title="Output"
+pass
+```
+
+The whole `if ... then ... else ...` form is one expression. Both branches return a `String`, so the expression also has type `String`. The `else` branch is required, and both branches must return values of the same type.
+
+The condition must be a `Bool`. Zero and an empty string do not act as conditions. Only the selected branch is evaluated.
+
+## Insert a value into a string
+
+Set conditionals aside to try string construction. Double quotes create an ordinary string. Backticks create a string template that can include values.
+
+{/* example: examples/learn/string-templates.ssrg */}
+```seseragi title="string-templates.ssrg"
+pub effect fn main = {
+  let name = "Aki"
+  println `Hello, ${name}`
+}
+```
+
+```text title="Output"
+Hello, Aki
+```
+
+`${name}` inserts the value of `name` as text. Constructing the template and displaying it with `println` are separate operations. Templates can also display integers and other values. [Type classes](/en/docs/learn/type-classes) explains how conversion to text depends on the value's type.
+
+## A block returns its last expression
+
+A block lets you name intermediate values and return one result. In this fragment, the right-hand block returns `"Hello, Aki"`, which is then bound to `message`:
+
+```text
+let message = {
+  let name = "Aki"
+  `Hello, ${name}`
+}
+```
+
+The last expression is the result; no `return` is needed. The name `name` is available only in this inner block. Outside it, the result has the name `message`.
+
+## Look up other forms of values
+
+`Int` represents exact integers from −9007199254740991 to 9007199254740991. Arithmetic outside that range fails rather than wrapping or silently rounding. See the [standard library](/en/docs/reference/library) for types and functions that handle larger integers and decimals.
+
+`'a'` is a `Char`, representing one Unicode scalar value, while `"a"` is a `String`. The only value of `Unit`, `()`, is also different from the empty record `{}`. The [types reference](/en/docs/reference/types) lists types and their notation.
+
+## Change one part at a time
+
+Change the string bound to `message` in the first example. In the conditional example, changing 82 to 79 prints `retry`, while 80 prints `pass`. Then change only the `else` result to the integer 0: the branch types disagree, and the program fails before execution.
+
+In the template example, changing `name` to `"Haru"` prints `Hello, Haru`. Limit each change to one part so you can identify which value affected the output.
+
+Next, [Functions and pipelines](/en/docs/learn/functions-and-pipelines) names calculations and passes values as arguments. See [syntax](/en/docs/reference/syntax) for notation details.

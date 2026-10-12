@@ -1,0 +1,285 @@
+---
+title: "std/bytes"
+description: "不変のbyte列を作り、取得・切り出し・変換を行います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as bytes from "std/bytes"
+```
+
+## 選び方と注意
+
+- Bytesは不変のバイト列です。foreignのUint8Array境界では両方向にコピーし、ホストのmutable viewを共有しません。
+- Byteの構築は0〜255を検査します。getは範囲外をNothing、sliceは不正な終端を含まない範囲を型付きエラーで返し、clampしません。
+- sliceは内部ストレージを共有できます。小さいsliceを長期間保持して元の大きなストレージを解放したい場合はコピーを使います。
+- Bytesをtextとして扱う場合は文字encodingを明示します。strictなUTF-8 decodeは不正位置を返し、lossy decodeは置換文字へ置換する別の方針です。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Byte`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+0〜255を含む範囲のopaqueなunsigned 8-bit値です。
+
+```text
+Byte
+```
+
+### `ByteError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+Byteで表せないIntを表します。
+
+```text
+ByteError
+```
+
+### `Bytes`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+copyの境界を明示した不変byte列です。
+
+```text
+Bytes
+```
+
+### `BytesSliceError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+不正な半開Bytes slice範囲を表します。
+
+```text
+BytesSliceError
+```
+
+## コンストラクタと値
+
+### `ByteOutOfRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ByteOutOfRange
+  Int
+  -> ByteError
+```
+
+### `InvalidByteRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidByteRange
+  {
+    start: Int,
+    end: Int,
+    length: Int
+  }
+  -> BytesSliceError
+```
+
+## 関数と演算子
+
+### `append`
+
+<small className="api-kind">関数</small>
+
+collectionの値の後ろへsuffixを連結します。
+
+```text
+append
+  Bytes
+  -> Bytes
+  -> Bytes
+```
+
+### `byte`
+
+<small className="api-kind">関数</small>
+
+Intを検査し、opaque Byteへ変換します。
+
+```text
+byte
+  Int
+  -> Either<ByteError, Byte>
+```
+
+### `concat`
+
+<small className="api-kind">関数</small>
+
+入れ子collectionを一段だけsource順に平坦化します。
+
+```text
+concat
+  Array<Bytes>
+  -> Bytes
+```
+
+### `copy`
+
+<small className="api-kind">関数</small>
+
+元のBytesから独立したcopyを作ります。
+
+```text
+copy
+  Bytes
+  -> Bytes
+```
+
+### `empty`
+
+<small className="api-kind">関数</small>
+
+空の不変Bytesを作ります。
+
+```text
+empty
+  Unit
+  -> Bytes
+```
+
+### `fromArray`
+
+<small className="api-kind">関数</small>
+
+ByteのArrayを不変のBytesへcopyします。
+
+```text
+fromArray
+  Array<Byte>
+  -> Bytes
+```
+
+### `fromInts`
+
+<small className="api-kind">関数</small>
+
+Intを順に検査し、Bytesへcopyします。
+
+```text
+fromInts
+  Array<Int>
+  -> Either<ByteError, Bytes>
+```
+
+### `get`
+
+<small className="api-kind">関数</small>
+
+指定indexの要素を返し、不正なindexならNothingを返します。
+
+```text
+get
+  Int
+  -> Bytes
+  -> Maybe<Byte>
+```
+
+### `isEmpty`
+
+<small className="api-kind">関数</small>
+
+collectionに要素がないかを返します。
+
+```text
+isEmpty
+  Bytes
+  -> Bool
+```
+
+### `length`
+
+<small className="api-kind">関数</small>
+
+collectionの要素数を返します。
+
+```text
+length
+  Bytes
+  -> Int
+```
+
+### `singleton`
+
+<small className="api-kind">関数</small>
+
+Byte一個だけを含むBytesを作ります。
+
+```text
+singleton
+  Byte
+  -> Bytes
+```
+
+### `slice`
+
+<small className="api-kind">関数</small>
+
+検査済みの半開sliceを、変更権限を公開せず返します。
+
+```text
+slice
+  Int
+  -> Int
+  -> Bytes
+  -> Either<BytesSliceError, Bytes>
+```
+
+### `toArray`
+
+<small className="api-kind">関数</small>
+
+BytesをByteのArrayへcopyします。
+
+```text
+toArray
+  Bytes
+  -> Array<Byte>
+```
+
+### `toInt`
+
+<small className="api-kind">関数</small>
+
+ByteをIntの値へ変換します。
+
+```text
+toInt
+  Byte
+  -> Int
+```
+
+### `toInts`
+
+<small className="api-kind">関数</small>
+
+BytesをIntのArrayへcopyします。
+
+```text
+toInts
+  Bytes
+  -> Array<Int>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/records-and-structs)
+- [用途からmoduleを探す](/docs/reference/library)

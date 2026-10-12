@@ -1,0 +1,356 @@
+{
+  "std/array": {
+    "ja": [
+      "添字で読む列にはArrayを使います。`get`と添字構文は、負の添字や範囲外を`Nothing`で返します。",
+      "結果はstrictな不変Arrayです。`fromIterable`は終端まで走査するため、無限Iteratorには使えません。",
+      "コールバックは基本的に元の順序で呼びます。`reduceRight`だけは末尾から進み、`sortBy`は各キーを一度求めて安定ソートします。",
+      "`[head, ...tail]`でArray全体を再帰すると、restのコピーが重なって二乗時間になります。大量の走査には`reduce`や`reduceUntil`を使います。"
+    ],
+    "en": [
+      "Choose Array for indexed sequences. get and indexing return Nothing for negative or out-of-bounds indices.",
+      "Results are strict, immutable Arrays. fromIterable consumes through termination, so it is unsuitable for an infinite Iterator.",
+      "Callbacks normally run in source order. reduceRight proceeds from the end; sortBy computes each key once and uses a stable sort.",
+      "Recursing through an entire Array with [head, ...tail] repeatedly copies rests and takes quadratic time. Use reduce or reduceUntil for large traversals."
+    ]
+  },
+  "std/list": {
+    "ja": [
+      "先頭を追加しながら組み立てる列にはListを使います。consとtailはO(1)で、既存tailを共有できます。",
+      "`length`、`get`、`last`、`init`は線形走査です。添字を繰り返し使う処理にはArrayを検討してください。",
+      "`append suffix values`はvaluesの後へsuffixを連結し、valuesの長さに比例します。末尾へのappendを繰り返す構成はコストが積み重なります。",
+      "Arrayへの変換は順序を保つコピーです。Listの結果もstrictなので、遅延した無限列としては使いません。"
+    ],
+    "en": [
+      "Choose List when building by prepending. Cons and tail take O(1) and may share an existing tail.",
+      "length, get, last, and init require linear traversal. Consider Array for repeated indexed access.",
+      "append suffix values places suffix after values and takes work proportional to values. Repeated appends accumulate that cost.",
+      "Conversion to Array copies elements in order. List results are strict too; List is not a lazy infinite sequence."
+    ]
+  },
+  "std/map": {
+    "ja": [
+      "キーは`Eq`と`Hash`を持ち、等しいキーのハッシュも等しくなる必要があります。適切なハッシュなら検索・個別の更新は期待計算量O(1)ですが、衝突時は線形になります。",
+      "反復は挿入順です。既存キーの更新は位置を保ち、削除して再挿入したキーは末尾へ移ります。",
+      "`fromEntries`の重複キーは最後の値を採用し、位置は最初の出現位置を保ちます。衝突した値を合成する処理には、明示したresolverを使います。",
+      "MapのEqは挿入順を比較しません。表示やシリアライズは順序を保つため、EqなMapでも出力バイトが同じとは限りません。"
+    ],
+    "en": [
+      "Keys need Eq and Hash, with equal keys producing equal hashes. Good hashes give expected O(1) lookup/point updates; collisions can make them linear.",
+      "Iteration follows insertion order. Updating a key preserves its position; removing and reinserting it moves it to the end.",
+      "fromEntries keeps the last value for duplicate keys, but their first position. Use an explicit resolver when colliding values need combination.",
+      "Map equality ignores insertion order. Display and serialization preserve it, so equal Maps need not produce identical bytes."
+    ]
+  },
+  "std/set": {
+    "ja": [
+      "重複を除くmembershipにはSetを使います。要素は`Eq`と`Hash`を必要とし、反復は最初の挿入順です。",
+      "既存要素の挿入は順序を変えず、削除後の再挿入は末尾へ入ります。`union`は左側を保ち、右側だけの要素を後へ加えます。",
+      "変換後の同値な要素は一つになります。Setには形を保つFunctor instanceがないため、`std/set`の`map`を明示して使います。",
+      "SetのEqは順序を無視します。ハッシュが適切ならmembershipは期待計算量O(1)ですが、ハッシュ衝突のコストは残ります。"
+    ],
+    "en": [
+      "Use Set for membership with deduplication. Elements need Eq and Hash; iteration follows first insertion order.",
+      "Inserting an existing element preserves order; reinserting after removal moves it to the end. union keeps the left side, then appends right-only elements.",
+      "Equal results of a transformation collapse to one element. Set has no shape-preserving Functor instance; use std/set map explicitly.",
+      "Set equality ignores order. Membership is expected O(1) with suitable hashes, but hash collisions still have a cost."
+    ]
+  },
+  "std/maybe": {
+    "ja": [
+      "欠如自体が正常ならMaybeを使います。失敗理由が必要な値にはEither、実行する操作にはEffectを使います。",
+      "`withDefault`と`orElse`の引数はstrictです。Justでも代替値の式を先に評価するため、必要なときだけ計算する代替値には`??`を使います。",
+      "`traverse`は結果にNothingがあっても、後続のpure コールバックを呼ばない保証はありません。走査自体を途中で止めるなら`reduceUntil`を使います。"
+    ],
+    "en": [
+      "Use Maybe when absence is normal. Use Either when a reason is needed and Effect when an operation must execute.",
+      "withDefault and orElse have strict arguments: the fallback expression is evaluated even for Just. Use ?? for a fallback evaluated only when needed.",
+      "traverse does not guarantee skipping later pure callbacks after Nothing. Use reduceUntil when the traversal itself must stop early."
+    ]
+  },
+  "std/either": {
+    "ja": [
+      "Eitherは評価済みの同期結果です。Left/Rightを作ることは、遅延した処理を実行することではありません。",
+      "`mapLeft`、`bimap`、`fold`は選ばれた分岐のコールバックだけを一度呼びます。成功の続きが前の値へ依存する場合は`flatMap`で合成します。",
+      "`traverse`は複数Leftなら元の順序で最初のLeftを保持しますが、後続pure コールバックの短絡を保証しません。途中停止が必要なら`reduceUntil`を使います。",
+      "独立した入力のエラーをまとめる場合はValidationを使います。Eitherの失敗をEffectへ持ち上げる場合は`fromEither`を明示します。"
+    ],
+    "en": [
+      "Either is an evaluated synchronous result. Constructing Left/Right does not execute deferred work.",
+      "mapLeft, bimap, and fold invoke only the selected branch callback, once. Use flatMap when later success depends on the earlier value.",
+      "traverse retains the first Left in source order, but does not guarantee short-circuiting later pure callbacks. Use reduceUntil for early termination.",
+      "Use Validation to accumulate errors from independent inputs. Explicitly lift an Either into Effect with fromEither."
+    ]
+  },
+  "std/validation": {
+    "ja": [
+      "独立した入力を検査し、すべてのエラーをまとめる場合に使います。後続処理が前の成功値へ依存する場合はEitherへ切り替えます。",
+      "Applicative applyで両側がInvalidなら、左のエラー列の後へ右のエラー列を連結します。入力を左から渡すと、その順でエラーが並びます。",
+      "Invalidのエラー列はNonEmptyListです。空エラーのInvalidはなく、`toEither`も最初のエラーだけに縮めず全エラーを保持します。",
+      "FunctorとApplicativeを持ち、Monadは持ちません。エラーを蓄積する処理へ、最初の失敗で止まるなflatMapの意味を混ぜないでください。"
+    ],
+    "en": [
+      "Use it to validate independent inputs and collect all errors. Switch to Either when a later step depends on an earlier success value.",
+      "When both sides of Applicative apply are Invalid, left errors precede right errors. Supplying inputs left to right preserves that error order.",
+      "Invalid contains a NonEmptyList. There is no empty-error Invalid, and toEither preserves every error rather than reducing to the first.",
+      "Validation has Functor and Applicative, but no Monad. Do not mix fail-fast flatMap semantics into error accumulation."
+    ]
+  },
+  "std/text": {
+    "ja": [
+      "indexの単位はUnicode scalarです。UTF-8バイト長や、画面上の一文字を数えるgrapheme APIとは使い分けます。",
+      "split・replaceはliteral Stringを使い、replacementの`$`などは展開しません。正規表現を使う場合は`std/regex`を明示します。",
+      "scalar sliceは終端を含まない範囲を検査し、不正なindexをclampしません。scalarAtなどの走査をO(1)の添字による直接参照として扱わないでください。",
+      "case変換とtrimは共有Unicode規則を使い、ロケール固有の変換はしません。trimはU+FEFFを削除しません。"
+    ],
+    "en": [
+      "Indices count Unicode scalars. Distinguish them from UTF-8 byte lengths and grapheme APIs for displayed characters.",
+      "split and replace use literal Strings; replacement markers such as $ are not expanded. Use std/regex explicitly for regular expressions.",
+      "Scalar slices validate an end-exclusive range rather than clamping invalid indices. Do not assume O(1) random access for scalarAt and related traversals.",
+      "Casing and trimming use shared Unicode rules, not locale-specific transformations. trim does not remove U+FEFF."
+    ]
+  },
+  "std/text/grapheme": {
+    "ja": [
+      "表示上のcursor移動や文字数制限には、extended grapheme clusterを使います。結合文字やemojiをscalar数だけで切らないためのAPIです。",
+      "分割はUnicodeのUAX #29規則に従いますが、正規化はしません。clusterを連結すると元のStringへバイト単位で戻ります。",
+      "atは範囲外をNothing、sliceは不正な終端を含まない範囲を型付きエラーで返します。indexを暗黙にclampしません。",
+      "各操作は入力バイト数に対する走査を必要とします。繰り返し位置を使う場合は、clustersやバイトBoundariesを一度求める構成を検討してください。"
+    ],
+    "en": [
+      "Use extended grapheme clusters for display cursors and character limits, avoiding cuts based only on scalars inside combining sequences or emoji.",
+      "Segmentation follows Unicode UAX #29 but performs no normalization. Concatenating clusters reproduces the original String byte for byte.",
+      "at returns Nothing out of range; slice returns a typed error for invalid end-exclusive ranges. Indices are not silently clamped.",
+      "Each operation traverses input bytes. For repeated positions, consider computing clusters or byteBoundaries once."
+    ]
+  },
+  "std/text/unicode": {
+    "ja": [
+      "正規化のformは明示します。canonicalなNFC/NFDとcompatibilityなNFKC/NFKDでは、同一化する範囲が違います。",
+      "StringのEqはscalar列の完全一致です。同じ見た目でも、正規化前の異なる列を自動で等しく扱いません。",
+      "simpleCaseFoldは一scalarから一scalar、fullCaseFoldは複数scalarへの展開も許します。どちらもロケール非依存です。",
+      "Unicode data versionはtoolchainとruntimeで固定・照合されます。ホスト ICUや実行OSのUnicode versionへ意味を委ねません。"
+    ],
+    "en": [
+      "Choose a normalization form explicitly. Canonical NFC/NFD and compatibility NFKC/NFKD equate different sets of sequences.",
+      "String equality compares exact scalar sequences. Visually similar unnormalized sequences are not automatically equal.",
+      "simpleCaseFold maps one scalar to one; fullCaseFold may expand to several scalars. Both are locale-independent.",
+      "Unicode data versions are pinned and checked between toolchain and runtime. Semantics do not depend on host ICU or OS Unicode versions."
+    ]
+  },
+  "std/int": {
+    "ja": [
+      "Intはsafe integerです。通常の算術overflowはdefectなので、入力から起こりうるoverflowにはchecked operationを使います。saturating operationは境界へclampする別の方針です。",
+      "parseは文字列用の規則です。空白、`_`、`0x`などの元の処理 literal表記を受理しないため、必要な前処理やradixを明示します。",
+      "整数除算は商を0方向へ切り捨て、剰余はdividendと同符号です。checkedな除算・剰余は除数0を型付き失敗にし、Intの負のゼロは0へ正規化します。",
+      "IntとFloatは暗黙変換しません。範囲を越える整数にはBigIntを使い、Intへ戻すときも範囲検査を行います。"
+    ],
+    "en": [
+      "Int is a safe integer. Ordinary arithmetic overflow is a defect; use checked operations for overflow that can arise from input. Saturating operations implement a different policy by clamping to bounds.",
+      "parse uses text-input rules, rejecting whitespace, _, and source-literal prefixes such as 0x. Make preprocessing and radix selection explicit.",
+      "Integer division truncates toward zero; remainder has the dividend sign. Checked division/remainder report a typed zero-divisor failure and normalize negative zero to Int zero.",
+      "Int and Float do not implicitly convert. Use BigInt beyond Int range, and check range when narrowing back."
+    ]
+  },
+  "std/float": {
+    "ja": [
+      "NaNが反射律を壊すため、Floatに標準Eq・Ord・Hashはありません。IEEE equalityにはieeeEq、全順序にはtotalCompareを明示します。",
+      "parseは前後の空白を受理せず、有限な文字列表記のoverflowを型付きエラーにします。NaN・infinity・負のゼロは別の状態として扱います。",
+      "Intへ変換するときは丸めmodeを指定し、finiteとsafe integer範囲を検査します。Floatを整数に見える表示だけでIntとして扱わないでください。",
+      "Floatには標準JSON codecがありません。wireの数値方針を決め、Decimalや明示converterを使います。"
+    ],
+    "en": [
+      "Float has no standard Eq, Ord, or Hash because NaN violates reflexivity. Choose ieeeEq for IEEE equality or totalCompare for a total order.",
+      "parse rejects surrounding whitespace and returns a typed error when finite text overflows. Treat NaN, infinities, and negative zero as distinct cases.",
+      "Conversion to Int requires a rounding mode and checks finiteness and safe-integer range. Integer-looking display does not make a Float an Int.",
+      "Float has no standard JSON codec. Choose a wire-number policy using Decimal or an explicit converter."
+    ]
+  },
+  "std/json": {
+    "ja": [
+      "JSON numberは正確なDecimalとしてparseします。重複object fieldは後勝ちにせずエラーで、NaN・infinity・comment・trailing commaも受理しません。",
+      "構文失敗とdomain decode失敗を区別します。decoderのエラーのpathはrootから失敗field/indexまでを保持するため、その情報をStringだけへ潰さず扱います。",
+      "requiredなMaybe fieldもfield自体は必要で、Nothingはexplicit nullです。optional fieldのmissingとは違うので、schemaでpresenceの扱いを決めます。",
+      "stringifyはobjectの挿入順を保ちます。Eqが順序を無視するMap同士でも、シリアライズが同じバイトになる保証はありません。"
+    ],
+    "en": [
+      "JSON numbers parse as exact Decimals. Duplicate object fields are errors rather than last-wins; NaN, infinity, comments, and trailing commas are rejected.",
+      "Syntax failures and domain decode failures are distinct. Decoder error paths retain root-to-field/index location; keep that information rather than collapsing it to a String.",
+      "A required Maybe field must still be present; Nothing is explicit null. This differs from a missing optional field, so define presence in the schema.",
+      "stringify preserves object insertion order. Maps whose equality ignores order do not necessarily serialize to identical bytes."
+    ]
+  },
+  "std/bytes": {
+    "ja": [
+      "Bytesは不変のバイト列です。foreignのUint8Array境界では両方向にコピーし、ホストのmutable viewを共有しません。",
+      "Byteの構築は0〜255を検査します。getは範囲外をNothing、sliceは不正な終端を含まない範囲を型付きエラーで返し、clampしません。",
+      "sliceは内部ストレージを共有できます。小さいsliceを長期間保持して元の大きなストレージを解放したい場合はコピーを使います。",
+      "Bytesをtextとして扱う場合は文字encodingを明示します。strictなUTF-8 decodeは不正位置を返し、lossy decodeは置換文字へ置換する別の方針です。"
+    ],
+    "en": [
+      "Bytes is an immutable byte sequence. Foreign Uint8Array adapters copy in both directions rather than sharing mutable host views.",
+      "Byte construction checks 0–255. get returns Nothing out of range; slice reports a typed invalid-range error for end-exclusive ranges instead of clamping.",
+      "A slice may share backing storage. Use copy when retaining a small slice long-term should release the larger original storage.",
+      "Make encoding explicit when treating Bytes as text. Strict UTF-8 decoding reports the invalid position; lossy decoding instead replaces invalid sequences."
+    ]
+  },
+  "std/effect": {
+    "ja": [
+      "Effectはcoldです。作成やprovideだけで実行せず、同じ計算を実行するたびに処理を繰り返します。実行ごとの構築が必要ならdeferを使います。",
+      "recoverとattemptは型付き失敗だけを扱い、defectやキャンセルを捕捉しません。異なるエラー型はmapErrorなどでアプリのADTへ明示的に揃えます。",
+      "do/flatMapは逐次実行です。並列化は明示し、外部操作の順序やリソースの所有をそのAPIの契約に合わせます。",
+      "bracketやacquireReleaseでリソースをスコープへ登録します。終了処理は逆順に一度ずつ実行し、型付き失敗を外へ残せません。",
+      "timeoutは元の処理をキャンセルして後始末を待ちます。retry/repeatは元の操作を再実行するため、外部への書き込みを重複させてもよいかを確認してください。"
+    ],
+    "en": [
+      "Effects are cold. Construction or provide does not execute them; each execution repeats the computation. Use defer when construction must happen per execution.",
+      "recover and attempt handle typed failures only, not defects or cancellation. Explicitly align distinct errors into an application ADT with mapError or related operations.",
+      "do/flatMap run sequentially. Request parallelism explicitly and follow that operation’s ordering and resource-ownership contract.",
+      "Register resources with scopes through bracket or acquireRelease. Finalizers run once in reverse order and cannot leave typed failure unhandled.",
+      "Timeout cancels the source and waits for cleanup. retry/repeat rerun the operation; check whether duplicate external writes are acceptable."
+    ]
+  },
+  "std/stream": {
+    "ja": [
+      "Streamはcoldで、終端操作ごとに独立したproducerとスコープを作ります。同じStreamを二度実行しても購読を共有しません。",
+      "既定はpull-basedです。bufferは満杯ならproducerを待たせ、dropする方針はbufferDroppingなどで明示します。",
+      "flatMapは各innerを順番に最後まで処理します。mergeは別の並行合成で、順序とfailureの選択をその契約に従って扱います。",
+      "runCollectは有限Streamに使います。無限Streamでは完了せず値を保持し続けるため、必要ならtakeなどで止めます。途中終了やキャンセルでも上流のリソースを閉じます。"
+    ],
+    "en": [
+      "Streams are cold; each terminal execution creates its own producer and scope. Executing the same Stream twice does not share subscriptions.",
+      "The default is pull-based. buffer suspends a full producer; dropping policies are explicit through operations such as bufferDropping.",
+      "flatMap consumes each inner stream completely, in sequence. merge is a separate concurrent composition with its own ordering and failure-selection rules.",
+      "Use runCollect for finite streams. An infinite stream never completes and retains collected values; limit it with take when needed. Early termination and cancellation still close upstream resources."
+    ]
+  },
+  "std/signal": {
+    "ja": [
+      "現在値のreadと元Signalの更新はEffectです。pureなmap/combineはdependencyを明示し、関数内のreadを自動追跡しません。",
+      "同じ値のsetも既定では通知します。重複を止める場合はEqを必要とするdistinctを明示します。",
+      "複数更新はtransactionで一度commitし、安定したderived値だけを通知します。複数readが同じsnapshotになる保証はないため、組のsnapshotにはcombineしたSignalを一度readします。",
+      "subscribeは現在値を一度通知し、その後も順番にobserverを実行します。observerのfailureはNeverへ揃え、購読はスコープ終了かunsubscribeで解除します。"
+    ],
+    "en": [
+      "Reading current values and updating sources are Effects. Pure map/combine explicitly declare dependencies rather than tracking reads inside functions.",
+      "Setting the same value notifies by default. Request duplicate suppression explicitly with distinct, which requires Eq.",
+      "A transaction commits updates once and publishes stable derived values. Separate reads do not guarantee one snapshot; combine signals and read the combined value once.",
+      "subscribe emits the current value once, then invokes observers in order. Observers must have Never failure; release subscriptions on scope exit or with unsubscribe."
+    ]
+  },
+  "std/time": {
+    "ja": [
+      "Instant、localな日時、UTC offset、time zoneは別の型です。壁時計の表示とtimeline上の時点を、暗黙変換で混ぜません。",
+      "Durationは非負で、構築と加算の範囲を検査します。不正な日付や時刻も、自動補正せず型付きエラーとして扱います。",
+      "local日時をzoneへ解決するとUnique・Ambiguous・Gapがあります。夏時間の重複や欠落で、どの方針を使うかをアプリが明示します。",
+      "timezone databaseはversionを固定し、取得はTimeZones capabilityを要求します。ホストの設定だけでzone規則が変わることを前提にしません。"
+    ],
+    "en": [
+      "Instant, local date/time, UTC offset, and time zone are distinct types. Wall-clock display and timeline positions do not implicitly convert.",
+      "Duration is nonnegative, with checked construction and addition. Invalid dates/times are typed errors rather than automatically normalized values.",
+      "Resolving a local date/time in a zone can yield Unique, Ambiguous, or Gap. Applications explicitly choose a policy for daylight-saving overlaps and gaps.",
+      "Timezone data is version-pinned and loading requires the TimeZones capability. Do not assume zone rules vary solely with host configuration."
+    ]
+  },
+  "std/fs": {
+    "ja": [
+      "Pathのparse/normalizeはlexicalな操作です。symlinkを解決せず、sandboxの認可境界にもならないため、filesystemへの権限判断と分けます。",
+      "existsはNotFoundなどをFalseにしますが、権限やI/O障害を不在へ変換しません。型付き失敗を別に扱います。",
+      "readBytes/readTextUtf8は全内容をメモリへ保持するsmall-file APIです。大きなfileにはreadChunksを使い、textのstrict UTF-8検査も意識します。",
+      "readChunksやdirectory streamはterminal スコープでリソースを所有します。途中終了・failure・キャンセルでもhandleを閉じ、iteratorを外へ保持してlifetimeを延ばさない構成にします。"
+    ],
+    "en": [
+      "Path parsing/normalization is lexical. It does not resolve symlinks or authorize sandbox access; keep filesystem permission decisions separate.",
+      "exists maps absence such as NotFound to False, but not permission or I/O failures. Handle typed failures separately.",
+      "readBytes/readTextUtf8 retain complete contents as small-file APIs. Use readChunks for large files, and account for strict UTF-8 validation when reading text.",
+      "Chunk and directory streams own resources in terminal scopes. Early termination, failure, and cancellation close handles; avoid extending lifetimes by retaining iterators outside their intended scope."
+    ]
+  },
+  "std/http": {
+    "ja": [
+      "non-2xx statusもresponseとして成功します。HTTPの業務上の失敗と、DNS・TLS・socketなどのtransport failureを分けて扱います。",
+      "sendBytes/sendEmptyはbodyをメモリへ集めるsmall-response APIです。明示した上限を超えるとキャンセルし、型付きエラーを返します。",
+      "Headersはcase-insensitiveな順序付きmulti-mapです。複数valueをcommaで自動結合しないため、Set-Cookieなどの独立した値を保てます。",
+      "redirect、cookie jar、認証、retry、timeout、Content-Encoding decodeは自動適用しません。bodyのtext/JSON decodeもアプリの方針で明示します。",
+      "exchangeはcoldなStreamです。terminal実行ごとにrequestを開始し、キャンセルや途中終了でもbodyとconnectionのリソースを解放します。"
+    ],
+    "en": [
+      "Non-2xx statuses still arrive as successful responses. Distinguish application-level HTTP failures from DNS, TLS, socket, and other transport failures.",
+      "sendBytes/sendEmpty collect bodies in memory as small-response APIs. Exceeding an explicit limit cancels the response and returns a typed error.",
+      "Headers are a case-insensitive ordered multimap. Values are not automatically comma-joined, preserving independent values such as Set-Cookie.",
+      "Redirects, cookie jars, authentication, retries, timeouts, and Content-Encoding decoding are not automatic. Choose text/JSON body decoding explicitly too.",
+      "exchange is a cold Stream. Each terminal execution starts a request and releases body/connection resources on cancellation or early termination."
+    ]
+  },
+  "std/http/server": {
+    "ja": [
+      "現在のrequest bodyはBytesのsnapshotです。textやJSONへはdecodeを明示し、ホストのRequest objectを直接操作しません。",
+      "server境界のhandlerはNever failureです。アプリの型付きエラーはrecoverHandlerなどでresponseへ写し、暗黙の500 responseへ変換する挙動に依存しません。",
+      "serverとrequestは親子のリソースのスコープを持ちます。close、client disconnect、root キャンセルではrequestの処理やstream bodyを終了して後始末します。",
+      "streamResponseのchunkは1〜65,536バイトです。送信先の要求に合わせて送り、defectとキャンセルを起動時の型付き失敗へ混ぜません。"
+    ],
+    "en": [
+      "The current request body is a Bytes snapshot. Decode text/JSON explicitly rather than manipulating a host Request object.",
+      "Server-boundary handlers have Never failure. Map application errors to responses with recoverHandler or recovery instead of relying on implicit 500 responses.",
+      "Servers and requests have parent/child resource scopes. Close, client disconnect, and root cancellation end request work or stream bodies and perform cleanup.",
+      "streamResponse chunks must be nonempty and at most 64 KiB. Send according to write demand, keeping defects/cancellation separate from typed startup failures."
+    ]
+  },
+  "std/web/html": {
+    "ja": [
+      "Htmlはpureな不変treeで、componentは普通の関数です。treeを作るだけでDOM、購読、hookのstateを生成しません。",
+      "childrenはString、Html、そのArray/Listなどです。数値はshow/textで明示変換し、ArrayでStringとHtmlをarbitrary unionにしません。",
+      "textはSSR/DOMのsinkで一度escapeします。URLとcustom attributeは検査済みの値を使い、raw HTML Stringをuncheckedに挿入しません。",
+      "SSRはeventを実行せず、event propやキーをattributeへ出しません。browserのDOM接続はstd/web/domへ分けます。"
+    ],
+    "en": [
+      "Html is a pure immutable tree, and components are ordinary functions. Construction alone creates no DOM, subscriptions, or hook state.",
+      "Children accept String, Html, and their supported Array/List forms. Convert numbers explicitly with show/text; do not arbitrarily mix String and Html in one Array.",
+      "Text escapes once at SSR/DOM sinks. Use validated URLs and custom attributes rather than inserting unchecked raw HTML Strings.",
+      "SSR executes no events and emits neither event props nor keys as attributes. Browser DOM connections belong in std/web/dom."
+    ]
+  },
+  "std/web/dom": {
+    "ja": [
+      "DOM操作はbrowserのDom capabilityを要求します。processでHtmlをSSRできることと、実DOMを操作できることは別です。",
+      "DomContentのinitial Htmlとbinding planで、更新するsinkを明示します。leaf更新はElement identityやfocusを保ち、regionはそのchildrenを所有します。",
+      "Actionはbounded FIFOで逐次dispatchします。queue overflowはfailureで、Actionを黙ってdropしたり並列handlerへ変えたりしません。",
+      "mountのlistener、subscription、dispatchは同じスコープへ登録します。failure・キャンセル・unmountで解除し、DOMを残す後始末設定でもlistenerは残しません。",
+      "キーはregion内のdirect sibling identityです。global IDやcomponent stateの暗黙identityとして使いません。"
+    ],
+    "en": [
+      "DOM operations require the browser Dom capability. Rendering Html on a process target is separate from manipulating a real DOM.",
+      "DomContent pairs initial Html with an explicit binding plan. Leaf updates preserve Element identity/focus; a region owns its children.",
+      "Actions dispatch sequentially through a bounded FIFO. Overflow is failure, not silent dropping or conversion to parallel handlers.",
+      "Mount listeners, subscriptions, and dispatch work share a scope. Failure, cancellation, and unmount release them; preserving DOM during cleanup does not preserve listeners.",
+      "Keys identify direct siblings within one region. They are not global IDs or implicit component-state identities."
+    ]
+  },
+  "std/test": {
+    "ja": [
+      "Testは通常の不変treeで、構築時にbodyを実行しません。runnerが選択したcaseだけを実行し、tests rootではpub let testsとして公開します。",
+      "equalはEqで比較し、失敗表示にはDebugを使います。Floatには標準Eqがないため、目的に合う名前付き比較でBoolを作って検査します。",
+      "expectFailureは型付き失敗だけを対象にします。defectやキャンセルを「期待どおりのエラー」として成功へ変えません。",
+      "caseごとのenvironmentとリソースのスコープは独立です。追加serviceはtest doubleをprovideし、seedやpropertyの最小化inputを保存して再現します。"
+    ],
+    "en": [
+      "Test is an ordinary immutable tree; constructing it does not execute its body. The runner executes selected cases, discovered through pub let tests in the tests root.",
+      "equal compares with Eq and uses Debug for failure display. Float lacks standard Eq; produce a Bool with the named comparison matching your intended policy.",
+      "expectFailure handles typed failures only. Defects or cancellation do not become successful expected-error assertions.",
+      "Each case has its own environment and resource scope. Provide test doubles for extra services and retain seeds/minimized property inputs for reproduction."
+    ]
+  },
+  "std/benchmark": {
+    "ja": [
+      "Benchmarkは計測bodyを持つ通常のtreeです。測る計算をbody実行ごとに構築し、先に一度求めた結果の取得時間だけを測らないでください。",
+      "blackBoxは同じ値を返すoptimization barrierです。コンパイル時定数の除去を防ぐもので、allocationや実行順を変える機能ではありません。",
+      "inputSizeは正のproblem sizeをreportへ付けます。warmup、sample、ホスト/toolchain version、profileを揃えてbaselineを比較します。",
+      "bodyの型付き失敗、defect、リソースの解放漏れはcaseの失敗として扱います。追加serviceをprovideし、計測用の共有mutable stateをtreeの外へ置かない構成にします。"
+    ],
+    "en": [
+      "Benchmark is an ordinary tree containing a measured body. Reconstruct measured work per execution rather than timing retrieval of a result computed beforehand.",
+      "blackBox returns the same value as an optimization barrier against constant elimination. It does not change allocations or execution ordering.",
+      "inputSize attaches a positive problem size to reports. Match warmups, samples, host/toolchain versions, and profiles when comparing baselines.",
+      "Typed failures, defects, and resource leaks are case failures, not measurements. Provide extra services and avoid shared mutable measurement state outside the tree."
+    ]
+  }
+}

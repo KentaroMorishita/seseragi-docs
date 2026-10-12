@@ -1,0 +1,251 @@
+---
+title: "std/set"
+description: "EqとHashによる重複のない集合を作り、集合演算を行います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as set from "std/set"
+```
+
+## 選び方と注意
+
+- 重複を除くmembershipにはSetを使います。要素は`Eq`と`Hash`を必要とし、反復は最初の挿入順です。
+- 既存要素の挿入は順序を変えず、削除後の再挿入は末尾へ入ります。`union`は左側を保ち、右側だけの要素を後へ加えます。
+- 変換後の同値な要素は一つになります。Setには形を保つFunctor instanceがないため、`std/set`の`map`を明示して使います。
+- SetのEqは順序を無視します。ハッシュが適切ならmembershipは期待計算量O(1)ですが、ハッシュ衝突のコストは残ります。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Set`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Set<_>
+```
+
+## 関数と演算子
+
+### `contains`
+
+<small className="api-kind">関数</small>
+
+```text
+contains<A>
+  A
+  -> Set<A>
+  -> Bool
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `difference`
+
+<small className="api-kind">関数</small>
+
+```text
+difference<A>
+  Set<A>
+  -> Set<A>
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `empty`
+
+<small className="api-kind">関数</small>
+
+```text
+empty<A>
+  Unit
+  -> Set<A>
+```
+
+### `filter`
+
+<small className="api-kind">関数</small>
+
+条件がTrueになるcollection要素を残します。
+
+```text
+filter<A>
+  (A -> Bool)
+  -> Set<A>
+  -> Set<A>
+```
+
+### `fromIterable`
+
+<small className="api-kind">関数</small>
+
+```text
+fromIterable<C, A>
+  C
+  -> Set<A>
+where
+  Iterable<C, A>,
+  Eq<A>,
+  Hash<A>
+```
+
+### `insert`
+
+<small className="api-kind">関数</small>
+
+```text
+insert<A>
+  A
+  -> Set<A>
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `intersection`
+
+<small className="api-kind">関数</small>
+
+```text
+intersection<A>
+  Set<A>
+  -> Set<A>
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `isEmpty`
+
+<small className="api-kind">関数</small>
+
+collectionに要素がないかを返します。
+
+```text
+isEmpty<A>
+  Set<A>
+  -> Bool
+```
+
+### `isSubsetOf`
+
+<small className="api-kind">関数</small>
+
+```text
+isSubsetOf<A>
+  Set<A>
+  -> Set<A>
+  -> Bool
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `map`
+
+<small className="api-kind">関数</small>
+
+```text
+map<A, B>
+  (A -> B)
+  -> Set<A>
+  -> Set<B>
+where
+  Eq<B>,
+  Hash<B>
+```
+
+### `remove`
+
+<small className="api-kind">関数</small>
+
+```text
+remove<A>
+  A
+  -> Set<A>
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `singleton`
+
+<small className="api-kind">関数</small>
+
+```text
+singleton<A>
+  A
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+### `size`
+
+<small className="api-kind">関数</small>
+
+```text
+size<A>
+  Set<A>
+  -> Int
+```
+
+### `toArray`
+
+<small className="api-kind">関数</small>
+
+Setの要素を反復順に並べたArrayを返します。
+
+```text
+toArray<A>
+  Set<A>
+  -> Array<A>
+```
+
+### `toList`
+
+<small className="api-kind">関数</small>
+
+Setの要素を反復順に並べたListを返します。
+
+```text
+toList<A>
+  Set<A>
+  -> List<A>
+```
+
+### `union`
+
+<small className="api-kind">関数</small>
+
+```text
+union<A>
+  Set<A>
+  -> Set<A>
+  -> Set<A>
+where
+  Eq<A>,
+  Hash<A>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/arrays-and-lists)
+- [用途からmoduleを探す](/docs/reference/library)

@@ -1,0 +1,633 @@
+---
+title: "std/effect"
+description: "実行する処理を値として構築し、失敗・環境・時間・resource・並行処理を合成します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as effect from "std/effect"
+```
+
+## 選び方と注意
+
+- Effectはcoldです。作成やprovideだけで実行せず、同じ計算を実行するたびに処理を繰り返します。実行ごとの構築が必要ならdeferを使います。
+- recoverとattemptは型付き失敗だけを扱い、defectやキャンセルを捕捉しません。異なるエラー型はmapErrorなどでアプリのADTへ明示的に揃えます。
+- do/flatMapは逐次実行です。並列化は明示し、外部操作の順序やリソースの所有をそのAPIの契約に合わせます。
+- bracketやacquireReleaseでリソースをスコープへ登録します。終了処理は逆順に一度ずつ実行し、型付き失敗を外へ残せません。
+- timeoutは元の処理をキャンセルして後始末を待ちます。retry/repeatは元の操作を再実行するため、外部への書き込みを重複させてもよいかを確認してください。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Fiber`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Fiber<_, _>
+```
+
+### `FiberExit`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+FiberExit<_, _>
+```
+
+### `LoopControl`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+Effectの逐次走査を正常な成功として続けるContinue、または止めるBreakです。
+
+```text
+LoopControl
+```
+
+### `Parallelism`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Parallelism
+```
+
+### `ParallelismError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ParallelismError
+```
+
+### `Schedule`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Schedule<_>
+```
+
+### `ScheduleDecision`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ScheduleDecision<_>
+```
+
+### `ScheduleError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ScheduleError
+```
+
+## コンストラクタと値
+
+### `Break`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Break
+  LoopControl
+```
+
+### `Continue`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Continue
+  LoopControl
+```
+
+### `FiberCancelled`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FiberCancelled
+  FiberExit<E, A>
+```
+
+### `FiberFailed`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FiberFailed<E, A>
+  E
+  -> FiberExit<E, A>
+```
+
+### `FiberSucceeded`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FiberSucceeded<E, A>
+  A
+  -> FiberExit<E, A>
+```
+
+### `NegativeRecurrences`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NegativeRecurrences
+  Int
+  -> ScheduleError
+```
+
+### `NonPositiveParallelism`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NonPositiveParallelism
+  Int
+  -> ParallelismError
+```
+
+### `ScheduleContinue`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ScheduleContinue<A>
+  Duration
+  -> ScheduleDecision<A>
+```
+
+### `ScheduleStop`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ScheduleStop
+  ScheduleDecision<A>
+```
+
+## 関数と演算子
+
+### `acquireRelease`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+acquireRelease<R, E, A>
+  Effect<R, E, A>
+  -> (A -> Effect<R, Never, Unit>)
+  -> Effect<R, E, A>
+```
+
+### `attempt`
+
+<small className="api-kind">Effectを返す関数</small>
+
+defectとcancellationを保ったまま、typed failureをEitherへ移します。
+
+```text
+attempt<R, E, A>
+  Effect<R, E, A>
+  -> Effect<R, Never, Either<E, A>>
+```
+
+### `await`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+await<E, A>
+  Fiber<E, A>
+  -> Effect<
+       {},
+       Never,
+       FiberExit<E, A>
+     >
+```
+
+### `defer`
+
+<small className="api-kind">Effectを返す関数</small>
+
+coldなEffectの構築を、その実行ごとに遅延します。
+
+```text
+defer<R, E, A>
+  (Unit -> Effect<R, E, A>)
+  -> Effect<R, E, A>
+```
+
+### `fail`
+
+<small className="api-kind">Effectを返す関数 / 関数</small>
+
+型付きerrorで失敗するEffectを作ります。
+
+```text
+fail<E>
+  E
+  -> Effect<{}, E, Never>
+```
+
+### `forEachParallel`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+forEachParallel<C, R, E, A>
+  Parallelism
+  -> (A -> Effect<R, E, Unit>)
+  -> C
+  -> Effect<R, E, Unit>
+where
+  Reducible<C, A>
+```
+
+### `forEachUntil`
+
+<small className="api-kind">Effectを返す関数</small>
+
+Iterable順にcoldなActionを逐次実行し、Breakで正常終了します。次の要素は取得しません。
+
+```text
+forEachUntil<C, R, E, A>
+  (A -> Effect<R, E, LoopControl>)
+  -> C
+  -> Effect<R, E, Unit>
+where
+  Iterable<C, A>
+```
+
+### `fork`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+fork<R, E, A>
+  Effect<R, E, A>
+  -> Effect<R, Never, Fiber<E, A>>
+```
+
+### `fromEither`
+
+<small className="api-kind">Effectを返す関数 / 関数</small>
+
+外部操作を実行せず、EitherをEffectへliftします。
+
+```text
+fromEither<E, A>
+  Either<E, A>
+  -> Effect<{}, E, A>
+```
+
+### `fromMaybe`
+
+<small className="api-kind">Effectを返す関数</small>
+
+明示した欠如errorを使い、MaybeをEffectへliftします。
+
+```text
+fromMaybe<E, A>
+  E
+  -> Maybe<A>
+  -> Effect<{}, E, A>
+```
+
+### `interrupt`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+interrupt<E, A>
+  Fiber<E, A>
+  -> Effect<{}, Never, Unit>
+```
+
+### `join`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+join<E, A>
+  Fiber<E, A>
+  -> Effect<{}, E, A>
+```
+
+### `mapError`
+
+<small className="api-kind">Effectを返す関数 / 関数</small>
+
+Effectの成功値を保ったままfailureを変換します。
+
+```text
+mapError<R, E, F, A>
+  (E -> F)
+  -> Effect<R, E, A>
+  -> Effect<R, F, A>
+```
+
+### `parallel`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+parallel<R, E, A>
+  Array<Effect<R, E, A>>
+  -> Effect<R, E, Array<A>>
+```
+
+### `parallelism`
+
+<small className="api-kind">関数</small>
+
+```text
+parallelism
+  Int
+  -> Either<
+       ParallelismError,
+       Parallelism
+     >
+```
+
+### `poll`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+poll<E, A>
+  Fiber<E, A>
+  -> Effect<
+       {},
+       Never,
+       Maybe<FiberExit<E, A>>
+     >
+```
+
+### `provide`
+
+<small className="api-kind">Effectを返す関数</small>
+
+指定した環境で元のEffectを実行する新しいEffectを返します。この関数の呼び出しだけでは元のEffectを実行しません。
+
+```text
+provide<R, E, A>
+  R
+  -> Effect<R, E, A>
+  -> Effect<{}, E, A>
+```
+
+### `provideSome`
+
+<small className="api-kind">Effectを返す関数</small>
+
+外側のenvironmentを、Effectが要求するenvironmentへ射影します。
+
+```text
+provideSome<R0, R, E, A>
+  (R0 -> R)
+  -> Effect<R, E, A>
+  -> Effect<R0, E, A>
+```
+
+### `race`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+race<R, E, A>
+  Effect<R, E, A>
+  -> Effect<R, E, A>
+  -> Effect<R, E, A>
+```
+
+### `recover`
+
+<small className="api-kind">Effectを返す関数</small>
+
+defectやcancellationを捕捉せず、Effectのtyped failureから回復します。
+
+```text
+recover<R, E, F, A>
+  (E -> Effect<R, F, A>)
+  -> Effect<R, E, A>
+  -> Effect<R, F, A>
+```
+
+### `recurs`
+
+<small className="api-kind">関数</small>
+
+delayなしで、再実行回数に上限のあるScheduleを作ります。
+
+```text
+recurs<A>
+  Int
+  -> Either<
+       ScheduleError,
+       Schedule<A>
+     >
+```
+
+### `repeat`
+
+<small className="api-kind">Effectを返す関数</small>
+
+ScheduleとClockに従い、成功した計算を繰り返します。
+
+```text
+repeat<R, E, A>
+  Schedule<A>
+  -> Effect<R, E, A>
+  -> Effect<
+       R & { clock: Clock },
+       E,
+       A
+     >
+```
+
+0.61.25のAPI catalogは、結果の環境型から元のRを省略しています。ここでは仕様とruntimeに従ってRを補っています。実行には元の環境RとClockが必要です。要求するserviceがあれば、そのproviderも引き続き必要です。
+
+### `retry`
+
+<small className="api-kind">Effectを返す関数</small>
+
+ScheduleとClockに従い、typed failureをretryします。
+
+```text
+retry<R, E, A>
+  Schedule<E>
+  -> Effect<R, E, A>
+  -> Effect<
+       R & { clock: Clock },
+       E,
+       A
+     >
+```
+
+0.61.25のAPI catalogは、結果の環境型から元のRを省略しています。ここでは仕様とruntimeに従ってRを補っています。実行には元の環境RとClockが必要です。要求するserviceがあれば、そのproviderも引き続き必要です。
+
+### `schedule`
+
+<small className="api-kind">関数</small>
+
+```text
+schedule<A>
+  (Int -> A -> ScheduleDecision<A>)
+  -> Schedule<A>
+```
+
+### `scoped`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+scoped<R, E, A>
+  Effect<R, E, A>
+  -> Effect<R, E, A>
+```
+
+### `service`
+
+<small className="api-kind">Effectを返す関数</small>
+
+実行environmentから一つの値を選びます。
+
+```text
+service<R, S>
+  (R -> S)
+  -> Effect<R, Never, S>
+```
+
+### `spaced`
+
+<small className="api-kind">関数</small>
+
+一定のdelayと再実行回数の上限を持つScheduleを作ります。
+
+```text
+spaced<A>
+  Int
+  -> Duration
+  -> Either<
+       ScheduleError,
+       Schedule<A>
+     >
+```
+
+### `succeed`
+
+<small className="api-kind">Effectを返す関数 / 関数</small>
+
+値を返して成功するEffectを作ります。
+
+```text
+succeed<A>
+  A
+  -> Effect<{}, Never, A>
+```
+
+### `timeout`
+
+<small className="api-kind">Effectを返す関数</small>
+
+Clockを使うtimeoutを設定し、期限切れをMaybeで返します。
+
+```text
+timeout<R, E, A>
+  Duration
+  -> Effect<R, E, A>
+  -> Effect<
+       R & { clock: Clock },
+       E,
+       Maybe<A>
+     >
+```
+
+0.61.25のAPI catalogは、結果の環境型から元のRを省略しています。ここでは仕様とruntimeに従ってRを補っています。実行には元の環境RとClockが必要です。要求するserviceがあれば、そのproviderも引き続き必要です。
+
+### `timeoutFail`
+
+<small className="api-kind">Effectを返す関数</small>
+
+Clockを使うtimeoutを設定し、期限切れを明示した型付き失敗で返します。
+
+```text
+timeoutFail<R, E, A>
+  E
+  -> Duration
+  -> Effect<R, E, A>
+  -> Effect<
+       R & { clock: Clock },
+       E,
+       A
+     >
+```
+
+0.61.25のAPI catalogは、結果の環境型から元のRを省略しています。ここでは仕様とruntimeに従ってRを補っています。実行には元の環境RとClockが必要です。要求するserviceがあれば、そのproviderも引き続き必要です。
+
+### `traverseParallel`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+traverseParallel<C, R, E, A, B>
+  Parallelism
+  -> (A -> Effect<R, E, B>)
+  -> C
+  -> Effect<R, E, Array<B>>
+where
+  Reducible<C, A>
+```
+
+### `unboundedParallelism`
+
+<small className="api-kind">関数</small>
+
+```text
+unboundedParallelism
+  Unit
+  -> Parallelism
+```
+
+### `whileInput`
+
+<small className="api-kind">関数</small>
+
+条件がTrueの間だけ続けるScheduleを作ります。
+
+```text
+whileInput<A>
+  (A -> Bool)
+  -> Schedule<A>
+```
+
+### `yieldNow`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+yieldNow
+  Unit
+  -> Effect<{}, Never, Unit>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)

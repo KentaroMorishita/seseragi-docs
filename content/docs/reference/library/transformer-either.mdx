@@ -1,0 +1,75 @@
+---
+title: "std/transformer/either"
+description: "Eitherの失敗を、別のMonadが返す値と組み合わせます。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as transformer_either
+  from "std/transformer/either"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `EitherT`
+
+<small className="api-kind">struct</small>
+
+```text
+struct EitherT<E, M<_>, A> {
+  run: M<Either<E, A>>
+}
+```
+
+- `run`: Eitherの結果を保持する、型構築子Mに入った値。
+
+## 関数と演算子
+
+### `fromEither`
+
+<small className="api-kind">関数</small>
+
+```text
+fromEither<E, M<_>, A>
+  Either<E, A>
+  -> EitherT<E, M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `lift`
+
+<small className="api-kind">関数</small>
+
+```text
+lift<E, M<_>, A>
+  M<A>
+  -> EitherT<E, M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `run`
+
+<small className="api-kind">関数</small>
+
+```text
+run<E, M<_>, A>
+  EitherT<E, M<_>, A>
+  -> M<Either<E, A>>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/type-classes)
+- [用途からmoduleを探す](/docs/reference/library)

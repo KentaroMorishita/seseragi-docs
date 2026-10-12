@@ -1,0 +1,16 @@
+schema = 1
+language = "0.1.0"
+standard_library = "0.1.0"
+unicode = "17.0.0"
+timezone_database = "2025b"
+root = "docs/modules@0.0.0#workspace:."
+
+[[packages]]
+id = "docs/modules@0.0.0#workspace:."
+name = "docs/modules"
+version = "0.0.0"
+source_kind = "workspace"
+source = "."
+manifest_digest = "sha256:253fb239759ea8369150216726ace51537781cfe5a498f5c18a9560013f3ce4e"
+content_digest = "sha256:e97be9e5b82934695d6e44992fcf59298a3a28c7208c88de55b75d0b5e81ed4f"
+dependencies = []

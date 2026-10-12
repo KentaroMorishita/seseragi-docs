@@ -1,0 +1,7 @@
+import * as maybe from "std/maybe"
+
+pub effect fn main =
+  Just 42
+  |> maybe.withDefault 0
+  |> show
+  |> println

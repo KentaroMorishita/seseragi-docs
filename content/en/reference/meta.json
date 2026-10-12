@@ -1,1 +1,27 @@
-{"title": "Reference", "pages": ["functions"]}
+{
+  "title": "Reference",
+  "pages": [
+    "index",
+    "---Language contracts---",
+    "syntax",
+    "types",
+    "data-types",
+    "patterns",
+    "functions",
+    "type-classes",
+    "---Computation and boundaries---",
+    "effects",
+    "signals",
+    "modules",
+    "typescript-interop",
+    "web-ui",
+    "---Tooling and execution---",
+    "cli",
+    "diagnostics",
+    "project-configuration",
+    "runtime-providers",
+    "performance",
+    "---Look up APIs---",
+    "library"
+  ]
+}

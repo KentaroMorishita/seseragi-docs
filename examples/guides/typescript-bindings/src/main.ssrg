@@ -1,0 +1,17 @@
+import * as effects from "std/effect"
+import { bracket, loadLabel }
+  from "./format"
+
+pub effect fn main = do {
+  "ready"
+  |> bracket
+  |> println
+  result <-
+    loadLabel ()
+    |> effects.attempt
+  let message = match result {
+    Right value -> value
+    Left _ -> "Please try again"
+  }
+  println message
+}

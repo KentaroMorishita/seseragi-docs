@@ -1,0 +1,102 @@
+---
+title: "std/transformer/state"
+description: "Compose state-passing computations with another Monad."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as transformer_state
+  from "std/transformer/state"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `StateT`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct StateT<S, M<_>, A> {
+  run: S -> M<(A, S)>
+}
+```
+
+- `run`: Function receiving state S and returning the result A and next state S in type constructor M.
+
+## Functions and operators
+
+### `get`
+
+<small className="api-kind">Function</small>
+
+Constructs a StateT computation that returns the current state and passes it on unchanged.
+
+```text
+get<S, M<_>>
+  Unit
+  -> StateT<S, M<_>, S>
+where
+  Monad<M<_>>
+```
+
+### `lift`
+
+<small className="api-kind">Function</small>
+
+```text
+lift<S, M<_>, A>
+  M<A>
+  -> StateT<S, M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `modify`
+
+<small className="api-kind">Function</small>
+
+```text
+modify<S, M<_>>
+  (S -> S)
+  -> StateT<S, M<_>, Unit>
+where
+  Monad<M<_>>
+```
+
+### `put`
+
+<small className="api-kind">Function</small>
+
+```text
+put<S, M<_>>
+  S
+  -> StateT<S, M<_>, Unit>
+where
+  Monad<M<_>>
+```
+
+### `run`
+
+<small className="api-kind">Function</small>
+
+```text
+run<S, M<_>, A>
+  S
+  -> StateT<S, M<_>, A>
+  -> M<(A, S)>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/type-classes)
+- [Browse modules by purpose](/en/docs/reference/library)

@@ -1,0 +1,229 @@
+---
+title: "std/test"
+description: "Group pure and effectful checks into suites and run them with the CLI."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as test from "std/test"
+```
+
+## Choosing operations
+
+- Test is an ordinary immutable tree; constructing it does not execute its body. The runner executes selected cases, discovered through pub let tests in the tests root.
+- equal compares with Eq and uses Debug for failure display. Float lacks standard Eq; produce a Bool with the named comparison matching your intended policy.
+- expectFailure handles typed failures only. Defects or cancellation do not become successful expected-error assertions.
+- Each case has its own environment and resource scope. Provide test doubles for extra services and retain seeds/minimized property inputs for reproduction.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Test`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Test
+```
+
+### `TestEnvironment`
+
+<small className="api-kind">Type alias</small>
+
+```text
+TestEnvironment
+```
+
+### `TestFailure`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+TestFailure
+```
+
+## Constructors and values
+
+### `AssertionFailed`
+
+<small className="api-kind">Constructor</small>
+
+```text
+AssertionFailed
+  {
+    message: String,
+    expected: Maybe<String>,
+    actual: Maybe<String>
+  }
+  -> TestFailure
+```
+
+### `ExpectedTypedFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ExpectedTypedFailure
+  TestFailure
+```
+
+### `ExplicitTestFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ExplicitTestFailure
+  String
+  -> TestFailure
+```
+
+### `TypedFailureDidNotMatch`
+
+<small className="api-kind">Constructor</small>
+
+```text
+TypedFailureDidNotMatch
+  String
+  -> TestFailure
+```
+
+## Functions and operators
+
+### `equal`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+equal<A>
+  A
+  -> A
+  -> Effect<{}, TestFailure, Unit>
+where
+  Eq<A>,
+  Debug<A>
+```
+
+### `expectFailure`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+expectFailure<R, E, A>
+  (E -> Bool)
+  -> Effect<R, E, A>
+  -> Effect<R, TestFailure, Unit>
+where
+  Debug<E>
+```
+
+### `fail`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+fail
+  String
+  -> Effect<{}, TestFailure, Unit>
+```
+
+### `isFalse`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+isFalse
+  Bool
+  -> Effect<{}, TestFailure, Unit>
+```
+
+### `isTrue`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+isTrue
+  Bool
+  -> Effect<{}, TestFailure, Unit>
+```
+
+### `notEqual`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+notEqual<A>
+  A
+  -> A
+  -> Effect<{}, TestFailure, Unit>
+where
+  Eq<A>,
+  Debug<A>
+```
+
+### `skip`
+
+<small className="api-kind">Function</small>
+
+```text
+skip
+  String
+  -> Test
+  -> Test
+```
+
+### `suite`
+
+<small className="api-kind">Function</small>
+
+```text
+suite
+  String
+  -> Array<Test>
+  -> Test
+```
+
+### `test`
+
+<small className="api-kind">Function</small>
+
+```text
+test
+  String
+  -> Effect<
+       {
+         clock: Clock,
+         random: Random,
+         console: Console,
+         logger: Logger
+       },
+       TestFailure,
+       Unit
+     >
+  -> Test
+```
+
+### `timeout`
+
+<small className="api-kind">Function</small>
+
+```text
+timeout
+  Duration
+  -> Test
+  -> Test
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/functions-and-pipelines)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Test an application](/en/docs/guides/testing)

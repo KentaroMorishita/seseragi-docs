@@ -1,0 +1,80 @@
+---
+title: "Runtime providers"
+description: "Check service requirements, logical targets, compatibility, deterministic provider selection, and locking."
+---
+
+An application requests services such as HTTP or Clock through types. Provider configuration chooses the host implementation. Adding a library does not automatically replace an application's runtime implementation.
+
+## API, contract, bridge, and provider
+
+| Layer | Responsibility |
+| --- | --- |
+| std/package API | Application types, Effects, typed errors, and normalization |
+| Provider Contract | Service identity and logical operation/input/success/failure |
+| Runtime ABI/bridge | Backend value conversion and call protocol |
+| Runtime provider | Calls to host APIs or external libraries |
+
+Applications call public module operations. Service-object members, ABI result envelopes, and internal handles are not direct application APIs.
+
+## Services and targets
+
+| Module | Requirement field | Service identity |
+| --- | --- | --- |
+| std/clock | clock | std/clock::Clock |
+| std/fs | fileSystem | std/fs::FileSystem |
+| std/http | httpClient | std/http::HttpClient |
+| std/http/server | httpServer | std/http/server::HttpServer |
+| std/web/dom | dom | std/web/dom::Dom |
+| std/web/storage | storage | std/web/storage::Storage |
+
+Requirements flow from Effect types into the entry's closed environment. Merely importing a module does not add unused services.
+
+Manifest process/web are logical targets. Artifact targets such as bun-process identify toolchain adapters. Select the logical target first, then a provider; missing providers do not trigger a hidden target switch. The current process path uses Bun, and Web uses the browser. Distributing the compiler as WASM is also separate from compiling application programs to WASM.
+
+## A Clock example
+
+This package requests a Clock operation and prints Clock ready.
+
+{/* example: examples/reference/provider-clock/src/main.ssrg */}
+
+```seseragi title="main.ssrg"
+import * as clock from "std/clock"
+
+pub effect fn main = do {
+  _ <- clock.now ()
+  println "Clock ready"
+}
+```
+
+Its manifest selects process and maps service key std/clock::Clock under providers to identity seseragi/runtime-bun#clock. Omitting the explicit setting allows the target's toolchain default. Provider identities are deployment settings, not part of application function signatures.
+
+## Candidates and compatibility
+
+Visible candidates come from the selected target's toolchain catalog or artifacts exposed by direct dependencies of the executable root. Transitive libraries may require services but cannot choose providers for their consumers.
+
+A candidate must satisfy service identity, target, Contract version, backend family/ABI major, runtime features, and host-package resolution. Contract major must match, and provider minor must meet or exceed the required minor. Package SemVer, Contract versions, and ABI versions are independent.
+
+## Selection and preparation errors
+
+After compatibility filtering, selection uses root explicit configuration, toolchain default, then a unique compatible candidate. An incompatible explicit/default selection does not fall back. With no selection, zero candidates means missing and multiple candidates means ambiguous.
+
+| Code | Cause |
+| --- | --- |
+| SES-K0201 | Missing provider |
+| SES-K0202 | Multiple compatible candidates |
+| SES-K0203 | Selected provider does not support the target |
+| SES-K0204 | Incompatible Contract version |
+| SES-K0205 | Incompatible backend or ABI |
+| SES-K0206 | Missing runtime feature or host package |
+| SES-K0207 | Conflicting requirement Contract majors |
+| SES-K0208 | Explicit/default identity is not visible as a candidate |
+
+Selection completes before entry evaluation. Unprovided services are not filled with undefined to fail later. Selection, artifact digests, and host identities are fixed in the same seseragi.lock.
+
+## Execution and resources
+
+Provider-backed Effects are cold too; construction does not start a host operation. Typed failure, defects, and cancellation remain distinct outcomes. Successful resource acquisition is handed atomically to scope ownership; an explicit close racing with a finalizer still closes once.
+
+Resources and callbacks have consumer scopes and cleanup contracts. Their lifetimes do not escape into garbage collection or module globals. A custom provider must satisfy schema, compatibility, and lifecycle conformance.
+
+See [Effects](/en/docs/reference/effects) for requirement composition, [Project configuration](/en/docs/reference/project-configuration) for settings/locks, and the [Standard library](/en/docs/reference/library) for modules and targets.

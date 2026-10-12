@@ -1,128 +1,51 @@
 ---
 title: Your first program
-description: Model delivery states with a type, then transform them into text with match and a pipeline.
+description: Print one line of text, then edit and run the program again.
 ---
 
-Display “Preparing” when a parcel is being packed, or its destination city once it has been sent. Let's define those states and a function that returns the display text.
+Start by running a program that displays `Hello, Seseragi!`. Once it works, change the text and run it again.
 
-## Define the states
+## Display one line
 
-Define two cases of a type called `Parcel`.
+{/* example: examples/hello.ssrg */}
 
-```seseragi
-type Parcel =
-  | Packing
-  | Sent String
-```
-
-`Packing` represents a parcel being prepared. `Sent` represents a sent parcel and carries its destination city as a `String`. A type made up of cases like these is called an algebraic data type.
-
-`Sent "Kyoto"` creates a value whose destination is Kyoto. Both `Packing` and `Sent "Kyoto"` are values of type `Parcel`.
-
-## Turn a state into text
-
-`label` takes a `Parcel` and returns a `String` for display.
-
-```seseragi
-fn label parcel: Parcel -> String =
-  match parcel {
-    Packing -> "Preparing"
-    Sent city -> `Sent to ${city}`
-  }
-```
-
-Write the function name and parameter after `fn`. `parcel: Parcel` names the parameter and its type; the final `String` is the result type. The expression after `=` is the body.
-
-`match` checks which case the value belongs to. For `Packing`, it returns `"Preparing"`. For `Sent city`, it extracts the destination into `city`.
-
-Inside a backtick-delimited string, `${city}` inserts that value. Passing `Sent "Kyoto"` returns `"Sent to Kyoto"`.
-
-<div className="lesson-flow" role="img" aria-label="Passing Sent Kyoto to label returns Sent to Kyoto">
-  <div><small>Value</small><strong>Sent "Kyoto"</strong></div><span aria-hidden="true">→</span><div><small>Function</small><strong>label</strong></div><span aria-hidden="true">→</span><div><small>Result</small><strong>Sent to Kyoto</strong></div>
-</div>
-
-## Compose functions and print
-
-Apply a function by writing its name followed by space-separated arguments. For example, `label (Sent "Kyoto")` passes a sent parcel to `label`.
-
-The `|>` operator passes the value on its left to the function on its right.
-
-```seseragi
+```seseragi title="hello.ssrg"
 pub effect fn main =
-  Sent "Kyoto"
-  |> label
-  |> println
+  println "Hello, Seseragi!"
 ```
 
-First, pass `Sent "Kyoto"` to `label`. Then pass the resulting string to `println`.
+`main` is the program's entry point. `pub` exposes that entry point, and `effect fn` declares the computation that performs output.
 
-`main` is the program's entry point. Declare it with `pub effect fn` because it produces output. `label` is an ordinary function that returns text; `println` performs the output.
+`println` prints one line of text. Pass `"Hello, Seseragi!"` after the function name, separated by a space. The double quotes mark the beginning and end of the string.
 
-## The complete program
+## Run it in the browser
 
-```seseragi title="parcel.ssrg"
-type Parcel =
-  | Packing
-  | Sent String
+Open the [Playground](https://seseragi.vercel.app/), paste the code above, and run it. No installation is required.
 
-fn label parcel: Parcel -> String =
-  match parcel {
-    Packing -> "Preparing"
-    Sent city -> `Sent to ${city}`
-  }
-
-pub effect fn main =
-  Sent "Kyoto"
-  |> label
-  |> println
-```
-
-Running it prints one line:
+The program displays one line:
 
 ```text title="Output"
-Sent to Kyoto
+Hello, Seseragi!
 ```
 
-Paste the complete program into the [Playground](https://seseragi.vercel.app/) and run it. With the CLI installed, save it as `parcel.ssrg` and run:
+## Run it locally
+
+To use the CLI, save the code as `hello.ssrg`. If you have not installed the CLI, follow [Local development](/en/docs/learn/local-development) first.
+
+From the directory containing the file, run:
 
 ```sh
-seseragi run parcel.ssrg
+seseragi run hello.ssrg
 ```
 
-## Change the state
+It displays the same `Hello, Seseragi!`.
 
-Replace `Sent "Kyoto"` in `main` with `Packing`. The output becomes `Preparing`. Change the city to `"Sapporo"` and it becomes `Sent to Sapporo`.
+## Change the text
 
-Next, add a new case, `Arrived`, to `Parcel`. Compilation fails because `label` has no branch handling that case. Handling every case lets the compiler check for missing branches before execution.
+Replace `"Hello, Seseragi!"` with `"Hello, Kyoto!"` and run the program again. The output changes to `Hello, Kyoto!`.
 
-## The TypeScript equivalent
-
-In TypeScript, represent the same states with a discriminated union and a `switch`.
-
-```ts
-type Parcel =
-  | { kind: "packing" }
-  | { kind: "sent"; city: string };
-
-function label(parcel: Parcel) {
-  switch (parcel.kind) {
-    case "packing":
-      return "Preparing";
-    case "sent": {
-      const { city } = parcel;
-      return `Sent to ${city}`;
-    }
-  }
-}
-
-console.log(label({
-  kind: "sent",
-  city: "Kyoto",
-}));
-```
-
-Seseragi declares the cases `Packing` and `Sent` directly in the type. The `Sent city` pattern selects the case and extracts the destination together.
+You can use your own name or message too. Keep the double quotes at both ends.
 
 ## Read next
 
-The [function reference](/en/docs/reference/functions) covers declarations, application, and partial application.
+[Local development](/en/docs/learn/local-development) covers installing the CLI, running files, and creating a Web app. Then [Values and expressions](/en/docs/learn/values-and-expressions) introduces how calculated results are used.

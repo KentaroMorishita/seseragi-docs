@@ -1,0 +1,16 @@
+schema = 1
+language = "0.1.0"
+standard_library = "0.1.0"
+unicode = "17.0.0"
+timezone_database = "2025b"
+root = "docs/shipping@0.1.0#workspace:."
+
+[[packages]]
+id = "docs/shipping@0.1.0#workspace:."
+name = "docs/shipping"
+version = "0.1.0"
+source_kind = "workspace"
+source = "."
+manifest_digest = "sha256:112787d0576edf72d5b55e03ee8ff5fde79f67492f9dbf09c6acb88480a42c30"
+content_digest = "sha256:2b199a2de03f5ba6c16cee1ad860b69251fb181b9561cc77552a357aae9b8493"
+dependencies = []

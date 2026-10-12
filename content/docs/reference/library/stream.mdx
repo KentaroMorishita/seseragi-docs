@@ -1,0 +1,312 @@
+---
+title: "std/stream"
+description: "時間とともに流れる要素を変換します。消費・中断・resourceの寿命を含めて扱います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as stream from "std/stream"
+```
+
+## 選び方と注意
+
+- Streamはcoldで、終端操作ごとに独立したproducerとスコープを作ります。同じStreamを二度実行しても購読を共有しません。
+- 既定はpull-basedです。bufferは満杯ならproducerを待たせ、dropする方針はbufferDroppingなどで明示します。
+- flatMapは各innerを順番に最後まで処理します。mergeは別の並行合成で、順序とfailureの選択をその契約に従って扱います。
+- runCollectは有限Streamに使います。無限Streamでは完了せず値を保持し続けるため、必要ならtakeなどで止めます。途中終了やキャンセルでも上流のリソースを閉じます。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `BufferCapacity`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+BufferCapacity
+```
+
+### `BufferCapacityError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+BufferCapacityError
+```
+
+### `Stream`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Stream<_, _, _>
+```
+
+## コンストラクタと値
+
+### `NonPositiveBufferCapacity`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NonPositiveBufferCapacity
+  Int
+  -> BufferCapacityError
+```
+
+## 関数と演算子
+
+### `buffer`
+
+<small className="api-kind">関数</small>
+
+```text
+buffer<R, E, A>
+  BufferCapacity
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `bufferCapacity`
+
+<small className="api-kind">関数</small>
+
+```text
+bufferCapacity
+  Int
+  -> Either<
+       BufferCapacityError,
+       BufferCapacity
+     >
+```
+
+### `concat`
+
+<small className="api-kind">関数</small>
+
+二つ目の引数のStreamを終端まで読み、その後に一つ目の引数のStreamを開始するStreamを返します。パイプラインでは連結する後半のStreamを先に渡します。
+
+```text
+concat<R, E, A>
+  Stream<R, E, A>
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `drop`
+
+<small className="api-kind">関数</small>
+
+指定数の先頭要素を飛ばした残りを返します。
+
+```text
+drop<R, E, A>
+  Int
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `empty`
+
+<small className="api-kind">関数</small>
+
+```text
+empty
+  Stream<R, E, A>
+```
+
+### `filter`
+
+<small className="api-kind">関数</small>
+
+条件がTrueになるcollection要素を残します。
+
+```text
+filter<R, E, A>
+  (A -> Bool)
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `filterMap`
+
+<small className="api-kind">関数</small>
+
+collection要素を変換し、Nothingの結果を除外します。
+
+```text
+filterMap<R, E, A, B>
+  (A -> Maybe<B>)
+  -> Stream<R, E, A>
+  -> Stream<R, E, B>
+```
+
+### `flatMap`
+
+<small className="api-kind">関数</small>
+
+各要素をcollectionへ変換し、結果を平坦化します。
+
+```text
+flatMap<R, E, A, B>
+  (A -> Stream<R, E, B>)
+  -> Stream<R, E, A>
+  -> Stream<R, E, B>
+```
+
+### `fromArray`
+
+<small className="api-kind">関数</small>
+
+```text
+fromArray<R, E, A>
+  Array<A>
+  -> Stream<R, E, A>
+```
+
+### `fromEffect`
+
+<small className="api-kind">関数</small>
+
+```text
+fromEffect<R, E, A>
+  Effect<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `fromIterable`
+
+<small className="api-kind">関数</small>
+
+```text
+fromIterable<C, R, E, A>
+  C
+  -> Stream<R, E, A>
+where
+  Iterable<C, A>
+```
+
+### `map`
+
+<small className="api-kind">関数</small>
+
+```text
+map<R, E, A, B>
+  (A -> B)
+  -> Stream<R, E, A>
+  -> Stream<R, E, B>
+```
+
+### `mapError`
+
+<small className="api-kind">関数</small>
+
+```text
+mapError<R, E, F, A>
+  (E -> F)
+  -> Stream<R, E, A>
+  -> Stream<R, F, A>
+```
+
+### `merge`
+
+<small className="api-kind">関数</small>
+
+```text
+merge<R, E, A>
+  Stream<R, E, A>
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `runCollect`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+runCollect<R, E, A>
+  Stream<R, E, A>
+  -> Effect<R, E, Array<A>>
+```
+
+### `runFold`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+runFold<R, E, A, B>
+  B
+  -> (B -> A -> B)
+  -> Stream<R, E, A>
+  -> Effect<R, E, B>
+```
+
+### `runForEach`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+runForEach<R, E, A>
+  (A -> Effect<R, E, Unit>)
+  -> Stream<R, E, A>
+  -> Effect<R, E, Unit>
+```
+
+### `singleton`
+
+<small className="api-kind">関数</small>
+
+```text
+singleton<R, E, A>
+  A
+  -> Stream<R, E, A>
+```
+
+### `take`
+
+<small className="api-kind">関数</small>
+
+指定した数を上限として先頭要素を返します。
+
+```text
+take<R, E, A>
+  Int
+  -> Stream<R, E, A>
+  -> Stream<R, E, A>
+```
+
+### `unfold`
+
+<small className="api-kind">関数</small>
+
+```text
+unfold<S, R, E, A>
+  (S -> Maybe<(A, S)>)
+  -> S
+  -> Stream<R, E, A>
+```
+
+### `zip`
+
+<small className="api-kind">関数</small>
+
+```text
+zip<R, E, A, B>
+  Stream<R, E, B>
+  -> Stream<R, E, A>
+  -> Stream<R, E, (A, B)>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)

@@ -1,0 +1,104 @@
+---
+title: "std/websocket/server"
+description: "Accept WebSocket connections in a process."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process |
+| Capability identities | `std/websocket/server::WebSocketServer` |
+
+## Import
+
+```seseragi
+import * as websocket_server
+  from "std/websocket/server"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Handler`
+
+<small className="api-kind">Type alias</small>
+
+```text
+Handler<_>
+```
+
+### `WebSocketServer`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+WebSocketServer
+```
+
+### `WebSocketServerHandle`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+WebSocketServerHandle
+```
+
+## Functions and operators
+
+### `closeServer`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+closeServer
+  WebSocketServerHandle
+  -> Effect<
+       {
+         webSocketServer:
+          WebSocketServer
+       },
+       Never,
+       Unit
+     >
+```
+
+### `listen`
+
+<small className="api-kind">Function returning Effect</small>
+
+<details>
+<summary>Show the complete type</summary>
+
+```text
+listen<R>
+  {
+    hostname?: String,
+    port: Int,
+    path: String,
+    protocols: Array<String>,
+    receiveBuffer: BufferCapacity,
+    handler: (
+      WebSocketConnection
+      -> Effect<R, Never, Unit>
+    )
+  }
+  -> Effect<
+       R & {
+         webSocketServer:
+          WebSocketServer
+       },
+       WebSocketError,
+       WebSocketServerHandle
+     >
+```
+
+</details>
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

@@ -1,1 +1,27 @@
-{"title": "リファレンス", "pages": ["functions"]}
+{
+  "title": "リファレンス",
+  "pages": [
+    "index",
+    "---言語の規則---",
+    "syntax",
+    "types",
+    "data-types",
+    "patterns",
+    "functions",
+    "type-classes",
+    "---処理と境界---",
+    "effects",
+    "signals",
+    "modules",
+    "typescript-interop",
+    "web-ui",
+    "---開発ツールと実行---",
+    "cli",
+    "diagnostics",
+    "project-configuration",
+    "runtime-providers",
+    "performance",
+    "---APIを調べる---",
+    "library"
+  ]
+}

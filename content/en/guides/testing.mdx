@@ -1,0 +1,107 @@
+---
+title: Write tests
+description: Verify a public API with std/test and preserve meaningful boundary cases.
+---
+
+Test a shipping rule: a subtotal of at least 3000 has no fee; a smaller subtotal has a fee of 400. Fix cases immediately below, at, and above the boundary to detect changes to the condition.
+
+The code uses [Functions and pipelines](/en/docs/learn/functions-and-pipelines), [Modules](/en/docs/learn/modules), and [Effects](/en/docs/learn/effects). This guide sets up the test files and runner commands below.
+
+## Create a package for tests
+
+Create this structure in `shipping/`. You need the CLI and Bun. Put normal functions in `src/` and tests in `tests/`.
+
+```text
+shipping/
+  seseragi.toml
+  src/
+    shipping.ssrg
+  tests/
+    shipping.ssrg
+```
+
+```toml title="seseragi.toml"
+[package]
+name = "docs/shipping"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[exports]
+"." = "shipping"
+
+[test]
+target = "node"
+jobs = 1
+```
+
+`"." = "shipping"` in `[exports]` defines the public entry. `target = "node"` in `[test]` selects the current test runner target; it is separate from an application's `run.target`.
+
+## Write the public function
+
+{/* example: examples/guides/testing/src/shipping.ssrg */}
+```seseragi title="src/shipping.ssrg"
+pub fn fee subtotal: Int -> Int =
+  if subtotal >= 3000 then 0 else 400
+```
+
+Both `pub` on the function and the export map for its module are needed. The test imports `fee` through the package's public entry.
+
+## Create a test tree
+
+{/* example: examples/guides/testing/tests/shipping.ssrg */}
+```seseragi title="tests/shipping.ssrg"
+import * as test from "std/test"
+import { fee } from "docs/shipping"
+
+pub let tests: test.Test =
+  test.suite "fee" [
+    test.test "below threshold"
+      (test.equal 400 (fee 2999)),
+    test.test "at threshold"
+      (test.equal 0 (fee 3000)),
+    test.test "above threshold"
+      (test.equal 0 (fee 3001))
+  ]
+```
+
+`test.equal` takes the expected value first, followed by the actual value. The runner discovers `pub let tests: test.Test`. This binding publishes a test definition as required by the runner's contract.
+
+`test.suite` and `test.test` construct ordinary values. Their body Effects run only when the runner executes those cases.
+
+## Run the tests
+
+Execute these commands in `shipping/`:
+
+```sh
+seseragi lock update
+seseragi test
+```
+
+```text
+PASS shipping::fee::below threshold
+PASS shipping::fee::at threshold
+PASS shipping::fee::above threshold
+3 passed; 0 failed; 0 skipped
+```
+
+After changing the condition to `subtotal > 3000` and saving it, run `seseragi lock update` again, then `seseragi test`. The `at threshold` case fails, with 2 passed and 1 failed. Restore `>=`, update the lock, and rerun the tests.
+
+Normal source changes alter content covered by the lock. Testing before updating it stops with `SES-K0102`. A test failure exits with code 1; stale locks and configuration, compile, or discovery problems exit with 2.
+
+## Run a subset
+
+```sh
+seseragi test --filter threshold
+seseragi test --exact \
+  shipping::fee::at\ threshold
+```
+
+`--filter` matches a case-sensitive substring of the full name, not a regular expression. `--exact` selects a full case name. An empty selection exits with code 2 rather than succeeding.
+
+`--jobs` selects concurrency. Each case uses an independent environment and resource scope, while reporting remains in definition order.
+
+## Choose what to verify
+
+These tests verify the fee rule, not browser input or interaction. Check input, focus, and event behavior in a browser as well. Pure update functions can be tested directly with the same `test.equal`.
+
+[State and Actions](/en/docs/guides/state-and-actions) demonstrates an update function separated from its UI. See [CLI Reference](/en/docs/reference/cli) for timeout, filtering, and exit-code options.

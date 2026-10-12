@@ -1,0 +1,453 @@
+---
+title: "std/text/unicode"
+description: "Unicodeの正規化・文字属性・case foldingを扱います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as text_unicode
+  from "std/text/unicode"
+```
+
+## 選び方と注意
+
+- 正規化のformは明示します。canonicalなNFC/NFDとcompatibilityなNFKC/NFKDでは、同一化する範囲が違います。
+- StringのEqはscalar列の完全一致です。同じ見た目でも、正規化前の異なる列を自動で等しく扱いません。
+- simpleCaseFoldは一scalarから一scalar、fullCaseFoldは複数scalarへの展開も許します。どちらもロケール非依存です。
+- Unicode data versionはtoolchainとruntimeで固定・照合されます。ホスト ICUや実行OSのUnicode versionへ意味を委ねません。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `NormalizationForm`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+NormalizationForm
+```
+
+### `UnicodeGeneralCategory`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+UnicodeGeneralCategory
+```
+
+## コンストラクタと値
+
+### `ClosePunctuation`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ClosePunctuation
+  UnicodeGeneralCategory
+```
+
+### `ConnectorPunctuation`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ConnectorPunctuation
+  UnicodeGeneralCategory
+```
+
+### `Control`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Control
+  UnicodeGeneralCategory
+```
+
+### `CurrencySymbol`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+CurrencySymbol
+  UnicodeGeneralCategory
+```
+
+### `DashPunctuation`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DashPunctuation
+  UnicodeGeneralCategory
+```
+
+### `DecimalNumber`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DecimalNumber
+  UnicodeGeneralCategory
+```
+
+### `EnclosingMark`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+EnclosingMark
+  UnicodeGeneralCategory
+```
+
+### `FinalPunctuation`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FinalPunctuation
+  UnicodeGeneralCategory
+```
+
+### `Format`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Format
+  UnicodeGeneralCategory
+```
+
+### `InitialPunctuation`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InitialPunctuation
+  UnicodeGeneralCategory
+```
+
+### `LetterNumber`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+LetterNumber
+  UnicodeGeneralCategory
+```
+
+### `LineSeparator`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+LineSeparator
+  UnicodeGeneralCategory
+```
+
+### `LowercaseLetter`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+LowercaseLetter
+  UnicodeGeneralCategory
+```
+
+### `MathSymbol`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+MathSymbol
+  UnicodeGeneralCategory
+```
+
+### `ModifierLetter`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ModifierLetter
+  UnicodeGeneralCategory
+```
+
+### `ModifierSymbol`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ModifierSymbol
+  UnicodeGeneralCategory
+```
+
+### `NFC`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NFC
+  NormalizationForm
+```
+
+### `NFD`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NFD
+  NormalizationForm
+```
+
+### `NFKC`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NFKC
+  NormalizationForm
+```
+
+### `NFKD`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NFKD
+  NormalizationForm
+```
+
+### `NonspacingMark`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NonspacingMark
+  UnicodeGeneralCategory
+```
+
+### `OpenPunctuation`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+OpenPunctuation
+  UnicodeGeneralCategory
+```
+
+### `OtherLetter`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+OtherLetter
+  UnicodeGeneralCategory
+```
+
+### `OtherNumber`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+OtherNumber
+  UnicodeGeneralCategory
+```
+
+### `OtherPunctuation`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+OtherPunctuation
+  UnicodeGeneralCategory
+```
+
+### `OtherSymbol`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+OtherSymbol
+  UnicodeGeneralCategory
+```
+
+### `ParagraphSeparator`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ParagraphSeparator
+  UnicodeGeneralCategory
+```
+
+### `PrivateUse`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+PrivateUse
+  UnicodeGeneralCategory
+```
+
+### `SpaceSeparator`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SpaceSeparator
+  UnicodeGeneralCategory
+```
+
+### `SpacingMark`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+SpacingMark
+  UnicodeGeneralCategory
+```
+
+### `TitlecaseLetter`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+TitlecaseLetter
+  UnicodeGeneralCategory
+```
+
+### `Unassigned`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Unassigned
+  UnicodeGeneralCategory
+```
+
+### `UppercaseLetter`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+UppercaseLetter
+  UnicodeGeneralCategory
+```
+
+## 関数と演算子
+
+### `fullCaseFold`
+
+<small className="api-kind">関数</small>
+
+```text
+fullCaseFold
+  String
+  -> String
+```
+
+### `generalCategory`
+
+<small className="api-kind">関数</small>
+
+```text
+generalCategory
+  Char
+  -> UnicodeGeneralCategory
+```
+
+### `isAlphabetic`
+
+<small className="api-kind">関数</small>
+
+```text
+isAlphabetic
+  Char
+  -> Bool
+```
+
+### `isDecimalDigit`
+
+<small className="api-kind">関数</small>
+
+```text
+isDecimalDigit
+  Char
+  -> Bool
+```
+
+### `isMark`
+
+<small className="api-kind">関数</small>
+
+```text
+isMark
+  Char
+  -> Bool
+```
+
+### `isNormalized`
+
+<small className="api-kind">関数</small>
+
+```text
+isNormalized
+  NormalizationForm
+  -> String
+  -> Bool
+```
+
+### `isWhitespace`
+
+<small className="api-kind">関数</small>
+
+```text
+isWhitespace
+  Char
+  -> Bool
+```
+
+### `normalize`
+
+<small className="api-kind">関数</small>
+
+```text
+normalize
+  NormalizationForm
+  -> String
+  -> String
+```
+
+### `simpleCaseFold`
+
+<small className="api-kind">関数</small>
+
+```text
+simpleCaseFold
+  Char
+  -> Char
+```
+
+### `version`
+
+<small className="api-kind">関数</small>
+
+```text
+version
+  Unit
+  -> String
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/values-and-expressions)
+- [用途からmoduleを探す](/docs/reference/library)

@@ -1,0 +1,100 @@
+---
+title: "Effects and failure"
+description: "Distinguish Maybe, Either, Effect, Task, environments, typed failure, resources, and cancellation."
+---
+
+Absence, recoverable failure, and external operations are represented in values and types. Seseragi has no `null`, `throw`, or `try/catch` syntax for ordinary control flow.
+
+## Maybe, Either, and Effect
+
+| Type | Meaning | Evaluation or execution |
+| --- | --- | --- |
+| `Maybe<A>` | `Nothing` or `Just A` | An evaluated value |
+| `Either<E, A>` | `Left E` or `Right A` | An evaluated synchronous result |
+| `Effect<R, E, A>` | Requires `R`, fails with `E` or succeeds with `A` | A deferred computation |
+| `Task<A>` | `Effect<{}, Never, A>` | Deferred, no environment or typed failure |
+
+Use Maybe when absence is normal, Either for a synchronous failure with a reason, and Effect for operations that must execute. Task is a transparent Effect alias, not a separate Promise type.
+
+`maybe ?? fallback` returns the payload of Just and evaluates the fallback only for Nothing. It associates right, and the right operand has the result type `A`. It does not apply to Either or foreign nullable values.
+
+## Construction and execution
+
+Effects are cold. Constructing one does not execute it; running the same Effect twice performs its computation twice. `map` changes success values; `flatMap` and `do` sequence computations.
+
+{/* example: examples/reference/effects.ssrg */}
+
+```seseragi title="effects.ssrg"
+import * as effects from "std/effect"
+
+type InputError deriving Show =
+  | BelowZero
+
+fn nonNegative value: Int
+  -> Effect<{}, InputError, Int> =
+  if value < 0 then
+    effects.fail BelowZero
+  else
+    effects.succeed value
+
+pub effect fn main = do {
+  let answer =
+    nonNegative (-2)
+    |> effects.recover (\_ ->
+      effects.succeed 0)
+  value <- answer
+  value
+  |> show
+  |> println
+}
+```
+
+`nonNegative (-2)` constructs a computation failing with BelowZero. `recover` replaces that typed failure with success 0; `value <- answer` binds the execution result. The program prints 0.
+
+A general Effect run operation is not exposed to ordinary code. Hosts execute Effects at explicit boundaries such as public main, tests, or callback adapters. A do block sequences operations. Parallelism must be requested with an operation such as `effects.parallel`; the compiler does not automatically parallelize sequential effects.
+
+## Two effect fn forms
+
+The compact form writes `=` immediately after the parameters. It infers `R`, `E`, and `A` from the body and stores a normalized Effect type in the public interface.
+
+```text title="Compact form"
+effect fn greet name: String =
+  println $ `Hello, ${name}`
+```
+
+The contract form starts with the success type and fixes the environment and error in the source.
+
+```text title="Contract form"
+effect fn greet name: String -> Unit
+with Console
+fails ConsoleError =
+  println $ `Hello, ${name}`
+```
+
+In a contract form, omitted `with` means `{}` and omitted `fails` means Never; neither is filled in from the body. There is no intermediate form adding only with/fails to a compact declaration. Both forms require an Effect body; ordinary values are not implicitly lifted.
+
+## Combining environments and failures
+
+`R` is a record of required service fields. Composition takes their union, requiring identical types for shared names. Optional requirements are forbidden. `with Console` expands to the canonical requirement `{ console: Console }`. Supply environments explicitly with provide.
+
+An Effect with fewer requirements can widen to a record containing all of its fields with identical types. Generic signatures may use a merge such as `R & { clock: Clock }` only in the first type argument of Effect or Stream. This is not a general intersection type.
+
+Failures do not form automatic unions. Map distinct errors to an application ADT with mapError, or handle them with recover. Never alone may widen to a required error type, allowing Signal Tasks inside a fallible do block. Success types must remain consistent across the composition.
+
+## Typed failure, defects, and cancellation
+
+| Outcome | Treatment |
+| --- | --- |
+| Typed failure | A designed, recoverable error in `E`; handled by recover |
+| Defect | Overflow, zero division, boundary-contract violations; not catchable by ordinary code |
+| Cancellation | Interruption from host or parent; not converted to a typed error |
+
+recover catches neither defects nor cancellation. A [TypeScript adapter](/en/docs/reference/typescript-interop) turns external throws/rejections into typed failures. Expected input errors belong in Either or an Effect error type, not in defects.
+
+## Resources and entry points
+
+Use `bracket acquire use release` or acquireRelease to register resources with a scope. Finalizers run once, in reverse order, on success, failure, or cancellation. The handoff from successful acquisition to finalizer registration is atomic against cancellation. A finalizer cannot leave a typed failure unhandled.
+
+main is public, takes one unnamed Unit parameter, and returns an Effect succeeding with Unit. Requirements must be a record with a fully determined field set, and the failure type must be concrete. A non-Never error needs a Show instance. Unsupported services are rejected before execution rather than becoming missing services at runtime.
+
+Read [Effects](/en/docs/learn/effects) for composition and [Handling failures](/en/docs/guides/error-handling) for application error design.

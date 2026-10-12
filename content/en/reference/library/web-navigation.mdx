@@ -1,0 +1,466 @@
+---
+title: "std/web/navigation"
+description: "Read and change browser URLs and history through a capability independent of DOM rendering."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | browser |
+| Capability identities | `std/web/navigation::Navigation` |
+
+## Import
+
+```seseragi
+import * as web_navigation
+  from "std/web/navigation"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Location`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Location
+```
+
+### `Navigation`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Navigation
+```
+
+### `NavigationError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+NavigationError
+```
+
+### `Query`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Query
+```
+
+### `Url`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Url
+```
+
+### `UrlBuildError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+UrlBuildError
+```
+
+## Constructors and values
+
+### `CrossOriginNavigation`
+
+<small className="api-kind">Constructor</small>
+
+```text
+CrossOriginNavigation
+  {
+    expected: String,
+    actual: String
+  }
+  -> NavigationError
+```
+
+### `emptyQuery`
+
+<small className="api-kind">Value</small>
+
+```text
+Query
+```
+
+### `InvalidPercentEncoding`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidPercentEncoding
+  { offset: Int }
+  -> UrlBuildError
+```
+
+### `InvalidUrl`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidUrl
+  { offset: Int }
+  -> UrlBuildError
+```
+
+### `NavigationSecurityFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NavigationSecurityFailure
+  String
+  -> NavigationError
+```
+
+### `NavigationUnavailable`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NavigationUnavailable
+  String
+  -> NavigationError
+```
+
+### `UnsupportedUrlScheme`
+
+<small className="api-kind">Constructor</small>
+
+```text
+UnsupportedUrlScheme
+  String
+  -> UrlBuildError
+```
+
+### `UrlContainsUserInfo`
+
+<small className="api-kind">Constructor</small>
+
+```text
+UrlContainsUserInfo
+  UrlBuildError
+```
+
+## Functions and operators
+
+### `appendQuery`
+
+<small className="api-kind">Function</small>
+
+```text
+appendQuery
+  String
+  -> String
+  -> Query
+  -> Query
+```
+
+### `back`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+back
+  Unit
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Unit
+     >
+```
+
+### `current`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+current
+  Unit
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Location
+     >
+```
+
+### `errorMessage`
+
+<small className="api-kind">Function</small>
+
+```text
+errorMessage
+  NavigationError
+  -> String
+```
+
+### `forward`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+forward
+  Unit
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Unit
+     >
+```
+
+### `locationSignal`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+locationSignal
+  Unit
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Signal<Location>
+     >
+```
+
+### `locationUrl`
+
+<small className="api-kind">Function</small>
+
+```text
+locationUrl
+  Location
+  -> Url
+```
+
+### `parseQuery`
+
+<small className="api-kind">Function</small>
+
+```text
+parseQuery
+  String
+  -> Either<UrlBuildError, Query>
+```
+
+### `parseUrl`
+
+<small className="api-kind">Function</small>
+
+```text
+parseUrl
+  String
+  -> Either<UrlBuildError, Url>
+```
+
+### `pathSegments`
+
+<small className="api-kind">Function</small>
+
+```text
+pathSegments
+  Url
+  -> Array<String>
+```
+
+### `push`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+push
+  Url
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Location
+     >
+```
+
+### `queryEntries`
+
+<small className="api-kind">Function</small>
+
+```text
+queryEntries
+  Query
+  -> Array<(String, String)>
+```
+
+### `queryValues`
+
+<small className="api-kind">Function</small>
+
+```text
+queryValues
+  String
+  -> Query
+  -> Array<String>
+```
+
+### `removeQuery`
+
+<small className="api-kind">Function</small>
+
+```text
+removeQuery
+  String
+  -> Query
+  -> Query
+```
+
+### `renderQuery`
+
+<small className="api-kind">Function</small>
+
+```text
+renderQuery
+  Query
+  -> String
+```
+
+### `renderUrl`
+
+<small className="api-kind">Function</small>
+
+```text
+renderUrl
+  Url
+  -> String
+```
+
+### `replace`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+replace
+  Url
+  -> Effect<
+       { navigation: Navigation },
+       NavigationError,
+       Location
+     >
+```
+
+### `resolveUrl`
+
+<small className="api-kind">Function</small>
+
+```text
+resolveUrl
+  String
+  -> Url
+  -> Either<UrlBuildError, Url>
+```
+
+### `setQuery`
+
+<small className="api-kind">Function</small>
+
+```text
+setQuery
+  String
+  -> String
+  -> Query
+  -> Query
+```
+
+### `toWebUrl`
+
+<small className="api-kind">Function</small>
+
+```text
+toWebUrl
+  Url
+  -> WebUrl
+```
+
+### `urlFragment`
+
+<small className="api-kind">Function</small>
+
+```text
+urlFragment
+  Url
+  -> Maybe<String>
+```
+
+### `urlOrigin`
+
+<small className="api-kind">Function</small>
+
+```text
+urlOrigin
+  Url
+  -> String
+```
+
+### `urlQuery`
+
+<small className="api-kind">Function</small>
+
+```text
+urlQuery
+  Url
+  -> Query
+```
+
+### `withFragment`
+
+<small className="api-kind">Function</small>
+
+```text
+withFragment
+  String
+  -> Url
+  -> Url
+```
+
+### `withoutFragment`
+
+<small className="api-kind">Function</small>
+
+```text
+withoutFragment
+  Url
+  -> Url
+```
+
+### `withPathSegments`
+
+<small className="api-kind">Function</small>
+
+```text
+withPathSegments
+  Array<String>
+  -> Url
+  -> Url
+```
+
+### `withQuery`
+
+<small className="api-kind">Function</small>
+
+```text
+withQuery
+  Query
+  -> Url
+  -> Url
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/signals)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Web UI contract](/en/docs/reference/web-ui)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

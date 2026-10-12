@@ -1,0 +1,117 @@
+---
+title: "関数とパイプライン"
+description: "空白による関数適用、部分適用、ラムダを使って計算を組み合わせる。"
+---
+
+まず、二つの整数を足す関数を宣言し、呼び出してみます。その後で一部の引数を渡す方法を学び、複数の関数をパイプラインで組み合わせます。
+
+## 関数を宣言して呼び出す
+
+関数は`fn 名前 引数: 型 -> 結果の型 = 本体`で宣言します。二つの引数を受け取る場合は、次のように`->`でつなぎます。この断片は宣言の形を示しています。
+
+```text
+fn add x: Int -> y: Int -> Int =
+  x + y
+```
+
+`add`へ20と22を渡す呼び出しは、次のように書きます。
+
+```text title="呼び出しの式"
+add 20 22
+```
+
+関数名の後ろに、二つの引数を空白で並べています。この式の結果は42です。
+
+この宣言と呼び出しを、一つの実行できるプログラムにします。
+
+{/* example: examples/learn/function-application.ssrg */}
+```seseragi title="function-application.ssrg"
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+pub effect fn main = {
+  let answer = add 20 22
+  println `answer: ${answer}`
+}
+```
+
+```text title="実行結果"
+answer: 42
+```
+
+`add`は計算の結果を返す通常の関数です。`main`はその結果を`answer`へ束縛し、前の章で学んだ文字列テンプレートを使って表示します。
+
+## 一部の引数を渡す
+
+`add`の型は`Int -> Int -> Int`です。右に結合するので、`Int -> (Int -> Int)`として読みます。`add 1`は、残りの整数を一つ受け取る関数です。
+
+`let increment = add 1`では、入力に1を足す関数を束縛します。この時点で残りの引数は計算されません。`increment 20`を呼び出すと、`add 1 20`と同じ21になります。部分適用により、設定済みの引数を持つ関数を値として作れます。
+
+## 処理の順に縦へつなぐ
+
+{/* example: examples/learn/functions-and-pipelines.ssrg */}
+```seseragi title="functions-and-pipelines.ssrg"
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+fn double x: Int -> Int =
+  x * 2
+
+pub effect fn main = {
+  let increment = add 1
+  20
+  |> increment
+  |> double
+  |> show
+  |> println
+}
+```
+
+```text title="実行結果"
+42
+```
+
+`20`を`increment`へ渡して21を得て、それを`double`へ渡して42を得ます。`show`で整数を`String`へ変え、`println`へ渡して出力するEffectを作ります。`println`が受け取るのは文字列です。
+
+`value |> f`は`f value`と同じ適用です。`|>`そのものは特別な非同期処理や遅延評価を行いません。`20 |> add 1`なら、右側の`add 1`という関数へ20を渡します。複数引数関数のどの位置でも自動で埋める構文ではありません。
+
+## 式を一つの引数として渡す
+
+引数が計算式なら、括弧でまとめられます。次の断片は、`20 + 1`を最初の引数にしています。
+
+```text
+add (20 + 1) 22
+```
+
+括弧の中の結果は21です。`add`は21と22を受け取り、43を返します。括弧は一つの式の範囲を示しており、`add(20, 22)`のような引数一覧の呼び出し構文ではありません。
+
+別の関数の結果を渡すときも、同じようにまとめます。
+
+```text
+double (add 20 1)
+```
+
+`add 20 1`の結果21が、`double`の一つの引数になり、42を返します。前のパイプラインと同じ順序を、入れ子の式で書いた形です。
+
+## 関数も引数に渡せる
+
+ラムダは、名前を付けずに関数を作る式です。次の断片は、同じ2倍の計算を名前付き関数とラムダで書いたものです。
+
+```text
+double
+\x: Int -> x * 2
+```
+
+ラムダの引数型を周囲の型から決められる場合は、`\x -> x * 2`と書けます。引数が二つなら`\x y -> x + y`です。後の[ArrayとList](/docs/learn/arrays-and-lists)では、こうした関数を`map`や`filter`へ渡します。
+
+## 適用と計算の境界
+
+通常の関数の引数は、左から右へ一度ずつ評価されます。関数を別の値へ適用しても、外側の`let`を変更しません。
+
+ここで`add`と`double`は通常の値を返します。`println`は出力する計算を返すため、`main`は`effect fn`です。パイプラインにしただけでEffectが実行されるわけではありません。実行の境界は[Effect](/docs/learn/effects)で詳しく扱います。
+
+## 組み合わせを変える
+
+`let increment = add 1`を`let increment = add 2`に変えると、結果は44です。次に`double`と`increment`の順序を入れ替えると、元の1を足す場合は41になります。関数の並びが計算結果にどう影響するか確かめてください。
+
+次は[レコードとstruct](/docs/learn/records-and-structs)で、関数が受け取るデータを複数の値から作ります。宣言や適用の詳細は[関数リファレンス](/docs/reference/functions)にあります。

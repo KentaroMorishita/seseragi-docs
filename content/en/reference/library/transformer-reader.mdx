@@ -1,0 +1,101 @@
+---
+title: "std/transformer/reader"
+description: "Pass a shared environment through computations using another Monad."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as transformer_reader
+  from "std/transformer/reader"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `ReaderT`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct ReaderT<R, M<_>, A> {
+  run: R -> M<A>
+}
+```
+
+- `run`: Function receiving environment R and returning an A value in type constructor M.
+
+## Functions and operators
+
+### `ask`
+
+<small className="api-kind">Function</small>
+
+```text
+ask<R, M<_>>
+  Unit
+  -> ReaderT<R, M<_>, R>
+where
+  Monad<M<_>>
+```
+
+### `asks`
+
+<small className="api-kind">Function</small>
+
+```text
+asks<R, M<_>, A>
+  (R -> A)
+  -> ReaderT<R, M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `lift`
+
+<small className="api-kind">Function</small>
+
+```text
+lift<R, M<_>, A>
+  M<A>
+  -> ReaderT<R, M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `local`
+
+<small className="api-kind">Function</small>
+
+```text
+local<R, M<_>, A>
+  (R -> R)
+  -> ReaderT<R, M<_>, A>
+  -> ReaderT<R, M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `run`
+
+<small className="api-kind">Function</small>
+
+```text
+run<R, M<_>, A>
+  R
+  -> ReaderT<R, M<_>, A>
+  -> M<A>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/type-classes)
+- [Browse modules by purpose](/en/docs/reference/library)

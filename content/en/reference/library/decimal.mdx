@@ -1,0 +1,341 @@
+---
+title: "std/decimal"
+description: "Represent exact decimal values and calculate with explicit rounding rules."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as decimal
+  from "std/decimal"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Decimal`
+
+<small className="api-kind">Opaque type</small>
+
+Opaque finite arbitrary-precision decimal value.
+
+```text
+Decimal
+```
+
+### `DecimalArithmeticError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes a checked decimal division failure.
+
+```text
+DecimalArithmeticError
+```
+
+### `DecimalContext`
+
+<small className="api-kind">Opaque type</small>
+
+Explicit positive precision and rounding policy for decimal operations.
+
+```text
+DecimalContext
+```
+
+### `DecimalContextError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes an invalid explicit decimal arithmetic context.
+
+```text
+DecimalContextError
+```
+
+### `DecimalConversionError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes a failed explicit Int or Float conversion.
+
+```text
+DecimalConversionError
+```
+
+### `DecimalParseError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes invalid decimal text at a UTF-8 byte offset.
+
+```text
+DecimalParseError
+```
+
+## Constructors and values
+
+### `DecimalDivisionByZero`
+
+<small className="api-kind">Constructor</small>
+
+Reports a zero Decimal divisor.
+
+```text
+DecimalDivisionByZero
+  DecimalArithmeticError
+```
+
+### `DecimalNotIntegral`
+
+<small className="api-kind">Constructor</small>
+
+Reports a Decimal with a nonzero fractional part.
+
+```text
+DecimalNotIntegral
+  DecimalConversionError
+```
+
+### `DecimalOutsideFloatRange`
+
+<small className="api-kind">Constructor</small>
+
+Reports a Decimal outside the finite binary64 range.
+
+```text
+DecimalOutsideFloatRange
+  DecimalConversionError
+```
+
+### `DecimalOutsideIntRange`
+
+<small className="api-kind">Constructor</small>
+
+Reports an integral Decimal outside the safe Int range.
+
+```text
+DecimalOutsideIntRange
+  DecimalConversionError
+```
+
+### `FloatNotFinite`
+
+<small className="api-kind">Constructor</small>
+
+Reports NaN or infinity at the explicit Float conversion boundary.
+
+```text
+FloatNotFinite
+  DecimalConversionError
+```
+
+### `InvalidDecimal`
+
+<small className="api-kind">Constructor</small>
+
+Reports the first byte where decimal parsing becomes invalid.
+
+```text
+InvalidDecimal
+  { offset: Int }
+  -> DecimalParseError
+```
+
+### `NonPositiveDecimalPrecision`
+
+<small className="api-kind">Constructor</small>
+
+Reports a decimal precision that is zero or negative.
+
+```text
+NonPositiveDecimalPrecision
+  Int
+  -> DecimalContextError
+```
+
+### `NonTerminatingDecimal`
+
+<small className="api-kind">Constructor</small>
+
+Reports an exact quotient with a non-terminating decimal expansion.
+
+```text
+NonTerminatingDecimal
+  DecimalArithmeticError
+```
+
+## Functions and operators
+
+### `context`
+
+<small className="api-kind">Function</small>
+
+Validates a positive precision and constructs a DecimalContext.
+
+```text
+context
+  Int
+  -> RoundingMode
+  -> Either<
+       DecimalContextError,
+       DecimalContext
+     >
+```
+
+### `divide`
+
+<small className="api-kind">Function</small>
+
+Divides Decimals using explicit significant-digit precision and rounding.
+
+```text
+divide
+  DecimalContext
+  -> Decimal
+  -> Decimal
+  -> Either<
+       DecimalArithmeticError,
+       Decimal
+     >
+```
+
+### `divideExact`
+
+<small className="api-kind">Function</small>
+
+Divides Decimals only when the exact result has a finite decimal expansion.
+
+```text
+divideExact
+  Decimal
+  -> Decimal
+  -> Either<
+       DecimalArithmeticError,
+       Decimal
+     >
+```
+
+### `fromFloat`
+
+<small className="api-kind">Function</small>
+
+Converts the exact finite binary64 value under an explicit DecimalContext.
+
+```text
+fromFloat
+  DecimalContext
+  -> Float
+  -> Either<
+       DecimalConversionError,
+       Decimal
+     >
+```
+
+### `fromInt`
+
+<small className="api-kind">Function</small>
+
+Converts Int to Decimal exactly.
+
+```text
+fromInt
+  Int
+  -> Decimal
+```
+
+### `parse`
+
+<small className="api-kind">Function</small>
+
+Parses exact Decimal text without binary floating point.
+
+```text
+parse
+  String
+  -> Either<
+       DecimalParseError,
+       Decimal
+     >
+```
+
+### `precision`
+
+<small className="api-kind">Function</small>
+
+Returns the significant-digit precision of a context.
+
+```text
+precision
+  DecimalContext
+  -> Int
+```
+
+### `quantize`
+
+<small className="api-kind">Function</small>
+
+Rounds a Decimal to an explicit decimal scale and rounding mode.
+
+```text
+quantize
+  Int
+  -> RoundingMode
+  -> Decimal
+  -> Decimal
+```
+
+### `rounding`
+
+<small className="api-kind">Function</small>
+
+Returns the rounding mode of a context.
+
+```text
+rounding
+  DecimalContext
+  -> RoundingMode
+```
+
+### `toFloat`
+
+<small className="api-kind">Function</small>
+
+Rounds Decimal explicitly to the nearest finite binary64 value.
+
+```text
+toFloat
+  Decimal
+  -> Either<
+       DecimalConversionError,
+       Float
+     >
+```
+
+### `toIntExact`
+
+<small className="api-kind">Function</small>
+
+Converts an integral in-range Decimal to Int without rounding.
+
+```text
+toIntExact
+  Decimal
+  -> Either<
+       DecimalConversionError,
+       Int
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/values-and-expressions)
+- [Browse modules by purpose](/en/docs/reference/library)

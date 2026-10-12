@@ -1,0 +1,13 @@
+import * as signals from "std/signal"
+
+pub effect fn main = do {
+  count <- signals.make 1
+  let doubled =
+    count
+    |> signals.map (\n -> n * 2)
+  first <- *doubled
+  println `before: ${first}`
+  signals.update (\n -> n + 1) count
+  second <- *doubled
+  println `after: ${second}`
+}

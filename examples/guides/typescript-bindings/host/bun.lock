@@ -1,0 +1,10 @@
+{
+  "lockfileVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "docs-host",
+      "version": "0.1.0"
+    }
+  },
+  "packages": {}
+}

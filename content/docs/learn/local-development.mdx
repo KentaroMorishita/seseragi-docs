@@ -20,16 +20,16 @@ bun --version
 
 ## ソースファイルを実行する
 
-[最初のプログラム](/docs/learn/first-program#完成したプログラム)のコードを`parcel.ssrg`へ保存し、保存したディレクトリで実行してください。
+[最初のプログラム](/docs/learn/first-program#一行を表示する)のコードを`hello.ssrg`へ保存し、保存したディレクトリで実行してください。
 
 ```sh
-seseragi run parcel.ssrg
+seseragi run hello.ssrg
 ```
 
 次の一行を出力します。
 
 ```text
-Sent to Kyoto
+Hello, Seseragi!
 ```
 
 ## VS Codeで編集する
@@ -71,7 +71,7 @@ seseragi build .
 
 ## 依存関係を変更したとき
 
-プロジェクトの依存関係や設定を変えた場合は、ロックファイルを更新してください。
+依存関係や設定を変えた場合、またはパッケージの公開するコードを変えた場合は、ロックファイルを更新してください。`SES-K0102`で停止したときも、変更を確認してから明示的に更新します。
 
 ```sh
 seseragi lock update

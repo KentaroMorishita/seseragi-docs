@@ -1,0 +1,90 @@
+---
+title: "std/transformer/writer"
+description: "Compose computation results and Monoid output with another Monad."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as transformer_writer
+  from "std/transformer/writer"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `WriterT`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct WriterT<W, M<_>, A> {
+  run: M<(A, W)>
+}
+```
+
+- `run`: Result A and accumulated output W held in type constructor M.
+
+## Functions and operators
+
+### `lift`
+
+<small className="api-kind">Function</small>
+
+```text
+lift<W, M<_>, A>
+  M<A>
+  -> WriterT<W, M<_>, A>
+where
+  Monad<M<_>>,
+  Monoid<W>
+```
+
+### `listen`
+
+<small className="api-kind">Function</small>
+
+```text
+listen<W, M<_>, A>
+  WriterT<W, M<_>, A>
+  -> WriterT<W, M<_>, (A, W)>
+where
+  Monad<M<_>>,
+  Monoid<W>
+```
+
+### `run`
+
+<small className="api-kind">Function</small>
+
+```text
+run<W, M<_>, A>
+  WriterT<W, M<_>, A>
+  -> M<(A, W)>
+```
+
+### `tell`
+
+<small className="api-kind">Function</small>
+
+```text
+tell<W, M<_>>
+  W
+  -> WriterT<W, M<_>, Unit>
+where
+  Monad<M<_>>,
+  Monoid<W>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/type-classes)
+- [Browse modules by purpose](/en/docs/reference/library)

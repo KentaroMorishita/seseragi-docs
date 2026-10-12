@@ -1,0 +1,261 @@
+---
+title: "std/map"
+description: "EqとHashを満たすキーで値を保存・検索します。挿入順とキーの等価性を分けて扱います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as map from "std/map"
+```
+
+## 選び方と注意
+
+- キーは`Eq`と`Hash`を持ち、等しいキーのハッシュも等しくなる必要があります。適切なハッシュなら検索・個別の更新は期待計算量O(1)ですが、衝突時は線形になります。
+- 反復は挿入順です。既存キーの更新は位置を保ち、削除して再挿入したキーは末尾へ移ります。
+- `fromEntries`の重複キーは最後の値を採用し、位置は最初の出現位置を保ちます。衝突した値を合成する処理には、明示したresolverを使います。
+- MapのEqは挿入順を比較しません。表示やシリアライズは順序を保つため、EqなMapでも出力バイトが同じとは限りません。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Map`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Map<_, _>
+```
+
+## 関数と演算子
+
+### `containsKey`
+
+<small className="api-kind">関数</small>
+
+```text
+containsKey<K, V>
+  K
+  -> Map<K, V>
+  -> Bool
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `empty`
+
+<small className="api-kind">関数</small>
+
+```text
+empty<K, V>
+  Unit
+  -> Map<K, V>
+```
+
+### `entries`
+
+<small className="api-kind">関数</small>
+
+```text
+entries<K, V>
+  Map<K, V>
+  -> Array<(K, V)>
+```
+
+### `filter`
+
+<small className="api-kind">関数</small>
+
+条件がTrueになるcollection要素を残します。
+
+```text
+filter<K, V>
+  (K -> V -> Bool)
+  -> Map<K, V>
+  -> Map<K, V>
+```
+
+### `fromEntries`
+
+<small className="api-kind">関数</small>
+
+```text
+fromEntries<C, K, V>
+  C
+  -> Map<K, V>
+where
+  Iterable<C, (K, V)>,
+  Eq<K>,
+  Hash<K>
+```
+
+### `get`
+
+<small className="api-kind">関数</small>
+
+キーのEqとHashを使って対応する値を検索し、キーがなければNothingを返します。
+
+```text
+get<K, V>
+  K
+  -> Map<K, V>
+  -> Maybe<V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `insert`
+
+<small className="api-kind">関数</small>
+
+```text
+insert<K, V>
+  K
+  -> V
+  -> Map<K, V>
+  -> Map<K, V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `isEmpty`
+
+<small className="api-kind">関数</small>
+
+collectionに要素がないかを返します。
+
+```text
+isEmpty<K, V>
+  Map<K, V>
+  -> Bool
+```
+
+### `keys`
+
+<small className="api-kind">関数</small>
+
+```text
+keys<K, V>
+  Map<K, V>
+  -> Array<K>
+```
+
+### `mapKeysWith`
+
+<small className="api-kind">関数</small>
+
+```text
+mapKeysWith<K1, K2, V>
+  (V -> V -> V)
+  -> (K1 -> K2)
+  -> Map<K1, V>
+  -> Map<K2, V>
+where
+  Eq<K2>,
+  Hash<K2>
+```
+
+### `mapValues`
+
+<small className="api-kind">関数</small>
+
+```text
+mapValues<K, A, B>
+  (A -> B)
+  -> Map<K, A>
+  -> Map<K, B>
+```
+
+### `mergeWith`
+
+<small className="api-kind">関数</small>
+
+```text
+mergeWith<K, V>
+  (V -> V -> V)
+  -> Map<K, V>
+  -> Map<K, V>
+  -> Map<K, V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `remove`
+
+<small className="api-kind">関数</small>
+
+```text
+remove<K, V>
+  K
+  -> Map<K, V>
+  -> Map<K, V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `singleton`
+
+<small className="api-kind">関数</small>
+
+```text
+singleton<K, V>
+  K
+  -> V
+  -> Map<K, V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `size`
+
+<small className="api-kind">関数</small>
+
+```text
+size<K, V>
+  Map<K, V>
+  -> Int
+```
+
+### `upsert`
+
+<small className="api-kind">関数</small>
+
+```text
+upsert<K, V>
+  K
+  -> (Maybe<V> -> V)
+  -> Map<K, V>
+  -> Map<K, V>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `values`
+
+<small className="api-kind">関数</small>
+
+```text
+values<K, V>
+  Map<K, V>
+  -> Array<V>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/arrays-and-lists)
+- [用途からmoduleを探す](/docs/reference/library)

@@ -1,0 +1,96 @@
+---
+title: Handle failures
+description: Distinguish pure validation from Effect failure and turn input problems into useful messages.
+---
+
+Validate a quantity string and display either its value or how to correct it. Distinguish an unparseable number from a number outside the accepted range.
+
+Result types use [Maybe and Either](/en/docs/learn/maybe-and-either); execution and recovery use [Effects](/en/docs/learn/effects). This task combines those concepts for input validation.
+
+## Represent failure with a type
+
+`QuantityError` has `NotANumber` and `OutsideRange` cases. `quantity` returns `Either<QuantityError, Int>` containing an accepted integer or an explanation of failure.
+
+`Maybe` fits an absence that is normal. This program needs a reason the user can act on, so it uses `Either`.
+
+## Save the complete program
+
+Save this as `errors.ssrg`.
+
+{/* example: examples/guides/errors.ssrg */}
+```seseragi title="errors.ssrg"
+import * as ints from "std/int"
+import * as effects from "std/effect"
+
+type QuantityError deriving Show =
+  | NotANumber
+  | OutsideRange
+
+alias Result =
+  Either<QuantityError, Int>
+
+fn quantity text: String -> Result =
+  match ints.parse text {
+    Left _ -> Left NotANumber
+    Right n ->
+      if n >= 1 && n <= 1000 then
+        Right n
+      else
+        Left OutsideRange
+  }
+
+effect fn report text: String = do {
+  result <-
+    quantity text
+    |> fromEither
+    |> effects.attempt
+  let message = match result {
+    Right n -> `Quantity: ${n}`
+    Left NotANumber ->
+      "Enter a number"
+    Left OutsideRange ->
+      "Use 1 to 1000"
+  }
+  println message
+}
+
+pub effect fn main = do {
+  report "3"
+  report "many"
+  report "0"
+}
+```
+
+This application deliberately maps the parser's detailed error to `NotANumber`. `quantity` owns the range rule, while `report` owns the displayed wording.
+
+## Move an Either into an Effect
+
+`fromEither` creates an Effect that succeeds for `Right` and fails for `Left`. `effects.attempt` handles recoverable failure and returns success as `Right` or its reason as `Left`.
+
+`quantity` initially returns a synchronous result. The Effect made from it describes success or failure before execution. After `attempt`, `match` can treat both accepted and rejected input as values to display.
+
+## Inspect the result
+
+```sh
+seseragi run errors.ssrg
+```
+
+```text
+Quantity: 3
+Enter a number
+Use 1 to 1000
+```
+
+The validation failures for “many” and 0 are recovered into messages, so this run succeeds. It does not recover a failure of `println` itself. An inability to write to Console still fails.
+
+## Unify application failures
+
+When combining input, filesystem, or network Effects, use `mapError` to convert each failure into an application failure type. [Build a CLI application](/en/docs/guides/cli-app) unifies `InputFailure StdinError` and `OutputFailure ConsoleError` in `AppError`.
+
+`map` transforms success values; `mapError` transforms failure reasons. Decide at the application boundary whether to recover and continue or propagate failure to the caller.
+
+## Distinguish defects and cancellation
+
+`attempt` and `recover` handle declared recoverable failures. They do not turn a runtime contract defect or cancellation into an ordinary input error.
+
+Seseragi has no `try/catch` syntax. To handle host exceptions, use a `task` binding as demonstrated in [TypeScript bindings](/en/docs/guides/typescript-bindings). [Effect Reference](/en/docs/reference/effects) defines failure, defect, and cancellation contracts.

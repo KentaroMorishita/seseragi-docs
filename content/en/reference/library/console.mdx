@@ -1,0 +1,133 @@
+---
+title: "std/console"
+description: "Write text and values using Console capability."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+| Capability identities | `std/prelude::Console` |
+
+## Import
+
+```seseragi
+import * as console
+  from "std/console"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Console`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Console
+```
+
+### `ConsoleError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ConsoleError
+```
+
+## Functions and operators
+
+### `error`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+error
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `errorLine`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+errorLine
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `flush`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+flush
+  Unit
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `print`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+print
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `println`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+println
+  String
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+```
+
+### `printValue`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+printValue<A>
+  A
+  -> Effect<
+       { console: Console },
+       ConsoleError,
+       Unit
+     >
+where
+  Show<A>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

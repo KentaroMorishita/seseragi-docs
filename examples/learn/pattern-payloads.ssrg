@@ -1,0 +1,14 @@
+type Reading =
+  | NoReading
+  | Measured Int
+
+fn label reading: Reading -> String =
+  match reading {
+    NoReading -> "No reading"
+    Measured n -> `Reading: ${n}`
+  }
+
+pub effect fn main =
+  Measured 23
+  |> label
+  |> println

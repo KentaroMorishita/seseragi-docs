@@ -1,1 +1,25 @@
-{"title": "学ぶ", "pages": ["first-program", "local-development"]}
+{
+  "title": "学ぶ",
+  "pages": [
+    "index",
+    "---はじめに---",
+    "first-program",
+    "local-development",
+    "---値と関数---",
+    "values-and-expressions",
+    "functions-and-pipelines",
+    "---データを表す---",
+    "records-and-structs",
+    "algebraic-data-types",
+    "pattern-matching",
+    "arrays-and-lists",
+    "maybe-and-either",
+    "---抽象化と処理---",
+    "generics",
+    "recursion",
+    "effects",
+    "signals",
+    "type-classes",
+    "modules"
+  ]
+}

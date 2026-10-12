@@ -1,0 +1,843 @@
+---
+title: "std/web/dom"
+description: "Connect HTML and Signals to browser DOM and dispatch typed actions and events."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | browser |
+| Capability identities | `std/web/dom::Dom` |
+
+## Import
+
+```seseragi
+import * as web_dom
+  from "std/web/dom"
+```
+
+## Choosing operations
+
+- DOM operations require the browser Dom capability. Rendering Html on a process target is separate from manipulating a real DOM.
+- DomContent pairs initial Html with an explicit binding plan. Leaf updates preserve Element identity/focus; a region owns its children.
+- Actions dispatch sequentially through a bounded FIFO. Overflow is failure, not silent dropping or conversion to parallel handlers.
+- Mount listeners, subscriptions, and dispatch work share a scope. Failure, cancellation, and unmount release them; preserving DOM during cleanup does not preserve listeners.
+- Keys identify direct siblings within one region. They are not global IDs or implicit component-state identities.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `BindingTarget`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+BindingTarget<_, _>
+```
+
+### `CleanupMode`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+CleanupMode
+```
+
+### `Dom`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Dom
+```
+
+### `DomBinding`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DomBinding<_>
+```
+
+### `DomContent`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DomContent<_>
+```
+
+### `DomError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DomError
+```
+
+### `DomMount`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DomMount<_>
+```
+
+### `DomObservation`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DomObservation<_>
+```
+
+### `DomOptions`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct DomOptions {
+  eventCapacity: Int,
+  hydration: HydrationMode,
+  cleanup: CleanupMode
+}
+```
+
+- `eventCapacity`: Capacity of the queue for Actions from DOM events.
+- `hydration`: Policy for existing DOM during the initial mount.
+- `cleanup`: Policy for rendered DOM when the mount is released.
+
+### `DomRuntimeError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DomRuntimeError<_>
+```
+
+### `DomTarget`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DomTarget
+```
+
+### `ElementRect`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct ElementRect {
+  x: Float,
+  y: Float,
+  width: Float,
+  height: Float,
+  top: Float,
+  right: Float,
+  bottom: Float,
+  left: Float
+}
+```
+
+- `x`: The measured rectangle's x coordinate.
+- `y`: The measured rectangle's y coordinate.
+- `width`: The measured rectangle's width.
+- `height`: The measured rectangle's height.
+- `top`: The measured rectangle's top edge.
+- `right`: The measured rectangle's right edge.
+- `bottom`: The measured rectangle's bottom edge.
+- `left`: The measured rectangle's left edge.
+
+### `HydrationMode`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+HydrationMode
+```
+
+## Constructors and values
+
+### `ClearRenderedDom`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ClearRenderedDom
+  CleanupMode
+```
+
+### `DispatchFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DispatchFailure<Failure>
+  Failure
+  -> DomRuntimeError<Failure>
+```
+
+### `DomEventQueueOverflow`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DomEventQueueOverflow
+  Int
+  -> DomError
+```
+
+### `DomFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DomFailure<Failure>
+  DomError
+  -> DomRuntimeError<Failure>
+```
+
+### `DomOperationFailed`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DomOperationFailed
+  String
+  -> DomError
+```
+
+### `DomTargetAlreadyMounted`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DomTargetAlreadyMounted
+  DomError
+```
+
+### `DomTargetNotFound`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DomTargetNotFound
+  String
+  -> DomError
+```
+
+### `DomTargetRemoved`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DomTargetRemoved
+  DomError
+```
+
+### `FreshMount`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FreshMount
+  HydrationMode
+```
+
+### `HydrateOrReplace`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HydrateOrReplace
+  HydrationMode
+```
+
+### `HydrateStrict`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HydrateStrict
+  HydrationMode
+```
+
+### `HydrationMismatch`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HydrationMismatch
+  {
+    path: Array<Int>,
+    expected: String,
+    actual: String
+  }
+  -> DomError
+```
+
+### `InvalidSelector`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidSelector
+  String
+  -> DomError
+```
+
+### `PreserveRenderedDom`
+
+<small className="api-kind">Constructor</small>
+
+```text
+PreserveRenderedDom
+  CleanupMode
+```
+
+## Functions and operators
+
+### `app`
+
+<small className="api-kind">Function</small>
+
+Mounts a typed state-update-view application into a DOM target.
+
+```text
+app<State, Action>
+  {
+    target: String,
+    initial: State,
+    update: (
+      Action -> State -> State
+    ),
+    view: (State -> Html<Action>)
+  }
+  -> Effect<
+       { dom: Dom },
+       String,
+       Unit
+     >
+```
+
+### `ariaBooleanTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+ariaBooleanTarget<Action>
+  ElementRef
+  -> String
+  -> BindingTarget<Action, Bool>
+```
+
+### `ariaBusyTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+ariaBusyTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `ariaExpandedTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+ariaExpandedTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `ariaHiddenTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+ariaHiddenTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `ariaLabelTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+ariaLabelTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `ariaSelectedTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+ariaSelectedTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `attributeTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+attributeTarget<Action>
+  ElementRef
+  -> String
+  -> BindingTarget<
+       Action,
+       Maybe<String>
+     >
+```
+
+### `awaitMount`
+
+<small className="api-kind">Function</small>
+
+```text
+awaitMount<Failure>
+  DomMount<Failure>
+  -> Effect<
+       {},
+       DomRuntimeError<Failure>,
+       Unit
+     >
+```
+
+### `awaitObservation`
+
+<small className="api-kind">Function</small>
+
+```text
+awaitObservation<Failure>
+  DomObservation<Failure>
+  -> Effect<{}, Failure, Unit>
+```
+
+### `bind`
+
+<small className="api-kind">Function</small>
+
+```text
+bind<Action, Value>
+  BindingTarget<Action, Value>
+  -> Signal<Value>
+  -> DomBinding<Action>
+```
+
+### `bindAttribute`
+
+<small className="api-kind">Function</small>
+
+```text
+bindAttribute<Action>
+  String
+  -> String
+  -> Signal<Maybe<String>>
+  -> DomBinding<Action>
+```
+
+### `bindChecked`
+
+<small className="api-kind">Function</small>
+
+```text
+bindChecked<Action>
+  String
+  -> Signal<Bool>
+  -> DomBinding<Action>
+```
+
+### `bindRegion`
+
+<small className="api-kind">Function</small>
+
+```text
+bindRegion<Action>
+  String
+  -> Signal<DomContent<Action>>
+  -> DomBinding<Action>
+```
+
+### `bindStyle`
+
+<small className="api-kind">Function</small>
+
+```text
+bindStyle<Action>
+  String
+  -> String
+  -> Signal<Maybe<String>>
+  -> DomBinding<Action>
+```
+
+### `bindText`
+
+<small className="api-kind">Function</small>
+
+```text
+bindText<Action>
+  String
+  -> Signal<String>
+  -> DomBinding<Action>
+```
+
+### `bindValue`
+
+<small className="api-kind">Function</small>
+
+```text
+bindValue<Action>
+  String
+  -> Signal<String>
+  -> DomBinding<Action>
+```
+
+### `booleanAttributeTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+booleanAttributeTarget<Action>
+  ElementRef
+  -> String
+  -> BindingTarget<Action, Bool>
+```
+
+### `capturePointer`
+
+<small className="api-kind">Function</small>
+
+Captures a live pointer on an explicit DOM target through Effect.
+
+```text
+capturePointer
+  DomTarget
+  -> Int
+  -> Effect<
+       { dom: Dom },
+       DomError,
+       Unit
+     >
+```
+
+### `checkedTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+checkedTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `classTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+classTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `content`
+
+<small className="api-kind">Function</small>
+
+```text
+content<Action>
+  Html<Action>
+  -> Array<DomBinding<Action>>
+  -> DomContent<Action>
+```
+
+### `defaultOptions`
+
+<small className="api-kind">Function</small>
+
+```text
+defaultOptions
+  Unit
+  -> DomOptions
+```
+
+### `disabledTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+disabledTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `disconnect`
+
+<small className="api-kind">Function</small>
+
+```text
+disconnect<Failure>
+  DomObservation<Failure>
+  -> Effect<{}, Never, Unit>
+```
+
+### `hiddenTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+hiddenTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `inertTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+inertTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Bool>
+```
+
+### `initialHtml`
+
+<small className="api-kind">Function</small>
+
+```text
+initialHtml<Action>
+  DomContent<Action>
+  -> Html<Action>
+```
+
+### `measure`
+
+<small className="api-kind">Function</small>
+
+Snapshots an element bounding rectangle through the DOM capability.
+
+```text
+measure
+  DomTarget
+  -> Effect<
+       { dom: Dom },
+       DomError,
+       ElementRect
+     >
+```
+
+### `mount`
+
+<small className="api-kind">Function</small>
+
+```text
+mount<R, Action, Failure>
+  DomOptions
+  -> DomTarget
+  -> (
+       Action
+       -> Effect<R, Failure, Unit>
+     )
+  -> Signal<Html<Action>>
+  -> Effect<
+       R & { dom: Dom },
+       DomError,
+       DomMount<Failure>
+     >
+```
+
+### `mountContent`
+
+<small className="api-kind">Function</small>
+
+```text
+mountContent<R, Action, Failure>
+  DomOptions
+  -> DomTarget
+  -> (
+       Action
+       -> Effect<R, Failure, Unit>
+     )
+  -> DomContent<Action>
+  -> Effect<
+       R & { dom: Dom },
+       DomError,
+       DomMount<Failure>
+     >
+```
+
+### `observeResize`
+
+<small className="api-kind">Function</small>
+
+Observes element geometry with an explicit disposable resource lifecycle.
+
+```text
+observeResize<R, Failure>
+  DomTarget
+  -> (
+       ElementRect
+       -> Effect<R, Failure, Unit>
+     )
+  -> Effect<
+       R & { dom: Dom },
+       DomError,
+       DomObservation<Failure>
+     >
+```
+
+### `query`
+
+<small className="api-kind">Function</small>
+
+```text
+query
+  String
+  -> Effect<
+       { dom: Dom },
+       DomError,
+       DomTarget
+     >
+```
+
+### `regionTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+regionTarget<Action>
+  ElementRef
+  -> BindingTarget<
+       Action,
+       DomContent<Action>
+     >
+```
+
+### `releasePointer`
+
+<small className="api-kind">Function</small>
+
+Releases a captured pointer on an explicit DOM target through Effect.
+
+```text
+releasePointer
+  DomTarget
+  -> Int
+  -> Effect<
+       { dom: Dom },
+       DomError,
+       Unit
+     >
+```
+
+### `run`
+
+<small className="api-kind">Function</small>
+
+```text
+run<R, Action, Failure>
+  DomOptions
+  -> DomTarget
+  -> (
+       Action
+       -> Effect<R, Failure, Unit>
+     )
+  -> Signal<Html<Action>>
+  -> Effect<
+       R & { dom: Dom },
+       DomRuntimeError<Failure>,
+       Unit
+     >
+```
+
+### `runContent`
+
+<small className="api-kind">Function</small>
+
+```text
+runContent<R, Action, Failure>
+  DomOptions
+  -> DomTarget
+  -> (
+       Action
+       -> Effect<R, Failure, Unit>
+     )
+  -> DomContent<Action>
+  -> Effect<
+       R & { dom: Dom },
+       DomRuntimeError<Failure>,
+       Unit
+     >
+```
+
+### `styleTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+styleTarget<Action>
+  ElementRef
+  -> String
+  -> BindingTarget<
+       Action,
+       Maybe<String>
+     >
+```
+
+### `textTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+textTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `titleTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+titleTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `unmount`
+
+<small className="api-kind">Function</small>
+
+```text
+unmount<Failure>
+  DomMount<Failure>
+  -> Effect<{}, Never, Unit>
+```
+
+### `valueTarget`
+
+<small className="api-kind">Function</small>
+
+```text
+valueTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/signals)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Web UI contract](/en/docs/reference/web-ui)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

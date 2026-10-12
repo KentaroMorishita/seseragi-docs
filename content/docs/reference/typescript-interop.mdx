@@ -1,0 +1,79 @@
+---
+title: "TypeScript連携"
+description: "foreignのcalling convention、pure/task、境界型、変換、loadとbinding生成を確認する。"
+---
+
+TypeScript連携は、host moduleをSeseragiの型付き境界へ接続します。TypeScriptのunion、null、mutable object、例外を、そのまま内部の意味へ持ち込みません。
+
+## foreignと引数
+
+foreign blockでhost exportとSeseragi側の名前・型を宣言します。次は同期的・pureなJavaScript関数を使う、実行確認済みのpackage例です。
+
+{/* example: examples/reference/interop/src/main.ssrg */}
+
+```seseragi title="main.ssrg"
+foreign "typescript"
+from "../host/math.mjs" {
+  pure fn add x: Int -> y: Int -> Int
+}
+
+pub effect fn main =
+  add 20 22
+  |> show
+  |> println
+```
+
+接続するhost fileは次の内容です。packageの`[foreign.typescript]`にはhost manifestとlockfileを指定します。
+
+```javascript title="host/math.mjs"
+export function add(x, y) {
+  return x + y;
+}
+```
+
+出力は42です。Seseragi側ではcurryされ、全引数が揃うとhostの`add(20, 22)`を一度呼びます。部分適用だけならhostを呼びません。export名が違う場合は`= "host_name"`でexactなproperty keyを指定します。
+
+## pureとtask
+
+| mode | 宣言の最後の型 | Seseragiで見える結果 |
+| --- | --- | --- |
+| `pure fn` | `A` | 普通の`A` |
+| `task fn` | `A` | `Effect<{}, Js.Error, A>` |
+
+pure bindingのauthorは、同期的・決定的・非throw・外部状態の観測/変更なしを保証します。Promiseを返すpure宣言は不正です。保証違反はbinding defectです。
+
+taskはEffectを実行するまでhost関数を呼びません。同期throwとPromiseLikeのrejectionを`Js.Error`へ変換します。load、lookup、同期throw、rejectionのphaseを保持するので、原因を一つのStringへ潰しません。
+
+## module loadとclass
+
+resolved host identityにpure memberが一つでもあるとpure-loadです。moduleとtransitive host dependencyの初期化にもpure保証が必要です。opaque typeとtask memberだけならtask-loadで、最初の実行までloadを遅延します。並行した初回callはloadを共有し、loadの成功・失敗をmemoizeします。
+
+host namespaceはforeign block内の`namespace`で明示します。`= "metrics.count"`をobject pathとして解釈しません。methodは明示receiver、constructorはhostのnew、propertyはhost property readとして宣言します。通常のnamespace functionへ暗黙の`this`は渡しません。
+
+## 境界型とsnapshot
+
+| 境界型 | 扱う値 |
+| --- | --- |
+| `Js.Unknown`、`Js.Object` | 検査前の値。fieldを直接操作しない |
+| `Js.NullOr<A>` | `A`またはnull |
+| `Js.UndefinedOr<A>` | `A`またはundefined |
+| `Js.Nullable<A>` | nullとundefinedの両方を含むalias |
+| `Js.Number`、`Js.String` | 検査前のhost primitive |
+| `Js.MutableArray<A>` | hostと共有する可変array |
+| `Js.Callback<Args, Result>` | lifetimeを明示するcallback ABI |
+
+通常型へ暗黙変換しません。nullable値はadapterでMaybeへ変換します。Intはfinite・整数・safe integerを検査し、negative zeroを0へ正規化します。String/Charはunpaired surrogateを拒否し、Charは一scalarを要求します。
+
+Array、tuple、recordは検査・snapshot変換し、mutable objectを不変recordとして参照共有しません。Bytesは両方向にcopyします。List、struct、ADTはforeignへ暗黙変換しません。optional record fieldのabsentとpresentも保持します。
+
+## optional、overload、callback
+
+raw optional parameterは`Js.UndefinedOr<A>`で宣言します。undefinedを一個渡すことと、引数を省略することは別です。本当に省略が必要ならarityごとにbindingを分けます。末尾のrestは`...parts: Array<A>`として一つだけ宣言できます。
+
+overloadは採用するsignatureごとに別local名を与え、runtimeで自動dispatchしません。同期pure callbackはadapterにできますが、保持・非同期呼び出し・Effect実行を伴うcallbackは、解除とcancellationを持つ明示adapterが必要です。
+
+## d.ts生成と手書きadapter
+
+`seseragi dts convert`は設定済みentryからforeign binding、metadata、conversion reportを生成します。未変換項目を`Any`へ弱めずreportへ残します。numberは既定でFloat、通常の関数はpurityを推測せずtask、optionalは境界型へ変換します。
+
+生成先はgenerated rootです。手編集せず、`gen/`から手書きadapterへimportします。raw型を直接アプリのAPIへre-exportするより、Maybe・Either・アプリのADTへ変換する境界を置いてください。具体的な設定と手順は[TypeScript bindingを作る](/docs/guides/typescript-bindings)を参照してください。

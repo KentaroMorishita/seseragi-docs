@@ -1,0 +1,15 @@
+fn sumUpTo limit: Int -> Int = {
+  fn loop n: Int -> total: Int -> Int =
+    if n <= 0 then
+      total
+    else
+      loop (n - 1) (total + n)
+
+  loop limit 0
+}
+
+pub effect fn main =
+  100000
+  |> sumUpTo
+  |> show
+  |> println

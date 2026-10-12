@@ -1,0 +1,151 @@
+---
+title: "std/either"
+description: "Leftの失敗とRightの成功を変換・集約します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as either from "std/either"
+```
+
+## 使ってみる
+
+{/* example: examples/library/either.ssrg */}
+
+```seseragi
+import * as either from "std/either"
+
+pub effect fn main = {
+  let result: Either<String, Int> =
+    Right 41
+  result
+  |> either.mapRight (\n -> n + 1)
+  |> show
+  |> println
+}
+```
+
+出力:
+
+```text
+Right 42
+```
+
+## 選び方と注意
+
+- Eitherは評価済みの同期結果です。Left/Rightを作ることは、遅延した処理を実行することではありません。
+- `mapLeft`、`bimap`、`fold`は選ばれた分岐のコールバックだけを一度呼びます。成功の続きが前の値へ依存する場合は`flatMap`で合成します。
+- `traverse`は複数Leftなら元の順序で最初のLeftを保持しますが、後続pure コールバックの短絡を保証しません。途中停止が必要なら`reduceUntil`を使います。
+- 独立した入力のエラーをまとめる場合はValidationを使います。Eitherの失敗をEffectへ持ち上げる場合は`fromEither`を明示します。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 関数と演算子
+
+### `bimap`
+
+<small className="api-kind">関数</small>
+
+選択されたLeftまたはRightのbranchを一度だけ変換します。
+
+```text
+bimap<E, F, A, B>
+  (E -> F)
+  -> (A -> B)
+  -> Either<E, A>
+  -> Either<F, B>
+```
+
+### `fold`
+
+<small className="api-kind">関数</small>
+
+選択されたbranchの関数だけを呼んでEitherを結果へ変換します。
+
+```text
+fold<E, A, B>
+  (E -> B)
+  -> (A -> B)
+  -> Either<E, A>
+  -> B
+```
+
+### `mapLeft`
+
+<small className="api-kind">関数</small>
+
+Leftのpayloadだけを変換します。
+
+```text
+mapLeft<E, F, A>
+  (E -> F)
+  -> Either<E, A>
+  -> Either<F, A>
+```
+
+### `mapRight`
+
+<small className="api-kind">関数</small>
+
+標準Functor instanceでRightのpayloadだけを変換します。
+
+```text
+mapRight<E, A, B>
+  (A -> B)
+  -> Either<E, A>
+  -> Either<E, B>
+```
+
+### `sequence`
+
+<small className="api-kind">関数</small>
+
+identityでwrapped値を走査し、sourceの形と順序を保ちます。
+
+```text
+sequence<F<_>, E, A>
+  F<Either<E, A>>
+  -> Either<E, F<A>>
+where
+  Traversable<F<_>>
+```
+
+### `swap`
+
+<small className="api-kind">関数</small>
+
+payloadを変えずLeftとRightを入れ替えます。
+
+```text
+swap<E, A>
+  Either<E, A>
+  -> Either<A, E>
+```
+
+### `traverse`
+
+<small className="api-kind">関数</small>
+
+sourceのTraversableと、このmoduleのApplicativeを使います。別の走査実装は作りません。
+
+```text
+traverse<F<_>, E, A, B>
+  (A -> Either<E, B>)
+  -> F<A>
+  -> Either<E, F<B>>
+where
+  Traversable<F<_>>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/maybe-and-either)
+- [用途からmoduleを探す](/docs/reference/library)

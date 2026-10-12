@@ -1,0 +1,160 @@
+---
+title: "std/queue"
+description: "Pass values between asynchronous computations with capacity and shutdown control."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as queue from "std/queue"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Queue`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Queue<_>
+```
+
+### `QueueCreateError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+QueueCreateError
+```
+
+## Constructors and values
+
+### `NonPositiveCapacity`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NonPositiveCapacity
+  Int
+  -> QueueCreateError
+```
+
+### `QueueClosed`
+
+<small className="api-kind">Constructor / Opaque type</small>
+
+```text
+QueueClosed
+```
+
+## Functions and operators
+
+### `bounded`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+bounded<A>
+  Int
+  -> Effect<
+       {},
+       QueueCreateError,
+       Queue<A>
+     >
+```
+
+### `close`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+close<A>
+  Queue<A>
+  -> Effect<{}, Never, Unit>
+```
+
+### `offer`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+offer<A>
+  A
+  -> Queue<A>
+  -> Effect<{}, QueueClosed, Unit>
+```
+
+### `size`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+size<A>
+  Queue<A>
+  -> Effect<{}, Never, Int>
+```
+
+### `take`
+
+<small className="api-kind">Function returning Effect</small>
+
+Returns an Effect that removes one queue value, waits when empty, and fails with QueueClosed when the queue is closed and drained.
+
+```text
+take<A>
+  Queue<A>
+  -> Effect<{}, QueueClosed, A>
+```
+
+### `tryOffer`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+tryOffer<A>
+  A
+  -> Queue<A>
+  -> Effect<
+       {},
+       Never,
+       Either<QueueClosed, Bool>
+     >
+```
+
+### `tryTake`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+tryTake<A>
+  Queue<A>
+  -> Effect<
+       {},
+       Never,
+       Either<QueueClosed, Maybe<A>>
+     >
+```
+
+### `unbounded`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+unbounded<A>
+  Unit
+  -> Effect<{}, Never, Queue<A>>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)

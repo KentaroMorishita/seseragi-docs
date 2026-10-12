@@ -1,0 +1,11 @@
+import * as ints from "std/int"
+
+pub effect fn main =
+  match ints.parse "42" {
+    Right value ->
+      value
+      |> ints.format
+      |> println
+    Left _ ->
+      println "Invalid integer"
+  }

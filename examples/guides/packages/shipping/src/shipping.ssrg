@@ -1,0 +1,2 @@
+pub fn fee subtotal: Int -> Int =
+  if subtotal >= 3000 then 0 else 400

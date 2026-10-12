@@ -1,0 +1,11 @@
+fn firstLabel values: Array<String>
+  -> String =
+  match values {
+    [] -> "Empty"
+    [first, ..._] -> first
+  }
+
+pub effect fn main = do {
+  println $ firstLabel []
+  println $ firstLabel ["Aki", "Mio"]
+}

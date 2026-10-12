@@ -1,0 +1,90 @@
+---
+title: "Type classes"
+description: "Define type-specific operations and require them in generic functions with where constraints."
+---
+
+The same `map` works with Array and Maybe because their types provide the operation. A type class describes operations available for a type. Here we define a custom rendering operation.
+
+## Declare an operation with trait
+
+{/* example: examples/learn/type-classes.ssrg */}
+```seseragi title="type-classes.ssrg"
+trait Render<A> {
+  fn render value: A -> String
+}
+
+struct Badge {
+  label: String,
+}
+
+instance Render<Badge> {
+  fn render value: Badge -> String =
+    value.label
+}
+
+fn framed<A> value: A -> String
+where Render<A> =
+  `<${render value}>`
+
+pub effect fn main =
+  Badge { label: "ADMIN" }
+  |> framed
+  |> println
+```
+
+```text title="Output"
+<ADMIN>
+```
+
+`trait Render<A>` requires an operation `render` that takes an `A` and returns a `String`. Its declaration contains the operation's type, without a function body.
+
+`Badge` is data carrying a display label. `instance Render<Badge>` supplies the body of `render` and determines how this type is rendered.
+
+## State a requirement with where
+
+`framed<A>` accepts an `A`, but `where Render<A>` requires that type to support Render. The requirement needed to call `render value` is part of the function's type.
+
+A `Badge` has the corresponding instance, so it can be passed to `framed`. A type without an instance is rejected during compilation. Selection does not inspect the runtime object's fields or its JavaScript constructor.
+
+## Use one operation with different types
+
+The standard `map` is a `Functor` operation. For an Array, it transforms each element; for Maybe, the `Just` payload; for Either, the `Right` payload. Each instance implements the shared contract of transforming success values while preserving the outer structure.
+
+`Show` provides a string representation, and `Eq` provides equality. Each class has operations and a contract; matching a function name is not enough to give it arbitrary behavior.
+
+## Derive standard instances
+
+Use `deriving` to obtain operations such as `Eq` and `Show` for simple data types. This example compares cases and converts them to strings:
+
+{/* example: examples/learn/deriving.ssrg */}
+```seseragi title="deriving.ssrg"
+type Phase deriving Eq, Show =
+  | Ready
+  | Done
+
+pub effect fn main = do {
+  println (show (Ready == Ready))
+  println (show Done)
+}
+```
+
+```text title="Output"
+True
+Done
+```
+
+For a type with payloads or fields, those component types must also provide the derived operations. You cannot unconditionally derive Show for a field type with no Show instance. Nor can `deriving` generate the custom Render class.
+
+## Respect instance boundaries and contracts
+
+There cannot be multiple instances for the same class application. Declare an instance in the module defining either the trait or the outermost target type. These rules prevent an added import from silently replacing an operation's implementation.
+
+Methods in `impl Badge` and an `instance Render<Badge>` serve different purposes. The former defines type-specific methods; the latter satisfies a type class requirement. Classes do not create inheritance hierarchies or runtime object interfaces.
+
+The compiler checks operation types but does not prove laws such as Eq reflexivity or Functor composition. Test those contracts when defining an instance. See the [type class reference](/en/docs/reference/type-classes) for details.
+
+## Reuse the function with another type
+
+Add `struct Tag { text: String }` and an `instance Render<Tag>`, then pass a Tag to `framed`. Define Tag's rendering in the instance without changing `framed`. Remove the instance and inspect the diagnostic too.
+
+Continue to [Modules](/en/docs/learn/modules) to separate a type and its operations into files and choose what they expose.

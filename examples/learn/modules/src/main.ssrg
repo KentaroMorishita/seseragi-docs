@@ -1,0 +1,6 @@
+import { label, Sent } from "./parcel"
+
+pub effect fn main =
+  Sent "Kyoto"
+  |> label
+  |> println

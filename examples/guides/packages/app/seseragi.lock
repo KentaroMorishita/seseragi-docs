@@ -1,0 +1,28 @@
+schema = 1
+language = "0.1.0"
+standard_library = "0.1.0"
+unicode = "17.0.0"
+timezone_database = "2025b"
+root = "docs/shop@0.1.0#workspace:."
+
+[[packages]]
+id = "docs/shipping@0.1.0#path:../shipping"
+name = "docs/shipping"
+version = "0.1.0"
+source_kind = "path"
+source = "../shipping"
+manifest_digest = "sha256:1d7155495ba0094ae115ae4063c1ee9884692973710e6b36aa3141e80b2f3d22"
+content_digest = "sha256:205855b2f53f74feecaaae2a8faea6d7026dd1beb8f27012a75f0ae3e6af51d9"
+dependencies = []
+
+[[packages]]
+id = "docs/shop@0.1.0#workspace:."
+name = "docs/shop"
+version = "0.1.0"
+source_kind = "workspace"
+source = "."
+manifest_digest = "sha256:a1ca49d7925fa78a908fa6aa77885c9ec66b7e3f3d4db6051e6d3b9823aa5551"
+content_digest = "sha256:916db15661eca2c32b90cba42df69aa50f8b1ec8774f99ee97a2df0ed4def1cc"
+dependencies = [
+  { import = "shipping", package = "docs/shipping@0.1.0#path:../shipping" },
+]

@@ -1,0 +1,79 @@
+---
+title: "TypeScript interop"
+description: "Check foreign calling conventions, pure/task modes, boundary types, conversion, loading, and binding generation."
+---
+
+TypeScript interop connects host modules through typed Seseragi boundaries. TypeScript unions, null, mutable objects, and exceptions do not become Seseragi's internal semantics.
+
+## Foreign declarations and arguments
+
+A foreign block declares host exports and their Seseragi names and types. This checked package example binds a synchronous pure JavaScript function.
+
+{/* example: examples/reference/interop/src/main.ssrg */}
+
+```seseragi title="main.ssrg"
+foreign "typescript"
+from "../host/math.mjs" {
+  pure fn add x: Int -> y: Int -> Int
+}
+
+pub effect fn main =
+  add 20 22
+  |> show
+  |> println
+```
+
+The host file contains the following function. The package's foreign.typescript table declares a host manifest and lockfile.
+
+```javascript title="host/math.mjs"
+export function add(x, y) {
+  return x + y;
+}
+```
+
+The output is 42. Calls are curried on the Seseragi side; after every argument is supplied, the adapter calls host `add(20, 22)` once. Partial application alone does not call the host. Use `= "host_name"` when the exact export property key differs.
+
+## Pure and task modes
+
+| Mode | Final declared type | Result visible in Seseragi |
+| --- | --- | --- |
+| `pure fn` | `A` | Ordinary `A` |
+| `task fn` | `A` | `Effect<{}, Js.Error, A>` |
+
+The author of a pure binding guarantees synchronous, deterministic, nonthrowing execution with no external-state observation or mutation. Declaring a Promise-returning pure function is invalid. Violating the guarantee is a binding defect.
+
+Task members do not call the host until the Effect runs. Synchronous throws and PromiseLike rejections become Js.Error. Module load, lookup, synchronous throw, and rejection phases remain distinguishable rather than collapsing into one String.
+
+## Loading and classes
+
+Any pure member makes a resolved host identity pure-load. Module initialization and transitive host dependencies must satisfy the pure guarantee too. A module containing only opaque types and task members is task-load, deferred until first execution. Concurrent first calls share a load; its success or failure is memoized.
+
+Declare nested namespaces explicitly inside foreign blocks; `= "metrics.count"` is not interpreted as an object path. Methods declare their receiver, constructors call host new, and properties perform property reads. A namespace function does not receive an implicit this.
+
+## Boundary types and snapshots
+
+| Boundary type | Values represented |
+| --- | --- |
+| `Js.Unknown`, `Js.Object` | Unchecked values; no direct field access |
+| `Js.NullOr<A>` | A or null |
+| `Js.UndefinedOr<A>` | A or undefined |
+| `Js.Nullable<A>` | Alias including both null and undefined |
+| `Js.Number`, `Js.String` | Unchecked host primitives |
+| `Js.MutableArray<A>` | Mutable arrays sharing host identity |
+| `Js.Callback<Args, Result>` | Callback ABI requiring explicit lifetime handling |
+
+There is no implicit conversion to ordinary types. Convert nullable values to Maybe in an adapter. Int checks finiteness, integrality, and safe-integer range, normalizing negative zero to zero. String/Char reject unpaired surrogates; Char requires one scalar.
+
+Arrays, tuples, and records are checked and snapshot-converted. Mutable host objects are not reference-shared as immutable records. Bytes copy in both directions. Lists, structs, and ADTs do not implicitly cross foreign boundaries. Optional record-field presence is preserved.
+
+## Optional arguments, overloads, and callbacks
+
+Declare raw optional parameters as Js.UndefinedOr. Passing one undefined argument is distinct from omitting it; use separate bindings by arity when omission matters. A single trailing rest parameter may be declared as `...parts: Array<A>`.
+
+Give each chosen overload a separate local name; there is no automatic runtime dispatch. Synchronous pure callbacks can be adapted, but retained/asynchronous callbacks or callbacks running Effects need explicit adapters with cleanup and cancellation.
+
+## d.ts generation and handwritten adapters
+
+`seseragi dts convert` produces foreign bindings, metadata, and conversion reports from configured entries. Unsupported constructs are reported rather than weakened to Any. Numbers default to Float, ordinary functions default to task without guessed purity, and optional values become boundary types.
+
+Generated files belong in the generated root. Do not hand-edit them; import with gen/ from a separate handwritten adapter. Prefer converting raw values into Maybe, Either, and application ADTs over exposing raw bindings directly. See [TypeScript bindings](/en/docs/guides/typescript-bindings) for configuration and workflow.

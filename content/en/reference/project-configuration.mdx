@@ -1,0 +1,92 @@
+---
+title: "Project configuration"
+description: "Check seseragi.toml, source roots, exports, dependencies, foreign inputs, Web assets, and locks."
+---
+
+A package root contains one seseragi.toml. Discovery starts from the target file and stops at the first parent manifest. Outer manifests and package.json are not merged into it.
+
+## Required package and run settings
+
+```toml title="seseragi.toml"
+[package]
+name = "docs/hello"
+version = "0.0.0"
+language = ">=0.1.0 <0.2.0"
+
+[run]
+entry = "main"
+target = "process"
+```
+
+package.name, version, and language are required. Names use lowercase slash-separated segments; version is SemVer; language is a language-version range. It is not the compiler distribution version copied into a different field.
+
+run.entry is an extensionless module path within the source root; run.target is process or web. Libraries may omit run. Unknown core keys, duplicate keys, and values of the wrong type are errors. Tool-specific settings belong under tool.NAME.
+
+## Roots and module paths
+
+| Root | Default directory | Role |
+| --- | --- | --- |
+| Source | src | Ordinary modules and public APIs |
+| Tests | tests | Modules read by the test runner |
+| Benchmarks | benchmarks | Modules read by the benchmark runner |
+| Generated | .seseragi/generated | Regenerated foreign bindings |
+
+Override roots with layout. Roots must not overlap, use absolute paths, or escape the package. Relative imports remain inside one root.
+
+Manifest module paths look like main or http/client. They exclude `.ssrg`, empty segments, dot/dot-dot, and backslashes. Case and Unicode normalization collisions are rejected. Use gen/ for generated modules and self/ for private source modules.
+
+## Exports and dependencies
+
+exports maps public subpaths to source modules.
+
+```toml title="Public API"
+[exports]
+"." = "lib"
+"email" = "email"
+```
+
+For acme/validation this exposes the root import and acme/validation/email. Internal paths absent from the map are inaccessible externally. Tests and generated files cannot be exported directly.
+
+A local dependency can be configured as follows:
+
+```toml title="Local dependency"
+[dependencies.validation]
+package = "acme/validation"
+path = "../validation"
+```
+
+The dependency key is the import root, and the declaration must match the target manifest's package identity. Declare a transitive package directly when importing it. Core dependency sources do not accept git URLs or branches.
+
+The specification also defines registry version ranges, but distribution 0.61.25's package loader works with local/path projects. This page does not advertise registry downloads or a publish command as currently available workflows.
+
+## Host inputs and Web documents
+
+Packages using foreign TypeScript declare a resolver, host manifest, and host lockfile under foreign.typescript. Regenerate bindings from their inputs and converter configuration rather than hand-editing them.
+
+Web projects may configure an optional web table:
+
+```toml title="Web inputs"
+[web]
+index = "web/index.html"
+public = "public"
+```
+
+A custom HTML document has exactly one `<!-- seseragi:head -->` in head and one `<!-- seseragi:entry -->` in body. The builder replaces them with generated CSS/script references. Regular public files retain relative paths. Collisions with generated assets, the root index, or build markers, symlinks, and outside-package inputs are rejected.
+
+## Lock updates
+
+```bash
+seseragi lock update .
+```
+
+The lock fixes exact package identities, source digests, language/stdlib/Unicode/timezone versions, provider selection, and artifact identity. Ordinary builds/tests require a valid lock and do not silently update it. Missing or mismatched locks produce SES-K0102.
+
+Update after changes to source, manifests, Web inputs, or converter metadata before an ordinary build. Dev alone allows ordinary source edits while preserving the exact graph and providers. Configuration or provider-requirement changes still need a lock update in dev.
+
+## Profiles and runner settings
+
+build.profile selects development/release. Target selection belongs in run.target and is not duplicated under build. CLI overrides affect one invocation only.
+
+The test table configures target, jobs, timeout_ms, cleanup_grace_ms, and seed. benchmark configures target, warmup, samples, minimum_sample_ms, and regression_threshold_percent. [CLI](/en/docs/reference/cli) options override their corresponding settings.
+
+providers selects implementations per service at the executable root; provider.artifacts exposes artifacts from a provider package. These are separate roles. See [Runtime providers](/en/docs/reference/runtime-providers) for selection and [Packages and deployment](/en/docs/guides/packages-and-deployment) for workflow.

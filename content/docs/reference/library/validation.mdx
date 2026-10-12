@@ -1,0 +1,132 @@
+---
+title: "std/validation"
+description: "独立した入力の検証で、複数のエラーを蓄積します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as validation
+  from "std/validation"
+```
+
+## 選び方と注意
+
+- 独立した入力を検査し、すべてのエラーをまとめる場合に使います。後続処理が前の成功値へ依存する場合はEitherへ切り替えます。
+- Applicative applyで両側がInvalidなら、左のエラー列の後へ右のエラー列を連結します。入力を左から渡すと、その順でエラーが並びます。
+- Invalidのエラー列はNonEmptyListです。空エラーのInvalidはなく、`toEither`も最初のエラーだけに縮めず全エラーを保持します。
+- FunctorとApplicativeを持ち、Monadは持ちません。エラーを蓄積する処理へ、最初の失敗で止まるなflatMapの意味を混ぜないでください。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Validation`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+Validな値、または空でないsource順のerror collectionを持つ独立validationです。
+
+```text
+Validation<_, _>
+```
+
+## コンストラクタと値
+
+### `Invalid`
+
+<small className="api-kind">コンストラクタ</small>
+
+NonEmptyListから、errorの順序を保ってInvalidを作ります。
+
+```text
+Invalid<E, A>
+  NonEmptyList<E>
+  -> Validation<E, A>
+```
+
+### `Valid`
+
+<small className="api-kind">コンストラクタ</small>
+
+成功したValidationを作ります。
+
+```text
+Valid<E, A>
+  A
+  -> Validation<E, A>
+```
+
+## 関数と演算子
+
+### `fromEither`
+
+<small className="api-kind">関数</small>
+
+Leftをerror一件へ、RightをValidへ明示変換します。
+
+```text
+fromEither<E, A>
+  Either<E, A>
+  -> Validation<E, A>
+```
+
+### `invalid`
+
+<small className="api-kind">関数</small>
+
+error一件を持つInvalidを作ります。
+
+```text
+invalid<E, A>
+  E
+  -> Validation<E, A>
+```
+
+### `invalidMany`
+
+<small className="api-kind">関数</small>
+
+NonEmptyListから、errorの順序を保ってInvalidを作ります。
+
+```text
+invalidMany<E, A>
+  NonEmptyList<E>
+  -> Validation<E, A>
+```
+
+### `toEither`
+
+<small className="api-kind">関数</small>
+
+Invalidを全error入りLeftへ、ValidをRightへ明示変換します。
+
+```text
+toEither<E, A>
+  Validation<E, A>
+  -> Either<NonEmptyList<E>, A>
+```
+
+### `valid`
+
+<small className="api-kind">関数</small>
+
+成功したValidationを作ります。
+
+```text
+valid<E, A>
+  A
+  -> Validation<E, A>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/maybe-and-either)
+- [用途からmoduleを探す](/docs/reference/library)

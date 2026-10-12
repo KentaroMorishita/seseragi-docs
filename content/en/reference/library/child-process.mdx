@@ -1,0 +1,602 @@
+---
+title: "std/child-process"
+description: "Start and manage child processes, their input/output, and resources."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process |
+| Capability identities | `std/child-process::ChildProcesses` |
+
+## Import
+
+```seseragi
+import * as child_process
+  from "std/child-process"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `CapturedProcess`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct CapturedProcess {
+  status: ChildExitStatus,
+  stdout: Bytes,
+  stderr: Bytes
+}
+```
+
+- `status`: Child process termination status.
+- `stdout`: Captured standard output bytes.
+- `stderr`: Captured standard error bytes.
+
+### `CaptureLimit`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+CaptureLimit
+```
+
+### `ChildEvent`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ChildEvent
+```
+
+### `ChildExitStatus`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ChildExitStatus
+```
+
+### `ChildInput`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ChildInput
+```
+
+### `ChildOutputChannel`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ChildOutputChannel
+```
+
+### `ChildProcessConfigError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ChildProcessConfigError
+```
+
+### `ChildProcessError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ChildProcessError
+```
+
+### `ChildProcesses`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ChildProcesses
+```
+
+### `Command`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Command
+```
+
+### `Executable`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Executable
+```
+
+## Constructors and values
+
+### `ArgumentContainsNul`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ArgumentContainsNul
+  { index: Int, offset: Int }
+  -> ChildProcessConfigError
+```
+
+### `ChildExited`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildExited
+  Int
+  -> ChildExitStatus
+```
+
+### `ChildExitedWith`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildExitedWith
+  ChildExitStatus
+  -> ChildEvent
+```
+
+### `ChildHostTerminated`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildHostTerminated
+  String
+  -> ChildExitStatus
+```
+
+### `ChildInputAfterClose`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildInputAfterClose
+  ChildProcessError
+```
+
+### `ChildInputFailed`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildInputFailed
+  String
+  -> ChildProcessError
+```
+
+### `ChildOutputLimitExceeded`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildOutputLimitExceeded
+  {
+    channel: ChildOutputChannel,
+    limitBytes: Int
+  }
+  -> ChildProcessError
+```
+
+### `ChildOutputReadFailed`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildOutputReadFailed
+  {
+    channel: ChildOutputChannel,
+    detail: String
+  }
+  -> ChildProcessError
+```
+
+### `ChildSignaled`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildSignaled
+  ProcessSignal
+  -> ChildExitStatus
+```
+
+### `ChildSpawnFailed`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildSpawnFailed
+  {
+    executable: Executable,
+    detail: String
+  }
+  -> ChildProcessError
+```
+
+### `ChildStderr`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildStderr
+  ChildOutputChannel
+```
+
+### `ChildStderrChunk`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildStderrChunk
+  Bytes
+  -> ChildEvent
+```
+
+### `ChildStdout`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildStdout
+  ChildOutputChannel
+```
+
+### `ChildStdoutChunk`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildStdoutChunk
+  Bytes
+  -> ChildEvent
+```
+
+### `ChildTerminationFailed`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildTerminationFailed
+  String
+  -> ChildProcessError
+```
+
+### `ChildWaitFailed`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ChildWaitFailed
+  String
+  -> ChildProcessError
+```
+
+### `CloseChildStdin`
+
+<small className="api-kind">Constructor</small>
+
+```text
+CloseChildStdin
+  ChildInput
+```
+
+### `EmptyExecutableName`
+
+<small className="api-kind">Constructor</small>
+
+```text
+EmptyExecutableName
+  ChildProcessConfigError
+```
+
+### `EnvironmentNameContainsNul`
+
+<small className="api-kind">Constructor</small>
+
+```text
+EnvironmentNameContainsNul
+  String
+  -> ChildProcessConfigError
+```
+
+### `EnvironmentValueContainsNul`
+
+<small className="api-kind">Constructor</small>
+
+```text
+EnvironmentValueContainsNul
+  String
+  -> ChildProcessConfigError
+```
+
+### `ExecutableNameContainsSeparator`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ExecutableNameContainsSeparator
+  String
+  -> ChildProcessConfigError
+```
+
+### `ExecutablePath`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ExecutablePath
+  Path
+  -> Executable
+```
+
+### `InvalidCaptureLimit`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidCaptureLimit
+  Int
+  -> ChildProcessConfigError
+```
+
+### `KillChild`
+
+<small className="api-kind">Constructor</small>
+
+```text
+KillChild
+  ChildInput
+```
+
+### `SearchPath`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SearchPath
+  String
+  -> Executable
+```
+
+### `SignalChild`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SignalChild
+  ProcessSignal
+  -> ChildInput
+```
+
+### `UnsupportedChildSignal`
+
+<small className="api-kind">Constructor</small>
+
+```text
+UnsupportedChildSignal
+  ProcessSignal
+  -> ChildProcessError
+```
+
+### `WriteChildStdin`
+
+<small className="api-kind">Constructor</small>
+
+```text
+WriteChildStdin
+  Bytes
+  -> ChildInput
+```
+
+## Functions and operators
+
+### `addArgument`
+
+<small className="api-kind">Function</small>
+
+```text
+addArgument
+  String
+  -> Command
+  -> Either<
+       ChildProcessConfigError,
+       Command
+     >
+```
+
+### `addArguments`
+
+<small className="api-kind">Function</small>
+
+```text
+addArguments
+  Array<String>
+  -> Command
+  -> Either<
+       ChildProcessConfigError,
+       Command
+     >
+```
+
+### `captureLimit`
+
+<small className="api-kind">Function</small>
+
+```text
+captureLimit
+  Int
+  -> Either<
+       ChildProcessConfigError,
+       CaptureLimit
+     >
+```
+
+### `clearEnvironment`
+
+<small className="api-kind">Function</small>
+
+```text
+clearEnvironment
+  Command
+  -> Command
+```
+
+### `command`
+
+<small className="api-kind">Function</small>
+
+```text
+command
+  Executable
+  -> Either<
+       ChildProcessConfigError,
+       Command
+     >
+```
+
+### `defaultCaptureLimit`
+
+<small className="api-kind">Function</small>
+
+```text
+defaultCaptureLimit
+  Unit
+  -> CaptureLimit
+```
+
+### `inDirectory`
+
+<small className="api-kind">Function</small>
+
+```text
+inDirectory
+  Path
+  -> Command
+  -> Command
+```
+
+### `outputBuffer`
+
+<small className="api-kind">Function</small>
+
+```text
+outputBuffer
+  BufferCapacity
+  -> Command
+  -> Command
+```
+
+### `runCaptured`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+runCaptured
+  CaptureLimit
+  -> Bytes
+  -> Command
+  -> Effect<
+       {
+         childProcesses:
+          ChildProcesses
+       },
+       ChildProcessError,
+       CapturedProcess
+     >
+```
+
+### `runInherited`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+runInherited
+  Command
+  -> Effect<
+       {
+         childProcesses:
+          ChildProcesses
+       },
+       ChildProcessError,
+       ChildExitStatus
+     >
+```
+
+### `runStreaming`
+
+<small className="api-kind">Function</small>
+
+```text
+runStreaming<R, E>
+  Stream<R, E, ChildInput>
+  -> Command
+  -> Stream<
+       R & {
+         childProcesses:
+          ChildProcesses
+       },
+       Either<E, ChildProcessError>,
+       ChildEvent
+     >
+```
+
+### `setEnvironment`
+
+<small className="api-kind">Function</small>
+
+```text
+setEnvironment
+  String
+  -> String
+  -> Command
+  -> Either<
+       ChildProcessConfigError,
+       Command
+     >
+```
+
+### `terminationGrace`
+
+<small className="api-kind">Function</small>
+
+```text
+terminationGrace
+  Duration
+  -> Command
+  -> Command
+```
+
+### `unsetEnvironment`
+
+<small className="api-kind">Function</small>
+
+```text
+unsetEnvironment
+  String
+  -> Command
+  -> Either<
+       ChildProcessConfigError,
+       Command
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

@@ -1,0 +1,14 @@
+type Delivery =
+  | Preparing
+  | Sent String
+
+fn label d: Delivery -> String =
+  match d {
+    Preparing -> "Preparing"
+    Sent city -> city
+  }
+
+pub effect fn main = {
+  let delivery = Sent "Kyoto"
+  println (label delivery)
+}

@@ -1,0 +1,404 @@
+{
+  "std/web/dom::DomOptions": {
+    "declaration": "struct DomOptions",
+    "fields": [
+      {
+        "name": "eventCapacity",
+        "type": "Int",
+        "ja": "DOMから送られるActionのqueue容量。",
+        "en": "Capacity of the queue for Actions from DOM events."
+      },
+      {
+        "name": "hydration",
+        "type": "HydrationMode",
+        "ja": "初回mountで既存DOMを扱う方針。",
+        "en": "Policy for existing DOM during the initial mount."
+      },
+      {
+        "name": "cleanup",
+        "type": "CleanupMode",
+        "ja": "unmount時に描画したDOMを扱う方針。",
+        "en": "Policy for rendered DOM when the mount is released."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:8015; docs/spec/13-web-ui.md:634; runtime/ts/src/dom.ts:64"
+  },
+  "std/web/dom::ElementRect": {
+    "declaration": "struct ElementRect",
+    "fields": [
+      {
+        "name": "x",
+        "type": "Float",
+        "ja": "測定した矩形のx座標。",
+        "en": "The measured rectangle's x coordinate."
+      },
+      {
+        "name": "y",
+        "type": "Float",
+        "ja": "測定した矩形のy座標。",
+        "en": "The measured rectangle's y coordinate."
+      },
+      {
+        "name": "width",
+        "type": "Float",
+        "ja": "測定した矩形の幅。",
+        "en": "The measured rectangle's width."
+      },
+      {
+        "name": "height",
+        "type": "Float",
+        "ja": "測定した矩形の高さ。",
+        "en": "The measured rectangle's height."
+      },
+      {
+        "name": "top",
+        "type": "Float",
+        "ja": "測定した矩形の上端。",
+        "en": "The measured rectangle's top edge."
+      },
+      {
+        "name": "right",
+        "type": "Float",
+        "ja": "測定した矩形の右端。",
+        "en": "The measured rectangle's right edge."
+      },
+      {
+        "name": "bottom",
+        "type": "Float",
+        "ja": "測定した矩形の下端。",
+        "en": "The measured rectangle's bottom edge."
+      },
+      {
+        "name": "left",
+        "type": "Float",
+        "ja": "測定した矩形の左端。",
+        "en": "The measured rectangle's left edge."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:7994; runtime/ts/src/dom.ts:120"
+  },
+  "std/http::ResponseHead": {
+    "declaration": "struct ResponseHead",
+    "fields": [
+      {
+        "name": "version",
+        "type": "HttpVersion",
+        "ja": "受信したHTTP protocolのversion。",
+        "en": "HTTP protocol version of the response."
+      },
+      {
+        "name": "status",
+        "type": "Status",
+        "ja": "検証済みのHTTP status。",
+        "en": "Validated HTTP response status."
+      },
+      {
+        "name": "headers",
+        "type": "Headers",
+        "ja": "本文とは別に受信した不変のheader列。",
+        "en": "Immutable response headers, separate from its body."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:3801; docs/spec/10-library-surface.md:2775; runtime/ts/src/http-client.ts:47"
+  },
+  "std/child-process::CapturedProcess": {
+    "declaration": "struct CapturedProcess",
+    "fields": [
+      {
+        "name": "status",
+        "type": "ChildExitStatus",
+        "ja": "子processが終了したときの結果。",
+        "en": "Child process termination status."
+      },
+      {
+        "name": "stdout",
+        "type": "Bytes",
+        "ja": "captureした標準出力のBytes。",
+        "en": "Captured standard output bytes."
+      },
+      {
+        "name": "stderr",
+        "type": "Bytes",
+        "ja": "captureした標準エラー出力のBytes。",
+        "en": "Captured standard error bytes."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:1785; docs/spec/10-library-surface.md:2645; runtime/ts/src/child-process.ts:116"
+  },
+  "std/fs::FileSystemError": {
+    "declaration": "struct FileSystemError",
+    "fields": [
+      {
+        "name": "operation",
+        "type": "FileSystemOperation",
+        "ja": "失敗したfilesystem操作の種類。",
+        "en": "Filesystem operation that failed."
+      },
+      {
+        "name": "path",
+        "type": "Path",
+        "ja": "失敗した操作の対象path。",
+        "en": "Primary path associated with the failure."
+      },
+      {
+        "name": "otherPath",
+        "type": "Maybe<Path>",
+        "ja": "二つのpathを使う操作の追加path。ない場合はNothing。",
+        "en": "Additional path for a two-path operation, or Nothing when absent."
+      },
+      {
+        "name": "kind",
+        "type": "FileSystemErrorKind",
+        "ja": "失敗の種類。",
+        "en": "Filesystem failure classification."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:1378; docs/spec/10-library-surface.md:2385; runtime/ts/src/filesystem.ts:187"
+  },
+  "std/fs::FileMetadata": {
+    "declaration": "struct FileMetadata",
+    "fields": [
+      {
+        "name": "fileType",
+        "type": "FileType",
+        "ja": "対象fileの種類。",
+        "en": "File type reported for the path."
+      },
+      {
+        "name": "sizeBytes",
+        "type": "Int",
+        "ja": "取得したバイト数。",
+        "en": "Reported size in bytes."
+      },
+      {
+        "name": "modified",
+        "type": "Maybe<Instant>",
+        "ja": "更新時刻。取得できなければNothing。",
+        "en": "Modification time, or Nothing when unavailable."
+      },
+      {
+        "name": "created",
+        "type": "Maybe<Instant>",
+        "ja": "作成時刻。取得できなければNothing。",
+        "en": "Creation time, or Nothing when unavailable."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:1388; docs/spec/10-library-surface.md:2392; runtime/ts/src/filesystem.ts:194"
+  },
+  "std/fs::DirectoryEntry": {
+    "declaration": "struct DirectoryEntry",
+    "fields": [
+      {
+        "name": "name",
+        "type": "String",
+        "ja": "directory内のentry名。",
+        "en": "Entry name within the directory."
+      },
+      {
+        "name": "path",
+        "type": "Path",
+        "ja": "entryのpath。",
+        "en": "Path of the directory entry."
+      },
+      {
+        "name": "fileType",
+        "type": "Maybe<FileType>",
+        "ja": "entryの種類。提供されなければNothing。",
+        "en": "Entry type, or Nothing when not supplied."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:1398; docs/spec/10-library-surface.md:2399; runtime/ts/src/filesystem.ts:201"
+  },
+  "std/log::LogEvent": {
+    "declaration": "struct LogEvent",
+    "fields": [
+      {
+        "name": "level",
+        "type": "LogLevel",
+        "ja": "記録するlogのlevel。",
+        "en": "Log severity level."
+      },
+      {
+        "name": "message",
+        "type": "String",
+        "ja": "logの本文。",
+        "en": "Log message text."
+      },
+      {
+        "name": "fields",
+        "type": "List<(String, LogValue)>",
+        "ja": "名前とLogValueを組にした追加情報の列。",
+        "en": "Ordered additional fields as name and LogValue pairs."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:499; docs/spec/09-standard-library.md:665; runtime/ts/src/logger-service.ts:18"
+  },
+  "std/regex::RegexCompileError": {
+    "declaration": "struct RegexCompileError",
+    "fields": [
+      {
+        "name": "kind",
+        "type": "RegexCompileErrorKind",
+        "ja": "patternのcompileが失敗した理由。",
+        "en": "Classification of the pattern compilation failure."
+      },
+      {
+        "name": "offset",
+        "type": "Int",
+        "ja": "pattern内の0始まりのUTF-8バイト位置。",
+        "en": "Zero-based UTF-8 byte offset in the pattern."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:6347; docs/spec/10-library-surface.md:809; runtime/ts/src/regex.ts:35"
+  },
+  "std/regex::RegexOptions": {
+    "declaration": "struct RegexOptions",
+    "fields": [
+      {
+        "name": "caseInsensitive",
+        "type": "Bool",
+        "ja": "ロケール非依存のUnicode simple case foldingを使うか。",
+        "en": "Whether to use locale-independent Unicode simple case folding."
+      },
+      {
+        "name": "multiline",
+        "type": "Bool",
+        "ja": "行の境界でも^と$をmatchさせるか。",
+        "en": "Whether ^ and $ may also match at line boundaries."
+      },
+      {
+        "name": "dotMatchesNewline",
+        "type": "Bool",
+        "ja": "`.`を改行文字にもmatchさせるか。",
+        "en": "Whether . also matches line terminators."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:6355; docs/spec/10-library-surface.md:814; runtime/ts/src/regex.ts:40"
+  },
+  "std/regex::RegexSpan": {
+    "declaration": "struct RegexSpan",
+    "fields": [
+      {
+        "name": "start",
+        "type": "Int",
+        "ja": "範囲の開始を含む、0始まりのUTF-8バイト位置。",
+        "en": "Inclusive, zero-based UTF-8 byte offset at the start."
+      },
+      {
+        "name": "end",
+        "type": "Int",
+        "ja": "範囲の終端を含まないUTF-8バイト位置。",
+        "en": "Exclusive UTF-8 byte offset at the end."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:6364; docs/spec/10-library-surface.md:820; runtime/ts/src/regex.ts:46"
+  },
+  "std/regex::RegexCapture": {
+    "declaration": "struct RegexCapture",
+    "fields": [
+      {
+        "name": "span",
+        "type": "RegexSpan",
+        "ja": "captureが占めるUTF-8のバイト範囲。",
+        "en": "UTF-8 byte span of the capture."
+      },
+      {
+        "name": "text",
+        "type": "String",
+        "ja": "spanに対応する入力の文字列。",
+        "en": "Input text corresponding to the capture span."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:6372; docs/spec/10-library-surface.md:825; runtime/ts/src/regex.ts:51"
+  },
+  "std/regex::RegexMatch": {
+    "declaration": "struct RegexMatch",
+    "fields": [
+      {
+        "name": "span",
+        "type": "RegexSpan",
+        "ja": "match全体が占めるUTF-8のバイト範囲。",
+        "en": "UTF-8 byte span of the complete match."
+      },
+      {
+        "name": "text",
+        "type": "String",
+        "ja": "match全体に対応する入力の文字列。",
+        "en": "Input text of the complete match."
+      },
+      {
+        "name": "captures",
+        "type": "Array<Maybe<RegexCapture>>",
+        "ja": "左括弧の順に並ぶcapture。group 0は含まず、matchしないgroupはNothing。",
+        "en": "Captures in opening-parenthesis order, excluding group 0; unmatched groups are Nothing."
+      },
+      {
+        "name": "named",
+        "type": "Map<String, Maybe<RegexCapture>>",
+        "ja": "宣言順の名前付きcapture。matchしないgroupもkeyを保ち、値をNothingにします。",
+        "en": "Named captures in declaration order; unmatched groups retain their keys with Nothing values."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:6380; docs/spec/10-library-surface.md:830; runtime/ts/src/regex.ts:56"
+  },
+  "std/transformer/maybe::MaybeT": {
+    "declaration": "struct MaybeT<M<_>, A>",
+    "fields": [
+      {
+        "name": "run",
+        "type": "M<Maybe<A>>",
+        "ja": "Maybeの結果を保持する、型構築子Mに入った値。",
+        "en": "A Maybe result held in the underlying type constructor M."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard/transformer.rs:18; docs/spec/09-standard-library.md:335"
+  },
+  "std/transformer/either::EitherT": {
+    "declaration": "struct EitherT<E, M<_>, A>",
+    "fields": [
+      {
+        "name": "run",
+        "type": "M<Either<E, A>>",
+        "ja": "Eitherの結果を保持する、型構築子Mに入った値。",
+        "en": "An Either result held in the underlying type constructor M."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard/transformer.rs:18; docs/spec/09-standard-library.md:339"
+  },
+  "std/transformer/reader::ReaderT": {
+    "declaration": "struct ReaderT<R, M<_>, A>",
+    "fields": [
+      {
+        "name": "run",
+        "type": "R -> M<A>",
+        "ja": "環境Rを受け取り、型構築子Mに入ったAの値を返す関数。",
+        "en": "Function receiving environment R and returning an A value in type constructor M."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard/transformer.rs:18; docs/spec/09-standard-library.md:343"
+  },
+  "std/transformer/state::StateT": {
+    "declaration": "struct StateT<S, M<_>, A>",
+    "fields": [
+      {
+        "name": "run",
+        "type": "S -> M<(A, S)>",
+        "ja": "現在の状態Sを受け取り、結果Aと次の状態Sの組を型構築子Mに入れて返す関数。",
+        "en": "Function receiving state S and returning the result A and next state S in type constructor M."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard/transformer.rs:18; docs/spec/09-standard-library.md:347"
+  },
+  "std/transformer/writer::WriterT": {
+    "declaration": "struct WriterT<W, M<_>, A>",
+    "fields": [
+      {
+        "name": "run",
+        "type": "M<(A, W)>",
+        "ja": "結果Aと蓄積値Wの組を保持する、型構築子Mに入った値。",
+        "en": "Result A and accumulated output W held in type constructor M."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard/transformer.rs:18; docs/spec/09-standard-library.md:351"
+  }
+}

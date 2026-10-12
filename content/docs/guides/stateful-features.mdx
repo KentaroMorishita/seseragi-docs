@@ -1,0 +1,146 @@
+---
+title: 状態を持つ機能を組み合わせる
+description: privateなSignalを作り、読み取り専用の画面を親へ返す。
+---
+
+「Today」と「Tomorrow」のカウンターを並べ、互いの数を変えずに操作します。カウンターのモジュールが状態を作り、親へ`Signal<Html<Task<Unit>>>`を返します。親は子の状態を直接変更しません。
+
+[Effect](/docs/learn/effects)、[Signal](/docs/learn/signals)、[ジェネリクス](/docs/learn/generics)、[モジュール](/docs/learn/modules)を使います。`Task<Unit>`は`Effect<{}, Never, Unit>`の別名で、追加サービスを要求せず、型付きの失敗を返さない計算です。子はこのTaskをイベントのActionとして渡し、親のDOMランタイムが実行します。
+
+## プロジェクトを準備する
+
+```sh
+seseragi new web two-counters
+cd two-counters
+```
+
+`src/counter.ssrg`を追加し、`src/main.ssrg`を置き換えます。生成された`app.ssrg`は使いません。二つのファイルは同じパッケージの`src/`へ置いてください。
+
+## 子が状態を作る
+
+{/* example: examples/guides/stateful-features/src/counter.ssrg */}
+```seseragi title="src/counter.ssrg"
+import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal, Signal }
+  from "std/signal"
+
+struct Count { count: Int }
+
+alias View = html.Html<Task<Unit>>
+
+fn view title: String
+  -> state: MutableSignal<Count>
+  -> current: Count
+  -> View =
+  html.section {
+    children: [
+      html.h2<Task<Unit>, String> {
+        children: title
+      },
+      html.p<Task<Unit>, String> {
+        children: show current.count
+      },
+      html.button {
+        buttonType: "button",
+        children: "Add one",
+        onClick: signals.update
+          (\n: Count -> Count {
+            count: n.count + 1
+          }) state
+      }
+    ]
+  }
+
+pub effect fn create title: String
+  -> Signal<View> = do {
+  state <-
+    signals.make $ Count { count: 0 }
+  state
+  |> signals.map (view title state)
+  |> succeed
+}
+```
+
+`create`はEffectです。実行時に`signals.make`で状態を一度作り、その状態から画面を導くSignalを返します。`view`の評価では新しい状態を作りません。
+
+`MutableSignal`はモジュール内部に留めます。親へ返すのは読み取り専用の`Signal`です。ボタンには状態を更新する`Task<Unit>`をActionとして渡しているため、親へ子のActionの一覧を公開する必要はありません。
+
+## 親が画面を組み合わせる
+
+{/* example: examples/guides/stateful-features/src/main.ssrg */}
+```seseragi title="src/main.ssrg"
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { create } from "./counter"
+
+alias View = html.Html<Task<Unit>>
+
+fn layout first: View -> second: View
+  -> View =
+  html.main {
+    style: html.style {
+      margin: "32px auto",
+      maxWidth: "32rem",
+      padding: "24px"
+    },
+    children: [first, second]
+  }
+
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+
+pub effect fn main = do {
+  first <- create "Today"
+  second <- create "Tomorrow"
+  let content =
+    signals.combine layout first $
+      second
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let options = dom.defaultOptions ()
+  (
+    dom.run options target perform $
+      content
+  )
+  |> mapError runtimeError
+}
+```
+
+`create "Today"`と`create "Tomorrow"`は別々に実行され、それぞれに独立した状態を作ります。`signals.combine`は二つの画面の最新値を`layout`へ渡し、一つの画面のSignalにします。
+
+`perform`は子が用意した`Task<Unit>`をそのまま返すdispatchです。`dom.run`がクリック時にそのEffectを実行します。子の更新分岐を親でも書き直す構成にはしていません。
+
+## ブラウザーで独立性を確かめる
+
+```sh
+seseragi lock update
+seseragi dev --open
+```
+
+最初は両方0です。「Today」の「Add one」を二回押すとTodayだけが2になります。「Tomorrow」を一回押すとTomorrowは1になり、Todayの2は残ります。
+
+`create`を`view`の中で呼んで状態を作り直す必要はありません。HTMLの`key`もSignalの状態を生成する指示ではありません。状態の独立性は`create`を実行した単位で決まります。
+
+## 共有状態の所有者を選ぶ
+
+二つのカウンターが同じ合計を編集する要件なら、共通の親が状態を作り、子へ現在値や許可する更新Effectを渡します。子へアプリ全体の`MutableSignal`を渡すと、子が変更できる範囲も広がります。
+
+この例の状態はカウンターごとに閉じています。アプリ全体の状態はroot featureへ置き、モジュールのimport時に作るグローバルな状態へ移しません。
+
+## 終了とリソースの扱いを分ける
+
+`dom.run`はDOMの購読とイベントリスナーを所有し、終了時に解除します。この例のクリックEffectは追加のサービスを要求せず、失敗型は`Never`です。DOMランタイム自身の失敗は`mapError`で`String`へ変換しています。
+
+独自の購読、タイマー、接続などを持つ子の寿命は、明示的なEffectのスコープや`DomMount`へ結びつけます。見えなくなったHTMLの`key`だけでリソースが解放されるとは扱いません。詳しい契約は[Signal Reference](/docs/reference/signals)と[Web UI Reference](/docs/reference/web-ui)にあります。

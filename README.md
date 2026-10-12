@@ -1,10 +1,12 @@
 # Seseragi Docs
 
-Seseragiの学習サイト。Astroで静的ページを生成し、Fumadocsでナビゲーション、目次、検索、コード表示を提供します。日本語の学習導線と見た目を確認するための最初の公開版です。
+Seseragiの公式ドキュメントサイト。日本語を標準に、英語でも同じ章・コード・条件を提供します。Astroで静的ページを生成し、Fumadocsでナビゲーション、目次、検索、コード表示を提供します。
+
+言語の実装、Playground、仕様は[Seseragi](https://github.com/KentaroMorishita/seseragi)が管理します。このリポジトリはドキュメントと、検証する掲載コードを所有します。
 
 ## ローカル開発
 
-Node.js 24.14以上、Bun 1.3.11を使います。
+Node.js24.14以上、Bun1.3.11を使います。
 
 ```sh
 bun install --frozen-lockfile
@@ -14,26 +16,69 @@ bun run build
 bun run preview
 ```
 
+ビルドにCLIやコンパイラのcheckoutは不要です。実行例の検証には、本文が対象とする版のSeseragi CLIを使います。
+
+```sh
+bun run check:examples
+```
+
+表示と操作は、ビルドしたサイトをブラウザで確認します。macOSではインストール済みChromeを使い、それ以外ではPlaywrightのChromiumを用意します。
+
+```sh
+bunx playwright install chromium
+bun run preview --host 127.0.0.1 --port 4322
+# 別のターミナルで実行
+bun run check:browser
+```
+
 ## 構成
 
-- `src/pages/index.astro`: トップページ
-- `content/docs`: 概要、Learn、Reference。本文はMDXで管理
-- `src/components/docs.tsx`: Fumadocsのレイアウトと共通設定
-- `src/pages/api/search.ts`: ビルド時に生成する静的検索インデックス
-- `examples/parcel.ssrg`: 学習ページとトップに掲載する実行例
+- `content/docs`と`content/en`: 概要、Learn、用途別ガイド、言語リファレンス、標準ライブラリ
+- `meta.json`: 日英で揃えた章立てと読む順番
+- `examples`: 掲載コードと、出力・ビルド・テストの検証条件
+- `src/data`: コンパイラのAPI情報、moduleの説明、日本語のAPI説明
+- `src/components/docs.tsx`: Fumadocsのレイアウトと共通ナビゲーション
+- `src/pages/api/search*.ts`: 言語別の静的検索インデックス
+- `scripts/check-content.mjs`: 言語対応、章、リンク、見出し、掲載コード、パイプライン、API網羅の検査
+- `docs/content-architecture.md`: 読者、章の役割、正確さと更新の基準
+- `docs/validation.md`と`docs/reviews`: 実行・表示・構成の確認記録
 
-言語の実装、Playground、仕様の正本は[Seseragi](https://github.com/KentaroMorishita/seseragi)が管理します。このリポジトリではコンパイラを再実装しません。
+実行するコードのfenceには、対応するファイルを示すMDXコメントを付けます。
+
+````mdx
+{/* example: examples/parcel.ssrg */}
+
+```seseragi
+ここへ検証ファイルと同じコードを掲載する
+```
+````
+
+signatureだけの断片、期待する診断、ブラウザ用ビルドを、実行済みプログラムとして扱わないでください。
+
+## 標準ライブラリの更新
+
+リリース済みCLIとそのtagを使い、compiler-owned catalogを更新します。
+
+```sh
+bun run sync:library ../seseragi
+bun run render:library
+bun run check
+bun run check:examples
+bun run build
+```
+
+`sync:library`は正規CLIとtagのcommitを照合し、API情報とregistryを取得します。WASMのartifact versionがリリースと異なる場合は、両版のcompiler cratesが同一であることを要求します。ビルドはコミット済みsnapshotを使い、ネットワークからAPIを取りません。
+
+公開名と型はsnapshotから、日英の説明は別の辞書から生成します。説明の補正は`library-description-overrides.json`、使い分けと注意点は`library-notes.json`で管理します。公開structのフィールドは`library-fields.json`、版を固定した型情報の補正は`library-signature-overrides.json`に出典とともに記録します。生成結果が元データと異なる場合や、新しい説明・moduleが欠落した場合は検査で停止します。`contract-only`のmoduleには利用可能なAPIページを生成しません。
 
 ## 公開
 
-GitHubの`main`をVercelの`seseragi-docs-site`へ接続します。`vercel.json`に静的ビルドの設定を記載しています。秘密情報や外部データベースは不要です。
+GitHubの`main`をVercelの`seseragi-docs-site`へ接続しています。`vercel.json`に静的ビルドの設定を置いています。言語ごとのURL、canonicalとhreflang、sitemapを静的に生成します。
 
-旧サイト用のVercelプロジェクト`seseragi-docs`とは別プロジェクトです。
+旧サイト用のVercelプロジェクト`seseragi-docs`は別プロジェクトです。
 
-## 出典と検証
+## 出典と読者レビュー
 
-初期構成はFumadocs公式Astroテンプレートに基づきます。ロゴ、SNS画像、TextMate文法はSeseragiリポジトリの`assets/brand`、`extensions/seseragi/syntaxes/seseragi.tmLanguage.json`から取得しています。
+レイアウトはFumadocs公式Astroテンプレートを基にしています。ロゴ、SNS画像、TextMate文法はSeseragiリポジトリの`assets/brand`、`extensions/seseragi/syntaxes/seseragi.tmLanguage.json`から取得しています。
 
-`examples/parcel.ssrg`はSeseragi 0.61.25で実行を確認済みです。検証結果と次の読者レビュー項目は`docs/validation.md`へ記録します。
-
-日本語を標準とし、英語版は`/en`で公開します。本文は`content/docs`と`content/en`に分け、ページごとに言語を切り替えます。検索も言語別の静的インデックスを使います。
+APIの出典と版は`src/data/standard-library.json`、教材の仕様対応は`docs/reviews`に記録しています。自動検証とエージェントの読者想定レビューを、実際の初見読者による評価と区別しています。

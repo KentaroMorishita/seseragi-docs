@@ -1,0 +1,67 @@
+[
+  {
+    "file": "examples/reference/syntax.ssrg",
+    "stdout": "pass\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/generics.ssrg",
+    "stdout": "42: ready\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/data-types.ssrg",
+    "stdout": "Read the docs\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/patterns.ssrg",
+    "stdout": "Empty\nAki\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/functions.ssrg",
+    "stdout": "42\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/effects.ssrg",
+    "stdout": "0\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/signals.ssrg",
+    "stdout": "6\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/type-classes.ssrg",
+    "stdout": "Language\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/modules-project/src/main.ssrg",
+    "stdout": "Seseragi\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/web-ui.ssrg",
+    "stdout": "<h1>Seseragi &amp; you</h1>\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/performance.ssrg",
+    "stdout": "5050\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/interop/src/main.ssrg",
+    "stdout": "42\n",
+    "mode": "run"
+  },
+  {
+    "file": "examples/reference/provider-clock/src/main.ssrg",
+    "stdout": "Clock ready\n",
+    "mode": "run"
+  }
+]

@@ -1,0 +1,143 @@
+---
+title: "std/bytes/base64"
+description: "Strictly encode and decode standard and URL-safe Base64."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as bytes_base64
+  from "std/bytes/base64"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Base64DecodeError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes a strict RFC 4648 Base64 decoding failure.
+
+```text
+Base64DecodeError
+```
+
+## Constructors and values
+
+### `InvalidBase64Digit`
+
+<small className="api-kind">Constructor</small>
+
+Reports the UTF-8 byte offset of the first invalid Base64 digit.
+
+```text
+InvalidBase64Digit
+  { offset: Int }
+  -> Base64DecodeError
+```
+
+### `InvalidBase64Length`
+
+<small className="api-kind">Constructor</small>
+
+Reports an invalid Base64 input length measured in UTF-8 bytes.
+
+```text
+InvalidBase64Length
+  Int
+  -> Base64DecodeError
+```
+
+### `InvalidBase64Padding`
+
+<small className="api-kind">Constructor</small>
+
+Reports the UTF-8 byte offset of invalid Base64 padding.
+
+```text
+InvalidBase64Padding
+  { offset: Int }
+  -> Base64DecodeError
+```
+
+### `NonCanonicalBase64Bits`
+
+<small className="api-kind">Constructor</small>
+
+Reports non-zero unused bits in the final Base64 sextet.
+
+```text
+NonCanonicalBase64Bits
+  { offset: Int }
+  -> Base64DecodeError
+```
+
+## Functions and operators
+
+### `decode`
+
+<small className="api-kind">Function</small>
+
+Strictly decodes canonical padded RFC 4648 Base64 text.
+
+```text
+decode
+  String
+  -> Either<
+       Base64DecodeError,
+       Bytes
+     >
+```
+
+### `decodeUrl`
+
+<small className="api-kind">Function</small>
+
+Strictly decodes canonical unpadded URL-safe Base64 text.
+
+```text
+decodeUrl
+  String
+  -> Either<
+       Base64DecodeError,
+       Bytes
+     >
+```
+
+### `encode`
+
+<small className="api-kind">Function</small>
+
+Encodes Bytes as canonical padded RFC 4648 Base64 text.
+
+```text
+encode
+  Bytes
+  -> String
+```
+
+### `encodeUrl`
+
+<small className="api-kind">Function</small>
+
+Encodes Bytes as canonical unpadded URL-safe Base64 text.
+
+```text
+encodeUrl
+  Bytes
+  -> String
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/records-and-structs)
+- [Browse modules by purpose](/en/docs/reference/library)

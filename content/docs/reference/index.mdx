@@ -1,0 +1,48 @@
+---
+title: "言語リファレンス"
+description: "構文、型、評価、Effect、モジュール、ツールの正確な規則を調べる。"
+---
+
+このリファレンスでは、「どう書けるか」「どの型になるか」「いつ実行されるか」「どこでエラーになるか」を確認できます。順に学ぶ場合は[Learn](/docs/learn/first-program)、目的に合わせてアプリを作る場合は[Guides](/docs/guides/cli-app)を使ってください。
+
+## 構文とデータ
+
+| 調べたいこと | ページ |
+| --- | --- |
+| リテラル、改行、演算子の優先順位 | [構文](/docs/reference/syntax) |
+| 型注釈、型引数、推論、互換性 | [型](/docs/reference/types) |
+| ADT、struct、record、newtype、collection | [データ型](/docs/reference/data-types) |
+| 分解、guard、網羅性、束縛の範囲 | [パターン](/docs/reference/patterns) |
+| カリー化、部分適用、lambda、再帰 | [関数](/docs/reference/functions) |
+
+## 計算と状態
+
+| 調べたいこと | ページ |
+| --- | --- |
+| 欠如、失敗、遅延実行、環境、resource | [Effectと失敗](/docs/reference/effects) |
+| 現在値、derived Signal、transaction、購読 | [Signal](/docs/reference/signals) |
+| trait、instance、constraint、deriving、do | [型クラス](/docs/reference/type-classes) |
+
+## アプリケーションの境界
+
+| 調べたいこと | ページ |
+| --- | --- |
+| import、公開範囲、moduleの初期化 | [モジュール](/docs/reference/modules) |
+| foreign、null、Promise、snapshot変換 | [TypeScript連携](/docs/reference/typescript-interop) |
+| Html、Action、DOM、Signalとの接続 | [Web UI](/docs/reference/web-ui) |
+| service、target、Providerの選択 | [Runtime Provider](/docs/reference/runtime-providers) |
+
+## ツールと運用
+
+| 調べたいこと | ページ |
+| --- | --- |
+| 使用できるコマンドとoption | [CLI](/docs/reference/cli) |
+| seseragi.toml、layout、dependency、lock | [プロジェクト設定](/docs/reference/project-configuration) |
+| collectionのコスト、再帰、profile、計測 | [性能](/docs/reference/performance) |
+| std moduleの関数、型、対応target | [標準ライブラリ](/docs/reference/library) |
+
+## このリファレンスの確認範囲
+
+掲載した実行例は、配布版のSeseragi **0.61.25**で確認しています。compilerの配布versionと、manifestの`package.language`が指定する言語versionは別です。manifestには、使っているcompilerが受理する言語rangeを指定します。
+
+仕様に定義された将来の契約を、現在利用できるコマンドやAPIと同じ扱いにはしていません。未提供の機能に触れる場合は、その場所で区別します。最適化についても、消去できる構造と、現在のbackendが必ず行う最適化を分けて説明します。

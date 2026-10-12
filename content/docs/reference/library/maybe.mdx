@@ -1,0 +1,107 @@
+---
+title: "std/maybe"
+description: "値がない場合をNothingで表し、既定値や代替値を選びます。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as maybe from "std/maybe"
+```
+
+## 使ってみる
+
+{/* example: examples/library/maybe.ssrg */}
+
+```seseragi
+import * as maybe from "std/maybe"
+
+pub effect fn main =
+  Just 42
+  |> maybe.withDefault 0
+  |> show
+  |> println
+```
+
+出力:
+
+```text
+42
+```
+
+## 選び方と注意
+
+- 欠如自体が正常ならMaybeを使います。失敗理由が必要な値にはEither、実行する操作にはEffectを使います。
+- `withDefault`と`orElse`の引数はstrictです。Justでも代替値の式を先に評価するため、必要なときだけ計算する代替値には`??`を使います。
+- `traverse`は結果にNothingがあっても、後続のpure コールバックを呼ばない保証はありません。走査自体を途中で止めるなら`reduceUntil`を使います。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 関数と演算子
+
+### `orElse`
+
+<small className="api-kind">関数</small>
+
+NothingならfallbackのMaybeを選び、既存のJustは保持します。
+
+```text
+orElse<A>
+  Maybe<A>
+  -> Maybe<A>
+  -> Maybe<A>
+```
+
+### `sequence`
+
+<small className="api-kind">関数</small>
+
+identityでwrapped値を走査し、sourceの形と順序を保ちます。
+
+```text
+sequence<F<_>, A>
+  F<Maybe<A>>
+  -> Maybe<F<A>>
+where
+  Traversable<F<_>>
+```
+
+### `traverse`
+
+<small className="api-kind">関数</small>
+
+sourceのTraversableと、このmoduleのApplicativeを使います。別の走査実装は作りません。
+
+```text
+traverse<F<_>, A, B>
+  (A -> Maybe<B>)
+  -> F<A>
+  -> Maybe<F<B>>
+where
+  Traversable<F<_>>
+```
+
+### `withDefault`
+
+<small className="api-kind">関数</small>
+
+Nothingならfallback、Justならpayloadを返します。引数はstrictに評価します。
+
+```text
+withDefault<A>
+  A
+  -> Maybe<A>
+  -> A
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/maybe-and-either)
+- [用途からmoduleを探す](/docs/reference/library)

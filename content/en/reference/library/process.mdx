@@ -1,0 +1,226 @@
+---
+title: "std/process"
+description: "Access arguments, environment, and termination for the current process."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process |
+| Capability identities | `std/process::Process` |
+
+## Import
+
+```seseragi
+import * as process
+  from "std/process"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Process`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Process
+```
+
+### `ProcessError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ProcessError
+```
+
+### `ProcessSignal`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ProcessSignal
+```
+
+## Constructors and values
+
+### `CurrentDirectoryUnavailable`
+
+<small className="api-kind">Constructor</small>
+
+```text
+CurrentDirectoryUnavailable
+  ProcessError
+```
+
+### `Hangup`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Hangup
+  ProcessSignal
+```
+
+### `Interrupt`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Interrupt
+  ProcessSignal
+```
+
+### `InvalidArgumentEncoding`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidArgumentEncoding
+  Int
+  -> ProcessError
+```
+
+### `InvalidEnvironmentEncoding`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidEnvironmentEncoding
+  String
+  -> ProcessError
+```
+
+### `InvalidEnvironmentName`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidEnvironmentName
+  String
+  -> ProcessError
+```
+
+### `Quit`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Quit
+  ProcessSignal
+```
+
+### `ReservedProcessSignal`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ReservedProcessSignal
+  ProcessSignal
+  -> ProcessError
+```
+
+### `Terminate`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Terminate
+  ProcessSignal
+```
+
+### `UnsupportedProcessSignal`
+
+<small className="api-kind">Constructor</small>
+
+```text
+UnsupportedProcessSignal
+  ProcessSignal
+  -> ProcessError
+```
+
+### `User1`
+
+<small className="api-kind">Constructor</small>
+
+```text
+User1
+  ProcessSignal
+```
+
+### `User2`
+
+<small className="api-kind">Constructor</small>
+
+```text
+User2
+  ProcessSignal
+```
+
+## Functions and operators
+
+### `arguments`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+arguments
+  Unit
+  -> Effect<
+       { process: Process },
+       ProcessError,
+       Array<String>
+     >
+```
+
+### `currentDirectory`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+currentDirectory
+  Unit
+  -> Effect<
+       { process: Process },
+       ProcessError,
+       Path
+     >
+```
+
+### `environment`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+environment
+  String
+  -> Effect<
+       { process: Process },
+       ProcessError,
+       Maybe<String>
+     >
+```
+
+### `signals`
+
+<small className="api-kind">Function</small>
+
+```text
+signals
+  NonEmptyList<ProcessSignal>
+  -> Stream<
+       { process: Process },
+       ProcessError,
+       ProcessSignal
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

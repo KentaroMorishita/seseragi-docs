@@ -1,0 +1,913 @@
+---
+title: "std/http"
+description: "HttpClientの能力でrequestを送信し、responseとbodyの寿命を扱います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+| 能力のidentity | `std/http::HttpClient` |
+
+## import
+
+```seseragi
+import * as http from "std/http"
+```
+
+## 選び方と注意
+
+- non-2xx statusもresponseとして成功します。HTTPの業務上の失敗と、DNS・TLS・socketなどのtransport failureを分けて扱います。
+- sendBytes/sendEmptyはbodyをメモリへ集めるsmall-response APIです。明示した上限を超えるとキャンセルし、型付きエラーを返します。
+- Headersはcase-insensitiveな順序付きmulti-mapです。複数valueをcommaで自動結合しないため、Set-Cookieなどの独立した値を保てます。
+- redirect、cookie jar、認証、retry、timeout、Content-Encoding decodeは自動適用しません。bodyのtext/JSON decodeもアプリの方針で明示します。
+- exchangeはcoldなStreamです。terminal実行ごとにrequestを開始し、キャンセルや途中終了でもbodyとconnectionのリソースを解放します。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Body`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Body<_, _>
+```
+
+### `Headers`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+順序付きの不変HTTP header collectionです。
+
+```text
+Headers
+```
+
+### `HttpBodyLimit`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+response bodyの正のbyte上限です。
+
+```text
+HttpBodyLimit
+```
+
+### `HttpBuildError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+HTTP値を構築するときの型付きvalidation失敗です。
+
+```text
+HttpBuildError
+```
+
+### `HttpClient`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+HttpClient
+```
+
+### `HttpError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+HTTPのtransport、protocol、bodyに関する型付き失敗です。
+
+```text
+HttpError
+```
+
+### `HttpEvent`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+HttpEvent
+```
+
+### `HttpUrl`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+正規化されたabsolute HTTP/HTTPS URLです。
+
+```text
+HttpUrl
+```
+
+### `HttpVersion`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+HttpVersion
+```
+
+### `Method`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+検査済みHTTP request methodのopaque型です。
+
+```text
+Method
+```
+
+### `Request`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+bodyを持たない不変HTTP request headです。
+
+```text
+Request
+```
+
+### `Response`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+不変Bytes bodyを持つ小さなHTTP responseです。
+
+```text
+Response
+```
+
+### `ResponseHead`
+
+<small className="api-kind">struct</small>
+
+```text
+struct ResponseHead {
+  version: HttpVersion,
+  status: Status,
+  headers: Headers
+}
+```
+
+- `version`: 受信したHTTP protocolのversion。
+- `status`: 検証済みのHTTP status。
+- `headers`: 本文とは別に受信した不変のheader列。
+
+### `Status`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+検査済みHTTP response statusのopaque型です。
+
+```text
+Status
+```
+
+## コンストラクタと値
+
+### `connect`
+
+<small className="api-kind">値</small>
+
+標準のCONNECT Method値です。
+
+```text
+Method
+```
+
+### `delete`
+
+<small className="api-kind">値</small>
+
+標準のDELETE Method値です。
+
+```text
+Method
+```
+
+### `emptyHeaders`
+
+<small className="api-kind">値</small>
+
+空の不変Headersです。
+
+```text
+Headers
+```
+
+### `get`
+
+<small className="api-kind">値</small>
+
+標準のGET Method値です。
+
+```text
+Method
+```
+
+### `head`
+
+<small className="api-kind">値</small>
+
+標準のHEAD Method値です。
+
+```text
+Method
+```
+
+### `Http1_0`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Http1_0
+  HttpVersion
+```
+
+### `Http1_1`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Http1_1
+  HttpVersion
+```
+
+### `Http2`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Http2
+  HttpVersion
+```
+
+### `Http3`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Http3
+  HttpVersion
+```
+
+### `HttpClientUnavailable`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpClientUnavailable
+  HttpError
+```
+
+### `HttpConnectionFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpConnectionFailure
+  String
+  -> HttpError
+```
+
+### `HttpDnsFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpDnsFailure
+  String
+  -> HttpError
+```
+
+### `HttpProtocolFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpProtocolFailure
+  String
+  -> HttpError
+```
+
+### `HttpRequestBodyFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpRequestBodyFailure
+  String
+  -> HttpError
+```
+
+### `HttpRequestLengthMismatch`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpRequestLengthMismatch
+  { declared: Int, actual: Int }
+  -> HttpError
+```
+
+### `HttpResponseBodyLimitExceeded`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpResponseBodyLimitExceeded
+  { limitBytes: Int }
+  -> HttpError
+```
+
+### `HttpTlsFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpTlsFailure
+  String
+  -> HttpError
+```
+
+### `HttpUrlContainsFragment`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpUrlContainsFragment
+  HttpBuildError
+```
+
+### `HttpUrlContainsUserInfo`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpUrlContainsUserInfo
+  HttpBuildError
+```
+
+### `HttpVersionUnknown`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+HttpVersionUnknown
+  HttpVersion
+```
+
+### `InformationalResponse`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InformationalResponse
+  ResponseHead
+  -> HttpEvent
+```
+
+### `InvalidHeaderName`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidHeaderName
+  String
+  -> HttpBuildError
+```
+
+### `InvalidHeaderValue`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidHeaderValue
+  { name: String, offset: Int }
+  -> HttpBuildError
+```
+
+### `InvalidHttpBodyLimit`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidHttpBodyLimit
+  Int
+  -> HttpBuildError
+```
+
+### `InvalidHttpMethod`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidHttpMethod
+  String
+  -> HttpBuildError
+```
+
+### `InvalidHttpStatus`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidHttpStatus
+  Int
+  -> HttpBuildError
+```
+
+### `InvalidHttpUrl`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidHttpUrl
+  { offset: Int }
+  -> HttpBuildError
+```
+
+### `ManagedHttpHeader`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ManagedHttpHeader
+  String
+  -> HttpBuildError
+```
+
+### `options`
+
+<small className="api-kind">値</small>
+
+標準のOPTIONS Method値です。
+
+```text
+Method
+```
+
+### `patch`
+
+<small className="api-kind">値</small>
+
+標準のPATCH Method値です。
+
+```text
+Method
+```
+
+### `post`
+
+<small className="api-kind">値</small>
+
+標準のPOST Method値です。
+
+```text
+Method
+```
+
+### `put`
+
+<small className="api-kind">値</small>
+
+標準のPUT Method値です。
+
+```text
+Method
+```
+
+### `ResponseBodyChunk`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ResponseBodyChunk
+  Bytes
+  -> HttpEvent
+```
+
+### `ResponseStarted`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ResponseStarted
+  ResponseHead
+  -> HttpEvent
+```
+
+### `ResponseTrailers`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+ResponseTrailers
+  Headers
+  -> HttpEvent
+```
+
+### `trace`
+
+<small className="api-kind">値</small>
+
+標準のTRACE Method値です。
+
+```text
+Method
+```
+
+### `UnsupportedHttpScheme`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+UnsupportedHttpScheme
+  String
+  -> HttpBuildError
+```
+
+## 関数と演算子
+
+### `appendHeader`
+
+<small className="api-kind">関数</small>
+
+HTTP header field一件を検査して追加します。
+
+```text
+appendHeader
+  String
+  -> String
+  -> Headers
+  -> Either<HttpBuildError, Headers>
+```
+
+### `bodyLimit`
+
+<small className="api-kind">関数</small>
+
+```text
+bodyLimit
+  Int
+  -> Either<
+       HttpBuildError,
+       HttpBodyLimit
+     >
+```
+
+### `bytesBody`
+
+<small className="api-kind">関数</small>
+
+```text
+bytesBody<R, E>
+  Bytes
+  -> Body<R, E>
+```
+
+### `customMethod`
+
+<small className="api-kind">関数</small>
+
+uppercaseのcustom HTTP method tokenを検査します。
+
+```text
+customMethod
+  String
+  -> Either<HttpBuildError, Method>
+```
+
+### `defaultBodyLimit`
+
+<small className="api-kind">関数</small>
+
+```text
+defaultBodyLimit
+  Unit
+  -> HttpBodyLimit
+```
+
+### `emptyBody`
+
+<small className="api-kind">関数</small>
+
+```text
+emptyBody<R, E>
+  Unit
+  -> Body<R, E>
+```
+
+### `errorMessage`
+
+<small className="api-kind">関数</small>
+
+HTTP client失敗が持つmessageを読みます。
+
+```text
+errorMessage
+  HttpError
+  -> String
+```
+
+### `exchange`
+
+<small className="api-kind">関数</small>
+
+```text
+exchange<R, E>
+  Body<R, E>
+  -> Request
+  -> Stream<
+       R & {
+         httpClient: HttpClient
+       },
+       Either<E, HttpError>,
+       HttpEvent
+     >
+```
+
+### `headerEntries`
+
+<small className="api-kind">関数</small>
+
+```text
+headerEntries
+  Headers
+  -> Array<(String, String)>
+```
+
+### `headerValues`
+
+<small className="api-kind">関数</small>
+
+```text
+headerValues
+  String
+  -> Headers
+  -> Array<String>
+```
+
+### `isClientError`
+
+<small className="api-kind">関数</small>
+
+```text
+isClientError
+  Status
+  -> Bool
+```
+
+### `isInformational`
+
+<small className="api-kind">関数</small>
+
+```text
+isInformational
+  Status
+  -> Bool
+```
+
+### `isRedirection`
+
+<small className="api-kind">関数</small>
+
+```text
+isRedirection
+  Status
+  -> Bool
+```
+
+### `isServerError`
+
+<small className="api-kind">関数</small>
+
+```text
+isServerError
+  Status
+  -> Bool
+```
+
+### `isSuccess`
+
+<small className="api-kind">関数</small>
+
+```text
+isSuccess
+  Status
+  -> Bool
+```
+
+### `methodText`
+
+<small className="api-kind">関数</small>
+
+検査済みHTTP Methodのtextを読みます。
+
+```text
+methodText
+  Method
+  -> String
+```
+
+### `parseUrl`
+
+<small className="api-kind">関数</small>
+
+absolute HTTP/HTTPS URLをparseして正規化します。
+
+```text
+parseUrl
+  String
+  -> Either<HttpBuildError, HttpUrl>
+```
+
+### `removeHeader`
+
+<small className="api-kind">関数</small>
+
+大文字・小文字を区別せず、該当headerをすべて削除します。
+
+```text
+removeHeader
+  String
+  -> Headers
+  -> Headers
+```
+
+### `renderUrl`
+
+<small className="api-kind">関数</small>
+
+正規化されたHttpUrlをrenderします。
+
+```text
+renderUrl
+  HttpUrl
+  -> String
+```
+
+### `request`
+
+<small className="api-kind">関数</small>
+
+MethodとHttpUrlから不変のrequest headを作ります。
+
+```text
+request
+  Method
+  -> HttpUrl
+  -> Request
+```
+
+### `responseBody`
+
+<small className="api-kind">関数</small>
+
+小さなresponseの不変なBytes bodyをcopyします。
+
+```text
+responseBody
+  Response
+  -> Bytes
+```
+
+### `responseHeaders`
+
+<small className="api-kind">関数</small>
+
+Responseが持つ不変のHeadersを返します。新しいHeadersのコピーは作りません。
+
+```text
+responseHeaders
+  Response
+  -> Headers
+```
+
+### `responseStatus`
+
+<small className="api-kind">関数</small>
+
+小さなresponseの検査済みstatusを読みます。
+
+```text
+responseStatus
+  Response
+  -> Status
+```
+
+### `sendBytes`
+
+<small className="api-kind">Effectを返す関数</small>
+
+明示したBytes bodyをHttpClientで送信します。
+
+```text
+sendBytes
+  HttpBodyLimit
+  -> Bytes
+  -> Request
+  -> Effect<
+       { httpClient: HttpClient },
+       HttpError,
+       Response
+     >
+```
+
+### `sendEmpty`
+
+<small className="api-kind">Effectを返す関数</small>
+
+明示的な空bodyをHttpClientで送信します。
+
+```text
+sendEmpty
+  HttpBodyLimit
+  -> Request
+  -> Effect<
+       { httpClient: HttpClient },
+       HttpError,
+       Response
+     >
+```
+
+### `setHeader`
+
+<small className="api-kind">関数</small>
+
+header fieldを、元の最初の位置で置き換えます。
+
+```text
+setHeader
+  String
+  -> String
+  -> Headers
+  -> Either<HttpBuildError, Headers>
+```
+
+### `status`
+
+<small className="api-kind">関数</small>
+
+100〜999のHTTP status codeを検査します。
+
+```text
+status
+  Int
+  -> Either<HttpBuildError, Status>
+```
+
+### `statusCode`
+
+<small className="api-kind">関数</small>
+
+検査済みHTTP StatusのInt codeを読みます。
+
+```text
+statusCode
+  Status
+  -> Int
+```
+
+### `streamBody`
+
+<small className="api-kind">関数</small>
+
+```text
+streamBody<R, E>
+  Stream<R, E, Bytes>
+  -> Body<R, E>
+```
+
+### `withoutRequestHeader`
+
+<small className="api-kind">関数</small>
+
+```text
+withoutRequestHeader
+  String
+  -> Request
+  -> Request
+```
+
+### `withRequestHeader`
+
+<small className="api-kind">関数</small>
+
+```text
+withRequestHeader
+  String
+  -> String
+  -> Request
+  -> Either<HttpBuildError, Request>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

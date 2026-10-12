@@ -22,15 +22,15 @@ import snippet from "../../examples/parcel.ssrg?raw";
         </div>
       </section>
       <section class="routes-section" aria-labelledby="routes-title">
-        <div class="section-intro"><p class="eyebrow">A PLACE TO START</p><h2 id="routes-title">今、知りたいことから。</h2><p>順に学ぶ。必要な構文を調べる。動かして確かめる。</p></div>
+        <div class="section-intro"><p class="eyebrow">A PLACE TO START</p><h2 id="routes-title">今、知りたいことから。</h2><p>順に学ぶ。アプリを作る。必要な規則を調べる。</p></div>
         <div class="route-grid">
-          <a class="route-card" href="/docs/learn/first-program"><span class="route-number">01 / LEARN</span><h3>書きながら、理解する。<span aria-hidden="true">↗</span></h3><p>配送状態を型で表し、パターンマッチと関数のつなぎ方を学びます。</p><span class="route-label">最初のプログラム</span></a>
-          <a class="route-card" href="/docs/reference/functions"><span class="route-number">02 / REFERENCE</span><h3>構文を、確かめる。<span aria-hidden="true">↗</span></h3><p>関数の宣言と呼び出し、部分適用を、短い例で確認できます。</p><span class="route-label">関数リファレンス</span></a>
-          <a class="route-card" href="https://seseragi.vercel.app/"><span class="route-number">03 / PLAYGROUND</span><h3>変えて、動かしてみる。<span aria-hidden="true">↗</span></h3><p>インストールせずに、コードの編集と実行、Web UIのプレビューを試せます。</p><span class="route-label">Playgroundを開く</span></a>
+          <a class="route-card" href="/docs/learn"><span class="route-number">01 / LEARN</span><h3>書きながら、理解する。<span aria-hidden="true">↗</span></h3><p>値と関数から、型、Effect、状態まで。動くコードで順に学びます。</p><span class="route-label">学ぶ順番を見る</span></a>
+          <a class="route-card" href="/docs/guides"><span class="route-number">02 / GUIDES</span><h3>作りたいものから、進む。<span aria-hidden="true">↗</span></h3><p>CLIとWeb、フォーム、テスト、外部連携。具体的な手順でアプリを作ります。</p><span class="route-label">用途別ガイド</span></a>
+          <a class="route-card" href="/docs/reference"><span class="route-number">03 / REFERENCE</span><h3>規則とAPIを、確かめる。<span aria-hidden="true">↗</span></h3><p>言語の規則、開発ツール、標準ライブラリの型を、用途と章から調べます。</p><span class="route-label">リファレンスを開く</span></a>
         </div>
       </section>
-      <section class="idea-section"><p class="eyebrow">THINK IN SESERAGI</p><h2>状態を表し、表示へ変換する。</h2><p>発送済みの荷物には、発送先の都市名がある。<br />型でその違いを表し、matchで状態ごとの処理を書きます。</p><div class="idea-flow" role="img" aria-label="発送先Kyotoを持つSentからlabelで文字列を作りprintlnで出力する"><div><span>DATA</span><strong>Sent</strong><small>状態と発送先</small></div><span class="flow-arrow" aria-hidden="true">→</span><div><span>FUNCTION</span><strong>label</strong><small>表示文へ変換</small></div><span class="flow-arrow" aria-hidden="true">→</span><div><span>EFFECT</span><strong>println</strong><small>結果を出力</small></div></div><a class="subtle-link" href="/docs/learn/first-program">この例を一つずつ読む <span aria-hidden="true">→</span></a></section>
-      <footer class="site-footer"><span>Seseragi <span class="footer-muted">/ ドキュメント</span></span><a href="https://github.com/KentaroMorishita/seseragi">Language on GitHub ↗</a></footer>
+      <section class="idea-section"><p class="eyebrow">THINK IN SESERAGI</p><h2>状態を表し、表示へ変換する。</h2><p>発送済みの荷物には、発送先の都市名がある。<br />型でその違いを表し、matchで状態ごとの処理を書きます。</p><div class="idea-flow" role="img" aria-label="発送先Kyotoを持つSentからlabelで文字列を作りprintlnで出力する"><div><span>DATA</span><strong>Sent</strong><small>状態と発送先</small></div><span class="flow-arrow" aria-hidden="true">→</span><div><span>FUNCTION</span><strong>label</strong><small>表示文へ変換</small></div><span class="flow-arrow" aria-hidden="true">→</span><div><span>EFFECT</span><strong>println</strong><small>結果を出力</small></div></div><a class="subtle-link" href="/docs/learn/algebraic-data-types">状態を表す型を学ぶ <span aria-hidden="true">→</span></a></section>
+      <footer class="site-footer"><span>Seseragi <span class="footer-muted">/ 公式ドキュメント</span></span><a href="https://github.com/KentaroMorishita/seseragi">Language on GitHub ↗</a></footer>
     </div>
   </Home>
 </Layout>

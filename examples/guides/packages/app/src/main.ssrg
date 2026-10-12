@@ -1,0 +1,6 @@
+import { fee } from "shipping"
+
+pub effect fn main =
+  fee 2999
+  |> show
+  |> println

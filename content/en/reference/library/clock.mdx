@@ -1,0 +1,70 @@
+---
+title: "std/clock"
+description: "Request Clock capability and read monotonic time."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+| Capability identities | `std/clock::Clock` |
+
+## Import
+
+```seseragi
+import * as clock from "std/clock"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Clock`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Clock
+```
+
+## Functions and operators
+
+### `now`
+
+<small className="api-kind">Function</small>
+
+Reads the current monotonic clock instant through Clock Effect.
+
+```text
+now
+  Unit
+  -> Effect<
+       { clock: Clock },
+       Never,
+       Instant
+     >
+```
+
+### `sleep`
+
+<small className="api-kind">Function returning Effect</small>
+
+Waits for a Duration through the Clock Effect capability.
+
+```text
+sleep
+  Duration
+  -> Effect<
+       { clock: Clock },
+       Never,
+       Unit
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

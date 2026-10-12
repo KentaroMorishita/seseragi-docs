@@ -1,0 +1,9 @@
+import * as arrays from "std/array"
+
+fn even n: Int -> Bool = n % 2 == 0
+
+pub effect fn main =
+  [1, 2, 3, 4]
+  |> arrays.filter even
+  |> show
+  |> println

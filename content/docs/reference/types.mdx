@@ -1,0 +1,83 @@
+---
+title: "型"
+description: "基本型、注釈、generic、型の互換性、推論と曖昧性の境界を確認する。"
+---
+
+すべての式は実行前に型を持ちます。型検査に失敗したプログラムは実行されません。型を決められない場所を暗黙の`Any`で埋めることはなく、必要な注釈を要求します。
+
+## 基本型
+
+| 型 | 値と制約 |
+| --- | --- |
+| `Int` | -9007199254740991〜9007199254740991の正確な整数 |
+| `Float` | IEEE 754 binary64。`Int`とは別の型 |
+| `Bool` | `True`または`False`。truthy/falsyはない |
+| `Char` | Unicode scalar一個 |
+| `String` | Unicode scalarの不変列 |
+| `Unit` | 値は`()`だけ |
+| `Never` | 値を持たない底型 |
+
+`Int`はoverflowでwrapせず、範囲外の演算結果やzero divisionはruntime defectです。negative zeroは持ちません。`Float`のNaNやinfinityは数値literalではなく、標準ライブラリの名前付き値です。任意精度整数には[標準ライブラリ](/docs/reference/library)の`std/big-int`を使います。
+
+`Never`はどの型が必要な場所でも使えます。これは「値がない」型で、正常に値`()`を返す`Unit`とは異なります。
+
+## 型の書き方
+
+| 型式 | 意味 |
+| --- | --- |
+| `Array<A>`、`List<A>` | 別々の不変collection |
+| `Maybe<A>` | 値がない場合がある |
+| `Either<E, A>` | 評価済みの失敗または成功 |
+| `Effect<R, E, A>` | 環境・失敗・成功を持つ遅延計算 |
+| `Task<A>` | `Effect<{}, Never, A>`の透明alias |
+| `(A, B)` | tuple |
+| `{ name: String }` | structural record |
+| `A -> B -> C` | `A -> (B -> C)`、右結合の関数型 |
+
+型引数は`,`で区切り、入れ子にできます。通常の値型では全引数を指定します。`Maybe`だけや`Either<String>`だけは値型ではありません。型構築子parameter`F<_>`が必要な位置に限り、`Maybe`や`Either<String, _>`を渡せます。
+
+## 注釈とgeneric
+
+通常の`fn`にはparameter型と戻り型を書きます。非公開`let`は推論できます。公開`let`には完全な注釈が必要です。[Effect関数](/docs/reference/effects)のcompact formは、本体から正規Effect型を推論する例外です。
+
+型parameterは宣言名の直後に書き、宣言内でだけ参照できます。次の`identity`は、呼び出すたびに型parameterを新しく決めます。
+
+{/* example: examples/reference/generics.ssrg */}
+
+```seseragi title="generics.ssrg"
+fn identity<A> value: A -> A =
+  value
+
+pub effect fn main = do {
+  let number = identity 42
+  let text = identity "ready"
+  println `${number}: ${text}`
+}
+```
+
+出力は`42: ready`です。必要なら`identity<String> "ready"`のように型引数を明示できます。明示する場合は宣言順に全個数を指定し、値引数・期待型と一致させます。
+
+`let identity = \value -> value`のような非再帰的な束縛も一般化されます。多相性はrank-1で、関数parameterやrecord fieldの型そのものへ「呼ぶたびに型が変わる関数」を埋め込むhigher-rank型はありません。
+
+## 同じ型として扱える範囲
+
+ADT、struct、newtypeはnominalです。見た目やfield構成が同じでも、別宣言なら別の型です。aliasは新しい型を作らず、展開先と同じ型です。
+
+recordにはwidth subtypingがあります。`{ name: String }`が必要な関数へ、`{ id: Int, name: String }`を渡せます。field型は同一である必要があり、fieldの内側へ暗黙のdepth subtypingはしません。
+
+`{ id?: String }`のfield accessは`Maybe<String>`です。optionalはfieldの不在を表し、requiredな`{ id: Maybe<String> }`とは異なります。optionalをrequiredへ暗黙変換することはできません。
+
+## 暗黙変換とエラー
+
+| 変換 | 扱い |
+| --- | --- |
+| `Int`から`Float` | 明示的に変換する |
+| `A`から`Maybe<A>` | `Just`で包む |
+| 内部値からnewtype | constructorで包む |
+| structから同じfieldのrecord | 新しいrecordを明示的に作る |
+| `Array<A>`から`List<A>` | 変換関数を呼ぶ |
+| `Js.Nullable<A>`から`Maybe<A>` | 境界adapterを使う |
+
+user-defined型とcollectionはinvariantです。recordの互換性があっても、`Array<広いrecord>`と`Array<狭いrecord>`が自動で互換になるわけではありません。必要なら`map`で変換します。
+
+例外は`Never`、recordのwidth subtyping、Effectのrequirement/failure widening、`MutableSignal<A>`から`Signal<A>`への読み取り権限の変換です。各境界の条件は[Effect](/docs/reference/effects)と[Signal](/docs/reference/signals)で確認できます。型引数の不足、aliasの循環、決まらない戻り型parameter、kind不一致は実行前のエラーです。

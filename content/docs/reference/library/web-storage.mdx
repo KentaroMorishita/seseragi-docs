@@ -1,0 +1,202 @@
+---
+title: "std/web/storage"
+description: "browserのlocal/session storageを、失敗を保つEffectで操作します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | browser |
+| 能力のidentity | `std/web/storage::Storage` |
+
+## import
+
+```seseragi
+import * as web_storage
+  from "std/web/storage"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Storage`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Storage
+```
+
+### `StorageArea`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+StorageArea
+```
+
+### `StorageError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+StorageError
+```
+
+## コンストラクタと値
+
+### `Local`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Local
+  StorageArea
+```
+
+### `Session`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Session
+  StorageArea
+```
+
+### `StorageQuotaExceeded`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+StorageQuotaExceeded
+  {
+    area: StorageArea,
+    key: String,
+    message: String
+  }
+  -> StorageError
+```
+
+### `StorageSecurityFailure`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+StorageSecurityFailure
+  {
+    area: StorageArea,
+    message: String
+  }
+  -> StorageError
+```
+
+### `StorageUnavailable`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+StorageUnavailable
+  {
+    area: StorageArea,
+    message: String
+  }
+  -> StorageError
+```
+
+## 関数と演算子
+
+### `clear`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+clear
+  StorageArea
+  -> Effect<
+       { storage: Storage },
+       StorageError,
+       Unit
+     >
+```
+
+### `errorMessage`
+
+<small className="api-kind">関数</small>
+
+```text
+errorMessage
+  StorageError
+  -> String
+```
+
+### `get`
+
+<small className="api-kind">Effectを返す関数</small>
+
+指定したstorage領域のキーを読むEffectを返します。キーがなければNothingを返し、読み取りが失敗すればStorageErrorで失敗します。
+
+```text
+get
+  StorageArea
+  -> String
+  -> Effect<
+       { storage: Storage },
+       StorageError,
+       Maybe<String>
+     >
+```
+
+### `keys`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+keys
+  StorageArea
+  -> Effect<
+       { storage: Storage },
+       StorageError,
+       Array<String>
+     >
+```
+
+### `remove`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+remove
+  StorageArea
+  -> String
+  -> Effect<
+       { storage: Storage },
+       StorageError,
+       Unit
+     >
+```
+
+### `set`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+set
+  StorageArea
+  -> String
+  -> String
+  -> Effect<
+       { storage: Storage },
+       StorageError,
+       Unit
+     >
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/signals)
+- [用途からmoduleを探す](/docs/reference/library)
+- [Web UIの規則](/docs/reference/web-ui)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

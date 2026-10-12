@@ -1,0 +1,285 @@
+---
+title: "std/bytes"
+description: "Create, access, slice, and convert immutable byte sequences."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as bytes from "std/bytes"
+```
+
+## Choosing operations
+
+- Bytes is an immutable byte sequence. Foreign Uint8Array adapters copy in both directions rather than sharing mutable host views.
+- Byte construction checks 0–255. get returns Nothing out of range; slice reports a typed invalid-range error for end-exclusive ranges instead of clamping.
+- A slice may share backing storage. Use copy when retaining a small slice long-term should release the larger original storage.
+- Make encoding explicit when treating Bytes as text. Strict UTF-8 decoding reports the invalid position; lossy decoding instead replaces invalid sequences.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Byte`
+
+<small className="api-kind">Opaque type</small>
+
+Opaque unsigned 8-bit value in the inclusive range 0 through 255.
+
+```text
+Byte
+```
+
+### `ByteError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes an Int that cannot be represented as a Byte.
+
+```text
+ByteError
+```
+
+### `Bytes`
+
+<small className="api-kind">Opaque type</small>
+
+Immutable sequence of bytes with explicit copy boundaries.
+
+```text
+Bytes
+```
+
+### `BytesSliceError`
+
+<small className="api-kind">Opaque type</small>
+
+Describes an invalid half-open Bytes slice range.
+
+```text
+BytesSliceError
+```
+
+## Constructors and values
+
+### `ByteOutOfRange`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ByteOutOfRange
+  Int
+  -> ByteError
+```
+
+### `InvalidByteRange`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidByteRange
+  {
+    start: Int,
+    end: Int,
+    length: Int
+  }
+  -> BytesSliceError
+```
+
+## Functions and operators
+
+### `append`
+
+<small className="api-kind">Function</small>
+
+Appends the suffix after the collection values.
+
+```text
+append
+  Bytes
+  -> Bytes
+  -> Bytes
+```
+
+### `byte`
+
+<small className="api-kind">Function</small>
+
+Validates an Int and converts it to an opaque Byte.
+
+```text
+byte
+  Int
+  -> Either<ByteError, Byte>
+```
+
+### `concat`
+
+<small className="api-kind">Function</small>
+
+Flattens one level of nested collections in source order.
+
+```text
+concat
+  Array<Bytes>
+  -> Bytes
+```
+
+### `copy`
+
+<small className="api-kind">Function</small>
+
+Creates an independent copy of Bytes.
+
+```text
+copy
+  Bytes
+  -> Bytes
+```
+
+### `empty`
+
+<small className="api-kind">Function</small>
+
+Creates an empty immutable Bytes value.
+
+```text
+empty
+  Unit
+  -> Bytes
+```
+
+### `fromArray`
+
+<small className="api-kind">Function</small>
+
+Copies an Array of Byte values into immutable Bytes.
+
+```text
+fromArray
+  Array<Byte>
+  -> Bytes
+```
+
+### `fromInts`
+
+<small className="api-kind">Function</small>
+
+Validates Int values in order and copies them into Bytes.
+
+```text
+fromInts
+  Array<Int>
+  -> Either<ByteError, Bytes>
+```
+
+### `get`
+
+<small className="api-kind">Function</small>
+
+Returns the indexed element, or Nothing when the index is invalid.
+
+```text
+get
+  Int
+  -> Bytes
+  -> Maybe<Byte>
+```
+
+### `isEmpty`
+
+<small className="api-kind">Function</small>
+
+Returns whether the collection contains no elements.
+
+```text
+isEmpty
+  Bytes
+  -> Bool
+```
+
+### `length`
+
+<small className="api-kind">Function</small>
+
+Returns the number of elements in the collection.
+
+```text
+length
+  Bytes
+  -> Int
+```
+
+### `singleton`
+
+<small className="api-kind">Function</small>
+
+Creates Bytes containing exactly one Byte.
+
+```text
+singleton
+  Byte
+  -> Bytes
+```
+
+### `slice`
+
+<small className="api-kind">Function</small>
+
+Returns a validated half-open slice without exposing mutation.
+
+```text
+slice
+  Int
+  -> Int
+  -> Bytes
+  -> Either<BytesSliceError, Bytes>
+```
+
+### `toArray`
+
+<small className="api-kind">Function</small>
+
+Copies Bytes into an Array of Byte values.
+
+```text
+toArray
+  Bytes
+  -> Array<Byte>
+```
+
+### `toInt`
+
+<small className="api-kind">Function</small>
+
+Converts a Byte to its Int value.
+
+```text
+toInt
+  Byte
+  -> Int
+```
+
+### `toInts`
+
+<small className="api-kind">Function</small>
+
+Copies Bytes into an Array of Int values.
+
+```text
+toInts
+  Bytes
+  -> Array<Int>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/records-and-structs)
+- [Browse modules by purpose](/en/docs/reference/library)

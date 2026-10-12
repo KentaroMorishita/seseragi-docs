@@ -1,0 +1,111 @@
+---
+title: "データ型"
+description: "ADT、struct、record、newtype、tuple、collectionの宣言と値の規則を確認する。"
+---
+
+データは生成後に変更できません。更新は新しい値を作ります。状態の種類を分けるならADT、固定fieldに名前を付けるならstruct、必要なfieldだけで互換性を決めるならrecord、同じ表現の意味を区別するならnewtypeを使います。
+
+## ADTとconstructor
+
+ADTは有限個のvariantを持つnominal型です。payloadなしのconstructorは値、payloadありのconstructorは関数です。複数payloadはtuple一つへまとめます。
+
+次の例は`Read the docs`を出力します。`TicketId`、`Ticket`、`Status`は、それぞれ異なる役割を持つ型です。
+
+{/* example: examples/reference/data-types.ssrg */}
+
+```seseragi title="data-types.ssrg"
+newtype TicketId deriving Eq, Show =
+  Int
+
+struct Ticket {
+  id: TicketId,
+  title: String,
+}
+
+type Status =
+  | Open Ticket
+  | Closed TicketId
+
+fn summary status: Status -> String =
+  match status {
+    Open ticket -> ticket.title
+    Closed id -> `Closed ${id}`
+  }
+
+pub effect fn main =
+  Open (Ticket {
+    id: TicketId 1,
+    title: "Read the docs",
+  })
+  |> summary
+  |> println
+```
+
+`Closed (TicketId 1)`も`Status`ですが、`Int`や`Ticket`とは互換ではありません。generic ADTではconstructorが全型parameterを量化し、payload・期待型・明示型引数から決めます。[パターン](/docs/reference/patterns)ではpayloadを取り出す規則を説明しています。
+
+## structと更新
+
+struct生成時には全fieldが必要です。同名の変数がある場合はfield shorthandを使えます。更新は同じstruct型のspreadを先頭に一個置き、変更するfieldを後ろに書きます。
+
+```text title="値を作る構文"
+Ticket {
+  id,
+  title: "Read the docs",
+}
+Ticket {
+  ...ticket,
+  title: "Write tests",
+}
+```
+
+spread式を最初に一度評価し、明示fieldをsource順に一度ずつ評価します。直接書いたfieldの重複、複数spread、先頭以外のspreadはエラーです。generic structの更新は型引数を変えられません。
+
+通常の公開structはfieldも公開します。表現を隠す`opaque`の規則は[モジュール](/docs/reference/modules)を参照してください。
+
+## recordとoptional field
+
+recordは名前を持たないstructural型です。複数spreadをsource順に適用でき、後のspread・明示fieldが前の値を置き換えます。field型の変更は新しいrecord型を作ります。直接指定したfield名の重複はエラーです。
+
+```text title="recordの構文"
+{ name: "Aki", age: 30 }
+{ ...profile, age: profile.age + 1 }
+{ name, }
+```
+
+一つだけのshorthandは`{ name, }`と書きます。commaのない`{ name }`はブロック、`{}`はempty recordです。
+
+`{ id?: String, children: String }`では`id`を省略できます。省略したfieldをruntimeで`Nothing`へ埋めることはありません。field accessはpresentなら`Just value`、absentなら`Nothing`です。spreadはこのpresenceも保持します。
+
+## newtypeとalias
+
+`newtype UserId = Int`は`Int`と区別される型を作ります。`UserId 42`で包み、constructor patternで取り出します。暗黙のwrap/unwrap、field access、record spreadはありません。
+
+`alias UserId = Int`は別名だけを作り、`Int`と区別しません。aliasはgenericにもできますが、直接・間接の循環はエラーです。newtypeも循環定義はできません。
+
+## tuple、Array、List、range
+
+| 値 | 型・規則 |
+| --- | --- |
+| `("answer", 42)` | `(String, Int)`、固定長tuple |
+| `[1, 2, 3]` | `Array<Int>`、不変の連続列 |
+| `` `[1, 2, 3] `` | `List<Int>`、persistentな連結列 |
+| `` 1 : `[2, 3] `` | Listの先頭へのcons、右結合 |
+| `1..4` | 終端を含まない`Range<Int>` |
+| `1..=4` | 終端を含む`Range<Int>` |
+
+一要素tupleはありません。collection要素は同じ型です。空collectionは要素型を期待型や注釈から決めます。ArrayとListは暗黙変換しません。
+
+`array[index]`は`Maybe<A>`を返します。indexは`Int`で、負数や範囲外は`Nothing`です。Listに添字構文はありません。rangeのstepは1で、始点が終点より大きい場合は空です。
+
+## comprehension
+
+次は構文を示す断片です。
+
+```text title="comprehensionの構文"
+[n * n | n <- 1..=6, n % 2 == 0]
+`[name | Just name <- optionalNames]
+```
+
+generatorとBool guardを左から右に処理します。複数generatorでは左側が外側の走査です。sourceには`Iterable` instanceが必要で、結果のArray/Listとは独立です。generatorのpatternが合わない要素は除外します。comprehensionはpureなので、Effectをsourceにして実行することはできません。
+
+collectionの詳しいAPIと走査コストは[標準ライブラリ](/docs/reference/library)と[性能](/docs/reference/performance)を参照してください。

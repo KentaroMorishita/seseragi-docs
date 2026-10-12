@@ -1,0 +1,674 @@
+---
+title: "std/time"
+description: "Work with dates, durations, and time zones, distinguishing wall time from monotonic time."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+| Capability identities | `std/time::TimeZones` |
+
+## Import
+
+```seseragi
+import * as time from "std/time"
+```
+
+## Choosing operations
+
+- Instant, local date/time, UTC offset, and time zone are distinct types. Wall-clock display and timeline positions do not implicitly convert.
+- Duration is nonnegative, with checked construction and addition. Invalid dates/times are typed errors rather than automatically normalized values.
+- Resolving a local date/time in a zone can yield Unique, Ambiguous, or Gap. Applications explicitly choose a policy for daylight-saving overlaps and gaps.
+- Timezone data is version-pinned and loading requires the TimeZones capability. Do not assume zone rules vary solely with host configuration.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `DateTimeError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DateTimeError
+```
+
+### `Duration`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Duration
+```
+
+### `DurationError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DurationError
+```
+
+### `Instant`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Instant
+```
+
+### `LocalDate`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+LocalDate
+```
+
+### `LocalDateTime`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+LocalDateTime
+```
+
+### `LocalResolution`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+LocalResolution
+```
+
+### `LocalTime`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+LocalTime
+```
+
+### `OffsetDateTime`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+OffsetDateTime
+```
+
+### `TimeZone`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+TimeZone
+```
+
+### `TimeZoneError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+TimeZoneError
+```
+
+### `TimeZones`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+TimeZones
+```
+
+### `UtcOffset`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+UtcOffset
+```
+
+### `ZonedDateTime`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ZonedDateTime
+```
+
+## Constructors and values
+
+### `Ambiguous`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Ambiguous
+  {
+    earlier: ZonedDateTime,
+    later: ZonedDateTime
+  }
+  -> LocalResolution
+```
+
+### `DurationOutsideRange`
+
+<small className="api-kind">Constructor</small>
+
+```text
+DurationOutsideRange
+  DurationError
+```
+
+### `Gap`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Gap
+  {
+    transition: Instant,
+    offsetBefore: UtcOffset,
+    offsetAfter: UtcOffset
+  }
+  -> LocalResolution
+```
+
+### `InvalidDate`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidDate
+  {
+    year: Int,
+    month: Int,
+    day: Int
+  }
+  -> DateTimeError
+```
+
+### `InvalidDateTimeText`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidDateTimeText
+  { offset: Int }
+  -> DateTimeError
+```
+
+### `InvalidTime`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidTime
+  {
+    hour: Int,
+    minute: Int,
+    second: Int,
+    nanosecond: Int
+  }
+  -> DateTimeError
+```
+
+### `InvalidUtcOffsetSeconds`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidUtcOffsetSeconds
+  Int
+  -> DateTimeError
+```
+
+### `NegativeDuration`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NegativeDuration
+  Int
+  -> DurationError
+```
+
+### `TimeZoneDatabaseUnavailable`
+
+<small className="api-kind">Constructor</small>
+
+```text
+TimeZoneDatabaseUnavailable
+  String
+  -> TimeZoneError
+```
+
+### `TimeZoneDatabaseVersionMismatch`
+
+<small className="api-kind">Constructor</small>
+
+```text
+TimeZoneDatabaseVersionMismatch
+  {
+    required: String,
+    actual: String
+  }
+  -> TimeZoneError
+```
+
+### `Unique`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Unique
+  ZonedDateTime
+  -> LocalResolution
+```
+
+### `UnknownTimeZone`
+
+<small className="api-kind">Constructor</small>
+
+```text
+UnknownTimeZone
+  String
+  -> TimeZoneError
+```
+
+## Functions and operators
+
+### `addDuration`
+
+<small className="api-kind">Function</small>
+
+Adds two Duration values with range validation.
+
+```text
+addDuration
+  Duration
+  -> Duration
+  -> Either<DurationError, Duration>
+```
+
+### `atOffset`
+
+<small className="api-kind">Function</small>
+
+```text
+atOffset
+  UtcOffset
+  -> Instant
+  -> OffsetDateTime
+```
+
+### `atTimeZone`
+
+<small className="api-kind">Function</small>
+
+```text
+atTimeZone
+  Instant
+  -> TimeZone
+  -> ZonedDateTime
+```
+
+### `databaseVersion`
+
+<small className="api-kind">Function</small>
+
+```text
+databaseVersion
+  Unit
+  -> Effect<
+       { timeZones: TimeZones },
+       Never,
+       String
+     >
+```
+
+### `formatLocalDate`
+
+<small className="api-kind">Function</small>
+
+```text
+formatLocalDate
+  LocalDate
+  -> String
+```
+
+### `formatLocalDateTime`
+
+<small className="api-kind">Function</small>
+
+```text
+formatLocalDateTime
+  LocalDateTime
+  -> String
+```
+
+### `formatLocalTime`
+
+<small className="api-kind">Function</small>
+
+```text
+formatLocalTime
+  LocalTime
+  -> String
+```
+
+### `formatOffsetDateTime`
+
+<small className="api-kind">Function</small>
+
+```text
+formatOffsetDateTime
+  OffsetDateTime
+  -> String
+```
+
+### `hours`
+
+<small className="api-kind">Function</small>
+
+Converts exact hours into Duration.
+
+```text
+hours
+  Int
+  -> Either<DurationError, Duration>
+```
+
+### `loadTimeZone`
+
+<small className="api-kind">Function</small>
+
+```text
+loadTimeZone
+  String
+  -> Effect<
+       { timeZones: TimeZones },
+       TimeZoneError,
+       TimeZone
+     >
+```
+
+### `localDate`
+
+<small className="api-kind">Function</small>
+
+```text
+localDate
+  Int
+  -> Int
+  -> Int
+  -> Either<
+       DateTimeError,
+       LocalDate
+     >
+```
+
+### `localDateTime`
+
+<small className="api-kind">Function</small>
+
+```text
+localDateTime
+  LocalDate
+  -> LocalTime
+  -> LocalDateTime
+```
+
+### `localTime`
+
+<small className="api-kind">Function</small>
+
+```text
+localTime
+  Int
+  -> Int
+  -> Int
+  -> Int
+  -> Either<
+       DateTimeError,
+       LocalTime
+     >
+```
+
+### `milliseconds`
+
+<small className="api-kind">Function</small>
+
+Converts exact milliseconds into Duration.
+
+```text
+milliseconds
+  Int
+  -> Either<DurationError, Duration>
+```
+
+### `minutes`
+
+<small className="api-kind">Function</small>
+
+Converts exact minutes into Duration.
+
+```text
+minutes
+  Int
+  -> Either<DurationError, Duration>
+```
+
+### `nanoseconds`
+
+<small className="api-kind">Function</small>
+
+Validates an Int as a nanosecond Duration.
+
+```text
+nanoseconds
+  Int
+  -> Either<DurationError, Duration>
+```
+
+### `offsetInstant`
+
+<small className="api-kind">Function</small>
+
+```text
+offsetInstant
+  OffsetDateTime
+  -> Instant
+```
+
+### `offsetLocalDateTime`
+
+<small className="api-kind">Function</small>
+
+```text
+offsetLocalDateTime
+  OffsetDateTime
+  -> LocalDateTime
+```
+
+### `parseLocalDate`
+
+<small className="api-kind">Function</small>
+
+```text
+parseLocalDate
+  String
+  -> Either<
+       DateTimeError,
+       LocalDate
+     >
+```
+
+### `parseLocalDateTime`
+
+<small className="api-kind">Function</small>
+
+```text
+parseLocalDateTime
+  String
+  -> Either<
+       DateTimeError,
+       LocalDateTime
+     >
+```
+
+### `parseLocalTime`
+
+<small className="api-kind">Function</small>
+
+```text
+parseLocalTime
+  String
+  -> Either<
+       DateTimeError,
+       LocalTime
+     >
+```
+
+### `parseOffsetDateTime`
+
+<small className="api-kind">Function</small>
+
+```text
+parseOffsetDateTime
+  String
+  -> Either<
+       DateTimeError,
+       OffsetDateTime
+     >
+```
+
+### `resolveLocal`
+
+<small className="api-kind">Function</small>
+
+```text
+resolveLocal
+  LocalDateTime
+  -> TimeZone
+  -> LocalResolution
+```
+
+### `seconds`
+
+<small className="api-kind">Function</small>
+
+Converts exact seconds into Duration.
+
+```text
+seconds
+  Int
+  -> Either<DurationError, Duration>
+```
+
+### `timeZoneId`
+
+<small className="api-kind">Function</small>
+
+```text
+timeZoneId
+  TimeZone
+  -> String
+```
+
+### `timeZoneVersion`
+
+<small className="api-kind">Function</small>
+
+```text
+timeZoneVersion
+  TimeZone
+  -> String
+```
+
+### `toNanoseconds`
+
+<small className="api-kind">Function</small>
+
+Returns a Duration's integer nanosecond count.
+
+```text
+toNanoseconds
+  Duration
+  -> Int
+```
+
+### `utcOffset`
+
+<small className="api-kind">Function</small>
+
+```text
+utcOffset
+  Int
+  -> Either<
+       DateTimeError,
+       UtcOffset
+     >
+```
+
+### `zeroDuration`
+
+<small className="api-kind">Function</small>
+
+Returns the exact zero-nanosecond Duration.
+
+```text
+zeroDuration
+  Unit
+  -> Duration
+```
+
+### `zonedInstant`
+
+<small className="api-kind">Function</small>
+
+```text
+zonedInstant
+  ZonedDateTime
+  -> Instant
+```
+
+### `zonedLocalDateTime`
+
+<small className="api-kind">Function</small>
+
+```text
+zonedLocalDateTime
+  ZonedDateTime
+  -> LocalDateTime
+```
+
+### `zonedOffset`
+
+<small className="api-kind">Function</small>
+
+```text
+zonedOffset
+  ZonedDateTime
+  -> UtcOffset
+```
+
+### `zonedTimeZone`
+
+<small className="api-kind">Function</small>
+
+```text
+zonedTimeZone
+  ZonedDateTime
+  -> TimeZone
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

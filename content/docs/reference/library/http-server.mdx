@@ -1,0 +1,368 @@
+---
+title: "std/http/server"
+description: "process上でHTTP serverを起動し、requestの処理とshutdownを管理します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process |
+| 能力のidentity | `std/http/server::HttpServer` |
+
+## import
+
+```seseragi
+import * as http_server
+  from "std/http/server"
+```
+
+## 選び方と注意
+
+- 現在のrequest bodyはBytesのsnapshotです。textやJSONへはdecodeを明示し、ホストのRequest objectを直接操作しません。
+- server境界のhandlerはNever failureです。アプリの型付きエラーはrecoverHandlerなどでresponseへ写し、暗黙の500 responseへ変換する挙動に依存しません。
+- serverとrequestは親子のリソースのスコープを持ちます。close、client disconnect、root キャンセルではrequestの処理やstream bodyを終了して後始末します。
+- streamResponseのchunkは1〜65,536バイトです。送信先の要求に合わせて送り、defectとキャンセルを起動時の型付き失敗へ混ぜません。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Handler`
+
+<small className="api-kind">型alias</small>
+
+```text
+Handler<_, _>
+```
+
+### `HttpHeader`
+
+<small className="api-kind">型alias</small>
+
+```text
+HttpHeader
+```
+
+### `HttpServer`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+HttpServer
+```
+
+### `HttpServerError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+HttpServerError
+```
+
+### `HttpServerHandle`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+HttpServerHandle
+```
+
+### `HttpServerRequest`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+HttpServerRequest
+```
+
+### `HttpServerResponse`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+HttpServerResponse
+```
+
+## 関数と演算子
+
+### `bytesResponse`
+
+<small className="api-kind">関数</small>
+
+```text
+bytesResponse
+  Int
+  -> Array<HttpHeader>
+  -> Bytes
+  -> HttpServerResponse
+```
+
+### `close`
+
+<small className="api-kind">関数</small>
+
+```text
+close
+  HttpServerHandle
+  -> Effect<
+       { httpServer: HttpServer },
+       Never,
+       Unit
+     >
+```
+
+### `emptyResponse`
+
+<small className="api-kind">関数</small>
+
+```text
+emptyResponse
+  Int
+  -> Array<HttpHeader>
+  -> HttpServerResponse
+```
+
+### `errorMessage`
+
+<small className="api-kind">関数</small>
+
+```text
+errorMessage
+  HttpServerError
+  -> String
+```
+
+### `header`
+
+<small className="api-kind">関数</small>
+
+```text
+header
+  String
+  -> String
+  -> HttpHeader
+```
+
+### `jsonResponse`
+
+<small className="api-kind">関数</small>
+
+```text
+jsonResponse
+  Int
+  -> Array<HttpHeader>
+  -> String
+  -> HttpServerResponse
+```
+
+### `listen`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+listen<R>
+  {
+    hostname?: String,
+    port: Int,
+    handler: (
+      HttpServerRequest
+      -> Effect<
+          R,
+          Never,
+          HttpServerResponse
+         >
+    )
+  }
+  -> Effect<
+       R & {
+         httpServer: HttpServer
+       },
+       HttpServerError,
+       HttpServerHandle
+     >
+```
+
+</details>
+
+### `pureHandler`
+
+<small className="api-kind">関数</small>
+
+```text
+pureHandler
+  (
+    HttpServerRequest
+    -> HttpServerResponse
+  )
+  -> HttpServerRequest
+  -> Effect<
+       {},
+       Never,
+       HttpServerResponse
+     >
+```
+
+### `recoverHandler`
+
+<small className="api-kind">関数</small>
+
+```text
+recoverHandler<R, E>
+  (E -> HttpServerResponse)
+  -> (
+       HttpServerRequest
+       -> Effect<
+          R,
+          E,
+          HttpServerResponse
+          >
+     )
+  -> HttpServerRequest
+  -> Effect<
+       R,
+       Never,
+       HttpServerResponse
+     >
+```
+
+### `requestBody`
+
+<small className="api-kind">関数</small>
+
+```text
+requestBody
+  HttpServerRequest
+  -> Bytes
+```
+
+### `requestHeaders`
+
+<small className="api-kind">関数</small>
+
+```text
+requestHeaders
+  HttpServerRequest
+  -> Array<HttpHeader>
+```
+
+### `requestHeaderValues`
+
+<small className="api-kind">関数</small>
+
+```text
+requestHeaderValues
+  String
+  -> HttpServerRequest
+  -> Array<String>
+```
+
+### `requestMethod`
+
+<small className="api-kind">関数</small>
+
+```text
+requestMethod
+  HttpServerRequest
+  -> String
+```
+
+### `requestPath`
+
+<small className="api-kind">関数</small>
+
+```text
+requestPath
+  HttpServerRequest
+  -> String
+```
+
+### `requestQuery`
+
+<small className="api-kind">関数</small>
+
+```text
+requestQuery
+  HttpServerRequest
+  -> Maybe<String>
+```
+
+### `requestUrl`
+
+<small className="api-kind">関数</small>
+
+```text
+requestUrl
+  HttpServerRequest
+  -> String
+```
+
+### `serveOnce`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+serveOnce<R>
+  {
+    hostname?: String,
+    port: Int,
+    handler: (
+      HttpServerRequest
+      -> Effect<
+          R,
+          Never,
+          HttpServerResponse
+         >
+    )
+  }
+  -> Effect<
+       R & {
+         httpServer: HttpServer
+       },
+       HttpServerError,
+       Unit
+     >
+```
+
+</details>
+
+### `streamResponse`
+
+<small className="api-kind">Effectを返す関数</small>
+
+```text
+streamResponse<R>
+  Int
+  -> Array<HttpHeader>
+  -> Stream<R, Never, Bytes>
+  -> Effect<
+       R,
+       Never,
+       HttpServerResponse
+     >
+```
+
+### `textResponse`
+
+<small className="api-kind">関数</small>
+
+```text
+textResponse
+  Int
+  -> Array<HttpHeader>
+  -> String
+  -> HttpServerResponse
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

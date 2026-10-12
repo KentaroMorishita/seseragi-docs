@@ -1,0 +1,24 @@
+struct Box<A> {
+  value: A,
+}
+
+fn unbox<A> box: Box<A> -> A =
+  box.value
+
+fn identity<A> value: A -> A =
+  value
+
+pub effect fn main = do {
+  let number = Box { value: 42 }
+  let text = Box { value: "hello" }
+  number
+  |> unbox
+  |> identity
+  |> show
+  |> println
+  text
+  |> unbox
+  |> identity
+  |> show
+  |> println
+}

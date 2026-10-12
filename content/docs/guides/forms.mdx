@@ -1,0 +1,141 @@
+---
+title: フォームを作る
+description: 入力値、Action、検証結果をつないで、名前を受け取るフォームを作る。
+---
+
+名前を入力し、「Greet」を押すと挨拶を表示するフォームを作ります。空のまま送信した場合は「Enter your name」を表示します。入力値と検証結果を同じ`Model`へ置き、純粋な更新関数で扱います。
+
+状態・Action・`view`の分担は[Webアプリを作る](/docs/guides/web-app)と同じです。`Model`の宣言と更新には[レコードとstruct](/docs/learn/records-and-structs)の構文を使います。
+
+## プロジェクトを準備する
+
+```sh
+seseragi new web greeting-form
+cd greeting-form
+```
+
+`src/main.ssrg`を次のコードへ置き換えます。生成された`app.ssrg`はこの入口で使いません。CLIとBunの導入は[ローカルで使う](/docs/learn/local-development)から確認できます。
+
+## フォーム全体を書く
+
+{/* example: examples/guides/forms/src/main.ssrg */}
+```seseragi title="src/main.ssrg"
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+
+struct Model {
+  draft: String,
+  message: String
+}
+
+type Action =
+  | Edited String
+  | Submitted
+
+alias View = html.Html<Action>
+
+fn update action: Action
+  -> model: Model -> Model =
+  match action {
+    Edited draft -> Model {
+      ...model,
+      draft,
+      message: ""
+    }
+    Submitted ->
+      if model.draft == "" then
+        Model {
+          ...model,
+          message: "Enter your name"
+        }
+      else
+        Model {
+          ...model,
+          message:
+            `Hello, ${model.draft}`
+        }
+  }
+
+fn edited event: html.InputEvent
+  -> Action =
+  Edited event.value
+
+fn view model: Model -> View =
+  html.main {
+    style: html.style {
+      margin: "32px auto",
+      maxWidth: "32rem",
+      padding: "24px"
+    },
+    children: [
+      html.h1 {
+        children: "Greeting"
+      },
+      html.form {
+        onSubmit: Submitted,
+        children: [
+          html.label {
+            htmlFor: "name",
+            children: "Your name"
+          },
+          html.input {
+            id: "name",
+            name: "name",
+            value: model.draft,
+            onInput: edited
+          },
+          html.button {
+            buttonType: "submit",
+            children: "Greet"
+          }
+        ]
+      },
+      html.p {
+        role: "status",
+        children: model.message
+      }
+    ]
+  }
+
+pub effect fn main =
+  dom.app {
+    target: "#app",
+    initial: Model {
+      draft: "",
+      message: ""
+    },
+    update,
+    view
+  }
+```
+
+`draft`は編集中の文字列です。`message`は送信後の結果です。`Edited`で入力を更新すると前回のメッセージを消し、`Submitted`で現在の入力を検証します。
+
+## 入力イベントをActionへ変える
+
+`html.InputEvent`の`value`はイベント発生時の入力値です。`edited`はその文字列から`Edited`を作ります。ブラウザーの可変な`Event`や`target`を画面の状態へ保存しません。
+
+`value: model.draft`と`onInput: edited`で、現在の入力値と入力後のActionを接続しています。ラベルの`htmlFor: "name"`と入力の`id: "name"`を揃え、ラベルから入力を選べるようにしています。
+
+## 送信して検証する
+
+```sh
+seseragi lock update
+seseragi dev --open
+```
+
+名前を`Ada`と入力して「Greet」を押すと「Hello, Ada」と表示されます。空文字列で送信すると「Enter your name」です。`onSubmit`があるフォームは、ブラウザーの既定の送信動作を防いでActionを送ります。入力中にEnterを押した場合もフォームの送信として扱われます。
+
+この例では、空白だけの文字列も名前として扱います。要件として空白を除きたい場合は、検証前に文字列の正規化を加えてください。サーバーへの送信や保存は行いません。
+
+## 検証結果を画面へ戻す
+
+`Submitted`は失敗でDOMランタイムを終了させず、入力の問題を`message`として次の状態へ返します。`role: "status"`を付けた段落が、その結果を表示します。
+
+外部への保存を足す場合は、入力の検証と保存Effectの失敗を分けます。利用者が直せる入力と通信の失敗では、再入力と再試行の案内が異なるためです。[失敗を扱う](/docs/guides/error-handling)で型付き失敗を学べます。
+
+## 画面を部品へ分ける
+
+繰り返すラベルや入力の並びは、propsを受け取ってHTMLを返す関数へ分けられます。状態を別々に持つフォームを二つ並べる場合は、それぞれのSignalを作る所有者も分けます。
+
+[コンポーネント](/docs/guides/components)と[状態を持つ機能](/docs/guides/stateful-features)で、この二つの分け方を扱います。[Web UI Reference](/docs/reference/web-ui)では入力・変更・キーボードイベントの契約を調べられます。

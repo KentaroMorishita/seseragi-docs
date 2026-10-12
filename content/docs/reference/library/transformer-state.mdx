@@ -1,0 +1,102 @@
+---
+title: "std/transformer/state"
+description: "状態を受け取り次の状態を返す計算を、別のMonadと組み合わせます。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as transformer_state
+  from "std/transformer/state"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `StateT`
+
+<small className="api-kind">struct</small>
+
+```text
+struct StateT<S, M<_>, A> {
+  run: S -> M<(A, S)>
+}
+```
+
+- `run`: 現在の状態Sを受け取り、結果Aと次の状態Sの組を型構築子Mに入れて返す関数。
+
+## 関数と演算子
+
+### `get`
+
+<small className="api-kind">関数</small>
+
+現在の状態を結果として返し、その状態を変更せず次の計算へ渡すStateTを作ります。
+
+```text
+get<S, M<_>>
+  Unit
+  -> StateT<S, M<_>, S>
+where
+  Monad<M<_>>
+```
+
+### `lift`
+
+<small className="api-kind">関数</small>
+
+```text
+lift<S, M<_>, A>
+  M<A>
+  -> StateT<S, M<_>, A>
+where
+  Monad<M<_>>
+```
+
+### `modify`
+
+<small className="api-kind">関数</small>
+
+```text
+modify<S, M<_>>
+  (S -> S)
+  -> StateT<S, M<_>, Unit>
+where
+  Monad<M<_>>
+```
+
+### `put`
+
+<small className="api-kind">関数</small>
+
+```text
+put<S, M<_>>
+  S
+  -> StateT<S, M<_>, Unit>
+where
+  Monad<M<_>>
+```
+
+### `run`
+
+<small className="api-kind">関数</small>
+
+```text
+run<S, M<_>, A>
+  S
+  -> StateT<S, M<_>, A>
+  -> M<(A, S)>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/type-classes)
+- [用途からmoduleを探す](/docs/reference/library)

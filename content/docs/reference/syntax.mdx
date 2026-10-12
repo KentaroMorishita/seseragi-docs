@@ -1,0 +1,95 @@
+---
+title: "構文"
+description: "リテラル、宣言、改行、関数適用、演算子の優先順位と結合を確認する。"
+---
+
+ソースはUTF-8の`.ssrg`ファイルです。大文字と小文字を区別します。型・constructor・traitは大文字、値・関数・field・module aliasは小文字で始めます。`_`はwildcardで、名前として参照できません。
+
+## リテラルとコメント
+
+| 表記 | 型・意味 |
+| --- | --- |
+| `42`、`0x2A`、`0b101010`、`0o52` | `Int` |
+| `1_000` | digit間のseparatorを持つ`Int` |
+| `3.14`、`1.0e-9` | `Float` |
+| `True`、`False` | `Bool` |
+| `'λ'` | `Char`、Unicode scalar一個 |
+| `"text"` | `String` |
+| `` `hello ${name}` `` | `Show`による文字列template |
+| `[1, 2]` | `Array<Int>` |
+| `` `[1, 2] `` | `List<Int>` |
+| `()` | `Unit`の唯一の値 |
+
+`//`から行末まではコメントです。ブロックコメントはありません。識別子はUnicode文字と末尾のapostropheを使えます。`account'`は一つの識別子です。
+
+数値の`_`はdigit二つの間に一個だけ置けます。`01`、`1__0`、`1.`、`.5`、未完のexponentは受理しません。不正な数値表記・範囲外は`SES-P0203`です。`Int`の値域と算術の境界は[型](/docs/reference/types)を参照してください。
+
+CharとStringでは`\n`、`\r`、`\t`、`\0`、`\\`、`\u{03BB}`などを使います。Charは復号後も一scalarだけです。未定義のescapeは`SES-P0201`、複数scalarのCharは`SES-P0202`です。templateは改行を含められ、`${expression}`を左から右へ一度ずつ評価します。
+
+## 宣言と式
+
+トップレベルにはimportと宣言を置きます。`println "hello"`のような式だけは置けません。実行する処理は公開`main`のEffectへ入れます。
+
+`if`、`match`、ブロックは式です。`if`の条件は`Bool`で、`else`は必須です。両方の結果型を揃えます。次のプログラムは`pass`を出力します。
+
+{/* example: examples/reference/syntax.ssrg */}
+
+```seseragi title="syntax.ssrg"
+fn grade score: Int -> String =
+  if score >= 80 then
+    "pass"
+  else
+    "retry"
+
+pub effect fn main =
+  grade 88
+  |> println
+```
+
+ブロックは`{ ... }`で囲み、最後の式の値を返します。宣言だけなら`Unit`です。空の`{}`はempty recordなので、何もしないブロックは`{ () }`と書きます。
+
+## 改行と継続
+
+インデント幅は意味を変えません。宣言や式を改行または`;`で区切り、括弧内は自由に改行できます。直前のtokenが右辺を必要とする場合や、次のtokenがpipeline・算術・比較などの継続operatorの場合、その改行は式を区切りません。
+
+パイプラインは、値と各`|>`を同じインデントへ縦に並べます。単なる空白適用を途中で改行する場合は、括弧や`$`で継続を明確にしてください。`;`は常に式を区切ります。
+
+## 適用と演算子
+
+`add 1 2`は`(add 1) 2`です。複数引数の`f(x, y)`構文はありません。`x |> f`と`f $ x`は、ともに`f x`です。`$`は右結合なので、`f $ g $ x`は`f (g x)`です。どちらも計算を遅延したりEffectを実行したりしません。
+
+高い優先順位から順に並べます。
+
+| 段 | 演算子・構文 | 結合 |
+| --- | --- | --- |
+| 9 | field、method、添字 | 左 |
+| 8 | 空白による関数適用 | 左 |
+| 7 | `!`、前置`-`、Signal readの前置`*` | 右 |
+| 6 | `**` | 右 |
+| 5 | `*`、`/`、`%` | 左 |
+| 4 | `+`、`-`、List consの`:` | `:`だけ右 |
+| 3 | `==`、`!=`、`<`、`<=`、`>`、`>=` | 結合不可 |
+| 2 | `&&` | 左、短絡 |
+| 1 | <code>&#124;&#124;</code> | 左、短絡 |
+| 0 | `??` | 右、短絡 |
+| -1 | `>>=`、`<$>`、`<*>`、pipeline | 左 |
+| -2 | `$` | 右 |
+| -3 | `:=` | 右 |
+
+`a < b < c`はエラーです。`a < b && b < c`と書きます。短絡operator以外の二項演算子は左operand、右operandの順で一度ずつ評価します。
+
+## 関数値と独自operator
+
+`(+)`などの二項operatorはcurriedな関数値です。短絡operator、pipeline、`$`、Signalのoperator、前置operatorは関数値にできません。
+
+独自の二項operatorはトップレベルの`operator`宣言で作ります。次は宣言構文の例です。
+
+```text title="宣言構文"
+operator infixl 4 <+>
+  left: String
+  -> right: String
+  -> String =
+  left + right
+```
+
+優先順位は0〜8、結合は`infixl`・`infixr`・非結合の`infix`です。標準operatorと予約記号は再定義できません。独自operatorのimportは、通常の値とは別に明示します。詳細は[モジュール](/docs/reference/modules)と[型クラス](/docs/reference/type-classes)を参照してください。

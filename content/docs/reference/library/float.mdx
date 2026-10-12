@@ -1,0 +1,335 @@
+---
+title: "std/float"
+description: "浮動小数点の解析・比較・丸め・変換を行います。NaNを含む比較の意味を明示します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as float from "std/float"
+```
+
+## 使ってみる
+
+{/* example: examples/library/float.ssrg */}
+
+```seseragi
+import * as floats from "std/float"
+
+pub effect fn main =
+  match floats.parse "1.5" {
+    Right value ->
+      value
+      |> floats.format
+      |> println
+    Left _ ->
+      println "Invalid number"
+  }
+```
+
+出力:
+
+```text
+1.5
+```
+
+## 選び方と注意
+
+- NaNが反射律を壊すため、Floatに標準Eq・Ord・Hashはありません。IEEE equalityにはieeeEq、全順序にはtotalCompareを明示します。
+- parseは前後の空白を受理せず、有限な文字列表記のoverflowを型付きエラーにします。NaN・infinity・負のゼロは別の状態として扱います。
+- Intへ変換するときは丸めmodeを指定し、finiteとsafe integer範囲を検査します。Floatを整数に見える表示だけでIntとして扱わないでください。
+- Floatには標準JSON codecがありません。wireの数値方針を決め、Decimalや明示converterを使います。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `FloatConversionError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+FloatConversionError
+```
+
+### `FloatParseError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+FloatParseError
+```
+
+## コンストラクタと値
+
+### `EmptyFloat`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+EmptyFloat
+  FloatParseError
+```
+
+### `FloatNotFinite`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FloatNotFinite
+  FloatConversionError
+```
+
+### `FloatOutsideIntRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FloatOutsideIntRange
+  FloatConversionError
+```
+
+### `FloatParseOverflow`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+FloatParseOverflow
+  FloatParseError
+```
+
+### `InvalidFloat`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidFloat
+  { offset: Int }
+  -> FloatParseError
+```
+
+## 関数と演算子
+
+### `abs`
+
+<small className="api-kind">関数</small>
+
+```text
+abs
+  Float
+  -> Float
+```
+
+### `clampNumber`
+
+<small className="api-kind">関数</small>
+
+```text
+clampNumber
+  Float
+  -> Float
+  -> Float
+  -> Maybe<Float>
+```
+
+### `format`
+
+<small className="api-kind">関数</small>
+
+```text
+format
+  Float
+  -> String
+```
+
+### `fromInt`
+
+<small className="api-kind">関数</small>
+
+```text
+fromInt
+  Int
+  -> Float
+```
+
+### `ieeeEq`
+
+<small className="api-kind">関数</small>
+
+```text
+ieeeEq
+  Float
+  -> Float
+  -> Bool
+```
+
+### `isFinite`
+
+<small className="api-kind">関数</small>
+
+```text
+isFinite
+  Float
+  -> Bool
+```
+
+### `isInfinite`
+
+<small className="api-kind">関数</small>
+
+```text
+isInfinite
+  Float
+  -> Bool
+```
+
+### `isNaN`
+
+<small className="api-kind">関数</small>
+
+```text
+isNaN
+  Float
+  -> Bool
+```
+
+### `isNegativeZero`
+
+<small className="api-kind">関数</small>
+
+```text
+isNegativeZero
+  Float
+  -> Bool
+```
+
+### `maximumNumber`
+
+<small className="api-kind">関数</small>
+
+```text
+maximumNumber
+  Float
+  -> Float
+  -> Float
+```
+
+### `minimumNumber`
+
+<small className="api-kind">関数</small>
+
+```text
+minimumNumber
+  Float
+  -> Float
+  -> Float
+```
+
+### `nan`
+
+<small className="api-kind">関数</small>
+
+```text
+nan
+  Unit
+  -> Float
+```
+
+### `negativeInfinity`
+
+<small className="api-kind">関数</small>
+
+```text
+negativeInfinity
+  Unit
+  -> Float
+```
+
+### `parse`
+
+<small className="api-kind">関数</small>
+
+```text
+parse
+  String
+  -> Either<FloatParseError, Float>
+```
+
+### `positiveInfinity`
+
+<small className="api-kind">関数</small>
+
+```text
+positiveInfinity
+  Unit
+  -> Float
+```
+
+### `power`
+
+<small className="api-kind">関数</small>
+
+```text
+power
+  Float
+  -> Float
+  -> Float
+```
+
+### `roundIntegral`
+
+<small className="api-kind">関数</small>
+
+```text
+roundIntegral
+  RoundingMode
+  -> Float
+  -> Float
+```
+
+### `sign`
+
+<small className="api-kind">関数</small>
+
+```text
+sign
+  Float
+  -> Maybe<Int>
+```
+
+### `toInt`
+
+<small className="api-kind">関数</small>
+
+```text
+toInt
+  RoundingMode
+  -> Float
+  -> Either<
+       FloatConversionError,
+       Int
+     >
+```
+
+### `totalCompare`
+
+<small className="api-kind">関数</small>
+
+```text
+totalCompare
+  Float
+  -> Float
+  -> Ordering
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/values-and-expressions)
+- [用途からmoduleを探す](/docs/reference/library)

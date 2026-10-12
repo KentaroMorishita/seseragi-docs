@@ -1,0 +1,9 @@
+type Reading =
+  | NoReading
+  | Measured Int
+
+pub effect fn main = {
+  let absent: Reading = NoReading
+  let measured: Reading = Measured 23
+  println ""
+}

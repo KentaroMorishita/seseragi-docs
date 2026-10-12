@@ -1,0 +1,22 @@
+import * as effects from "std/effect"
+
+type InputError deriving Show =
+  | BelowZero
+
+fn nonNegative value: Int
+  -> Effect<{}, InputError, Int> =
+  if value < 0 then
+    effects.fail BelowZero
+  else
+    effects.succeed value
+
+pub effect fn main = do {
+  let answer =
+    nonNegative (-2)
+    |> effects.recover (\_ ->
+      effects.succeed 0)
+  value <- answer
+  value
+  |> show
+  |> println
+}

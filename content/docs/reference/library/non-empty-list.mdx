@@ -1,0 +1,115 @@
+---
+title: "std/non-empty-list"
+description: "少なくとも一つの要素を持つ列を扱います。通常のListからの変換で空を確認します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as non_empty_list
+  from "std/non-empty-list"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `NonEmptyList`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+NonEmptyList<_>
+```
+
+## 関数と演算子
+
+### `cons`
+
+<small className="api-kind">関数</small>
+
+```text
+cons<A>
+  A
+  -> List<A>
+  -> NonEmptyList<A>
+```
+
+### `fromList`
+
+<small className="api-kind">関数</small>
+
+```text
+fromList<A>
+  List<A>
+  -> Maybe<NonEmptyList<A>>
+```
+
+### `head`
+
+<small className="api-kind">関数</small>
+
+NonEmptyListの先頭の値を返します。結果の型はAです。
+
+```text
+head<A>
+  NonEmptyList<A>
+  -> A
+```
+
+### `reduce1`
+
+<small className="api-kind">関数</small>
+
+```text
+reduce1<A>
+  (A -> A -> A)
+  -> NonEmptyList<A>
+  -> A
+```
+
+### `singleton`
+
+<small className="api-kind">関数</small>
+
+```text
+singleton<A>
+  A
+  -> NonEmptyList<A>
+```
+
+### `tail`
+
+<small className="api-kind">関数</small>
+
+先頭を除いた残りをListとして返します。要素が一つなら空のListを返します。
+
+```text
+tail<A>
+  NonEmptyList<A>
+  -> List<A>
+```
+
+### `toList`
+
+<small className="api-kind">関数</small>
+
+先頭と残りの順序を保ち、NonEmptyListを通常のListへ変換します。
+
+```text
+toList<A>
+  NonEmptyList<A>
+  -> List<A>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/arrays-and-lists)
+- [用途からmoduleを探す](/docs/reference/library)

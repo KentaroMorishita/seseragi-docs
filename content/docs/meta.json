@@ -1,1 +1,8 @@
-{"pages": ["index", "learn", "reference"]}
+{
+  "pages": [
+    "index",
+    "learn",
+    "guides",
+    "reference"
+  ]
+}

@@ -1,0 +1,8 @@
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+pub effect fn main = {
+  let addTwenty = add 20
+  let answer = addTwenty 22
+  printValue answer
+}

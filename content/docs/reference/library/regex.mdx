@@ -1,0 +1,356 @@
+---
+title: "std/regex"
+description: "正規表現のコンパイル・検索・置換を行います。パターンの不備は型付きのエラーで扱います。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as regex from "std/regex"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Regex`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+Unicodeの意味を固定した、compile済みportable Regexのopaque型です。
+
+```text
+Regex
+```
+
+### `RegexCapture`
+
+<small className="api-kind">struct</small>
+
+captureした元テキストと、そのUTF-8 byte範囲です。
+
+```text
+struct RegexCapture {
+  span: RegexSpan,
+  text: String
+}
+```
+
+- `span`: captureが占めるUTF-8のバイト範囲。
+- `text`: spanに対応する入力の文字列。
+
+### `RegexCompileError`
+
+<small className="api-kind">struct</small>
+
+pattern内のUTF-8 byte offsetでcompile失敗を報告します。
+
+```text
+struct RegexCompileError {
+  kind: RegexCompileErrorKind,
+  offset: Int
+}
+```
+
+- `kind`: patternのcompileが失敗した理由。
+- `offset`: pattern内の0始まりのUTF-8バイト位置。
+
+### `RegexCompileErrorKind`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+portableな正規表現のcompile失敗を分類します。
+
+```text
+RegexCompileErrorKind
+```
+
+### `RegexMatch`
+
+<small className="api-kind">struct</small>
+
+最左の一致と、順序付きcaptureおよび名前付きcaptureを保持します。
+
+```text
+struct RegexMatch {
+  span: RegexSpan,
+  text: String,
+  captures: Array<
+    Maybe<RegexCapture>
+  >,
+  named: Map<
+    String,
+    Maybe<RegexCapture>
+  >
+}
+```
+
+- `span`: match全体が占めるUTF-8のバイト範囲。
+- `text`: match全体に対応する入力の文字列。
+- `captures`: 左括弧の順に並ぶcapture。group 0は含まず、matchしないgroupはNothing。
+- `named`: 宣言順の名前付きcapture。matchしないgroupもkeyを保ち、値をNothingにします。
+
+### `RegexOptions`
+
+<small className="api-kind">struct</small>
+
+case folding、複数行anchor、dotと改行の一致を指定します。
+
+```text
+struct RegexOptions {
+  caseInsensitive: Bool,
+  multiline: Bool,
+  dotMatchesNewline: Bool
+}
+```
+
+- `caseInsensitive`: ロケール非依存のUnicode simple case foldingを使うか。
+- `multiline`: 行の境界でも^と$をmatchさせるか。
+- `dotMatchesNewline`: `.`を改行文字にもmatchさせるか。
+
+### `RegexSpan`
+
+<small className="api-kind">struct</small>
+
+検索したtext内の半開UTF-8 byte範囲です。
+
+```text
+struct RegexSpan {
+  start: Int,
+  end: Int
+}
+```
+
+- `start`: 範囲の開始を含む、0始まりのUTF-8バイト位置。
+- `end`: 範囲の終端を含まないUTF-8バイト位置。
+
+## コンストラクタと値
+
+### `DuplicateCaptureName`
+
+<small className="api-kind">コンストラクタ</small>
+
+重複した名前付きcaptureの識別子を報告します。
+
+```text
+DuplicateCaptureName
+  String
+  -> RegexCompileErrorKind
+```
+
+### `InvalidRegexEscape`
+
+<small className="api-kind">コンストラクタ</small>
+
+不正または未完の正規表現escapeを報告します。
+
+```text
+InvalidRegexEscape
+  RegexCompileErrorKind
+```
+
+### `InvalidRegexQuantifier`
+
+<small className="api-kind">コンストラクタ</small>
+
+不正なquantifierまたは不正な位置のquantifierを報告します。
+
+```text
+InvalidRegexQuantifier
+  RegexCompileErrorKind
+```
+
+### `InvalidRegexRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+不正なcharacter-class範囲を報告します。
+
+```text
+InvalidRegexRange
+  RegexCompileErrorKind
+```
+
+### `UnexpectedRegexEnd`
+
+<small className="api-kind">コンストラクタ</small>
+
+構文が完成する前に終わったpatternを報告します。
+
+```text
+UnexpectedRegexEnd
+  RegexCompileErrorKind
+```
+
+### `UnexpectedRegexToken`
+
+<small className="api-kind">コンストラクタ</small>
+
+pattern内の予期しない文字を報告します。
+
+```text
+UnexpectedRegexToken
+  Char
+  -> RegexCompileErrorKind
+```
+
+### `UnsupportedRegexFeature`
+
+<small className="api-kind">コンストラクタ</small>
+
+portable Regexの契約で意図的に除外した構文を報告します。
+
+```text
+UnsupportedRegexFeature
+  String
+  -> RegexCompileErrorKind
+```
+
+## 関数と演算子
+
+### `compile`
+
+<small className="api-kind">関数</small>
+
+portableなpatternをcompileし、失敗はthrowせず型付きerrorで返します。
+
+```text
+compile
+  String
+  -> Either<
+       RegexCompileError,
+       Regex
+     >
+```
+
+### `compileWith`
+
+<small className="api-kind">関数</small>
+
+明示したRegexOptionsでportableなpatternをcompileします。
+
+```text
+compileWith
+  RegexOptions
+  -> String
+  -> Either<
+       RegexCompileError,
+       Regex
+     >
+```
+
+### `defaultOptions`
+
+<small className="api-kind">関数</small>
+
+全optionを無効にしたportable Regexの既定値を返します。
+
+```text
+defaultOptions
+  Unit
+  -> RegexOptions
+```
+
+### `escape`
+
+<small className="api-kind">関数</small>
+
+portable Regexのliteral fragmentを表すようtextをescapeします。
+
+```text
+escape
+  String
+  -> String
+```
+
+### `find`
+
+<small className="api-kind">関数</small>
+
+左端優先で最初のmatchを探し、UTF-8のバイト範囲とcaptureを含むRegexMatchを返します。見つからなければNothingです。
+
+```text
+find
+  Regex
+  -> String
+  -> Maybe<RegexMatch>
+```
+
+### `findAll`
+
+<small className="api-kind">関数</small>
+
+重ならない一致を返し、空の一致の後は一scalar進みます。
+
+```text
+findAll
+  Regex
+  -> String
+  -> Array<RegexMatch>
+```
+
+### `isMatch`
+
+<small className="api-kind">関数</small>
+
+最左優先engineが一致を見つけるかを返します。
+
+```text
+isMatch
+  Regex
+  -> String
+  -> Bool
+```
+
+### `replaceAll`
+
+<small className="api-kind">関数</small>
+
+各一致をliteral textで置き換え、capture markerは展開しません。
+
+```text
+replaceAll
+  Regex
+  -> String
+  -> String
+  -> String
+```
+
+### `replaceAllWith`
+
+<small className="api-kind">関数</small>
+
+source順にcallbackを呼び、一致を置き換えます。
+
+```text
+replaceAllWith
+  Regex
+  -> (RegexMatch -> String)
+  -> String
+  -> String
+```
+
+### `split`
+
+<small className="api-kind">関数</small>
+
+重ならないportable Regexの一致位置でtextを分割します。
+
+```text
+split
+  Regex
+  -> String
+  -> Array<String>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/values-and-expressions)
+- [用途からmoduleを探す](/docs/reference/library)

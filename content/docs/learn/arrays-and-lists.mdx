@@ -1,0 +1,98 @@
+---
+title: "ArrayとList"
+description: "列を変換・選別・集計し、ArrayとListの違いを使い分ける。"
+---
+
+複数の整数を、二乗し、偶数だけ選び、合計します。各段階を関数で表すと、要素の更新や途中の配列への追加を書かずに、入力から結果までをつなげられます。
+
+## Arrayを変換して集計する
+
+{/* example: examples/learn/arrays-and-lists.ssrg */}
+```seseragi title="arrays-and-lists.ssrg"
+import * as arrays from "std/array"
+
+fn square n: Int -> Int =
+  n * n
+
+fn even n: Int -> Bool =
+  n % 2 == 0
+
+pub effect fn main = do {
+  let numbers = [1, 2, 3, 4, 5]
+  let total =
+    numbers
+    |> map square
+    |> arrays.filter even
+    |> sum
+  let first = numbers[0] ?? 0
+  println `total: ${total}`
+  println `first: ${first}`
+}
+```
+
+```text title="実行結果"
+total: 20
+first: 1
+```
+
+`numbers`は`Array<Int>`です。`map square`は`[1, 4, 9, 16, 25]`を返し、`arrays.filter even`は`[4, 16]`を返します。`sum`で20になります。どの段階も、元の`numbers`を変更しません。
+
+`map`と`sum`はpreludeから使えます。`filter`はここでは`std/array`を`arrays`という名前でimportしています。`map`は型クラスによって別の型にも同じ意味で使える操作で、その仕組みは[型クラス](/docs/learn/type-classes)で扱います。
+
+## 添字の結果はMaybe
+
+`numbers[0]`は最初の整数そのものではなく、`Maybe<Int>`です。存在すれば`Just 1`、範囲外や負の添字なら`Nothing`です。`numbers[0] ?? 0`は、見つかった値を取り出し、存在しなければ0を使います。
+
+`[1, "two"]`のように要素の型を混ぜることはできません。空の配列も要素型が必要です。型を周囲から決められない場合は、`let empty: Array<Int> = []`と注釈します。
+
+## Listは別のコレクション
+
+Arrayは`[1, 2, 3]`、Listは先頭にバッククォートを付けた`` `[1, 2, 3] ``です。どちらも不変ですが、Arrayは添字によるアクセス、Listは先頭の追加と残りの共有に向いています。暗黙には変換されません。
+
+`1 : tail`はListの先頭に1を追加します。次の完成した例では、Listを空か先頭と残りかに分けます。
+
+{/* example: examples/learn/list-patterns.ssrg */}
+```seseragi title="list-patterns.ssrg"
+fn total values: List<Int> -> Int =
+  match values {
+    `[] -> 0
+    `[head, ...tail] ->
+      head + total tail
+  }
+
+pub effect fn main =
+  1 : `[2, 3]
+  |> total
+  |> show
+  |> println
+```
+
+```text title="実行結果"
+6
+```
+
+`total`の結果は整数です。`show`で文字列へ変えてから`println`へ渡します。
+
+`` `[head, ...tail] ``の`tail`は`List<Int>`です。Arrayの`[head, ...tail]`なら`tail`もArrayになります。Listには添字アクセスの構文はありません。変換するときは`std/array`の`toList`、`std/list`の`toArray`を使います。
+
+## rangeと内包表記を使う
+
+次の断片は、1から5のうち偶数を二乗してArrayを作ります。
+
+```text
+[n * n | n <- 1..=5, n % 2 == 0]
+```
+
+結果は`[4, 16]`です。`1..=5`は5を含み、`1..5`は5を含みません。`|`の右側は左から処理され、`n <- ...`が値を取り出し、後続のBool条件が要素を選びます。内包表記自体は純粋な計算で、出力や非同期処理は行いません。
+
+## 走査の方法を選ぶ
+
+Listの先頭と残りを分ける処理は、既存の残りを共有できます。Arrayを`[head, ...tail]`で繰り返し分けると、残りのArrayを毎回作るため、大量の要素には向きません。Arrayの全体走査には`map`、`filter`、`reduce`などを使います。
+
+上のList例の`head + total tail`は、再帰の後にも加算が残るため末尾再帰ではありません。長いListを合計するなら標準の`sum`を使えます。自分で再帰を書く場合の終了とスタックの扱いは[再帰](/docs/learn/recursion)で説明します。
+
+## 条件を変える
+
+最初の例で`even`を`n % 2 != 0`へ変えると、合計は35です。`numbers[0]`を`numbers[99]`へ変えると、既定値の0が出力されます。欠如を既定値で埋めずに表示し分ける方法は、次の[MaybeとEither](/docs/learn/maybe-and-either)で扱います。
+
+関数一覧は[標準ライブラリ](/docs/reference/library)、型と添字の契約は[データ型](/docs/reference/data-types)を参照してください。

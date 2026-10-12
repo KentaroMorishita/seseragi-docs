@@ -1,0 +1,308 @@
+---
+title: "std/big-int"
+description: "safe integerの範囲を超える任意精度整数を扱います。Intと暗黙に混在させません。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as big_int
+  from "std/big-int"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `BigInt`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+opaqueな任意精度signed integerです。
+
+```text
+BigInt
+```
+
+### `BigIntConversionError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+Intへ正確に変換できないBigIntを表します。
+
+```text
+BigIntConversionError
+```
+
+### `BigIntDivisionError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+BigIntの除算または剰余で、除数0による型付き失敗を表します。
+
+```text
+BigIntDivisionError
+```
+
+### `BigIntParseError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+値の大きさに上限を設けず、不正なBigInt textまたはradixを表します。
+
+```text
+BigIntParseError
+```
+
+### `BigIntPowerError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+BigIntの負のexponentを表す型付きerrorです。
+
+```text
+BigIntPowerError
+```
+
+## コンストラクタと値
+
+### `BigIntDivisionByZero`
+
+<small className="api-kind">コンストラクタ</small>
+
+値が0のBigInt divisorを報告します。
+
+```text
+BigIntDivisionByZero
+  BigIntDivisionError
+```
+
+### `BigIntOutsideIntRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+safe Int範囲外のBigIntを報告します。
+
+```text
+BigIntOutsideIntRange
+  BigIntConversionError
+```
+
+### `EmptyBigInt`
+
+<small className="api-kind">コンストラクタ</small>
+
+空のBigInt入力を報告します。
+
+```text
+EmptyBigInt
+  BigIntParseError
+```
+
+### `InvalidBigIntDigit`
+
+<small className="api-kind">コンストラクタ</small>
+
+最初の不正なBigInt digitをUTF-8 byte offsetで報告します。
+
+```text
+InvalidBigIntDigit
+  { offset: Int, radix: Int }
+  -> BigIntParseError
+```
+
+### `InvalidBigIntRadix`
+
+<small className="api-kind">コンストラクタ</small>
+
+2〜36を含む範囲外のBigInt radixを報告します。
+
+```text
+InvalidBigIntRadix
+  Int
+  -> BigIntParseError
+```
+
+### `NegativeBigIntExponent`
+
+<small className="api-kind">コンストラクタ</small>
+
+負Intのexponentを報告します。
+
+```text
+NegativeBigIntExponent
+  Int
+  -> BigIntPowerError
+```
+
+## 関数と演算子
+
+### `abs`
+
+<small className="api-kind">関数</small>
+
+BigIntの正確な非負の絶対値を返します。
+
+```text
+abs
+  BigInt
+  -> BigInt
+```
+
+### `checkedDivide`
+
+<small className="api-kind">関数</small>
+
+二つ目の引数を一つ目の引数で割り、商を0方向へ切り捨てたBigIntを返します。除数が0ならBigIntDivisionByZeroを返します。
+
+```text
+checkedDivide
+  BigInt
+  -> BigInt
+  -> Either<
+       BigIntDivisionError,
+       BigInt
+     >
+```
+
+### `checkedPower`
+
+<small className="api-kind">関数</small>
+
+非負Intのexponentで、BigIntの正確な累乗を求めます。
+
+```text
+checkedPower
+  Int
+  -> BigInt
+  -> Either<
+       BigIntPowerError,
+       BigInt
+     >
+```
+
+### `checkedRemainder`
+
+<small className="api-kind">関数</small>
+
+商を0方向へ切り捨てたBigIntの剰余を求め、除数0は型付き失敗で返します。
+
+```text
+checkedRemainder
+  BigInt
+  -> BigInt
+  -> Either<
+       BigIntDivisionError,
+       BigInt
+     >
+```
+
+### `format`
+
+<small className="api-kind">関数</small>
+
+BigIntをcanonicalなdecimal textへ整形します。
+
+```text
+format
+  BigInt
+  -> String
+```
+
+### `formatRadix`
+
+<small className="api-kind">関数</small>
+
+BigIntを2〜36のradixで整形します。
+
+```text
+formatRadix
+  Int
+  -> BigInt
+  -> Either<
+       BigIntParseError,
+       String
+     >
+```
+
+### `fromInt`
+
+<small className="api-kind">関数</small>
+
+Intを正確にBigIntへ変換します。
+
+```text
+fromInt
+  Int
+  -> BigInt
+```
+
+### `parse`
+
+<small className="api-kind">関数</small>
+
+canonicalなdecimal textを正確なBigIntへparseします。
+
+```text
+parse
+  String
+  -> Either<
+       BigIntParseError,
+       BigInt
+     >
+```
+
+### `parseRadix`
+
+<small className="api-kind">関数</small>
+
+2〜36のradixでsigned BigInt textをparseします。
+
+```text
+parseRadix
+  Int
+  -> String
+  -> Either<
+       BigIntParseError,
+       BigInt
+     >
+```
+
+### `sign`
+
+<small className="api-kind">関数</small>
+
+BigIntの符号を-1、0、1で返します。
+
+```text
+sign
+  BigInt
+  -> Int
+```
+
+### `toInt`
+
+<small className="api-kind">関数</small>
+
+BigIntをIntへ変換し、範囲外は型付き失敗で返します。
+
+```text
+toInt
+  BigInt
+  -> Either<
+       BigIntConversionError,
+       Int
+     >
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/values-and-expressions)
+- [用途からmoduleを探す](/docs/reference/library)

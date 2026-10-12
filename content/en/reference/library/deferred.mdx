@@ -1,0 +1,108 @@
+---
+title: "std/deferred"
+description: "Share a result that completes once between computations."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as deferred
+  from "std/deferred"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Deferred`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Deferred<_, _>
+```
+
+## Functions and operators
+
+### `await`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+await<E, A>
+  Deferred<E, A>
+  -> Effect<{}, E, A>
+```
+
+### `complete`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+complete<E, A>
+  Either<E, A>
+  -> Deferred<E, A>
+  -> Effect<{}, Never, Bool>
+```
+
+### `fail`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+fail<E, A>
+  E
+  -> Deferred<E, A>
+  -> Effect<{}, Never, Bool>
+```
+
+### `make`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+make<E, A>
+  Unit
+  -> Effect<
+       {},
+       Never,
+       Deferred<E, A>
+     >
+```
+
+### `poll`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+poll<E, A>
+  Deferred<E, A>
+  -> Effect<
+       {},
+       Never,
+       Maybe<Either<E, A>>
+     >
+```
+
+### `succeed`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+succeed<E, A>
+  A
+  -> Deferred<E, A>
+  -> Effect<{}, Never, Bool>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)

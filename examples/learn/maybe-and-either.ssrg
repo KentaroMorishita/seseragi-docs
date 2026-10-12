@@ -1,0 +1,28 @@
+type PortError =
+  | OutOfRange Int
+
+alias PortResult =
+  Either<PortError, Int>
+
+fn validPort n: Int -> PortResult =
+  if n >= 1 && n <= 65535 then
+    Right n
+  else
+    Left (OutOfRange n)
+
+fn explain result: PortResult
+  -> String =
+  match result {
+    Right port -> `Port: ${port}`
+    Left (OutOfRange n) ->
+      `Invalid port: ${n}`
+  }
+
+pub effect fn main = do {
+  let ports = [8080]
+  let candidate = ports[0] ?? 3000
+  candidate
+  |> validPort
+  |> explain
+  |> println
+}

@@ -1,0 +1,335 @@
+---
+title: "std/float"
+description: "Parse, compare, round, and convert floating-point values with explicit NaN semantics."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as float from "std/float"
+```
+
+## Example
+
+{/* example: examples/library/float.ssrg */}
+
+```seseragi
+import * as floats from "std/float"
+
+pub effect fn main =
+  match floats.parse "1.5" {
+    Right value ->
+      value
+      |> floats.format
+      |> println
+    Left _ ->
+      println "Invalid number"
+  }
+```
+
+Output:
+
+```text
+1.5
+```
+
+## Choosing operations
+
+- Float has no standard Eq, Ord, or Hash because NaN violates reflexivity. Choose ieeeEq for IEEE equality or totalCompare for a total order.
+- parse rejects surrounding whitespace and returns a typed error when finite text overflows. Treat NaN, infinities, and negative zero as distinct cases.
+- Conversion to Int requires a rounding mode and checks finiteness and safe-integer range. Integer-looking display does not make a Float an Int.
+- Float has no standard JSON codec. Choose a wire-number policy using Decimal or an explicit converter.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `FloatConversionError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+FloatConversionError
+```
+
+### `FloatParseError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+FloatParseError
+```
+
+## Constructors and values
+
+### `EmptyFloat`
+
+<small className="api-kind">Constructor</small>
+
+```text
+EmptyFloat
+  FloatParseError
+```
+
+### `FloatNotFinite`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FloatNotFinite
+  FloatConversionError
+```
+
+### `FloatOutsideIntRange`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FloatOutsideIntRange
+  FloatConversionError
+```
+
+### `FloatParseOverflow`
+
+<small className="api-kind">Constructor</small>
+
+```text
+FloatParseOverflow
+  FloatParseError
+```
+
+### `InvalidFloat`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidFloat
+  { offset: Int }
+  -> FloatParseError
+```
+
+## Functions and operators
+
+### `abs`
+
+<small className="api-kind">Function</small>
+
+```text
+abs
+  Float
+  -> Float
+```
+
+### `clampNumber`
+
+<small className="api-kind">Function</small>
+
+```text
+clampNumber
+  Float
+  -> Float
+  -> Float
+  -> Maybe<Float>
+```
+
+### `format`
+
+<small className="api-kind">Function</small>
+
+```text
+format
+  Float
+  -> String
+```
+
+### `fromInt`
+
+<small className="api-kind">Function</small>
+
+```text
+fromInt
+  Int
+  -> Float
+```
+
+### `ieeeEq`
+
+<small className="api-kind">Function</small>
+
+```text
+ieeeEq
+  Float
+  -> Float
+  -> Bool
+```
+
+### `isFinite`
+
+<small className="api-kind">Function</small>
+
+```text
+isFinite
+  Float
+  -> Bool
+```
+
+### `isInfinite`
+
+<small className="api-kind">Function</small>
+
+```text
+isInfinite
+  Float
+  -> Bool
+```
+
+### `isNaN`
+
+<small className="api-kind">Function</small>
+
+```text
+isNaN
+  Float
+  -> Bool
+```
+
+### `isNegativeZero`
+
+<small className="api-kind">Function</small>
+
+```text
+isNegativeZero
+  Float
+  -> Bool
+```
+
+### `maximumNumber`
+
+<small className="api-kind">Function</small>
+
+```text
+maximumNumber
+  Float
+  -> Float
+  -> Float
+```
+
+### `minimumNumber`
+
+<small className="api-kind">Function</small>
+
+```text
+minimumNumber
+  Float
+  -> Float
+  -> Float
+```
+
+### `nan`
+
+<small className="api-kind">Function</small>
+
+```text
+nan
+  Unit
+  -> Float
+```
+
+### `negativeInfinity`
+
+<small className="api-kind">Function</small>
+
+```text
+negativeInfinity
+  Unit
+  -> Float
+```
+
+### `parse`
+
+<small className="api-kind">Function</small>
+
+```text
+parse
+  String
+  -> Either<FloatParseError, Float>
+```
+
+### `positiveInfinity`
+
+<small className="api-kind">Function</small>
+
+```text
+positiveInfinity
+  Unit
+  -> Float
+```
+
+### `power`
+
+<small className="api-kind">Function</small>
+
+```text
+power
+  Float
+  -> Float
+  -> Float
+```
+
+### `roundIntegral`
+
+<small className="api-kind">Function</small>
+
+```text
+roundIntegral
+  RoundingMode
+  -> Float
+  -> Float
+```
+
+### `sign`
+
+<small className="api-kind">Function</small>
+
+```text
+sign
+  Float
+  -> Maybe<Int>
+```
+
+### `toInt`
+
+<small className="api-kind">Function</small>
+
+```text
+toInt
+  RoundingMode
+  -> Float
+  -> Either<
+       FloatConversionError,
+       Int
+     >
+```
+
+### `totalCompare`
+
+<small className="api-kind">Function</small>
+
+```text
+totalCompare
+  Float
+  -> Float
+  -> Ordering
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/values-and-expressions)
+- [Browse modules by purpose](/en/docs/reference/library)

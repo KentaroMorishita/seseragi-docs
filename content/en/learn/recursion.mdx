@@ -1,0 +1,79 @@
+---
+title: "Recursion"
+description: "Reduce the input with a base case, local functions, and tail recursion."
+---
+
+Sum the integers from 1 through a supplied limit. Carry the remaining integer and accumulated total as parameters, then return the total when nothing remains.
+
+## Choose a base case and the next input
+
+{/* example: examples/learn/recursion.ssrg */}
+```seseragi title="recursion.ssrg"
+fn sumUpTo limit: Int -> Int = {
+  fn loop n: Int -> total: Int -> Int =
+    if n <= 0 then
+      total
+    else
+      loop (n - 1) (total + n)
+
+  loop limit 0
+}
+
+pub effect fn main =
+  100000
+  |> sumUpTo
+  |> show
+  |> println
+```
+
+```text title="Output"
+5000050000
+```
+
+`loop n total` finishes when `n <= 0`. Otherwise, it decreases `n`, adds the current `n` to `total`, and calls itself. Both branches return an `Int`.
+
+This definition returns 0 for a negative limit. Acceptable inputs and out-of-range behavior are design decisions for the function. Recursion itself does not guarantee positive inputs or termination.
+
+## Keep implementation parameters local
+
+`loop` is declared inside the `sumUpTo` block. Callers use `sumUpTo` without supplying an intermediate accumulator.
+
+A local function can refer to its own name and lexical bindings declared before it. It cannot implicitly capture later local values or functions. Annotate parameters and the return type so the recursive function has a stable result type.
+
+## Recognize tail recursion
+
+This `loop` returns the recursive call's result directly. No addition or other work remains after the call. It is a direct self call in tail position.
+
+Seseragi executes direct self tail calls in ordinary pure functions without growing the host call stack in proportion to the input size. This example has been checked with 100000 iterations.
+
+The same guarantee does not cover calls such as `n + sumUpTo (n - 1)`, which perform work afterward, mutual recursion, partial application, or calls through callbacks. Do not apply the pure function's synchronous-loop guarantee directly to `effect fn` either. See [Performance](/en/docs/reference/performance) for its precise scope.
+
+## Group mutual recursion with rec
+
+When two functions call each other, put them in one `rec` group. This fragment illustrates the declarations:
+
+```text
+rec {
+  fn even n: Int -> Bool =
+    if n == 0 then True
+    else odd (n - 1)
+
+  fn odd n: Int -> Bool =
+    if n == 0 then False
+    else even (n - 1)
+}
+```
+
+The definition assumes non-negative input. A negative value never approaches zero, so it does not terminate. Mutual recursion also lacks the direct self tail-call stack guarantee; this fragment is not a recommendation for handling large inputs.
+
+## Choose between recursion and collection operations
+
+A range and `sum` can also express a sum. When a standard traversal describes the goal, use it to make termination and ordering easier to read.
+
+Recursion is useful for recursively shaped data such as trees or for calculations that choose their own next input. [Arrays and lists](/en/docs/learn/arrays-and-lists) explains the cost of repeatedly splitting an Array into head and tail.
+
+## Check the boundaries
+
+Replace 100000 in `main` with 0, 1, and 5. The results are 0, 1, and 15. Removing the base case only keeps decreasing the input without returning a result. When reading recursion, check how each call approaches termination.
+
+Continue to [Effects](/en/docs/learn/effects) to combine pure calculations with external work. The [function reference](/en/docs/reference/functions) covers recursive declarations.

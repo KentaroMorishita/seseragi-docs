@@ -1,0 +1,214 @@
+---
+title: "std/path"
+description: "Parse and combine file paths, separately from filesystem I/O."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as path from "std/path"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Path`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Path
+```
+
+### `PathError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+PathError
+```
+
+## Constructors and values
+
+### `AbsoluteChildPath`
+
+<small className="api-kind">Constructor</small>
+
+```text
+AbsoluteChildPath
+  PathError
+```
+
+### `EmptyPath`
+
+<small className="api-kind">Constructor</small>
+
+```text
+EmptyPath
+  PathError
+```
+
+### `InvalidDriveRoot`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidDriveRoot
+  PathError
+```
+
+### `InvalidPathSegment`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidPathSegment
+  String
+  -> PathError
+```
+
+### `InvalidUncRoot`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidUncRoot
+  PathError
+```
+
+### `PathContainsBackslash`
+
+<small className="api-kind">Constructor</small>
+
+```text
+PathContainsBackslash
+  { offset: Int }
+  -> PathError
+```
+
+### `PathContainsNul`
+
+<small className="api-kind">Constructor</small>
+
+```text
+PathContainsNul
+  { offset: Int }
+  -> PathError
+```
+
+## Functions and operators
+
+### `child`
+
+<small className="api-kind">Function</small>
+
+```text
+child
+  String
+  -> Path
+  -> Either<PathError, Path>
+```
+
+### `current`
+
+<small className="api-kind">Function</small>
+
+```text
+current
+  Unit
+  -> Path
+```
+
+### `extension`
+
+<small className="api-kind">Function</small>
+
+```text
+extension
+  Path
+  -> Maybe<String>
+```
+
+### `fileName`
+
+<small className="api-kind">Function</small>
+
+```text
+fileName
+  Path
+  -> Maybe<String>
+```
+
+### `isAbsolute`
+
+<small className="api-kind">Function</small>
+
+```text
+isAbsolute
+  Path
+  -> Bool
+```
+
+### `join`
+
+<small className="api-kind">Function</small>
+
+```text
+join
+  Path
+  -> Path
+  -> Either<PathError, Path>
+```
+
+### `normalize`
+
+<small className="api-kind">Function</small>
+
+```text
+normalize
+  Path
+  -> Path
+```
+
+### `parent`
+
+<small className="api-kind">Function</small>
+
+```text
+parent
+  Path
+  -> Maybe<Path>
+```
+
+### `parse`
+
+<small className="api-kind">Function</small>
+
+```text
+parse
+  String
+  -> Either<PathError, Path>
+```
+
+### `render`
+
+<small className="api-kind">Function</small>
+
+```text
+render
+  Path
+  -> String
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)

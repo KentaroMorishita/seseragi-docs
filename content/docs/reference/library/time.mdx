@@ -1,0 +1,674 @@
+---
+title: "std/time"
+description: "日時・期間・タイムゾーンを扱います。壁時計と単調時刻を区別します。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+| 能力のidentity | `std/time::TimeZones` |
+
+## import
+
+```seseragi
+import * as time from "std/time"
+```
+
+## 選び方と注意
+
+- Instant、localな日時、UTC offset、time zoneは別の型です。壁時計の表示とtimeline上の時点を、暗黙変換で混ぜません。
+- Durationは非負で、構築と加算の範囲を検査します。不正な日付や時刻も、自動補正せず型付きエラーとして扱います。
+- local日時をzoneへ解決するとUnique・Ambiguous・Gapがあります。夏時間の重複や欠落で、どの方針を使うかをアプリが明示します。
+- timezone databaseはversionを固定し、取得はTimeZones capabilityを要求します。ホストの設定だけでzone規則が変わることを前提にしません。
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `DateTimeError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+DateTimeError
+```
+
+### `Duration`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Duration
+```
+
+### `DurationError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+DurationError
+```
+
+### `Instant`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Instant
+```
+
+### `LocalDate`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+LocalDate
+```
+
+### `LocalDateTime`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+LocalDateTime
+```
+
+### `LocalResolution`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+LocalResolution
+```
+
+### `LocalTime`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+LocalTime
+```
+
+### `OffsetDateTime`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+OffsetDateTime
+```
+
+### `TimeZone`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+TimeZone
+```
+
+### `TimeZoneError`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+TimeZoneError
+```
+
+### `TimeZones`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+TimeZones
+```
+
+### `UtcOffset`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+UtcOffset
+```
+
+### `ZonedDateTime`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+ZonedDateTime
+```
+
+## コンストラクタと値
+
+### `Ambiguous`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Ambiguous
+  {
+    earlier: ZonedDateTime,
+    later: ZonedDateTime
+  }
+  -> LocalResolution
+```
+
+### `DurationOutsideRange`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+DurationOutsideRange
+  DurationError
+```
+
+### `Gap`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Gap
+  {
+    transition: Instant,
+    offsetBefore: UtcOffset,
+    offsetAfter: UtcOffset
+  }
+  -> LocalResolution
+```
+
+### `InvalidDate`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidDate
+  {
+    year: Int,
+    month: Int,
+    day: Int
+  }
+  -> DateTimeError
+```
+
+### `InvalidDateTimeText`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidDateTimeText
+  { offset: Int }
+  -> DateTimeError
+```
+
+### `InvalidTime`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidTime
+  {
+    hour: Int,
+    minute: Int,
+    second: Int,
+    nanosecond: Int
+  }
+  -> DateTimeError
+```
+
+### `InvalidUtcOffsetSeconds`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+InvalidUtcOffsetSeconds
+  Int
+  -> DateTimeError
+```
+
+### `NegativeDuration`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+NegativeDuration
+  Int
+  -> DurationError
+```
+
+### `TimeZoneDatabaseUnavailable`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+TimeZoneDatabaseUnavailable
+  String
+  -> TimeZoneError
+```
+
+### `TimeZoneDatabaseVersionMismatch`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+TimeZoneDatabaseVersionMismatch
+  {
+    required: String,
+    actual: String
+  }
+  -> TimeZoneError
+```
+
+### `Unique`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+Unique
+  ZonedDateTime
+  -> LocalResolution
+```
+
+### `UnknownTimeZone`
+
+<small className="api-kind">コンストラクタ</small>
+
+```text
+UnknownTimeZone
+  String
+  -> TimeZoneError
+```
+
+## 関数と演算子
+
+### `addDuration`
+
+<small className="api-kind">関数</small>
+
+二つのDurationを加算し、結果が値域内か検査します。
+
+```text
+addDuration
+  Duration
+  -> Duration
+  -> Either<DurationError, Duration>
+```
+
+### `atOffset`
+
+<small className="api-kind">関数</small>
+
+```text
+atOffset
+  UtcOffset
+  -> Instant
+  -> OffsetDateTime
+```
+
+### `atTimeZone`
+
+<small className="api-kind">関数</small>
+
+```text
+atTimeZone
+  Instant
+  -> TimeZone
+  -> ZonedDateTime
+```
+
+### `databaseVersion`
+
+<small className="api-kind">関数</small>
+
+```text
+databaseVersion
+  Unit
+  -> Effect<
+       { timeZones: TimeZones },
+       Never,
+       String
+     >
+```
+
+### `formatLocalDate`
+
+<small className="api-kind">関数</small>
+
+```text
+formatLocalDate
+  LocalDate
+  -> String
+```
+
+### `formatLocalDateTime`
+
+<small className="api-kind">関数</small>
+
+```text
+formatLocalDateTime
+  LocalDateTime
+  -> String
+```
+
+### `formatLocalTime`
+
+<small className="api-kind">関数</small>
+
+```text
+formatLocalTime
+  LocalTime
+  -> String
+```
+
+### `formatOffsetDateTime`
+
+<small className="api-kind">関数</small>
+
+```text
+formatOffsetDateTime
+  OffsetDateTime
+  -> String
+```
+
+### `hours`
+
+<small className="api-kind">関数</small>
+
+時間数を正確にDurationへ変換します。
+
+```text
+hours
+  Int
+  -> Either<DurationError, Duration>
+```
+
+### `loadTimeZone`
+
+<small className="api-kind">関数</small>
+
+```text
+loadTimeZone
+  String
+  -> Effect<
+       { timeZones: TimeZones },
+       TimeZoneError,
+       TimeZone
+     >
+```
+
+### `localDate`
+
+<small className="api-kind">関数</small>
+
+```text
+localDate
+  Int
+  -> Int
+  -> Int
+  -> Either<
+       DateTimeError,
+       LocalDate
+     >
+```
+
+### `localDateTime`
+
+<small className="api-kind">関数</small>
+
+```text
+localDateTime
+  LocalDate
+  -> LocalTime
+  -> LocalDateTime
+```
+
+### `localTime`
+
+<small className="api-kind">関数</small>
+
+```text
+localTime
+  Int
+  -> Int
+  -> Int
+  -> Int
+  -> Either<
+       DateTimeError,
+       LocalTime
+     >
+```
+
+### `milliseconds`
+
+<small className="api-kind">関数</small>
+
+millisecond数を正確にDurationへ変換します。
+
+```text
+milliseconds
+  Int
+  -> Either<DurationError, Duration>
+```
+
+### `minutes`
+
+<small className="api-kind">関数</small>
+
+分単位の値を正確にDurationへ変換します。
+
+```text
+minutes
+  Int
+  -> Either<DurationError, Duration>
+```
+
+### `nanoseconds`
+
+<small className="api-kind">関数</small>
+
+IntをnanosecondのDurationとして検査します。
+
+```text
+nanoseconds
+  Int
+  -> Either<DurationError, Duration>
+```
+
+### `offsetInstant`
+
+<small className="api-kind">関数</small>
+
+```text
+offsetInstant
+  OffsetDateTime
+  -> Instant
+```
+
+### `offsetLocalDateTime`
+
+<small className="api-kind">関数</small>
+
+```text
+offsetLocalDateTime
+  OffsetDateTime
+  -> LocalDateTime
+```
+
+### `parseLocalDate`
+
+<small className="api-kind">関数</small>
+
+```text
+parseLocalDate
+  String
+  -> Either<
+       DateTimeError,
+       LocalDate
+     >
+```
+
+### `parseLocalDateTime`
+
+<small className="api-kind">関数</small>
+
+```text
+parseLocalDateTime
+  String
+  -> Either<
+       DateTimeError,
+       LocalDateTime
+     >
+```
+
+### `parseLocalTime`
+
+<small className="api-kind">関数</small>
+
+```text
+parseLocalTime
+  String
+  -> Either<
+       DateTimeError,
+       LocalTime
+     >
+```
+
+### `parseOffsetDateTime`
+
+<small className="api-kind">関数</small>
+
+```text
+parseOffsetDateTime
+  String
+  -> Either<
+       DateTimeError,
+       OffsetDateTime
+     >
+```
+
+### `resolveLocal`
+
+<small className="api-kind">関数</small>
+
+```text
+resolveLocal
+  LocalDateTime
+  -> TimeZone
+  -> LocalResolution
+```
+
+### `seconds`
+
+<small className="api-kind">関数</small>
+
+秒数を正確にDurationへ変換します。
+
+```text
+seconds
+  Int
+  -> Either<DurationError, Duration>
+```
+
+### `timeZoneId`
+
+<small className="api-kind">関数</small>
+
+```text
+timeZoneId
+  TimeZone
+  -> String
+```
+
+### `timeZoneVersion`
+
+<small className="api-kind">関数</small>
+
+```text
+timeZoneVersion
+  TimeZone
+  -> String
+```
+
+### `toNanoseconds`
+
+<small className="api-kind">関数</small>
+
+Durationの整数nanosecond数を返します。
+
+```text
+toNanoseconds
+  Duration
+  -> Int
+```
+
+### `utcOffset`
+
+<small className="api-kind">関数</small>
+
+```text
+utcOffset
+  Int
+  -> Either<
+       DateTimeError,
+       UtcOffset
+     >
+```
+
+### `zeroDuration`
+
+<small className="api-kind">関数</small>
+
+正確な0 nanosecondのDurationを返します。
+
+```text
+zeroDuration
+  Unit
+  -> Duration
+```
+
+### `zonedInstant`
+
+<small className="api-kind">関数</small>
+
+```text
+zonedInstant
+  ZonedDateTime
+  -> Instant
+```
+
+### `zonedLocalDateTime`
+
+<small className="api-kind">関数</small>
+
+```text
+zonedLocalDateTime
+  ZonedDateTime
+  -> LocalDateTime
+```
+
+### `zonedOffset`
+
+<small className="api-kind">関数</small>
+
+```text
+zonedOffset
+  ZonedDateTime
+  -> UtcOffset
+```
+
+### `zonedTimeZone`
+
+<small className="api-kind">関数</small>
+
+```text
+zonedTimeZone
+  ZonedDateTime
+  -> TimeZone
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/effects)
+- [用途からmoduleを探す](/docs/reference/library)
+- [実行時の環境とprovider](/docs/reference/runtime-providers)

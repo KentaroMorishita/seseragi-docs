@@ -1,0 +1,846 @@
+---
+title: "std/web/svg"
+description: "型の付いたpropsでSVG treeを作り、HTMLの画面へ組み込みます。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as web_svg
+  from "std/web/svg"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 型と型クラス
+
+### `Svg`
+
+<small className="api-kind">内部表現を隠した型</small>
+
+```text
+Svg<_>
+```
+
+## 関数と演算子
+
+### `ariaLabelTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+ariaLabelTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `circle`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+circle<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `cxTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+cxTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `cyTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+cyTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `fillTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+fillTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `g`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+g<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    children: Array<Svg<Action>>
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `heightTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+heightTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `line`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+line<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `opacityTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+opacityTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `path`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+path<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    d: String
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `pathDataTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+pathDataTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `pointerEventsTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+pointerEventsTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `pointsTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+pointsTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `polygon`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+polygon<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    points: String
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `polyline`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+polyline<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    points: String
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `radiusTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+radiusTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `rect`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+rect<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `rxTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+rxTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `ryTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+ryTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `strokeTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+strokeTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `strokeWidthTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+strokeWidthTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `svg`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+svg<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    viewBox?: String,
+    preserveAspectRatio?: String,
+    children: Array<Svg<Action>>
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `text`
+
+<small className="api-kind">関数</small>
+
+<details>
+<summary>完全な型を表示</summary>
+
+```text
+text<Action>
+  {
+    elementRef?: ElementRef,
+    id?: String,
+    class?: String,
+    role?: String,
+    ariaLabel?: String,
+    transform?: String,
+    fill?: String,
+    stroke?: String,
+    strokeWidth?: String,
+    strokeLinecap?: String,
+    strokeLinejoin?: String,
+    pointerEvents?: String,
+    onPointerDown?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerMove?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerUp?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onPointerCancel?: (
+      PointerEvent
+      -> EventAction<Action>
+    ),
+    onWheel?: (
+      WheelEvent
+      -> EventAction<Action>
+    ),
+    x?: Float,
+    y?: Float,
+    x1?: Float,
+    y1?: Float,
+    x2?: Float,
+    y2?: Float,
+    cx?: Float,
+    cy?: Float,
+    r?: Float,
+    rx?: Float,
+    ry?: Float,
+    width?: Float,
+    height?: Float,
+    opacity?: Float,
+    textAnchor?: String,
+    dominantBaseline?: String,
+    children: String
+  }
+  -> Svg<Action>
+```
+
+</details>
+
+### `toHtml`
+
+<small className="api-kind">関数</small>
+
+```text
+toHtml<Action>
+  Svg<Action>
+  -> Html<Action>
+```
+
+### `transformTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+transformTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `viewBoxTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+viewBoxTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, String>
+```
+
+### `widthTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+widthTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `x1Target`
+
+<small className="api-kind">関数</small>
+
+```text
+x1Target<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `x2Target`
+
+<small className="api-kind">関数</small>
+
+```text
+x2Target<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `xTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+xTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `y1Target`
+
+<small className="api-kind">関数</small>
+
+```text
+y1Target<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `y2Target`
+
+<small className="api-kind">関数</small>
+
+```text
+y2Target<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+### `yTarget`
+
+<small className="api-kind">関数</small>
+
+```text
+yTarget<Action>
+  ElementRef
+  -> BindingTarget<Action, Float>
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/signals)
+- [用途からmoduleを探す](/docs/reference/library)
+- [Web UIの規則](/docs/reference/web-ui)

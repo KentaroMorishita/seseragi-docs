@@ -1,0 +1,77 @@
+---
+title: "Effects"
+description: "Describe external work as a delayed computation and compose its order and dependencies with do."
+---
+
+Computing a string and printing it are different operations. An `Effect` represents output, external state access, and asynchronous work as a computation value that can be executed.
+
+## Separate construction from execution
+
+{/* example: examples/learn/effects.ssrg */}
+```seseragi title="effects.ssrg"
+effect fn greet name: String -> Unit
+with Console
+fails ConsoleError =
+  println `Hello, ${name}`
+
+pub effect fn main = do {
+  let greeting = greet "Aki"
+  println "Before greeting"
+  greeting
+  greeting
+}
+```
+
+```text title="Output"
+Before greeting
+Hello, Aki
+Hello, Aki
+```
+
+`let greeting = greet "Aki"` constructs and names an output Effect. It does not print the greeting on that line, so `Before greeting` appears first. Executing the same `greeting` twice prints it twice.
+
+Effects are cold. Constructing one does not start its external work; executing it again performs the work again. Treating it like a Promise holding an already computed result misses this distinction. Ordinary pure expressions and function arguments still follow strict evaluation rules.
+
+## Describe a contract with three types
+
+In `Effect<R, E, A>`, `R` is the required environment, `E` is the recoverable failure type, and `A` is the success type. `greet` requires Console, may fail with ConsoleError, and succeeds with Unit.
+
+```text
+Effect<
+  { console: Console },
+  ConsoleError,
+  Unit
+>
+```
+
+In `effect fn`, `-> Unit` names the success type, `with Console` names the requirement, and `fails ConsoleError` names the error. Calling the function produces an Effect that succeeds with Unit, not an immediate Unit result.
+
+## Compose an order with do
+
+A `do` block composes Effects for sequential execution. Use `value <- effect` when later work needs an Effect's success value. A `let` inside `do` binds a pure value; it does not execute an Effect.
+
+The last expression returns an Effect. Lift an ordinary value into a success with `succeed value` or `pure value`. Placing several Effects in an ordinary block does not automatically perform the sequential composition provided by `do`.
+
+`do` is Monad composition syntax and also works with Maybe and Either. An Effect sequences external work, Maybe stops on absence, and Either stops on a synchronous failure.
+
+## Choose inferred or explicit contracts
+
+`greet` has an explicit contract. A declaration such as `main`, omitting all of `->`, `with`, and `fails`, infers its environment, error, and success types from the body.
+
+If you start an explicit contract with `effect fn ... -> Unit` and omit `with` or `fails`, the defaults are environment `{}` and error `Never`. The omitted parts are not inferred from the body. A console-printing explicit contract therefore needs Console and ConsoleError as shown above.
+
+Inferred public declarations still expose the resulting contract in their typed interface. Environment requirements are combined, but different error types are not automatically unioned. Design the failure categories with an ADT and operations such as `mapError`.
+
+## Understand failure and execution boundaries
+
+Recoverable error types must agree within one composition. `Never`, which cannot produce a recoverable failure, can widen to a required error type. Represent expected failure with `fail` or a standard API's error value, and handle it with `recover`.
+
+Defects and cancellation are separate from recoverable errors. `recover` is not a catch-all for every abnormal outcome. See [Error handling](/en/docs/guides/error-handling) for designing those paths.
+
+The CLI executes the exported `main` Effect. An ordinary `fn` can also return an Effect as a value with an explicit type. `effect fn` makes that declaration easier to read; it does not introduce another execution model.
+
+## Change the execution count
+
+Remove one `greeting` expression and the greeting prints once. Keep only `let greeting = ...` and remove both execution expressions; no greeting prints. Check construction and execution separately.
+
+Continue to [Signals](/en/docs/learn/signals) to read and update changing state through Effects. The [Effect reference](/en/docs/reference/effects) covers exact contracts.

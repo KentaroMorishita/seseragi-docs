@@ -1,0 +1,133 @@
+---
+title: Standard library
+description: Find modules by purpose and look up their public types, functions, constraints, and supported environments.
+---
+
+This reference covers 1,451 public names across 63 standard library interfaces, including Prelude, in Seseragi 0.61.25. Choose a module below, then look up its types and functions.
+
+## Read the types
+
+Function arguments are curried. Types are listed in argument order, followed by the result. Most collection operations take their subject last, so you can use a [vertical pipeline](/en/docs/learn/functions-and-pipelines). A `where` clause lists the required [type classes](/en/docs/reference/type-classes). These signatures are type notation, not executable declarations.
+
+`Effect<R, E, A>` describes requirements, typed failure, and success. An imported module does not execute an Effect or supply its provider. See [Effect](/en/docs/reference/effects) and [runtime providers](/en/docs/reference/runtime-providers). Opaque types hide their representation; do not assume every error type has a `Show` instance.
+
+## Execution environments
+
+`process` means a CLI/server process; `browser` means a Web app or Playground browser execution. A portable interface can still require a capability supported by the chosen provider. Check requirements and failures in each signature, not only the module's target list.
+
+## Core types and results
+
+| Module | Purpose | Environment |
+| --- | --- | --- |
+| [`std/either`](/en/docs/reference/library/either) | Transform and combine Left failures and Right successes. | process / browser |
+| [`std/maybe`](/en/docs/reference/library/maybe) | Choose defaults and alternatives for values that may be absent. | process / browser |
+| [`std/prelude`](/en/docs/reference/library/prelude) | Core types, type classes, and functions available without imports. | process / browser |
+| [`std/validation`](/en/docs/reference/library/validation) | Accumulate multiple errors when validating independent inputs. | process / browser |
+
+## Collections
+
+| Module | Purpose | Environment |
+| --- | --- | --- |
+| [`std/array`](/en/docs/reference/library/array) | Search, transform, and partition finite sequences without mutation. Indexed lookup returns Maybe. | process / browser |
+| [`std/collection`](/en/docs/reference/library/collection) | Common types for continuing a traversal with Next or finishing it with Done. | process / browser |
+| [`std/iterator`](/en/docs/reference/library/iterator) | Create and consume iterators. Use their state and consumption model deliberately. | process / browser |
+| [`std/list`](/en/docs/reference/library/list) | Traverse and transform persistent Lists. Array conversions preserve source order. | process / browser |
+| [`std/map`](/en/docs/reference/library/map) | Store and retrieve values using keys with Eq and Hash. Distinguish insertion order from key equality. | process / browser |
+| [`std/non-empty-list`](/en/docs/reference/library/non-empty-list) | Represent sequences with at least one element and check emptiness when converting from List. | process / browser |
+| [`std/set`](/en/docs/reference/library/set) | Build duplicate-free collections with Eq and Hash and perform set operations. | process / browser |
+
+## Text and Unicode
+
+| Module | Purpose | Environment |
+| --- | --- | --- |
+| [`std/char`](/en/docs/reference/library/char) | Inspect and convert one Unicode scalar, distinct from Strings and grapheme clusters. | process / browser |
+| [`std/regex`](/en/docs/reference/library/regex) | Compile patterns and search or replace text, with typed errors for invalid patterns. | process / browser |
+| [`std/text`](/en/docs/reference/library/text) | Search, split, and transform Strings. Check the unit used for lengths and positions in each API. | process / browser |
+| [`std/text/grapheme`](/en/docs/reference/library/text-grapheme) | Split and access text by extended grapheme clusters. | process / browser |
+| [`std/text/unicode`](/en/docs/reference/library/text-unicode) | Use Unicode normalization, character properties, and case folding. | process / browser |
+
+## Numbers
+
+| Module | Purpose | Environment |
+| --- | --- | --- |
+| [`std/big-int`](/en/docs/reference/library/big-int) | Work with arbitrary-precision integers without implicitly mixing them with Int. | process / browser |
+| [`std/decimal`](/en/docs/reference/library/decimal) | Represent exact decimal values and calculate with explicit rounding rules. | process / browser |
+| [`std/float`](/en/docs/reference/library/float) | Parse, compare, round, and convert floating-point values with explicit NaN semantics. | process / browser |
+| [`std/int`](/en/docs/reference/library/int) | Parse, format, and calculate with safe integers, using checked operations for typed failure. | process / browser |
+| [`std/math`](/en/docs/reference/library/math) | Floating-point mathematical functions and constants. | process / browser |
+| [`std/number`](/en/docs/reference/library/number) | Shared numeric types, including rounding modes. | process / browser |
+
+## Bytes and JSON
+
+| Module | Purpose | Environment |
+| --- | --- | --- |
+| [`std/bytes`](/en/docs/reference/library/bytes) | Create, access, slice, and convert immutable byte sequences. | process / browser |
+| [`std/bytes/base64`](/en/docs/reference/library/bytes-base64) | Strictly encode and decode standard and URL-safe Base64. | process / browser |
+| [`std/bytes/hex`](/en/docs/reference/library/bytes-hex) | Convert Bytes to and from hexadecimal text. | process / browser |
+| [`std/json`](/en/docs/reference/library/json) | Parse and render JSON and compose typed codecs. | process / browser |
+
+## Effects and state
+
+| Module | Purpose | Environment |
+| --- | --- | --- |
+| [`std/deferred`](/en/docs/reference/library/deferred) | Share a result that completes once between computations. | process / browser |
+| [`std/effect`](/en/docs/reference/library/effect) | Build computations as values and compose failures, requirements, timing, resources, and concurrency. | process / browser |
+| [`std/queue`](/en/docs/reference/library/queue) | Pass values between asynchronous computations with capacity and shutdown control. | process / browser |
+| [`std/ref`](/en/docs/reference/library/ref) | Read and change references inside Effect, separately from Signal notifications. | process / browser |
+| [`std/semaphore`](/en/docs/reference/library/semaphore) | Limit concurrent operations with permits. | process / browser |
+| [`std/signal`](/en/docs/reference/library/signal) | Represent current and derived values and manage updates and subscription lifetimes. | process / browser |
+| [`std/stream`](/en/docs/reference/library/stream) | Transform values over time with explicit consumption, cancellation, and resource lifetimes. | process / browser |
+
+## Time, I/O, and processes
+
+| Module | Purpose | Environment |
+| --- | --- | --- |
+| [`std/child-process`](/en/docs/reference/library/child-process) | Start and manage child processes, their input/output, and resources. | process |
+| [`std/clock`](/en/docs/reference/library/clock) | Request Clock capability and read monotonic time. | process / browser |
+| [`std/console`](/en/docs/reference/library/console) | Write text and values using Console capability. | process / browser |
+| [`std/entropy`](/en/docs/reference/library/entropy) | Request Entropy capability for cryptographically secure random data. | process / browser |
+| [`std/fs`](/en/docs/reference/library/fs) | Read and write files using FileSystem capability and explicit resource scope. | process / browser |
+| [`std/log`](/en/docs/reference/library/log) | Record levels and structured information using Logger capability. | process / browser |
+| [`std/path`](/en/docs/reference/library/path) | Parse and combine file paths, separately from filesystem I/O. | process / browser |
+| [`std/process`](/en/docs/reference/library/process) | Access arguments, environment, and termination for the current process. | process |
+| [`std/random`](/en/docs/reference/library/random) | Generate reproducible pseudo-random values and shuffle sequences. | process / browser |
+| [`std/stdin`](/en/docs/reference/library/stdin) | Read process standard input with typed EOF and failures. | process |
+| [`std/time`](/en/docs/reference/library/time) | Work with dates, durations, and time zones, distinguishing wall time from monotonic time. | process / browser |
+
+## Web and networking
+
+| Module | Purpose | Environment |
+| --- | --- | --- |
+| [`std/http`](/en/docs/reference/library/http) | Send requests using HttpClient capability and manage response and body lifetimes. | process / browser |
+| [`std/http/multipart`](/en/docs/reference/library/http-multipart) | Construct and inspect multipart fields and file parts. | process / browser |
+| [`std/http/server`](/en/docs/reference/library/http-server) | Start process HTTP servers and manage request handling and shutdown. | process |
+| [`std/sse`](/en/docs/reference/library/sse) | Encode and decode Server-Sent Events and use HTTP streams. | process / browser |
+| [`std/web/dom`](/en/docs/reference/library/web-dom) | Connect HTML and Signals to browser DOM and dispatch typed actions and events. | browser |
+| [`std/web/file`](/en/docs/reference/library/web-file) | Read the contents of browser Files through typed Effects. | browser |
+| [`std/web/html`](/en/docs/reference/library/web-html) | Create pure HTML trees from props records and children. Rendering and DOM attachment are separate operations. | process / browser |
+| [`std/web/navigation`](/en/docs/reference/library/web-navigation) | Read and change browser URLs and history through a capability independent of DOM rendering. | browser |
+| [`std/web/storage`](/en/docs/reference/library/web-storage) | Use browser local and session storage through Effects that preserve failure. | browser |
+| [`std/web/svg`](/en/docs/reference/library/web-svg) | Build SVG trees with typed props and compose them into HTML views. | process / browser |
+| [`std/websocket`](/en/docs/reference/library/websocket) | Establish WebSocket connections and handle messages and termination as streams. | process / browser |
+| [`std/websocket/server`](/en/docs/reference/library/websocket-server) | Accept WebSocket connections in a process. | process |
+
+## Testing and benchmarks
+
+| Module | Purpose | Environment |
+| --- | --- | --- |
+| [`std/benchmark`](/en/docs/reference/library/benchmark) | Separate input preparation from measurements and benchmark using the CLI. | process / browser |
+| [`std/test`](/en/docs/reference/library/test) | Group pure and effectful checks into suites and run them with the CLI. | process / browser |
+
+## Monad transformers
+
+| Module | Purpose | Environment |
+| --- | --- | --- |
+| [`std/transformer/either`](/en/docs/reference/library/transformer-either) | Compose Either failures with values produced by another Monad. | process / browser |
+| [`std/transformer/maybe`](/en/docs/reference/library/transformer-maybe) | Compose absence from Maybe with values produced by another Monad. | process / browser |
+| [`std/transformer/reader`](/en/docs/reference/library/transformer-reader) | Pass a shared environment through computations using another Monad. | process / browser |
+| [`std/transformer/state`](/en/docs/reference/library/transformer-state) | Compose state-passing computations with another Monad. | process / browser |
+| [`std/transformer/writer`](/en/docs/reference/library/transformer-writer) | Compose computation results and Monoid output with another Monad. | process / browser |
+
+## Contracts without an implementation
+
+`std/http/bun` has a specified identity but no public interface in 0.61.25. It cannot be imported. For a currently available server API, use [`std/http/server`](/en/docs/reference/library/http-server).

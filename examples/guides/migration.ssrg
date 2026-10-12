@@ -1,0 +1,6 @@
+fn double n: Int -> Int = n * 2
+
+pub effect fn main = {
+  let answer = double 21
+  printValue answer
+}

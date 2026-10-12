@@ -1,0 +1,107 @@
+---
+title: "std/maybe"
+description: "Choose defaults and alternatives for values that may be absent."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as maybe from "std/maybe"
+```
+
+## Example
+
+{/* example: examples/library/maybe.ssrg */}
+
+```seseragi
+import * as maybe from "std/maybe"
+
+pub effect fn main =
+  Just 42
+  |> maybe.withDefault 0
+  |> show
+  |> println
+```
+
+Output:
+
+```text
+42
+```
+
+## Choosing operations
+
+- Use Maybe when absence is normal. Use Either when a reason is needed and Effect when an operation must execute.
+- withDefault and orElse have strict arguments: the fallback expression is evaluated even for Just. Use ?? for a fallback evaluated only when needed.
+- traverse does not guarantee skipping later pure callbacks after Nothing. Use reduceUntil when the traversal itself must stop early.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Functions and operators
+
+### `orElse`
+
+<small className="api-kind">Function</small>
+
+Selects the fallback Maybe for Nothing, preserving an existing Just.
+
+```text
+orElse<A>
+  Maybe<A>
+  -> Maybe<A>
+  -> Maybe<A>
+```
+
+### `sequence`
+
+<small className="api-kind">Function</small>
+
+Traverses wrapped values with identity, preserving source shape and order.
+
+```text
+sequence<F<_>, A>
+  F<Maybe<A>>
+  -> Maybe<F<A>>
+where
+  Traversable<F<_>>
+```
+
+### `traverse`
+
+<small className="api-kind">Function</small>
+
+Uses the source Traversable and the module's Applicative without a separate traversal implementation.
+
+```text
+traverse<F<_>, A, B>
+  (A -> Maybe<B>)
+  -> F<A>
+  -> Maybe<F<B>>
+where
+  Traversable<F<_>>
+```
+
+### `withDefault`
+
+<small className="api-kind">Function</small>
+
+Selects the fallback for Nothing, or the Just payload. Arguments are strict.
+
+```text
+withDefault<A>
+  A
+  -> Maybe<A>
+  -> A
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/maybe-and-either)
+- [Browse modules by purpose](/en/docs/reference/library)

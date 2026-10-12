@@ -1,0 +1,96 @@
+---
+title: 失敗を扱う
+description: 同期の検証とEffectの失敗を区別し、利用者が直せるメッセージへ変える。
+---
+
+数量の文字列を検証し、正常なら数量を、不正なら直し方を表示します。数字として読めない入力と範囲外の入力を、異なる失敗として扱います。
+
+結果の型は[MaybeとEither](/docs/learn/maybe-and-either)、実行と回復は[Effect](/docs/learn/effects)で扱った構文を使います。このガイドでは、その二つを入力の検証へ組み合わせます。
+
+## 失敗を型で表す
+
+`QuantityError`は`NotANumber`と`OutsideRange`の二つのケースです。`quantity`は`Either<QuantityError, Int>`を返します。純粋な検証の結果には、成功した`Int`か、その失敗理由が入ります。
+
+値がないこと自体が正常なら`Maybe`を使えます。この例では利用者が入力を直すために理由が必要なので、`Either`を使っています。
+
+## 完成したプログラム
+
+`errors.ssrg`へ保存してください。
+
+{/* example: examples/guides/errors.ssrg */}
+```seseragi title="errors.ssrg"
+import * as ints from "std/int"
+import * as effects from "std/effect"
+
+type QuantityError deriving Show =
+  | NotANumber
+  | OutsideRange
+
+alias Result =
+  Either<QuantityError, Int>
+
+fn quantity text: String -> Result =
+  match ints.parse text {
+    Left _ -> Left NotANumber
+    Right n ->
+      if n >= 1 && n <= 1000 then
+        Right n
+      else
+        Left OutsideRange
+  }
+
+effect fn report text: String = do {
+  result <-
+    quantity text
+    |> fromEither
+    |> effects.attempt
+  let message = match result {
+    Right n -> `Quantity: ${n}`
+    Left NotANumber ->
+      "Enter a number"
+    Left OutsideRange ->
+      "Use 1 to 1000"
+  }
+  println message
+}
+
+pub effect fn main = do {
+  report "3"
+  report "many"
+  report "0"
+}
+```
+
+`ints.parse`自身の詳細な失敗を、ここではアプリの`NotANumber`へまとめます。範囲のルールは`quantity`の中で決まり、表示する文言は`report`の`match`で決まります。
+
+## EitherをEffectへ移す
+
+`fromEither`は`Right`を成功、`Left`を失敗とするEffectを作ります。`effects.attempt`は回復可能な失敗を受け止め、成功値を`Right`、失敗理由を`Left`として返します。
+
+元の`quantity`は同期の結果です。そこから作ったEffectは、実行されるまで計算を進める副作用の境界を越えません。`attempt`後の`match`では、正常な入力も不正な入力も表示の対象として扱えます。
+
+## 結果を確かめる
+
+```sh
+seseragi run errors.ssrg
+```
+
+```text
+Quantity: 3
+Enter a number
+Use 1 to 1000
+```
+
+「many」と0の検証失敗を表示へ回復しているため、この実行は成功します。ただし、`println`自体の出力失敗は回復していません。Consoleに書けない場合まで成功扱いに変えるコードではありません。
+
+## アプリの失敗型へ揃える
+
+入力、ファイル、通信など複数のEffectを組み合わせるときは、`mapError`でアプリの失敗型へ変換します。[CLIアプリを作る](/docs/guides/cli-app)では`InputFailure StdinError`と`OutputFailure ConsoleError`を一つの`AppError`へ揃えています。
+
+成功値の変換には`map`、失敗理由の変換には`mapError`を使います。回復して処理を続けるか、呼び出し元へ失敗を返すかはアプリの方針として決めます。
+
+## defectとキャンセルを区別する
+
+`attempt`や`recover`が扱うのは型で宣言された回復可能な失敗です。ランタイムの契約違反などのdefectや、処理のキャンセルを通常の入力エラーへ変換しません。
+
+Seseragiに`try/catch`構文はありません。ホスト側の例外を扱う場合は[TypeScriptとの接続](/docs/guides/typescript-bindings)で`task` bindingを使います。失敗、defect、キャンセルの詳しい契約は[Effect Reference](/docs/reference/effects)で調べられます。

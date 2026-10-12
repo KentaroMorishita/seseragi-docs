@@ -1,0 +1,7 @@
+import * as lists from "std/list"
+
+pub effect fn main =
+  `[10, 20, 30]
+  |> lists.toArray
+  |> show
+  |> println

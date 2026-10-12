@@ -1,0 +1,13 @@
+type Parcel =
+  | Packing
+  | Sent String
+
+fn label parcel: Parcel -> String =
+  match parcel {
+    Packing -> "Preparing"
+  }
+
+pub effect fn main =
+  Packing
+  |> label
+  |> println

@@ -1,0 +1,913 @@
+---
+title: "std/http"
+description: "Send requests using HttpClient capability and manage response and body lifetimes."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+| Capability identities | `std/http::HttpClient` |
+
+## Import
+
+```seseragi
+import * as http from "std/http"
+```
+
+## Choosing operations
+
+- Non-2xx statuses still arrive as successful responses. Distinguish application-level HTTP failures from DNS, TLS, socket, and other transport failures.
+- sendBytes/sendEmpty collect bodies in memory as small-response APIs. Exceeding an explicit limit cancels the response and returns a typed error.
+- Headers are a case-insensitive ordered multimap. Values are not automatically comma-joined, preserving independent values such as Set-Cookie.
+- Redirects, cookie jars, authentication, retries, timeouts, and Content-Encoding decoding are not automatic. Choose text/JSON body decoding explicitly too.
+- exchange is a cold Stream. Each terminal execution starts a request and releases body/connection resources on cancellation or early termination.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Body`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Body<_, _>
+```
+
+### `Headers`
+
+<small className="api-kind">Opaque type</small>
+
+Immutable ordered HTTP header collection.
+
+```text
+Headers
+```
+
+### `HttpBodyLimit`
+
+<small className="api-kind">Opaque type</small>
+
+Positive response body byte limit.
+
+```text
+HttpBodyLimit
+```
+
+### `HttpBuildError`
+
+<small className="api-kind">Opaque type</small>
+
+Typed validation failure while building an HTTP value.
+
+```text
+HttpBuildError
+```
+
+### `HttpClient`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+HttpClient
+```
+
+### `HttpError`
+
+<small className="api-kind">Opaque type</small>
+
+Typed HTTP transport, protocol, or body failure.
+
+```text
+HttpError
+```
+
+### `HttpEvent`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+HttpEvent
+```
+
+### `HttpUrl`
+
+<small className="api-kind">Opaque type</small>
+
+Normalized absolute HTTP or HTTPS URL.
+
+```text
+HttpUrl
+```
+
+### `HttpVersion`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+HttpVersion
+```
+
+### `Method`
+
+<small className="api-kind">Opaque type</small>
+
+Opaque validated HTTP request method.
+
+```text
+Method
+```
+
+### `Request`
+
+<small className="api-kind">Opaque type</small>
+
+Immutable HTTP request head without a body.
+
+```text
+Request
+```
+
+### `Response`
+
+<small className="api-kind">Opaque type</small>
+
+Small HTTP response with an immutable Bytes body.
+
+```text
+Response
+```
+
+### `ResponseHead`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct ResponseHead {
+  version: HttpVersion,
+  status: Status,
+  headers: Headers
+}
+```
+
+- `version`: HTTP protocol version of the response.
+- `status`: Validated HTTP response status.
+- `headers`: Immutable response headers, separate from its body.
+
+### `Status`
+
+<small className="api-kind">Opaque type</small>
+
+Opaque validated HTTP response status.
+
+```text
+Status
+```
+
+## Constructors and values
+
+### `connect`
+
+<small className="api-kind">Value</small>
+
+The standard CONNECT Method value.
+
+```text
+Method
+```
+
+### `delete`
+
+<small className="api-kind">Value</small>
+
+The standard DELETE Method value.
+
+```text
+Method
+```
+
+### `emptyHeaders`
+
+<small className="api-kind">Value</small>
+
+The empty immutable Headers value.
+
+```text
+Headers
+```
+
+### `get`
+
+<small className="api-kind">Value</small>
+
+The standard GET Method value.
+
+```text
+Method
+```
+
+### `head`
+
+<small className="api-kind">Value</small>
+
+The standard HEAD Method value.
+
+```text
+Method
+```
+
+### `Http1_0`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Http1_0
+  HttpVersion
+```
+
+### `Http1_1`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Http1_1
+  HttpVersion
+```
+
+### `Http2`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Http2
+  HttpVersion
+```
+
+### `Http3`
+
+<small className="api-kind">Constructor</small>
+
+```text
+Http3
+  HttpVersion
+```
+
+### `HttpClientUnavailable`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpClientUnavailable
+  HttpError
+```
+
+### `HttpConnectionFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpConnectionFailure
+  String
+  -> HttpError
+```
+
+### `HttpDnsFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpDnsFailure
+  String
+  -> HttpError
+```
+
+### `HttpProtocolFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpProtocolFailure
+  String
+  -> HttpError
+```
+
+### `HttpRequestBodyFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpRequestBodyFailure
+  String
+  -> HttpError
+```
+
+### `HttpRequestLengthMismatch`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpRequestLengthMismatch
+  { declared: Int, actual: Int }
+  -> HttpError
+```
+
+### `HttpResponseBodyLimitExceeded`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpResponseBodyLimitExceeded
+  { limitBytes: Int }
+  -> HttpError
+```
+
+### `HttpTlsFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpTlsFailure
+  String
+  -> HttpError
+```
+
+### `HttpUrlContainsFragment`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpUrlContainsFragment
+  HttpBuildError
+```
+
+### `HttpUrlContainsUserInfo`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpUrlContainsUserInfo
+  HttpBuildError
+```
+
+### `HttpVersionUnknown`
+
+<small className="api-kind">Constructor</small>
+
+```text
+HttpVersionUnknown
+  HttpVersion
+```
+
+### `InformationalResponse`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InformationalResponse
+  ResponseHead
+  -> HttpEvent
+```
+
+### `InvalidHeaderName`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidHeaderName
+  String
+  -> HttpBuildError
+```
+
+### `InvalidHeaderValue`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidHeaderValue
+  { name: String, offset: Int }
+  -> HttpBuildError
+```
+
+### `InvalidHttpBodyLimit`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidHttpBodyLimit
+  Int
+  -> HttpBuildError
+```
+
+### `InvalidHttpMethod`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidHttpMethod
+  String
+  -> HttpBuildError
+```
+
+### `InvalidHttpStatus`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidHttpStatus
+  Int
+  -> HttpBuildError
+```
+
+### `InvalidHttpUrl`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidHttpUrl
+  { offset: Int }
+  -> HttpBuildError
+```
+
+### `ManagedHttpHeader`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ManagedHttpHeader
+  String
+  -> HttpBuildError
+```
+
+### `options`
+
+<small className="api-kind">Value</small>
+
+The standard OPTIONS Method value.
+
+```text
+Method
+```
+
+### `patch`
+
+<small className="api-kind">Value</small>
+
+The standard PATCH Method value.
+
+```text
+Method
+```
+
+### `post`
+
+<small className="api-kind">Value</small>
+
+The standard POST Method value.
+
+```text
+Method
+```
+
+### `put`
+
+<small className="api-kind">Value</small>
+
+The standard PUT Method value.
+
+```text
+Method
+```
+
+### `ResponseBodyChunk`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ResponseBodyChunk
+  Bytes
+  -> HttpEvent
+```
+
+### `ResponseStarted`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ResponseStarted
+  ResponseHead
+  -> HttpEvent
+```
+
+### `ResponseTrailers`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ResponseTrailers
+  Headers
+  -> HttpEvent
+```
+
+### `trace`
+
+<small className="api-kind">Value</small>
+
+The standard TRACE Method value.
+
+```text
+Method
+```
+
+### `UnsupportedHttpScheme`
+
+<small className="api-kind">Constructor</small>
+
+```text
+UnsupportedHttpScheme
+  String
+  -> HttpBuildError
+```
+
+## Functions and operators
+
+### `appendHeader`
+
+<small className="api-kind">Function</small>
+
+Validates and appends one HTTP header field.
+
+```text
+appendHeader
+  String
+  -> String
+  -> Headers
+  -> Either<HttpBuildError, Headers>
+```
+
+### `bodyLimit`
+
+<small className="api-kind">Function</small>
+
+```text
+bodyLimit
+  Int
+  -> Either<
+       HttpBuildError,
+       HttpBodyLimit
+     >
+```
+
+### `bytesBody`
+
+<small className="api-kind">Function</small>
+
+```text
+bytesBody<R, E>
+  Bytes
+  -> Body<R, E>
+```
+
+### `customMethod`
+
+<small className="api-kind">Function</small>
+
+Validates an uppercase custom HTTP method token.
+
+```text
+customMethod
+  String
+  -> Either<HttpBuildError, Method>
+```
+
+### `defaultBodyLimit`
+
+<small className="api-kind">Function</small>
+
+```text
+defaultBodyLimit
+  Unit
+  -> HttpBodyLimit
+```
+
+### `emptyBody`
+
+<small className="api-kind">Function</small>
+
+```text
+emptyBody<R, E>
+  Unit
+  -> Body<R, E>
+```
+
+### `errorMessage`
+
+<small className="api-kind">Function</small>
+
+Reads the message carried by an HTTP client failure.
+
+```text
+errorMessage
+  HttpError
+  -> String
+```
+
+### `exchange`
+
+<small className="api-kind">Function</small>
+
+```text
+exchange<R, E>
+  Body<R, E>
+  -> Request
+  -> Stream<
+       R & {
+         httpClient: HttpClient
+       },
+       Either<E, HttpError>,
+       HttpEvent
+     >
+```
+
+### `headerEntries`
+
+<small className="api-kind">Function</small>
+
+```text
+headerEntries
+  Headers
+  -> Array<(String, String)>
+```
+
+### `headerValues`
+
+<small className="api-kind">Function</small>
+
+```text
+headerValues
+  String
+  -> Headers
+  -> Array<String>
+```
+
+### `isClientError`
+
+<small className="api-kind">Function</small>
+
+```text
+isClientError
+  Status
+  -> Bool
+```
+
+### `isInformational`
+
+<small className="api-kind">Function</small>
+
+```text
+isInformational
+  Status
+  -> Bool
+```
+
+### `isRedirection`
+
+<small className="api-kind">Function</small>
+
+```text
+isRedirection
+  Status
+  -> Bool
+```
+
+### `isServerError`
+
+<small className="api-kind">Function</small>
+
+```text
+isServerError
+  Status
+  -> Bool
+```
+
+### `isSuccess`
+
+<small className="api-kind">Function</small>
+
+```text
+isSuccess
+  Status
+  -> Bool
+```
+
+### `methodText`
+
+<small className="api-kind">Function</small>
+
+Reads the text of a validated HTTP Method.
+
+```text
+methodText
+  Method
+  -> String
+```
+
+### `parseUrl`
+
+<small className="api-kind">Function</small>
+
+Parses and normalizes an absolute HTTP or HTTPS URL.
+
+```text
+parseUrl
+  String
+  -> Either<HttpBuildError, HttpUrl>
+```
+
+### `removeHeader`
+
+<small className="api-kind">Function</small>
+
+Removes every case-insensitive occurrence of a header.
+
+```text
+removeHeader
+  String
+  -> Headers
+  -> Headers
+```
+
+### `renderUrl`
+
+<small className="api-kind">Function</small>
+
+Renders a normalized HttpUrl.
+
+```text
+renderUrl
+  HttpUrl
+  -> String
+```
+
+### `request`
+
+<small className="api-kind">Function</small>
+
+Builds an immutable request head from Method and HttpUrl.
+
+```text
+request
+  Method
+  -> HttpUrl
+  -> Request
+```
+
+### `responseBody`
+
+<small className="api-kind">Function</small>
+
+Copies the immutable Bytes body of a small response.
+
+```text
+responseBody
+  Response
+  -> Bytes
+```
+
+### `responseHeaders`
+
+<small className="api-kind">Function</small>
+
+Returns the immutable Headers held by the Response without constructing a copy.
+
+```text
+responseHeaders
+  Response
+  -> Headers
+```
+
+### `responseStatus`
+
+<small className="api-kind">Function</small>
+
+Reads the validated status of a small response.
+
+```text
+responseStatus
+  Response
+  -> Status
+```
+
+### `sendBytes`
+
+<small className="api-kind">Function returning Effect</small>
+
+Sends an explicit Bytes body through HttpClient.
+
+```text
+sendBytes
+  HttpBodyLimit
+  -> Bytes
+  -> Request
+  -> Effect<
+       { httpClient: HttpClient },
+       HttpError,
+       Response
+     >
+```
+
+### `sendEmpty`
+
+<small className="api-kind">Function returning Effect</small>
+
+Sends an explicit empty body through HttpClient.
+
+```text
+sendEmpty
+  HttpBodyLimit
+  -> Request
+  -> Effect<
+       { httpClient: HttpClient },
+       HttpError,
+       Response
+     >
+```
+
+### `setHeader`
+
+<small className="api-kind">Function</small>
+
+Replaces a header field at its first ordered position.
+
+```text
+setHeader
+  String
+  -> String
+  -> Headers
+  -> Either<HttpBuildError, Headers>
+```
+
+### `status`
+
+<small className="api-kind">Function</small>
+
+Validates an HTTP status code from 100 through 999.
+
+```text
+status
+  Int
+  -> Either<HttpBuildError, Status>
+```
+
+### `statusCode`
+
+<small className="api-kind">Function</small>
+
+Reads the Int code of a validated HTTP Status.
+
+```text
+statusCode
+  Status
+  -> Int
+```
+
+### `streamBody`
+
+<small className="api-kind">Function</small>
+
+```text
+streamBody<R, E>
+  Stream<R, E, Bytes>
+  -> Body<R, E>
+```
+
+### `withoutRequestHeader`
+
+<small className="api-kind">Function</small>
+
+```text
+withoutRequestHeader
+  String
+  -> Request
+  -> Request
+```
+
+### `withRequestHeader`
+
+<small className="api-kind">Function</small>
+
+```text
+withRequestHeader
+  String
+  -> String
+  -> Request
+  -> Either<HttpBuildError, Request>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

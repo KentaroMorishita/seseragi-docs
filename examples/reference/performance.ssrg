@@ -1,0 +1,11 @@
+fn sum total: Int
+  -> next: Int -> Int =
+  if next == 0 then
+    total
+  else
+    sum (total + next) (next - 1)
+
+pub effect fn main =
+  sum 0 100
+  |> show
+  |> println

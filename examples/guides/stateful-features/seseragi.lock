@@ -1,0 +1,16 @@
+schema = 1
+language = "0.1.0"
+standard_library = "0.1.0"
+unicode = "17.0.0"
+timezone_database = "2025b"
+root = "docs/stateful-features@0.1.0#workspace:."
+
+[[packages]]
+id = "docs/stateful-features@0.1.0#workspace:."
+name = "docs/stateful-features"
+version = "0.1.0"
+source_kind = "workspace"
+source = "."
+manifest_digest = "sha256:5961a2cef3c3266b3b7972ba38bfac31efae03e96f15d90d576bdbf892610941"
+content_digest = "sha256:698c3c558aea36e1b685d4faf061fb26a0fc56736918cb9ee683aebf239c7df7"
+dependencies = []

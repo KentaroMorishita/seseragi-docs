@@ -1,0 +1,92 @@
+---
+title: "Signal"
+description: "変化する状態をEffectから読み書きし、派生値を明示的につなぐ。"
+---
+
+通常の値は不変です。時間とともに変わる状態が必要な場合は、`MutableSignal<A>`を作り、Effectから読み書きします。状態から計算した値は、読み取り専用の`Signal<A>`としてつなげられます。
+
+## 更新元と派生値を作る
+
+{/* example: examples/learn/signals.ssrg */}
+```seseragi title="signals.ssrg"
+import * as signals from "std/signal"
+
+pub effect fn main = do {
+  count <- signals.make 1
+  let doubled =
+    count
+    |> signals.map (\n -> n * 2)
+  first <- *doubled
+  println `before: ${first}`
+  signals.update (\n -> n + 1) count
+  second <- *doubled
+  println `after: ${second}`
+}
+```
+
+```text title="実行結果"
+before: 2
+after: 4
+```
+
+`signals.make 1`は、整数を保持する更新可能なSignalを作る計算です。`count <- ...`で成功値を取り出します。
+
+`signals.map (\n -> n * 2) count`は、`count`から2倍の値を得る派生Signalを作ります。`map`の関数は純粋な計算です。派生値を作るときに、出力や非同期処理をその関数へ入れません。
+
+## 読み取りもEffect
+
+`*doubled`は、現在値を読み取る`Task<Int>`です。整数そのものを返す純粋な参照ではないので、`first <- *doubled`と書きます。読み取った`first`は普通の不変の整数です。
+
+後からSignalが変わっても、すでに取得した`first`の値は変わりません。更新後の値が必要なら、再び読み取ります。Signalを通常の`let`の再代入や、常に変わり続ける整数そのものと混同しないでください。
+
+## 現在値に基づく更新
+
+`signals.update (\n -> n + 1) count`は、その時点の値を受け取り、新しい値を保存します。この更新はatomicです。
+
+値をそのまま指定する場合は`count := 2`と書けます。この演算子はMutableSignalだけに使えます。派生した`doubled`や普通の変数へは代入できません。現在値に依存する更新は、先に読んでから`:=`する二段階ではなく、`update`で表せます。
+
+## 複数の更新をtransactionにする
+
+幅と高さを同時に更新して、面積を計算する例です。
+
+{/* example: examples/learn/signal-transaction.ssrg */}
+```seseragi title="signal-transaction.ssrg"
+import * as signals from "std/signal"
+
+pub effect fn main = do {
+  width <- signals.make 3
+  height <- signals.make 4
+  let area =
+    signals.combine (*) width height
+  signals.transaction [
+    signals.planSet 5 width,
+    signals.planSet 6 height,
+  ]
+  current <- *area
+  current
+  |> show
+  |> println
+}
+```
+
+```text title="実行結果"
+30
+```
+
+`combine`は二つのSignalの値を`(*)`へ渡します。`(*)`は乗算を二引数の関数として参照した値です。依存するSignalを引数で明示しており、関数内の読み取りを自動追跡する方式ではありません。
+
+`planSet`は更新計画を作り、`transaction`がすべてを一度に公開します。派生値や購読先に、幅だけ変わった途中の組み合わせを見せません。transactionはSignalの更新をまとめる操作で、任意のI/Oをatomicにする仕組みではありません。
+
+## snapshotと購読を使い分ける
+
+一度の読み取りは、その時点のsnapshotです。二つのSignalを別々に読むと、読み取りの間に更新が入る可能性があります。同じ時点の組を使いたい場合は、`combine`などでまとめた派生Signalを一度だけ読みます。取得後の排他制御まで保証するものではありません。
+
+更新を継続的に受け取るには`subscribe`を明示します。成功時には現在値も一度通知されます。返されたSubscriptionは、不要になったら`unsubscribe`で解除します。派生値を作ったり一度読んだりするだけでは、購読は始まりません。
+
+同じ値の更新も既定では通知されます。重複を避けたい場合は`distinct`を使います。購読の寿命や失敗の扱いは[Signalリファレンス](/docs/reference/signals)、画面との接続は[状態とアクション](/docs/guides/state-and-actions)で扱います。
+
+## 更新と計算を変える
+
+最初の例の更新を`\n -> n + 3`へ変えると、最後の出力は`after: 8`です。派生関数を3倍へ変えると、元の1を足す更新では3から6へ変わります。
+
+`first`を最後にもう一度出力すると、更新後も2のままです。snapshotと派生Signalの違いを確かめてください。次は[型クラス](/docs/learn/type-classes)で、`map`のような操作が異なる型にも使える仕組みを学びます。

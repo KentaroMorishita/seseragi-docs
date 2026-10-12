@@ -1,0 +1,92 @@
+---
+title: "Signals"
+description: "Read and update changing state through Effects and explicitly compose derived values."
+---
+
+Ordinary values are immutable. For state that changes over time, create a `MutableSignal<A>` and read or update it through Effects. Derived values form read-only `Signal<A>` nodes.
+
+## Create a source and a derived value
+
+{/* example: examples/learn/signals.ssrg */}
+```seseragi title="signals.ssrg"
+import * as signals from "std/signal"
+
+pub effect fn main = do {
+  count <- signals.make 1
+  let doubled =
+    count
+    |> signals.map (\n -> n * 2)
+  first <- *doubled
+  println `before: ${first}`
+  signals.update (\n -> n + 1) count
+  second <- *doubled
+  println `after: ${second}`
+}
+```
+
+```text title="Output"
+before: 2
+after: 4
+```
+
+`signals.make 1` is a computation that creates a mutable integer Signal. `count <- ...` binds its success value.
+
+`signals.map (\n -> n * 2) count` creates a derived Signal that doubles `count`. The mapping function is pure. Do not put output or asynchronous work inside it.
+
+## Reading is an Effect too
+
+`*doubled` is a `Task<Int>` that reads the current value. It is not a pure integer dereference, so use `first <- *doubled`. The captured `first` is an ordinary immutable integer.
+
+A later Signal update does not change `first`. Read again when you need the updated value. A Signal is neither reassignment of an ordinary `let` binding nor a continuously changing integer value held in that binding.
+
+## Update from the current value
+
+`signals.update (\n -> n + 1) count` transforms the current value and stores the result atomically.
+
+To supply a replacement value directly, write `count := 2`. This operator accepts only MutableSignal targets, not derived Signals such as `doubled` or ordinary bindings. When an update depends on the current value, use `update` instead of separate read and set operations.
+
+## Commit several updates in a transaction
+
+This example updates width and height together and computes their area:
+
+{/* example: examples/learn/signal-transaction.ssrg */}
+```seseragi title="signal-transaction.ssrg"
+import * as signals from "std/signal"
+
+pub effect fn main = do {
+  width <- signals.make 3
+  height <- signals.make 4
+  let area =
+    signals.combine (*) width height
+  signals.transaction [
+    signals.planSet 5 width,
+    signals.planSet 6 height,
+  ]
+  current <- *area
+  current
+  |> show
+  |> println
+}
+```
+
+```text title="Output"
+30
+```
+
+`combine` supplies both Signal values to `(*)`, the multiplication operator referenced as a curried function value. Its dependencies are explicit arguments, not automatically tracked reads within the function.
+
+`planSet` constructs an update plan, and `transaction` publishes all plans in one commit. Derived values and subscribers do not observe a combination in which only the width has changed. A transaction groups Signal updates; it does not make arbitrary I/O atomic.
+
+## Choose a snapshot or a subscription
+
+One read captures the published value at that time. When reading two Signals separately, an update may occur between reads. For a consistent combination, create a derived Signal with `combine` or a similar operation and read that Signal once. The captured value does not provide a lock against later updates.
+
+Use `subscribe` explicitly to receive subsequent updates. A successful subscription also notifies its observer once with the current value. Release the returned Subscription with `unsubscribe` when it is no longer needed. Constructing a derived Signal or reading it once does not start a subscription.
+
+Setting the same value still notifies by default. Use `distinct` to suppress equal consecutive values. See the [Signal reference](/en/docs/reference/signals) for lifetime and failure rules, and [State and actions](/en/docs/guides/state-and-actions) for connecting state to a view.
+
+## Change the update and transformation
+
+Change the first example's update to `\n -> n + 3`; the final output becomes `after: 8`. Change the derived calculation to triple the value; the original increment then changes the result from 3 to 6.
+
+Print `first` again at the end. It remains 2 after the update. Check the difference between the captured snapshot and the derived Signal. Continue to [Type classes](/en/docs/learn/type-classes) to understand operations such as `map` across different types.

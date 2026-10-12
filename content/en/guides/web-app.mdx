@@ -1,0 +1,113 @@
+---
+title: Build a Web application
+description: Build an interactive counter using a pure update function and HTML.
+---
+
+Build a counter whose “Add one” button increments its value and whose “Reset” button returns it to 0. State is an `Int`, operations are `Action` values, and a view turns the state into HTML. `dom.app` connects the program to the DOM.
+
+The code uses [Functions and pipelines](/en/docs/learn/functions-and-pipelines), [Algebraic data types](/en/docs/learn/algebraic-data-types), and [Pattern matching](/en/docs/learn/pattern-matching) for its Action model. This guide introduces the HTML and event connection.
+
+## Create a project
+
+```sh
+seseragi new web counter
+cd counter
+```
+
+Replace `src/main.ssrg` with the code below. The generated `src/app.ssrg` is not imported by this entry point and does not participate in this example.
+
+Keep `entry = "main"` and `target = "web"` in `[run]` of `seseragi.toml`. Follow [Local development](/en/docs/learn/local-development) to install the CLI and Bun.
+
+## Write the complete counter
+
+{/* example: examples/guides/web-app/src/main.ssrg */}
+```seseragi title="src/main.ssrg"
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+
+type Action =
+  | Increment
+  | Reset
+
+alias View = html.Html<Action>
+
+fn update action: Action -> n: Int
+  -> Int =
+  match action {
+    Increment -> n + 1
+    Reset -> 0
+  }
+
+fn view count: Int -> View =
+  html.main {
+    style: html.style {
+      margin: "32px auto",
+      maxWidth: "32rem",
+      padding: "24px"
+    },
+    children: [
+      html.h1 { children: "Counter" },
+      html.p {
+        children: `Count: ${count}`
+      },
+      html.button {
+        buttonType: "button",
+        onClick: Increment,
+        children: "Add one"
+      },
+      html.button {
+        buttonType: "button",
+        onClick: Reset,
+        children: "Reset"
+      }
+    ]
+  }
+
+pub effect fn main =
+  dom.app {
+    target: "#app",
+    initial: 0,
+    update,
+    view
+  }
+```
+
+`Increment` and `Reset` express an operation's intent. `update` returns the next count from the current count and Action without touching the DOM. `view` is also pure: it returns `Html<Action>` for the current count.
+
+`onClick: Increment` supplies the Action to dispatch when clicked. It does not perform a DOM operation or run an event Effect while creating the tree.
+
+## Operate the development server
+
+Update the lock after changing the entry, then start development:
+
+```sh
+seseragi lock update
+seseragi dev --open
+```
+
+The default URL is `http://127.0.0.1:3000/`. The initial text is “Count: 0”. Click “Add one” twice for “Count: 2”, then “Reset” for “Count: 0”.
+
+Saving causes a rebuild and page reload, so the counter starts from 0 again. This program does not persist state.
+
+## Understand state and DOM ownership
+
+`dom.app` creates one `MutableSignal` from the initial value and maps `view` over it. It applies `update` for each Action and publishes the resulting view to the DOM. It is an ordinary standard-library function that manages Signal creation, target lookup, subscriptions, and dispatch.
+
+Events are processed in their observed order. Ending the DOM runtime releases its listeners and subscriptions. See [Web UI Reference](/en/docs/reference/web-ui) for the lifecycle contract.
+
+## Style and build
+
+Pass a style built with `html.style` to the `style` prop. This example uses `maxWidth`, `margin`, and `padding` to limit width, center the content, and add padding. The prop for CSS class names is `class`.
+
+Stop the development server with `Ctrl-C`. Update the lock for the edited source and build:
+
+```sh
+seseragi lock update
+seseragi build .
+```
+
+The `dist/` directory contains `index.html`, JavaScript, CSS, and other assets. Serve it over HTTP or static hosting rather than opening its HTML directly through `file://`.
+
+## Add another capability
+
+Use [State and Actions](/en/docs/guides/state-and-actions) to verify update rules independently. Continue with [Forms](/en/docs/guides/forms) for text input, or [Stateful features](/en/docs/guides/stateful-features) to compose independent counters.

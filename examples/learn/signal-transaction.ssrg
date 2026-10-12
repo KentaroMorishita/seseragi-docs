@@ -1,0 +1,16 @@
+import * as signals from "std/signal"
+
+pub effect fn main = do {
+  width <- signals.make 3
+  height <- signals.make 4
+  let area =
+    signals.combine (*) width height
+  signals.transaction [
+    signals.planSet 5 width,
+    signals.planSet 6 height,
+  ]
+  current <- *area
+  current
+  |> show
+  |> println
+}

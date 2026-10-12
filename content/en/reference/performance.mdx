@@ -1,0 +1,86 @@
+---
+title: "Performance"
+description: "Check collection complexity, recursion, closures, Effects, release profiles, and measurement boundaries."
+---
+
+Separate semantic guarantees, abstractions eligible for erasure, and backend optimization quality. An erasable structure does not guarantee automatic fusion or the fastest possible JavaScript for every program.
+
+## Costs visible in source
+
+| Operation or structure | Work to expect |
+| --- | --- |
+| Aliases, type arguments, pipeline, `$` | No dedicated runtime object required |
+| Lambdas and partial application | Closures retaining needed captures |
+| Trait constraints | Compile-time selection; dictionaries may remain at generic boundaries |
+| map/filter/reduce, Show, JSON, SSR | Work proportional to input, output, or stopping point |
+| Effect, Stream, Signal, DOM mounts | Queues, scheduling, subscriptions, and cleanup |
+| Foreign conversion | Safety checks and snapshot copies |
+
+Function identity and host-object layouts are unobservable. A backend may change representations while preserving values, evaluation order, failures, cancellation, resources, and the foreign ABI.
+
+## Array and List
+
+Array is immutable and contiguous; List is a persistent linked list. List cons and tail access take constant time. An Array pattern rest constructs the remainder, so repeatedly recursing through `[head, ...tail]` takes quadratic total work.
+
+Use collection operations such as reduce/reduceUntil for large Arrays. Early termination does not evaluate callbacks beyond its stopping point. Count Array/List conversions and foreign snapshot copies as costs too.
+
+map/filter results are strict. Fusion may be valid when the intermediate collection is unobserved and callback counts, order, and defects stay the same, but the current backend does not promise fusion of every pipeline.
+
+## Recursion and stack use
+
+Fully applied direct self tail calls in pure named functions use a constant host stack. This example updates arguments without leaving work after the recursive result.
+
+{/* example: examples/reference/performance.ssrg */}
+
+```seseragi title="performance.ssrg"
+fn sum total: Int
+  -> next: Int -> Int =
+  if next == 0 then
+    total
+  else
+    sum (total + next) (next - 1)
+
+pub effect fn main =
+  sum 0 100
+  |> show
+  |> println
+```
+
+It was checked to print 5050 in development and release. Tail position includes final expressions and final if/match branches. The guarantee does not cover mutual recursion, partially applied self calls, calls inside lambdas, or non-tail calls such as `1 + recursiveCall`.
+
+Effect tail recursion continues through Effect execution, not a synchronous pure loop. Long standard bind chains and sequential traversals also have a contract against stack growth proportional to input size.
+
+## Effects, Signals, and DOM
+
+The compiler does not automatically parallelize sequential Effects or move work across resource and cancellation boundaries. Subscriptions and listeners are released by scopes rather than left to garbage collection.
+
+A Signal transaction recomputes each affected derived node at most once and notifies only after stabilization. DOM updates may explicitly target static content, reactive leaves, or structural regions; whole-tree regeneration is not the only model.
+
+There is no guarantee of globally minimal DOM edits, complete closure elimination, or specialization of every generic. Allocation counts alone do not justify shortening required input retention or subscription lifetimes.
+
+## Release artifacts
+
+```bash
+seseragi build . --profile release
+seseragi build . --source-map emit
+```
+
+Profiles preserve language semantics. Current first-party process releases produce entry.js including runtime code; Web produces assets/app.js. Process projects with foreign hosts retain staging paths, so not every build becomes one standalone file.
+
+artifact-manifest.json records the actual entry, compiler/runtime/bundler versions, file sizes/digests, source-map policy, and completed bundle/retention analyses. An unperformed size or analysis is null, distinct from a completed zero-byte result.
+
+Current first-party release bundles perform minification and reachability analysis. Compiler declaration inventories and code retained in the final bundle are distinct. Costs of reachable provider bootstraps and timezone data remain real; do not hide them behind a tree-shaking claim.
+
+## Measurement and comparison
+
+Define cases with std/benchmark; seseragi benchmark manages warmups, samples, and baselines. Match input sizes, compiler/runtime/host versions, profile, and seed, then compare time, allocations, or throughput while preserving meaning.
+
+```bash
+seseragi benchmark . --target node \
+  --warmup 10 --samples 50 \
+  --minimum-sample-ms 100
+```
+
+Recompute the operation inside each benchmark execution. Use blackBox where needed to pass inputs/results across an observation boundary. Avoid timing only retrieval of a result computed once beforehand. A baseline comparison alone does not prove preservation of typed failures or resource cleanup.
+
+See the [Standard library](/en/docs/reference/library) for operation costs and [Testing](/en/docs/guides/testing) for case construction.

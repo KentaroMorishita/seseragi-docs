@@ -1,0 +1,8 @@
+fn identity<A> value: A -> A =
+  value
+
+pub effect fn main = do {
+  let number = identity 42
+  let text = identity "ready"
+  println `${number}: ${text}`
+}

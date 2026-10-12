@@ -1,0 +1,18 @@
+struct Point {
+  x: Int,
+  y: Int,
+}
+
+fn moveX amount: Int
+  -> point: Point -> Point =
+  Point {
+    ...point,
+    x: point.x + amount,
+  }
+
+pub effect fn main = do {
+  let start = Point { x: 1, y: 2 }
+  let moved = moveX 3 start
+  println `${start.x}, ${start.y}`
+  println `${moved.x}, ${moved.y}`
+}

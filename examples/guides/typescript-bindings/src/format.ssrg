@@ -1,0 +1,6 @@
+pub foreign "typescript"
+from "../host/format.ts" {
+  pure fn bracket value: String
+    -> String
+  task fn loadLabel -> String
+}

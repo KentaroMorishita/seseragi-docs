@@ -1,0 +1,7 @@
+import { Published, title }
+  from "./labels"
+
+pub effect fn main =
+  Published "Seseragi"
+  |> title
+  |> println

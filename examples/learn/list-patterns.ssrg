@@ -1,0 +1,12 @@
+fn total values: List<Int> -> Int =
+  match values {
+    `[] -> 0
+    `[head, ...tail] ->
+      head + total tail
+  }
+
+pub effect fn main =
+  1 : `[2, 3]
+  |> total
+  |> show
+  |> println

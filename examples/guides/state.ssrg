@@ -1,0 +1,22 @@
+type Action =
+  | Increment
+  | Reset
+
+fn update action: Action -> n: Int
+  -> Int =
+  match action {
+    Increment -> n + 1
+    Reset -> 0
+  }
+
+pub effect fn main = do {
+  0
+  |> update Increment
+  |> update Increment
+  |> show
+  |> println
+  5
+  |> update Reset
+  |> show
+  |> println
+}

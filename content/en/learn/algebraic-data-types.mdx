@@ -1,0 +1,78 @@
+---
+title: "Algebraic data types"
+description: "Describe possible states as cases and attach the data each case needs."
+---
+
+[Records and structs](/en/docs/learn/records-and-structs) grouped values together. This chapter uses a light that can be red or green to define a set of possible states as one type. Examine type declarations and value syntax in separate steps.
+
+## Define a type by listing cases
+
+A `type` declaration lists cases separated by `|`. A type that chooses one of several cases is an algebraic data type, or ADT. This syntax example declares a type with two cases:
+
+```text title="Type declaration syntax"
+type Light =
+  | Red
+  | Green
+```
+
+Both `Red` and `Green` are values of `Light`. One value cannot be both cases at once. You also cannot use `Yellow` as a value of `Light` when it is absent from this declaration.
+
+A struct in the previous chapter holds several fields together; this type selects one of several cases.
+
+## Use a case without data
+
+`Red` and `Green` have no additional data, so the case name alone is a value. With the declaration above, you can write these bindings inside a block such as `main`. This is a syntax example:
+
+```text title="Value binding syntax"
+let red: Light = Red
+let green: Light = Green
+```
+
+The values belong to different cases, but both have type `Light`. These fragments show how to define a type and construct values; they are not programs that print output. The next chapter creates a function that returns text for each case.
+
+## Attach data to a case
+
+Next, define a measurement result. An unmeasured state holds no extra data; a measured state holds one integer.
+
+```text title="Type declaration with payloads"
+type Reading =
+  | NoReading
+  | Measured Int
+```
+
+`NoReading` is already a value of `Reading`. `Measured` is a constructor that accepts one integer; supplying the data completes a value of `Reading`. Data attached to a case is called its payload.
+
+```text title="Value binding syntax"
+let absent: Reading = NoReading
+let measured: Reading = Measured 23
+```
+
+`Measured "warm"` fails because it supplies a string where an integer is required. `Measured` alone is still a function waiting for an integer, rather than a completed value of `Reading`.
+
+## Cases that hold several values
+
+A case can hold several values by using one tuple as its payload. In this fragment, a rectangle holds width and height:
+
+```text title="Type declaration with a tuple"
+type Shape =
+  | Circle Int
+  | Rectangle (Int, Int)
+```
+
+Construct a value with `Rectangle (3, 4)`. The tuple `(3, 4)` groups two integers into one value, and that tuple is the constructor's single argument. `Rectangle 3 4` does not work as a two-argument call.
+
+When field names help distinguish the data, group it into a struct as in the previous chapter, then use the struct as a case's payload. The ADT selects a state; the struct defines the values held together.
+
+## Type names and input conditions
+
+ADTs are distinguished by their declared names. Another type with the same case names and shapes does not convert implicitly to this one. Define required conversions with functions.
+
+A type specifies the payload's type without validating every condition on its value. This `Reading` accepts both 23 and −1 as a `Measured` payload. A construction function can validate conditions such as the allowed measurement range.
+
+## Continue to case-specific behavior
+
+So far, you have defined the values that can be constructed. Use `match` when a function needs to distinguish cases and extract their payloads. The next chapter, [Pattern matching](/en/docs/learn/pattern-matching), introduces that syntax.
+
+Adding `Yellow` to the `Light` declaration makes `Yellow` another value of `Light`. Replacing `Measured 23` with `NoReading` still produces a `Reading`. Check the choice of case separately from the payload's type.
+
+See the [data types reference](/en/docs/reference/data-types) to look up declarations. Next, [Pattern matching](/en/docs/learn/pattern-matching) starts with the two values of `Bool`, then extracts the payload of `Reading`.

@@ -1,0 +1,270 @@
+---
+title: "std/stdin"
+description: "Read process standard input with typed EOF and failures."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process |
+| Capability identities | `std/prelude::Stdin` |
+
+## Import
+
+```seseragi
+import * as stdin from "std/stdin"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `LineLimit`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+LineLimit
+```
+
+### `ReadSize`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+ReadSize
+```
+
+### `Stdin`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Stdin
+```
+
+### `StdinConfigError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+StdinConfigError
+```
+
+### `StdinError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+StdinError
+```
+
+## Constructors and values
+
+### `ConcurrentStdinRead`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ConcurrentStdinRead
+  StdinError
+```
+
+### `InvalidStdinUtf8`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidStdinUtf8
+  { offset: Int }
+  -> StdinError
+```
+
+### `LineLimitTooLarge`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LineLimitTooLarge
+  Int
+  -> StdinConfigError
+```
+
+### `NonPositiveLineLimit`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NonPositiveLineLimit
+  Int
+  -> StdinConfigError
+```
+
+### `NonPositiveReadSize`
+
+<small className="api-kind">Constructor</small>
+
+```text
+NonPositiveReadSize
+  Int
+  -> StdinConfigError
+```
+
+### `ReadSizeTooLarge`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ReadSizeTooLarge
+  Int
+  -> StdinConfigError
+```
+
+### `StdinLineTooLong`
+
+<small className="api-kind">Constructor</small>
+
+```text
+StdinLineTooLong
+  { limitBytes: Int }
+  -> StdinError
+```
+
+### `StdinPositionOverflow`
+
+<small className="api-kind">Constructor</small>
+
+```text
+StdinPositionOverflow
+  StdinError
+```
+
+### `StdinReadFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+StdinReadFailure
+  StdinError
+```
+
+### `StdinUnavailable`
+
+<small className="api-kind">Constructor</small>
+
+```text
+StdinUnavailable
+  StdinError
+```
+
+## Functions and operators
+
+### `defaultLineLimit`
+
+<small className="api-kind">Function</small>
+
+```text
+defaultLineLimit
+  Unit
+  -> LineLimit
+```
+
+### `defaultReadSize`
+
+<small className="api-kind">Function</small>
+
+```text
+defaultReadSize
+  Unit
+  -> ReadSize
+```
+
+### `lineLimit`
+
+<small className="api-kind">Function</small>
+
+```text
+lineLimit
+  Int
+  -> Either<
+       StdinConfigError,
+       LineLimit
+     >
+```
+
+### `lines`
+
+<small className="api-kind">Function</small>
+
+```text
+lines
+  LineLimit
+  -> Stream<
+       { stdin: Stdin },
+       StdinError,
+       String
+     >
+```
+
+### `readChunk`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+readChunk
+  ReadSize
+  -> Effect<
+       { stdin: Stdin },
+       StdinError,
+       Maybe<Bytes>
+     >
+```
+
+### `readLine`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+readLine
+  Unit
+  -> Effect<
+       { stdin: Stdin },
+       StdinError,
+       Maybe<String>
+     >
+```
+
+### `readLineWith`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+readLineWith
+  LineLimit
+  -> Effect<
+       { stdin: Stdin },
+       StdinError,
+       Maybe<String>
+     >
+```
+
+### `readSize`
+
+<small className="api-kind">Function</small>
+
+```text
+readSize
+  Int
+  -> Either<
+       StdinConfigError,
+       ReadSize
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

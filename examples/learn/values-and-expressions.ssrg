@@ -1,0 +1,4 @@
+pub effect fn main = {
+  let message = "Hello, Seseragi"
+  println message
+}

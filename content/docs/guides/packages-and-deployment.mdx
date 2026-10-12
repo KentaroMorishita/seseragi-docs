@@ -1,0 +1,135 @@
+---
+title: パッケージと配布
+description: 公開APIと実行入口を分け、processとwebの成果物を配布する。
+---
+
+送料の計算を小さなライブラリへ分け、別のアプリから使います。ファイルを増やすだけでなく、公開するモジュールと依存の入口を`seseragi.toml`で決めます。後半ではprocessアプリとWebアプリの配布の違いを扱います。
+
+`import`と`pub`は[モジュール](/docs/learn/modules)の構文です。CLIとBunの準備は[ローカルで使う](/docs/learn/local-development)を参照してください。
+
+## 二つのパッケージを作る
+
+次の構成を作ってください。`shipping/`はライブラリ、`app/`は実行するアプリです。
+
+```text
+shop/
+  shipping/
+    seseragi.toml
+    src/
+      shipping.ssrg
+  app/
+    seseragi.toml
+    src/
+      main.ssrg
+```
+
+ディレクトリの親に共通のmanifestは必要ありません。それぞれの`seseragi.toml`がパッケージのルートです。
+
+## ライブラリの公開入口を決める
+
+```toml title="shipping/seseragi.toml"
+[package]
+name = "docs/shipping"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[exports]
+"." = "shipping"
+```
+
+{/* example: examples/guides/packages/shipping/src/shipping.ssrg */}
+```seseragi title="shipping/src/shipping.ssrg"
+pub fn fee subtotal: Int -> Int =
+  if subtotal >= 3000 then 0 else 400
+```
+
+`pub`が関数を公開し、`[exports]`が外部から使えるモジュールの入口を決めます。公開mapにない内部モジュールは、外部のパッケージからパスを指定してもimportできません。
+
+## アプリからpath依存を使う
+
+```toml title="app/seseragi.toml"
+[package]
+name = "docs/shop"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[run]
+entry = "main"
+target = "process"
+
+[dependencies.shipping]
+package = "docs/shipping"
+path = "../shipping"
+```
+
+{/* example: examples/guides/packages/app/src/main.ssrg */}
+```seseragi title="app/src/main.ssrg"
+import { fee } from "shipping"
+
+pub effect fn main =
+  fee 2999
+  |> show
+  |> println
+```
+
+`shipping`はソースで使うimportの名前です。実際のパッケージ名`docs/shipping`と、manifestから見た相対パス`../shipping`を明示しています。importで別パッケージの`src/`を直接指定しません。
+
+## ロックして実行する
+
+`shop/`で実行してください。
+
+```sh
+seseragi lock update app
+seseragi run app
+```
+
+```text
+400
+```
+
+`app/seseragi.lock`は依存の正確なidentityと内容、ツールチェーンのデータ、必要なProviderの選択を固定します。manifestや依存のソースを変えた場合は、意図した変更を確認してロックを明示的に更新します。
+
+通常の`run`や`build`が自動でロックを更新することはありません。古いロックでは`SES-K0102`で止まります。manifestとロックを一緒にバージョン管理してください。
+
+## processの成果物を動かす
+
+```sh
+cd app
+seseragi build . --profile release
+bun dist/entry.js
+```
+
+ビルド後の実行も400を出力します。releaseの成果物では、生成されたJavaScriptとランタイムが`entry.js`へまとめられます。このprocessアプリはBunで実行します。`seseragi build`がOS向けの単独ネイティブ実行ファイルを作る手順ではありません。
+
+HTTPサーバーなどprocessのサービスを使うアプリも、静的Webサイトとは別の配布対象になります。必要なサービスは[Runtime Providers](/docs/reference/runtime-providers)で確認できます。
+
+## Webの成果物を配信する
+
+[Webアプリを作る](/docs/guides/web-app)の`counter/`では、次のビルドを使います。
+
+```sh
+seseragi lock update
+seseragi build . --profile release
+```
+
+`dist/`に`index.html`とブラウザー向けのJavaScript、CSSが生成されます。このディレクトリを静的ホスティングへ配信できます。公開されたページの表示にSeseragi CLIやコンパイラーのリポジトリは必要ありません。
+
+Vercel CLIを導入してログイン済みなら、ビルド済みのディレクトリを指定して公開できます。
+
+```sh
+vercel deploy dist --prod
+```
+
+静的サイト用のプロジェクトを選び、追加のビルドを行わない設定で配信します。`--prod`は本番ドメインへの公開を指定します。コマンドと公開設定は[Vercel CLIの公式ドキュメント](https://vercel.com/docs/cli/deploy)で確認できます。
+
+## HTMLと公開ファイルを加える
+
+独自のtitleやfaviconは、`[web]`の`index`と`public`で指定できます。HTMLの`head`に`<!-- seseragi:head -->`、`body`に`<!-- seseragi:entry -->`を一つずつ置き、DOMの接続先`<div id="app"></div>`を用意します。
+
+静的ファイルを追加したり変えたりした場合も、通常ビルドの前にロックを更新します。生成された`dist/`を手で編集する運用にはしません。設定とパスの契約は[Project configuration](/docs/reference/project-configuration)にあります。
+
+## 公開する範囲を確認する
+
+path依存はローカル開発用です。レジストリーへ公開するmanifestへpath依存を残すことはできません。現在のCLIにはパッケージの`publish`コマンドがないため、このガイドはローカルのパッケージ分割とアプリ成果物の配布を扱っています。
+
+公開入口を変更したら、[テスト](/docs/guides/testing)で外部からのimportが通るか確認できます。生成bindingを公開したい場合は、[TypeScriptとの接続](/docs/guides/typescript-bindings)の手書きadapterを公開入口に置きます。

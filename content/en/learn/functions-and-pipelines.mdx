@@ -1,0 +1,117 @@
+---
+title: "Functions and pipelines"
+description: "Compose calculations using function application, partial application, and lambdas."
+---
+
+Start by declaring and calling a function that adds two integers. Then learn to supply some of its arguments and combine functions in a pipeline.
+
+## Declare and apply a function
+
+A function declaration has the form `fn name parameter: Type -> ResultType = body`. Join multiple parameters with `->`. This fragment shows the declaration shape:
+
+```text
+fn add x: Int -> y: Int -> Int =
+  x + y
+```
+
+Supply 20 and 22 to `add` as follows:
+
+```text title="Application expression"
+add 20 22
+```
+
+The two arguments follow the function name, separated by spaces. This expression returns 42.
+
+Put the declaration and call together in a complete program:
+
+{/* example: examples/learn/function-application.ssrg */}
+```seseragi title="function-application.ssrg"
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+pub effect fn main = {
+  let answer = add 20 22
+  println `answer: ${answer}`
+}
+```
+
+```text title="Output"
+answer: 42
+```
+
+`add` is an ordinary function that returns the calculation result. `main` binds that result to `answer` and displays it using the string template introduced in the previous chapter.
+
+## Supply some arguments
+
+`add` has type `Int -> Int -> Int`. Function types associate to the right, so read this as `Int -> (Int -> Int)`. `add 1` is a function waiting for one more integer.
+
+`let increment = add 1` binds a function that adds 1 to its input. No remaining argument is evaluated at this point. Calling `increment 20` gives 21, just like `add 1 20`. Partial application constructs a function value with some arguments already supplied.
+
+## Put the calculation in reading order
+
+{/* example: examples/learn/functions-and-pipelines.ssrg */}
+```seseragi title="functions-and-pipelines.ssrg"
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+fn double x: Int -> Int =
+  x * 2
+
+pub effect fn main = {
+  let increment = add 1
+  20
+  |> increment
+  |> double
+  |> show
+  |> println
+}
+```
+
+```text title="Output"
+42
+```
+
+The value `20` goes through `increment` to produce 21, then through `double` to produce 42. `show` converts the integer to a `String`; `println` constructs an Effect that prints that string. `println` accepts a string.
+
+`value |> f` is the same application as `f value`. The pipeline operator does not add asynchronous execution or laziness. `20 |> add 1` supplies 20 to the function `add 1`; it does not automatically fill an arbitrary parameter position.
+
+## Group an expression used as an argument
+
+When an argument is a calculation, parentheses can group that expression. This fragment uses `20 + 1` as the first argument:
+
+```text
+add (20 + 1) 22
+```
+
+The grouped expression returns 21. `add` receives 21 and 22, then returns 43. Parentheses mark the extent of one expression; they do not introduce an argument-list call such as `add(20, 22)`.
+
+Use the same grouping to pass another function's result:
+
+```text
+double (add 20 1)
+```
+
+`add 20 1` returns 21, which becomes the single argument to `double`, producing 42. This nests expressions in the same order as the previous pipeline.
+
+## Pass a function as an argument
+
+A lambda creates a function without giving it a name. These expressions describe the same doubling behavior:
+
+```text
+double
+\x: Int -> x * 2
+```
+
+When the surrounding context determines the parameter type, write `\x -> x * 2`. For two parameters, use `\x y -> x + y`. [Arrays and lists](/en/docs/learn/arrays-and-lists) passes such functions to `map` and `filter`.
+
+## Understand what application evaluates
+
+Ordinary function arguments are evaluated once, from left to right. Applying a function to another value does not modify an outer `let` binding.
+
+`add` and `double` return ordinary values. `println` returns a computation that performs output, so `main` is an `effect fn`. Piping a value into a function does not itself execute an Effect. [Effects](/en/docs/learn/effects) explains the execution boundary.
+
+## Change the composition
+
+Change `let increment = add 1` to `let increment = add 2`; the result becomes 44. Then swap `double` and `increment`. With the original increment of 1, the result becomes 41. Check how ordering the functions changes the calculation.
+
+Continue to [Records and structs](/en/docs/learn/records-and-structs) to group several values into one input. The [function reference](/en/docs/reference/functions) covers declarations and application in detail.

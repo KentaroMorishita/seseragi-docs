@@ -1,0 +1,111 @@
+---
+title: "Data types"
+description: "Check declarations and value rules for ADTs, structs, records, newtypes, tuples, and collections."
+---
+
+Data is immutable after construction. An update creates a new value. Use an ADT for distinct states, a struct for a named set of fields, a record for structural field compatibility, and a newtype to distinguish meanings that share a representation.
+
+## ADTs and constructors
+
+An ADT is a nominal type with finitely many variants. A constructor without a payload is a value; one with a payload is a function. Multiple payloads are represented by one tuple.
+
+This example prints `Read the docs`. `TicketId`, `Ticket`, and `Status` express separate roles.
+
+{/* example: examples/reference/data-types.ssrg */}
+
+```seseragi title="data-types.ssrg"
+newtype TicketId deriving Eq, Show =
+  Int
+
+struct Ticket {
+  id: TicketId,
+  title: String,
+}
+
+type Status =
+  | Open Ticket
+  | Closed TicketId
+
+fn summary status: Status -> String =
+  match status {
+    Open ticket -> ticket.title
+    Closed id -> `Closed ${id}`
+  }
+
+pub effect fn main =
+  Open (Ticket {
+    id: TicketId 1,
+    title: "Read the docs",
+  })
+  |> summary
+  |> println
+```
+
+`Closed (TicketId 1)` is also a `Status`, but is not interchangeable with an `Int` or a `Ticket`. Generic ADT constructors quantify every type parameter and infer arguments from payloads, expected types, or explicit arguments. See [Patterns](/en/docs/reference/patterns) for extracting payloads.
+
+## Structs and updates
+
+Constructing a struct requires every field. A same-named variable may use field shorthand. An update places exactly one spread of the same struct type first, followed by replacement fields.
+
+```text title="Construction syntax"
+Ticket {
+  id,
+  title: "Read the docs",
+}
+Ticket {
+  ...ticket,
+  title: "Write tests",
+}
+```
+
+The spread expression is evaluated once first; explicit fields are then evaluated once in source order. Duplicate explicit fields, multiple spreads, and a spread after another field are errors. Updating a generic struct cannot change its type arguments.
+
+Fields of a regular public struct are public too. See [Modules](/en/docs/reference/modules) for hiding representation with `opaque`.
+
+## Records and optional fields
+
+Records are unnamed structural types. Multiple spreads are applied in source order, with later spreads and explicit fields replacing earlier values. Changing a field type creates a new record type. Duplicate explicitly written field names are errors.
+
+```text title="Record syntax"
+{ name: "Aki", age: 30 }
+{ ...profile, age: profile.age + 1 }
+{ name, }
+```
+
+A single shorthand field requires the comma in `{ name, }`. Without it, `{ name }` is a block. `{}` is an empty record.
+
+In `{ id?: String, children: String }`, `id` may be absent. An omitted field is not filled with a runtime `Nothing` property. Access returns `Just value` when present and `Nothing` when absent. Spreading preserves presence too.
+
+## Newtypes and aliases
+
+`newtype UserId = Int` creates a type distinct from `Int`. Wrap with `UserId 42` and unwrap with a constructor pattern. There is no implicit wrapping or unwrapping, field access, or record spread.
+
+`alias UserId = Int` only adds another name for `Int`. Aliases may be generic, but direct or indirect alias cycles are rejected. Recursive newtype definitions are rejected too.
+
+## Tuples, arrays, lists, and ranges
+
+| Value | Type or rule |
+| --- | --- |
+| `("answer", 42)` | `(String, Int)`, a fixed-length tuple |
+| `[1, 2, 3]` | `Array<Int>`, an immutable contiguous sequence |
+| `` `[1, 2, 3] `` | `List<Int>`, a persistent linked sequence |
+| `` 1 : `[2, 3] `` | Right-associative List cons |
+| `1..4` | `Range<Int>` excluding its endpoint |
+| `1..=4` | `Range<Int>` including its endpoint |
+
+There are no one-element tuples. Collection elements share one type. Empty collections need an expected element type or annotation. Array and List do not implicitly convert.
+
+`array[index]` returns `Maybe<A>`. The index is `Int`; negative and out-of-bounds indices return `Nothing`. List has no indexing syntax. A range steps by one and is empty if its start exceeds its end.
+
+## Comprehensions
+
+These fragments illustrate comprehension syntax:
+
+```text title="Comprehension syntax"
+[n * n | n <- 1..=6, n % 2 == 0]
+`[name | Just name <- optionalNames]
+```
+
+Generators and Boolean guards run from left to right. With multiple generators, the leftmost is the outer traversal. Each source needs an `Iterable` instance, independently of whether the result is Array or List. A generator pattern filters out nonmatching elements. Comprehensions are pure: an Effect cannot be a generator source to execute.
+
+See the [Standard library](/en/docs/reference/library) for collection operations and [Performance](/en/docs/reference/performance) for traversal costs.

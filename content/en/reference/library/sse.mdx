@@ -1,0 +1,347 @@
+---
+title: "std/sse"
+description: "Encode and decode Server-Sent Events and use HTTP streams."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as sse from "std/sse"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `DecodeLimit`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+DecodeLimit
+```
+
+### `Event`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Event
+```
+
+### `SseBuildError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+SseBuildError
+```
+
+### `SseParseError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+SseParseError
+```
+
+## Constructors and values
+
+### `InvalidSseComment`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidSseComment
+  String
+  -> SseBuildError
+```
+
+### `InvalidSseDecodeLimit`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidSseDecodeLimit
+  Int
+  -> SseBuildError
+```
+
+### `InvalidSseEventId`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidSseEventId
+  String
+  -> SseBuildError
+```
+
+### `InvalidSseEventName`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidSseEventName
+  String
+  -> SseBuildError
+```
+
+### `InvalidSseRetryMillis`
+
+<small className="api-kind">Constructor</small>
+
+```text
+InvalidSseRetryMillis
+  Int
+  -> SseBuildError
+```
+
+### `SseEventTooLarge`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SseEventTooLarge
+  Int
+  -> SseParseError
+```
+
+### `SseInvalidContentType`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SseInvalidContentType
+  String
+  -> SseParseError
+```
+
+### `SseInvalidUtf8`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SseInvalidUtf8
+  SseParseError
+```
+
+### `SseMalformedHttpEvents`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SseMalformedHttpEvents
+  String
+  -> SseParseError
+```
+
+### `SseMalformedId`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SseMalformedId
+  SseParseError
+```
+
+### `SseMalformedRetry`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SseMalformedRetry
+  String
+  -> SseParseError
+```
+
+### `SseUnexpectedStatus`
+
+<small className="api-kind">Constructor</small>
+
+```text
+SseUnexpectedStatus
+  Int
+  -> SseParseError
+```
+
+## Functions and operators
+
+### `decodeLimit`
+
+<small className="api-kind">Function</small>
+
+```text
+decodeLimit
+  Int
+  -> Either<
+       SseBuildError,
+       DecodeLimit
+     >
+```
+
+### `defaultDecodeLimit`
+
+<small className="api-kind">Function</small>
+
+```text
+defaultDecodeLimit
+  Unit
+  -> DecodeLimit
+```
+
+### `encode`
+
+<small className="api-kind">Function</small>
+
+```text
+encode
+  Event
+  -> Bytes
+```
+
+### `event`
+
+<small className="api-kind">Function</small>
+
+```text
+event
+  String
+  -> Event
+```
+
+### `eventData`
+
+<small className="api-kind">Function</small>
+
+```text
+eventData
+  Event
+  -> String
+```
+
+### `eventId`
+
+<small className="api-kind">Function</small>
+
+```text
+eventId
+  Event
+  -> Maybe<String>
+```
+
+### `eventName`
+
+<small className="api-kind">Function</small>
+
+```text
+eventName
+  Event
+  -> Maybe<String>
+```
+
+### `eventRetryMillis`
+
+<small className="api-kind">Function</small>
+
+```text
+eventRetryMillis
+  Event
+  -> Maybe<Int>
+```
+
+### `events`
+
+<small className="api-kind">Function</small>
+
+```text
+events<R, E>
+  DecodeLimit
+  -> Stream<R, E, HttpEvent>
+  -> Stream<
+       R,
+       Either<E, SseParseError>,
+       Event
+     >
+```
+
+### `keepAlive`
+
+<small className="api-kind">Function</small>
+
+```text
+keepAlive
+  String
+  -> Either<SseBuildError, Bytes>
+```
+
+### `response`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+response<R>
+  Array<HttpHeader>
+  -> Stream<R, Never, Event>
+  -> Effect<
+       R,
+       Never,
+       HttpServerResponse
+     >
+```
+
+### `withEventName`
+
+<small className="api-kind">Function</small>
+
+```text
+withEventName
+  String
+  -> Event
+  -> Either<SseBuildError, Event>
+```
+
+### `withId`
+
+<small className="api-kind">Function</small>
+
+```text
+withId
+  String
+  -> Event
+  -> Either<SseBuildError, Event>
+```
+
+### `withLastEventId`
+
+<small className="api-kind">Function</small>
+
+```text
+withLastEventId
+  String
+  -> Request
+  -> Either<SseBuildError, Request>
+```
+
+### `withRetryMillis`
+
+<small className="api-kind">Function</small>
+
+```text
+withRetryMillis
+  Int
+  -> Event
+  -> Either<SseBuildError, Event>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)

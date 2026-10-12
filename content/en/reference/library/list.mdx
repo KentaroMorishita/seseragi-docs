@@ -1,0 +1,438 @@
+---
+title: "std/list"
+description: "Traverse and transform persistent Lists. Array conversions preserve source order."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as list from "std/list"
+```
+
+## Example
+
+{/* example: examples/library/list.ssrg */}
+
+```seseragi
+import * as lists from "std/list"
+
+pub effect fn main =
+  `[10, 20, 30]
+  |> lists.toArray
+  |> show
+  |> println
+```
+
+Output:
+
+```text
+[10, 20, 30]
+```
+
+## Choosing operations
+
+- Choose List when building by prepending. Cons and tail take O(1) and may share an existing tail.
+- length, get, last, and init require linear traversal. Consider Array for repeated indexed access.
+- append suffix values places suffix after values and takes work proportional to values. Repeated appends accumulate that cost.
+- Conversion to Array copies elements in order. List results are strict too; List is not a lazy infinite sequence.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Functions and operators
+
+### `append`
+
+<small className="api-kind">Function</small>
+
+Appends the suffix after the collection values.
+
+```text
+append<A>
+  List<A>
+  -> List<A>
+  -> List<A>
+```
+
+### `chunksOf`
+
+<small className="api-kind">Function</small>
+
+```text
+chunksOf<A>
+  Int
+  -> List<A>
+  -> Either<
+       SizeError,
+       List<List<A>>
+     >
+```
+
+### `concat`
+
+<small className="api-kind">Function</small>
+
+Flattens one level of nested collections in source order.
+
+```text
+concat<A>
+  List<List<A>>
+  -> List<A>
+```
+
+### `drop`
+
+<small className="api-kind">Function</small>
+
+Returns the elements after skipping the requested leading count.
+
+```text
+drop<A>
+  Int
+  -> List<A>
+  -> List<A>
+```
+
+### `dropWhile`
+
+<small className="api-kind">Function</small>
+
+```text
+dropWhile<A>
+  (A -> Bool)
+  -> List<A>
+  -> List<A>
+```
+
+### `empty`
+
+<small className="api-kind">Function</small>
+
+```text
+empty<A>
+  Unit
+  -> List<A>
+```
+
+### `filter`
+
+<small className="api-kind">Function</small>
+
+Keeps collection elements whose predicate returns True.
+
+```text
+filter<A>
+  (A -> Bool)
+  -> List<A>
+  -> List<A>
+```
+
+### `filterMap`
+
+<small className="api-kind">Function</small>
+
+Transforms collection elements and drops Nothing results.
+
+```text
+filterMap<A, B>
+  (A -> Maybe<B>)
+  -> List<A>
+  -> List<B>
+```
+
+### `find`
+
+<small className="api-kind">Function</small>
+
+Returns the first matching element, or Nothing when none matches.
+
+```text
+find<A>
+  (A -> Bool)
+  -> List<A>
+  -> Maybe<A>
+```
+
+### `findIndex`
+
+<small className="api-kind">Function</small>
+
+```text
+findIndex<A>
+  (A -> Bool)
+  -> List<A>
+  -> Maybe<Int>
+```
+
+### `flatMap`
+
+<small className="api-kind">Function</small>
+
+Transforms each element to a collection and flattens the results.
+
+```text
+flatMap<A, B>
+  (A -> List<B>)
+  -> List<A>
+  -> List<B>
+```
+
+### `fromIterable`
+
+<small className="api-kind">Function</small>
+
+```text
+fromIterable<C, A>
+  C
+  -> List<A>
+where
+  Iterable<C, A>
+```
+
+### `get`
+
+<small className="api-kind">Function</small>
+
+Returns the indexed element, or Nothing when the index is invalid.
+
+```text
+get<A>
+  Int
+  -> List<A>
+  -> Maybe<A>
+```
+
+### `groupBy`
+
+<small className="api-kind">Function</small>
+
+```text
+groupBy<A, K>
+  (A -> K)
+  -> List<A>
+  -> Map<K, List<A>>
+where
+  Eq<K>,
+  Hash<K>
+```
+
+### `head`
+
+<small className="api-kind">Function</small>
+
+Returns the first element, or Nothing for an empty collection.
+
+```text
+head<A>
+  List<A>
+  -> Maybe<A>
+```
+
+### `init`
+
+<small className="api-kind">Function</small>
+
+```text
+init<A>
+  List<A>
+  -> Maybe<List<A>>
+```
+
+### `isEmpty`
+
+<small className="api-kind">Function</small>
+
+Returns whether the collection contains no elements.
+
+```text
+isEmpty<A>
+  List<A>
+  -> Bool
+```
+
+### `last`
+
+<small className="api-kind">Function</small>
+
+```text
+last<A>
+  List<A>
+  -> Maybe<A>
+```
+
+### `length`
+
+<small className="api-kind">Function</small>
+
+Returns the number of elements in the collection.
+
+```text
+length<A>
+  List<A>
+  -> Int
+```
+
+### `reduceRight`
+
+<small className="api-kind">Function</small>
+
+```text
+reduceRight<A, B>
+  B
+  -> (A -> B -> B)
+  -> List<A>
+  -> B
+```
+
+### `reverse`
+
+<small className="api-kind">Function</small>
+
+Returns the collection elements in reverse order.
+
+```text
+reverse<A>
+  List<A>
+  -> List<A>
+```
+
+### `singleton`
+
+<small className="api-kind">Function</small>
+
+```text
+singleton<A>
+  A
+  -> List<A>
+```
+
+### `sort`
+
+<small className="api-kind">Function</small>
+
+```text
+sort<A>
+  List<A>
+  -> List<A>
+where
+  Ord<A>
+```
+
+### `sortBy`
+
+<small className="api-kind">Function</small>
+
+```text
+sortBy<A, K>
+  (A -> K)
+  -> List<A>
+  -> List<A>
+where
+  Ord<K>
+```
+
+### `tail`
+
+<small className="api-kind">Function</small>
+
+Returns all elements after the first, or Nothing for an empty collection.
+
+```text
+tail<A>
+  List<A>
+  -> Maybe<List<A>>
+```
+
+### `take`
+
+<small className="api-kind">Function</small>
+
+Returns at most the requested number of leading elements.
+
+```text
+take<A>
+  Int
+  -> List<A>
+  -> List<A>
+```
+
+### `takeWhile`
+
+<small className="api-kind">Function</small>
+
+```text
+takeWhile<A>
+  (A -> Bool)
+  -> List<A>
+  -> List<A>
+```
+
+### `toArray`
+
+<small className="api-kind">Function</small>
+
+Copies the List elements into an Array in source order.
+
+```text
+toArray<A>
+  List<A>
+  -> Array<A>
+```
+
+### `unzip`
+
+<small className="api-kind">Function</small>
+
+```text
+unzip<A, B>
+  List<(A, B)>
+  -> (List<A>, List<B>)
+```
+
+### `windows`
+
+<small className="api-kind">Function</small>
+
+```text
+windows<A>
+  Int
+  -> List<A>
+  -> Either<
+       SizeError,
+       List<List<A>>
+     >
+```
+
+### `zip`
+
+<small className="api-kind">Function</small>
+
+```text
+zip<A, B>
+  List<B>
+  -> List<A>
+  -> List<(A, B)>
+```
+
+### `zipWith`
+
+<small className="api-kind">Function</small>
+
+```text
+zipWith<A, B, C>
+  (A -> B -> C)
+  -> List<B>
+  -> List<A>
+  -> List<C>
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/arrays-and-lists)
+- [Browse modules by purpose](/en/docs/reference/library)

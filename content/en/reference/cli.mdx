@@ -1,0 +1,86 @@
+---
+title: "CLI"
+description: "Check distributed CLI commands, targets, profiles, diagnostics, tests, and exit statuses."
+---
+
+This page documents commands confirmed by `seseragi --help` in distribution 0.61.25. Check your binary with `seseragi --version` or `seseragi --version-json`. See [Local development](/en/docs/learn/local-development) for installation.
+
+## Command inventory
+
+| Command | Purpose |
+| --- | --- |
+| `new web PATH` | Generate a Web starter and lock |
+| `run FILE_OR_PACKAGE` | Execute a process application |
+| `build FILE_OR_PACKAGE` | Produce process or Web artifacts |
+| `dev [PACKAGE]` | Watch Web builds and preview them |
+| `lock update [PACKAGE]` | Explicitly update package and provider locks |
+| `lint FILE_OR_PACKAGE` | Emit lint diagnostics |
+| `format [--check] FILE` | Format source or check formatting |
+| `test [PACKAGE]` | Execute Test trees in the tests root |
+| `benchmark [PACKAGE]` | Measure cases in the benchmarks root |
+| `doc [PACKAGE] --test` | Check declaration documentation examples |
+| `dts convert [PACKAGE]` | Generate configured TypeScript bindings |
+
+The only new template is currently web. Generation does not overwrite an existing directory. doc currently supports its --test flow, rather than general API-site artifact generation.
+
+## Run and target selection
+
+A standalone file can run as scratch input. For multiple modules or dependencies, use a package with seseragi.toml and seseragi.lock.
+
+```bash
+seseragi run main.ssrg
+seseragi run . --profile release
+```
+
+Logical targets are process and web. Currently run executes process, dev executes web, and build supports both. Accepting a target option value does not mean every command/target pair is implemented; unsupported pairs do not fall back to another target.
+
+Selection uses a CLI override, run.target, and command capability narrowing/defaults. Targets unable to supply required services are rejected before execution. An HTTP server is a process application, not automatically a static Web application.
+
+## Build and development server
+
+```bash
+seseragi build . --profile release
+seseragi dev \
+  --host 127.0.0.1 \
+  --port 3000
+```
+
+Build accepts `--out-dir PATH` and `--source-map emit|omit`. Profile selection uses CLI, build.profile, then development. Source maps default to emit in development and omit in release. The process development entry is entry.ts; first-party release uses entry.js. Output includes artifact-manifest.json recording the actual entry.
+
+Dev watches source changes and invokes the same Web builder. Dev permits ordinary source edits as editable workspace changes while preserving the exact dependency graph. Ordinary build/test also treat source changes as stale lock digests, so update the lock before them. Manifest, dependency, or provider-requirement changes need an explicit lock update even in dev. --open opens the browser.
+
+## Diagnostics and formatting
+
+Run and lint accept `--diagnostic-format text|json`. JSON contains no ANSI color; tools should classify stable SES codes rather than exact message text. lint --deny-warnings treats warnings as failure too.
+
+```bash
+seseragi lint . --deny-warnings
+seseragi format --check main.ssrg
+```
+
+Formatting preserves source meaning. Style is canonical rather than configured through custom indentation or quote flags. For displayed documentation examples, author readable source first instead of relying only on CSS wrapping.
+
+## Tests, benchmarks, and documentation tests
+
+```bash
+seseragi test . --target node
+seseragi benchmark . --target node
+seseragi doc . --test --target node
+```
+
+Test selects cases with --filter or --exact and accepts --jobs, --timeout, and --seed. Publish a Test tree as `pub let tests: test.Test`.
+
+Benchmarks export `pub let benchmarks: benchmark.Benchmark` and accept options including --warmup, --samples, --minimum-sample-ms, --json, --baseline, --save-baseline, and --regression-threshold-percent. These examples explicitly select node to avoid ambiguous target configuration. See [Testing](/en/docs/guides/testing) and [Performance](/en/docs/reference/performance).
+
+## Process options and exit status
+
+Run also accepts `--signal-mode cancel|forward`, --shutdown-grace-ms, `--hash-seed entropy|INT`, and `--random-seed entropy|INT`. They override manifest settings for one invocation without editing source or locks. A fixed random seed supports reproduction; it does not make secure entropy deterministic.
+
+| Status | Meaning |
+| --- | --- |
+| 0 | Success |
+| 1 | Unhandled typed failure or an unsuccessful test/lint check |
+| 2 | Command, compilation, manifest, or target preparation error |
+| 70 | Runtime defect after execution starts |
+
+Signal termination follows host signal-status rules. Cancel mode requests root Effect cancellation and lets finalizers run during the grace period. Forward mode and grace settings depend on target capabilities; unsupported settings are not silently ignored.

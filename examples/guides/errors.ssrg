@@ -1,0 +1,40 @@
+import * as ints from "std/int"
+import * as effects from "std/effect"
+
+type QuantityError deriving Show =
+  | NotANumber
+  | OutsideRange
+
+alias Result =
+  Either<QuantityError, Int>
+
+fn quantity text: String -> Result =
+  match ints.parse text {
+    Left _ -> Left NotANumber
+    Right n ->
+      if n >= 1 && n <= 1000 then
+        Right n
+      else
+        Left OutsideRange
+  }
+
+effect fn report text: String = do {
+  result <-
+    quantity text
+    |> fromEither
+    |> effects.attempt
+  let message = match result {
+    Right n -> `Quantity: ${n}`
+    Left NotANumber ->
+      "Enter a number"
+    Left OutsideRange ->
+      "Use 1 to 1000"
+  }
+  println message
+}
+
+pub effect fn main = do {
+  report "3"
+  report "many"
+  report "0"
+}

@@ -1,0 +1,16 @@
+schema = 1
+language = "0.1.0"
+standard_library = "0.1.0"
+unicode = "17.0.0"
+timezone_database = "2025b"
+root = "docs/forms@0.1.0#workspace:."
+
+[[packages]]
+id = "docs/forms@0.1.0#workspace:."
+name = "docs/forms"
+version = "0.1.0"
+source_kind = "workspace"
+source = "."
+manifest_digest = "sha256:703785760321122cca90e9923e11444913c80540230d4e53beb22a4cdf4ed437"
+content_digest = "sha256:2d71295d967a36c2c9043d906da8d00cabe56181ff8a1733d77bdf13a96c5276"
+dependencies = []

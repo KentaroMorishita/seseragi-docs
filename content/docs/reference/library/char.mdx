@@ -1,0 +1,56 @@
+---
+title: "std/char"
+description: "一つのUnicode scalarを検査・変換します。Stringや書記素クラスタとは別の単位です。"
+---
+
+| 項目 | 内容 |
+| --- | --- |
+| 言語の版 | 0.61.25 |
+| 対応環境 | process / browser |
+
+## import
+
+```seseragi
+import * as char from "std/char"
+```
+
+## このページの読み方
+
+以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。
+
+## 関数と演算子
+
+### `codePoint`
+
+<small className="api-kind">関数</small>
+
+```text
+codePoint
+  Char
+  -> Int
+```
+
+### `fromCodePoint`
+
+<small className="api-kind">関数</small>
+
+```text
+fromCodePoint
+  Int
+  -> Maybe<Char>
+```
+
+### `toString`
+
+<small className="api-kind">関数</small>
+
+```text
+toString
+  Char
+  -> String
+```
+
+## 関連する説明
+
+- [基本となる考え方を学ぶ](/docs/learn/values-and-expressions)
+- [用途からmoduleを探す](/docs/reference/library)

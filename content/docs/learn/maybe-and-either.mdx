@@ -1,0 +1,78 @@
+---
+title: "MaybeとEither"
+description: "値がない場合と、失敗した理由を残す場合を型で区別する。"
+---
+
+検索した値がないことと、入力が不正なことは別の結果です。値の欠如が正常なら`Maybe`、失敗理由を残したいなら`Either`を使います。ここでは、候補のポート番号を取得してから範囲を検査します。
+
+## Maybeで存在と欠如を表す
+
+`Maybe<A>`には、値を持つ`Just A`と、持たない`Nothing`があります。`ports[0]`の型は`Maybe<Int>`で、最初の候補が存在するかどうかを表します。
+
+`maybeValue ?? fallback`は、`Just`なら中の値を、`Nothing`なら右側の既定値を返します。既定値は`Nothing`のときだけ評価されます。`??`はMaybe専用で、Eitherから成功値を取り出す演算子ではありません。
+
+## Eitherで失敗理由を残す
+
+`Either<E, A>`は、失敗を表す`Left E`か、成功を表す`Right A`です。この例では`PortError`が失敗の型、`Int`が成功の型になります。`PortResult`は、この`Either<PortError, Int>`に付けた型の別名です。
+
+{/* example: examples/learn/maybe-and-either.ssrg */}
+```seseragi title="maybe-and-either.ssrg"
+type PortError =
+  | OutOfRange Int
+
+alias PortResult =
+  Either<PortError, Int>
+
+fn validPort n: Int -> PortResult =
+  if n >= 1 && n <= 65535 then
+    Right n
+  else
+    Left (OutOfRange n)
+
+fn explain result: PortResult
+  -> String =
+  match result {
+    Right port -> `Port: ${port}`
+    Left (OutOfRange n) ->
+      `Invalid port: ${n}`
+  }
+
+pub effect fn main = do {
+  let ports = [8080]
+  let candidate = ports[0] ?? 3000
+  candidate
+  |> validPort
+  |> explain
+  |> println
+}
+```
+
+```text title="実行結果"
+Port: 8080
+```
+
+候補がなければ3000を使い、その値を`validPort`へ渡します。1から65535なら`Right n`、それ以外なら`Left (OutOfRange n)`を返します。失敗した入力もpayloadへ残しているので、表示に使えます。
+
+## パターンで結果を扱う
+
+`explain`は`Right port`から成功値を取り出し、`Left (OutOfRange n)`から失敗した整数を取り出します。両方の分岐で表示用の`String`を返します。
+
+`Left`を作った時点では例外を投げません。Eitherはすでに計算された通常の値で、`match`や関数へ渡せます。画面への出力は、この例でも最後の`println`が返すEffectで行います。
+
+## 中身を変換し、次の計算へ進む
+
+`map f`は、`Just`または`Right`の成功値だけを変換します。`Nothing`と`Left`はそのままです。
+
+変換先の関数もMaybeやEitherを返す場合は、`map`だけだと二重になります。`flatMap`または`>>=`を使うと、最初の成功値から次の計算へ進み、欠如や失敗ならそこで止められます。Eitherを続ける場合は失敗型を揃えます。`do`もこの逐次合成を読みやすく書く構文で、Effectだけの専用構文ではありません。
+
+## 同期の結果と外部処理を区別する
+
+このポート検査は、入力から結果を返す純粋な同期計算です。ネットワークへ接続する処理そのものはEitherに隠さず、Effectとして表します。
+
+`Maybe`は欠如の理由を持ちません。入力を拒否した理由や複数の失敗ケースを表示する必要があるなら、ADTを失敗型に持つEitherが適しています。失敗の理由を捨てて`Nothing`へ変換するかどうかは、利用する側の方針として決めます。
+
+## 欠如と失敗をそれぞれ試す
+
+`ports`を型注釈付きの空配列`let ports: Array<Int> = []`へ変えると、出力は`Port: 3000`です。`[-1]`へ変えると、候補は存在しますが検査に失敗して`Invalid port: -1`です。値がないことと、ある値が不正なことの違いを確認してください。
+
+次は[ジェネリクス](/docs/learn/generics)で、`Maybe<A>`のように型引数を持つデータ型と関数を自分で定義します。外部処理の失敗は[Effect](/docs/learn/effects)と[エラー処理](/docs/guides/error-handling)で扱います。

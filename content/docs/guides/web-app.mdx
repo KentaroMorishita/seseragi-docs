@@ -1,0 +1,113 @@
+---
+title: Webアプリを作る
+description: 純粋な更新関数とHTMLから、操作できるカウンターを作る。
+---
+
+「Add one」で数を増やし、「Reset」で0へ戻すカウンターを作ります。状態は`Int`、操作は`Action`、画面は状態から作るHTMLです。DOMへの接続は`dom.app`へ任せます。
+
+コードの基本構文には[関数とパイプライン](/docs/learn/functions-and-pipelines)、Actionの定義には[代数的データ型](/docs/learn/algebraic-data-types)と[パターンマッチ](/docs/learn/pattern-matching)を使います。HTMLとイベントの接続はこのガイドで扱います。
+
+## プロジェクトを作る
+
+```sh
+seseragi new web counter
+cd counter
+```
+
+`src/main.ssrg`を次のコードへ置き換えてください。生成された`src/app.ssrg`はこの入口からimportしないため、このガイドの画面では使いません。
+
+`seseragi.toml`の`[run]`は`entry = "main"`、`target = "web"`のまま使います。CLIとBunの準備は[ローカルで使う](/docs/learn/local-development)を参照してください。
+
+## カウンター全体を書く
+
+{/* example: examples/guides/web-app/src/main.ssrg */}
+```seseragi title="src/main.ssrg"
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+
+type Action =
+  | Increment
+  | Reset
+
+alias View = html.Html<Action>
+
+fn update action: Action -> n: Int
+  -> Int =
+  match action {
+    Increment -> n + 1
+    Reset -> 0
+  }
+
+fn view count: Int -> View =
+  html.main {
+    style: html.style {
+      margin: "32px auto",
+      maxWidth: "32rem",
+      padding: "24px"
+    },
+    children: [
+      html.h1 { children: "Counter" },
+      html.p {
+        children: `Count: ${count}`
+      },
+      html.button {
+        buttonType: "button",
+        onClick: Increment,
+        children: "Add one"
+      },
+      html.button {
+        buttonType: "button",
+        onClick: Reset,
+        children: "Reset"
+      }
+    ]
+  }
+
+pub effect fn main =
+  dom.app {
+    target: "#app",
+    initial: 0,
+    update,
+    view
+  }
+```
+
+`Increment`と`Reset`は操作の意図です。`update`はDOMを触らず、今の数とActionから次の数を返します。`view`も純粋関数で、現在の数から`Html<Action>`を作ります。
+
+`onClick: Increment`には関数呼び出しやDOM操作を置かず、クリック時に送るActionを指定しています。
+
+## 開発サーバーで操作する
+
+入口の変更をロックへ反映してから開発サーバーを起動します。
+
+```sh
+seseragi lock update
+seseragi dev --open
+```
+
+既定のURLは`http://127.0.0.1:3000/`です。最初は「Count: 0」が表示されます。「Add one」を二回押すと「Count: 2」、「Reset」を押すと「Count: 0」へ戻ります。
+
+保存すると再ビルド後にページがリロードされるため、このカウンターの状態も0から始まります。永続化はこのプログラムに含めていません。
+
+## 状態とDOMの管理を読む
+
+`dom.app`は初期値から`MutableSignal`を一つ作り、`view`で画面のSignalへ変えます。イベントごとに`update`を適用し、DOMへ変更を反映します。Signal生成、DOMターゲットの取得、購読、イベント処理の接続をまとめる通常の標準ライブラリ関数です。
+
+イベントは観測した順に処理されます。DOMランタイムの終了時にはイベントリスナーと購読が解除されます。詳細は[Web UI Reference](/docs/reference/web-ui)にあります。
+
+## 見た目を整えてビルドする
+
+`style`へ`html.style`で作ったスタイルを渡せます。この例の`maxWidth`、`margin`、`padding`は、幅を抑えて中央へ置き、内側に余白を作ります。CSSクラス名を渡す場合のprop名は`class`です。
+
+開発サーバーを`Ctrl-C`で止め、変更したソースをロックへ反映してビルドしてください。
+
+```sh
+seseragi lock update
+seseragi build .
+```
+
+`dist/`へ`index.html`、JavaScript、CSSなどが生成されます。HTMLを`file://`で直接開かず、HTTPサーバーか静的ホスティングで配信してください。
+
+## 次の機能を加える
+
+[状態とAction](/docs/guides/state-and-actions)で更新規則を単独で検証し、[フォーム](/docs/guides/forms)で文字列の入力へ進めます。独立したカウンターを複数並べる場合は、[状態を持つ機能](/docs/guides/stateful-features)の構成が使えます。

@@ -1,0 +1,83 @@
+---
+title: "ジェネリクス"
+description: "型引数を使って、異なる型にも同じ処理とデータの形を使う。"
+---
+
+整数を包む型と文字列を包む型を別々に書く代わりに、中身の型を引数にする`Box<A>`を作れます。`A`は実行時の値ではなく、宣言の中で使う型の名前です。
+
+## 型を引数にする
+
+{/* example: examples/learn/generics.ssrg */}
+```seseragi title="generics.ssrg"
+struct Box<A> {
+  value: A,
+}
+
+fn unbox<A> box: Box<A> -> A =
+  box.value
+
+fn identity<A> value: A -> A =
+  value
+
+pub effect fn main = do {
+  let number = Box { value: 42 }
+  let text = Box { value: "hello" }
+  number
+  |> unbox
+  |> identity
+  |> show
+  |> println
+  text
+  |> unbox
+  |> identity
+  |> show
+  |> println
+}
+```
+
+```text title="実行結果"
+42
+hello
+```
+
+`Box { value: 42 }`は`Box<Int>`、`Box { value: "hello" }`は`Box<String>`です。フィールドの値から型引数を決められるので、生成時に型を明示する必要はありません。
+
+`unbox<A>`は`Box<A>`から`A`を取り出します。整数なら整数、文字列なら文字列が返ります。呼び出しごとに型の関係を保ちます。出力するときは`show`で`String`へ変えて、文字列を受け取る`println`へ渡します。
+
+## 型引数は宣言の中で使う
+
+`identity<A> value: A -> A`は、受け取った型と同じ型を返します。引数と戻り値を別の不明な型にする宣言ではありません。`identity 42`の結果は`Int`です。
+
+この関数は`A`にどんな型が来るかを仮定できません。たとえば`value + 1`に変えると、任意の`A`で整数の加算ができるとは限らず、エラーになります。型ごとの操作が必要なら、[型クラス](/docs/learn/type-classes)の制約でその要件を表します。
+
+## 推論できない場合は明示する
+
+型引数は、引数の型や期待する結果型から推論されます。必要なら`identity<String> "hello"`のように明示できます。関数名と`<`の間には空白を置きません。
+
+空のコレクションなど、値から要素型が分からない場合もあります。`let empty: Array<Int> = []`なら期待型を与えられます。型を決められない場合、コンパイラーは`Any`へ逃がさず注釈を求めます。
+
+## データの形を型で再利用する
+
+ADTも型引数を持てます。次の断片では、成功値の型を`A`で表します。
+
+```text
+type Result<A> =
+  | Failed String
+  | Succeeded A
+```
+
+`Result<Int>`と`Result<String>`は、同じケース構成を持ちつつ異なるpayload型を保ちます。`Maybe<A>`や`Either<E, A>`も、このように型引数で中身を指定する型です。
+
+型へ別の名前を付けるだけなら、`alias Pair<A> = (A, A)`と書けます。aliasは新しいnominal型を作りません。名前によって区別するstructやnewtypeとは役割が違います。
+
+## letで束縛した関数も再利用できる
+
+非再帰的な`let`で束縛した関数は、利用ごとに型を具体化できます。たとえば、ブロックの中で`let same = \value -> value`を束縛し、整数と文字列にそれぞれ使えます。これをlet-polymorphismと呼びます。
+
+型の一般化は、同じArrayに異なる要素型を混ぜることを許す規則ではありません。`Array<Int>`と`Array<String>`は別の型です。また、`Box<Int>`が`Box<Float>`へ暗黙に変換されることもありません。
+
+## 別の型を取り出す
+
+例の`Box { value: "hello" }`を`Box { value: True }`へ変えてください。`unbox`の宣言を変えずに、結果が`Bool`になります。次に`unbox`の結果へ常に1を足すようにすると、genericな宣言として成り立たなくなります。
+
+次は[再帰](/docs/learn/recursion)で、型の一般化とは別に、入力を小さくして処理を繰り返す関数を作ります。型引数の構文と規則は[型リファレンス](/docs/reference/types)を参照してください。

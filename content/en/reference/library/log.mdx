@@ -1,0 +1,179 @@
+---
+title: "std/log"
+description: "Record levels and structured information using Logger capability."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+| Capability identities | `std/log::Logger` |
+
+## Import
+
+```seseragi
+import * as log from "std/log"
+```
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `LogError`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+LogError
+```
+
+### `LogEvent`
+
+<small className="api-kind">Struct</small>
+
+```text
+struct LogEvent {
+  level: LogLevel,
+  message: String,
+  fields: List<(String, LogValue)>
+}
+```
+
+- `level`: Log severity level.
+- `message`: Log message text.
+- `fields`: Ordered additional fields as name and LogValue pairs.
+
+### `Logger`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Logger
+```
+
+### `LogLevel`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+LogLevel
+```
+
+### `LogValue`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+LogValue
+```
+
+## Constructors and values
+
+### `LogBool`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LogBool
+  Bool
+  -> LogValue
+```
+
+### `LogDebug`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LogDebug
+  LogLevel
+```
+
+### `LogFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LogFailure
+  LogLevel
+```
+
+### `LogFloat`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LogFloat
+  Float
+  -> LogValue
+```
+
+### `LogInfo`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LogInfo
+  LogLevel
+```
+
+### `LogInt`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LogInt
+  Int
+  -> LogValue
+```
+
+### `LogString`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LogString
+  String
+  -> LogValue
+```
+
+### `LogTrace`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LogTrace
+  LogLevel
+```
+
+### `LogWarn`
+
+<small className="api-kind">Constructor</small>
+
+```text
+LogWarn
+  LogLevel
+```
+
+## Functions and operators
+
+### `log`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+log
+  LogEvent
+  -> Effect<
+       { logger: Logger },
+       LogError,
+       Unit
+     >
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/effects)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Runtime requirements and providers](/en/docs/reference/runtime-providers)

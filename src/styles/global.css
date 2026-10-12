@@ -100,3 +100,7 @@ a, button, input { -webkit-tap-highlight-color: transparent; }
 .prose :is(h1, h2, h3, h4, h5, h6) { letter-spacing: normal; }
 
 .hero h1 span { white-space: nowrap; }
+
+.api-kind { display: inline-block; color: var(--color-fd-muted-foreground); border: 1px solid var(--color-fd-border); border-radius: 5px; padding: 1px 8px; font-size: 11px; }
+.prose details { margin: 16px 0 24px; }
+.prose summary { cursor: pointer; color: var(--color-fd-muted-foreground); font-size: 13px; }

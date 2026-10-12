@@ -1,0 +1,138 @@
+---
+title: "std/benchmark"
+description: "Separate input preparation from measurements and benchmark using the CLI."
+---
+
+| Contract | Value |
+| --- | --- |
+| Language version | 0.61.25 |
+| Environment | process / browser |
+
+## Import
+
+```seseragi
+import * as benchmark
+  from "std/benchmark"
+```
+
+## Choosing operations
+
+- Benchmark is an ordinary tree containing a measured body. Reconstruct measured work per execution rather than timing retrieval of a result computed beforehand.
+- blackBox returns the same value as an optimization barrier against constant elimination. It does not change allocations or execution ordering.
+- inputSize attaches a positive problem size to reports. Match warmups, samples, host/toolchain versions, and profiles when comparing baselines.
+- Typed failures, defects, and resource leaks are case failures, not measurements. Provide extra services and avoid shared mutable measurement state outside the tree.
+
+## Use this reference
+
+The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.
+
+## Types and type classes
+
+### `Benchmark`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+Benchmark
+```
+
+### `BenchmarkEnvironment`
+
+<small className="api-kind">Type alias</small>
+
+```text
+BenchmarkEnvironment
+```
+
+### `BenchmarkFailure`
+
+<small className="api-kind">Opaque type</small>
+
+```text
+BenchmarkFailure
+```
+
+## Constructors and values
+
+### `ExplicitBenchmarkFailure`
+
+<small className="api-kind">Constructor</small>
+
+```text
+ExplicitBenchmarkFailure
+  String
+  -> BenchmarkFailure
+```
+
+## Functions and operators
+
+### `benchmark`
+
+<small className="api-kind">Function</small>
+
+```text
+benchmark
+  String
+  -> Effect<
+       {
+         random: Random,
+         console: Console,
+         logger: Logger
+       },
+       BenchmarkFailure,
+       Unit
+     >
+  -> Benchmark
+```
+
+### `blackBox`
+
+<small className="api-kind">Function</small>
+
+```text
+blackBox<A>
+  A
+  -> A
+```
+
+### `fail`
+
+<small className="api-kind">Function returning Effect</small>
+
+```text
+fail
+  String
+  -> Effect<
+       {},
+       BenchmarkFailure,
+       Unit
+     >
+```
+
+### `inputSize`
+
+<small className="api-kind">Function</small>
+
+```text
+inputSize
+  Int
+  -> Benchmark
+  -> Benchmark
+```
+
+### `suite`
+
+<small className="api-kind">Function</small>
+
+```text
+suite
+  String
+  -> Array<Benchmark>
+  -> Benchmark
+```
+
+## Related pages
+
+- [Learn the underlying concepts](/en/docs/learn/functions-and-pipelines)
+- [Browse modules by purpose](/en/docs/reference/library)
+- [Measure performance](/en/docs/reference/performance)
