@@ -168,5 +168,10 @@
     "file": "examples/reference/invalid/pure-effect.ssrg",
     "mode": "diagnostic",
     "code": "SES-T0101"
+  },
+  {
+    "file": "examples/reference/invalid/nested-array-do.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-T0101"
   }
 ]

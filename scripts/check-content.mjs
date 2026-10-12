@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { resolve, dirname, relative } from "node:path";
 import { structure } from "fumadocs-core/mdx-plugins";
 import { readExample } from "./example-source.mjs";
+import { checkVersionSource, resolveDocsVersion, versionComponent } from "../src/lib/docs-version.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const errors = [];
@@ -13,6 +14,15 @@ const walk = (directory) => readdirSync(directory).flatMap((name) => {
 const pages = new Map();
 const paths = new Map();
 const text = (path) => readFileSync(path, "utf8");
+const catalog = JSON.parse(text(resolve(root, "src/data/standard-library.json")));
+for (const name of ["library-modules.json", "library-signature-overrides.json"]) {
+  const descriptions = JSON.parse(text(resolve(root, "src/data", name)));
+  for (const [identity, value] of Object.entries(descriptions)) {
+    for (const field of ["ja", "en", "jaNote", "enNote"]) {
+      if (typeof value[field] === "string") for (const error of checkVersionSource(value[field])) errors.push(`${name}: ${identity}.${field}: ${error}`);
+    }
+  }
+}
 const bodyOf = (source) => source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "");
 const checkedExamples = ["examples/hello.ssrg", "examples/parcel.ssrg"];
 for (const name of readdirSync(resolve(root, "examples"))) {
@@ -27,9 +37,12 @@ for (const [directory, base] of [["content/docs", "/docs"], ["content/en", "/en/
     const body = bodyOf(source);
     if (!/^---\r?\n/.test(source) || !/^title: .+/m.test(source) || !/^description: .+/m.test(source)) errors.push(`${name}: missing title/description`);
     if (pages.has(route)) errors.push(`Duplicate route ${route}`);
-    const headings = new Set(structure(body).headings.map((heading) => heading.id));
+    const headings = new Set(structure(resolveDocsVersion(body, catalog.languageVersion)).headings.map((heading) => heading.id));
     pages.set(route, { file, body, headings, en: base.startsWith("/en") });
     paths.set(file, route);
+    if (!name.startsWith("reference/library/")) {
+      for (const error of checkVersionSource(source)) errors.push(`${route}: ${error}`);
+    }
     if (/<!--\s*example:/.test(body)) errors.push(`${route}: use MDX JSX comments for example markers`);
     for (const match of body.matchAll(/\{\/\*\s*example:\s*(examples\/[^\s*]+)\s*\*\/\}\s*\n\s*```[^\n]*\n([\s\S]*?)\n```/g)) {
       try {
@@ -58,6 +71,7 @@ const known = new Set(["/", "/en", ...pages.keys()]);
 for (const [route, page] of pages) {
   const counterpart = page.en ? route.replace(/^\/en/, "") : `/en${route}`;
   if (!pages.has(counterpart)) errors.push(`${route}: missing translation ${counterpart}`);
+  else if (page.body.split(versionComponent).length !== pages.get(counterpart).body.split(versionComponent).length) errors.push(`${route}: translation version references differ`);
   const links = [
     ...Array.from(page.body.matchAll(/\]\(([^\s)]+)(?:\s+[^)]*)?\)/g), (match) => match[1]),
     ...Array.from(page.body.matchAll(/\bhref=["']([^"']+)["']/g), (match) => match[1]),
@@ -87,7 +101,6 @@ for (const directory of ["content/docs", "content/en"]) {
     }
   }
 }
-const catalog = JSON.parse(text(resolve(root, "src/data/standard-library.json")));
 const translationsPath = resolve(root, "src/data/library-descriptions.ja.json");
 if (existsSync(translationsPath)) {
   const translations = JSON.parse(text(translationsPath));

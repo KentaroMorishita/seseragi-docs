@@ -1,0 +1,10 @@
+pub effect fn main = do {
+  let choices: Array<Int> = do {
+    first <- [1, 2]
+    second <- [10, 20]
+    pure (first + second)
+  }
+  choices
+  |> show
+  |> println
+}

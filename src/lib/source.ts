@@ -3,6 +3,8 @@ import { loader } from 'fumadocs-core/source';
 import { type CollectionEntry, getCollection } from 'astro:content';
 import * as path from 'node:path';
 import { structure, type StructuredData } from 'fumadocs-core/mdx-plugins';
+import { resolveDocsVersion } from './docs-version.mjs';
+import { languageVersion } from './site';
 
 export const source = loader({
   source: await createMySource('docs', 'meta', 'content/docs'),
@@ -12,7 +14,7 @@ export const source = loader({
 export const enSource = loader({ source: await createMySource('docsEn', 'metaEn', 'content/en'), baseUrl: '/en/docs' });
 
 export function getStructuredData(entry: CollectionEntry<'docs'> | CollectionEntry<'docsEn'>): StructuredData {
-  return structure(entry.body ?? "");
+  return structure(resolveDocsVersion(entry.body ?? "", languageVersion));
 }
 
 async function createMySource(docs: 'docs' | 'docsEn', metaCollection: 'meta' | 'metaEn', base: string) {

@@ -3,11 +3,12 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, existsSync, mkdtempSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { checkReleaseIdentity } from "./release-record.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const release = JSON.parse(execFileSync("seseragi", ["--version-json"], { encoding: "utf8" }));
 const catalog = JSON.parse(readFileSync(resolve(root, "src/data/standard-library.json"), "utf8"));
-if (release.version !== catalog.languageVersion) throw new Error(`Examples require Seseragi ${catalog.languageVersion}; installed ${release.version}.`);
+checkReleaseIdentity(catalog, release);
 const cases = [
   { file: "examples/hello.ssrg", mode: "run", stdout: "Hello, Seseragi!\n" },
   { file: "examples/parcel.ssrg", mode: "run", stdout: "Sent to Kyoto\n" },

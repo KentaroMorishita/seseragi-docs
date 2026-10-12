@@ -113,11 +113,11 @@ let twice = times 2
 |> println
 ```
 
-Compiler version 0.61.25 rejects direct application such as (+) 20 22 with SES-T0101. This is a current compiler restriction, not a language-wide ban on operator values. Use the working binding form above.
+Compiler version <LanguageVersion /> rejects direct application such as (+) 20 22 with SES-T0101. This is a current compiler restriction, not a language-wide ban on operator values. Use the working binding form above.
 
 {/* example: examples/reference/invalid/direct-operator.ssrg#invalid */}
 
-```seseragi title="Form rejected by 0.61.25"
+```seseragi title="Form rejected by this release"
 fn answer -> Int = (+) 20 22
 
 pub effect fn main =

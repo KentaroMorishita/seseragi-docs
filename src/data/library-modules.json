@@ -281,8 +281,8 @@
   },
   "std/http/bun": {
     "group": "web",
-    "ja": "Bun固有のHTTP server契約。0.61.25では公開interfaceがなく、importできません。",
-    "en": "Bun-specific HTTP server contract. Version0.61.25 has no public interface and cannot import it."
+    "ja": "Bun固有のHTTP server契約。公開interfaceはまだなく、importできません。",
+    "en": "Bun-specific HTTP server contract. No public interface is available yet, so it cannot be imported."
   },
   "std/test": {
     "group": "testing",

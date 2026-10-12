@@ -5,6 +5,7 @@ import { readExample } from "./example-source.mjs";
 
 const base = (process.env.SITE_URL ?? "http://127.0.0.1:4322").replace(/\/$/, "");
 const canonicalOrigin = "https://seseragi-docs.vercel.app";
+const { languageVersion } = JSON.parse(readFileSync(new URL("../src/data/standard-library.json", import.meta.url), "utf8"));
 const quick = process.argv.includes("--quick");
 const output = resolve(process.env.QA_OUTPUT ?? "/tmp/seseragi-docs-browser");
 mkdirSync(output, { recursive: true });
@@ -51,6 +52,21 @@ try {
   const robots = await context.request.get(`${base}/robots.txt`);
   assert((await robots.text()).includes(`${canonicalOrigin}/sitemap.xml`), "robots sitemap domain incorrect");
   console.log(`HTTP: ${paths.length} routes, language metadata, sitemap, robots, and 404 passed.`);
+
+  for (const prefix of ["", "/en"]) {
+    for (const path of ["", "/learn", "/reference", "/reference/cli", "/reference/project-configuration", "/reference/syntax", "/reference/functions", "/reference/type-classes"]) {
+      await page.goto(`${base}${prefix}/docs${path}`); await ready(page);
+      assert((await page.locator(".article-header .eyebrow").innerText()).includes(languageVersion), `Wrong release heading ${prefix}${path}`);
+      const prose = await page.locator("div.prose.flex-1").innerText();
+      assert(prose.includes(languageVersion), `Wrong release in prose ${prefix}${path}`);
+      assert(!prose.includes("LanguageVersion"), `Unresolved release component ${prefix}${path}`);
+    }
+    const index = await context.request.get(`${base}/api/search${prefix ? "-en" : ""}`);
+    assert(index.status() === 200, `Missing ${prefix || "ja"} search index`);
+    const data = await index.text();
+    assert(data.includes(languageVersion) && !data.includes("LanguageVersion"), `Search uses an unresolved or missing release ${prefix || "ja"}`);
+  }
+  console.log(`Version: headings, authored prose, and search in both locales use ${languageVersion}.`);
 
   if (base === canonicalOrigin) {
     for (const path of ["/", "/?ref=migration", "/docs/learn/arrays-and-lists?ref=migration", "/en/docs/reference/library/maybe?ref=migration"]) {
@@ -170,7 +186,7 @@ try {
   await article.goto(`${base}/docs/learn/effects`);
   assert(await article.getByRole("heading", { level: 1 }).isVisible(), "Article requires JavaScript");
   assert((await article.locator("body").innerText()).includes("Effect"), "No-JS text missing");
-  writeFileSync(resolve(output, "report.json"), JSON.stringify({ base, pagesChecked, mobilePages: mobilePaths.length, overflows, errors }, null, 2));
+  writeFileSync(resolve(output, "report.json"), JSON.stringify({ base, languageVersion, pagesChecked, mobilePages: mobilePaths.length, overflows, errors }, null, 2));
   assert(overflows.length === 0, `Mobile layout failed: ${JSON.stringify(overflows.slice(0, 8))}`);
   assert(errors.length === 0, `Browser errors: ${JSON.stringify(errors)}`);
   console.log(`PASS: ${paths.length} routes; ${mobilePaths.length} mobile pages without clipped/covered code or negative tracking; browser errors 0.`);

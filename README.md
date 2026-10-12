@@ -59,19 +59,37 @@ signatureだけの断片、期待する診断、ブラウザ用ビルドを、�
 
 一章の例を一つに制限せず、入力の違い、空や該当なし、失敗、操作の使い分けに応じて補います。一つの例で初めて扱う概念は絞り、結果との対応を同じ節で説明してください。
 
-## 標準ライブラリの更新
+## 対応版の更新
 
-リリース済みCLIとそのtagを使い、compiler-owned catalogを更新します。
+サイトが対象とする版は`src/data/standard-library.json`の`languageVersion`、出典は`languageCommit`に集約しています。見出しと手書き本文の`<LanguageVersion />`、検索、生成したAPIページはこの値を使います。本文へ現在の版番号を直接書くと検査で拒否します。ビルド時に最新リリースを取得する方式ではなく、検証した版を公開します。
+
+言語を更新するときは、正式リリースのCLIと同じtagを用意し、まずcatalogを同期します。`sync:library`は指定したcheckoutを変更せず、そのtagのファイルを読みます。
 
 ```sh
 bun run sync:library ../seseragi
+```
+
+次に、リリース差分と本文を読み比べます。CLIのコマンドは`reference/cli.mdx`、package loaderの対応範囲は`reference/project-configuration.mdx`、compilerの制約は`reference/functions.mdx`と`reference/type-classes.mdx`に記載しています。日英ともに、解消された制約は注記と期待する診断の例を更新してください。
+
+`library-signature-overrides.json`の補正は、対象版と元のsignatureが一致しなければ生成を止めます。新しいcatalogと仕様・runtimeを照合し、必要な補正だけを更新します。版番号の一括置換でこの検査を通さないでください。
+
+説明と補正を見直した後、生成と実行確認を行います。`--reviewed`は上の見直しを済ませたことを記録する指定です。
+
+```sh
 bun run render:library
+bun run verify:release -- --reviewed
+bun run check:release
 bun run check
-bun run check:examples
 bun run build
 ```
 
-`sync:library`は正規CLIとtagのcommitを照合し、API情報とregistryを取得します。WASMのartifact versionがリリースと異なる場合は、両版のcompiler cratesが同一であることを要求します。ビルドはコミット済みsnapshotを使い、ネットワークからAPIを取りません。
+`verify:release`はCLIの版・commit・release tagをcatalogと照合し、すべての実行・ビルド・テスト・期待する診断を確認します。成功した場合だけ、版・commit・検証入力のハッシュ・CLI helpのハッシュ・確認日時を`release-verification.json`へ保存します。catalogの版や出典、例や検証条件がこの記録と異なると、`check`と`build`が停止します。記録を手で書き換えず、確認をやり直してください。Providerの版変更でサンプルのlockが古くなった場合は、該当packageを確認して`seseragi lock update PATH`を明示実行し、差分を確認してから再検証します。
+
+最後にpreviewで`check:browser`を実行し、版の表示、日英の検索、表示幅、操作を確認して公開します。過去の検証記録にある版は履歴として残します。サンプルpackageの`version`や`package.language`のrangeは別の意味を持つため、配布版に合わせて置換しません。
+
+`sync:library`は正規CLIとtagのcommitを照合し、API情報とregistryを取得します。WASMのartifact versionがリリースと異なる場合は、両版のcompiler cratesが同一であることを要求します。ビルドはコミット済みsnapshotと検証記録を使い、CLIやネットワークを必要としません。
+
+## 標準ライブラリの生成
 
 公開名と型はsnapshotから、日英の説明は別の辞書から生成します。説明の補正は`library-description-overrides.json`、使い分けと注意点は`library-notes.json`で管理します。公開structのフィールドは`library-fields.json`、版を固定した型情報の補正は`library-signature-overrides.json`に出典とともに記録します。生成結果が元データと異なる場合や、新しい説明・moduleが欠落した場合は検査で停止します。`contract-only`のmoduleには利用可能なAPIページを生成しません。
 
