@@ -6,6 +6,14 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        { "type": "host", "value": "seseragi-docs-site\\.vercel\\.app" }
+      ],
+      "destination": "https://seseragi-docs.vercel.app/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         { "type": "host", "value": "seseragi-docs-site\\.vercel\\.app" }

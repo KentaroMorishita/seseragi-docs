@@ -53,7 +53,7 @@ try {
   console.log(`HTTP: ${paths.length} routes, language metadata, sitemap, robots, and 404 passed.`);
 
   if (base === canonicalOrigin) {
-    for (const path of ["/", "/docs/learn/arrays-and-lists?ref=migration", "/en/docs/reference/library/maybe?ref=migration"]) {
+    for (const path of ["/", "/?ref=migration", "/docs/learn/arrays-and-lists?ref=migration", "/en/docs/reference/library/maybe?ref=migration"]) {
       const response = await context.request.get(`https://seseragi-docs-site.vercel.app${path}`, { maxRedirects: 0 });
       assert(response.status() === 308, `Missing old-domain redirect ${path}`);
       assert(response.headers().location === `${canonicalOrigin}${path}`, `Redirect changed path or query ${path}`);

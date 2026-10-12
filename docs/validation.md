@@ -52,7 +52,7 @@ Webガイドのcounter、form、独立した二つのcounterはChromeで操作�
 
 公開ドメインは`https://seseragi-docs.vercel.app`。撤去した旧Docs用のVercelプロジェクトから、現在のサイト用プロジェクトへ割り当てを移した。Vercelのproject domainとdeployment alias、HTTPSの200応答を確認。canonical、OG URL、日英のalternate URL、sitemap、robotsの参照先を同じドメインへ変更し、全ページのHTTP検査でも照合する。
 
-旧`seseragi-docs-site.vercel.app`だけを対象に308転送を設定した。公開検査では、トップと日英の記事でパス・クエリが保たれ、新URLが転送なしで200を返すことを確かめる。結果は`/tmp/seseragi-docs-examples-browser-production/report.json`に保存する。
+旧`seseragi-docs-site.vercel.app`だけを対象に308転送を設定した。トップの`/`は記事用のwildcardと別に規則を置く。公開検査では、トップと日英の記事でパス・クエリが保たれ、新URLが転送なしで200を返すことを確かめる。結果は`/tmp/seseragi-docs-examples-browser-production/report.json`に保存する。
 
 ## 出典と確認の限界
 
