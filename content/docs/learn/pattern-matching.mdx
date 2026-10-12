@@ -85,6 +85,56 @@ match number {
 
 `n`は入力の整数を束縛します。条件が`True`なら最初の分岐を選び、`False`なら次の分岐を試します。guardは網羅性の根拠にならないため、条件が成立しない入力を扱う分岐も必要です。
 
+正・0・負を分ける関数にすると、guardの後にどの入力を扱うかを確認できます。これはモジュールに置く宣言です。
+
+{/* example: examples/learn/focused/pattern-guard.ssrg#declaration */}
+```seseragi title="関数の宣言"
+fn sign number: Int -> String =
+  match number {
+    n when n > 0 -> "positive"
+    0 -> "zero"
+    _ -> "negative"
+  }
+```
+
+次は`main`内の束縛です。
+
+{/* example: examples/learn/focused/pattern-guard.ssrg#inputs */}
+```seseragi title="main内の束縛"
+let negative = sign (-1)
+let zero = sign 0
+let positive = sign 1
+```
+
+順に`negative`、`zero`、`positive`になります。−1は最初の条件にも0にも一致しないので、最後の分岐へ進みます。
+
+### レコードのフィールドを調べる
+
+レコードの形もパターンに使えます。次の宣言は、`online`と`name`を持つレコードを受け取ります。
+
+{/* example: examples/learn/focused/pattern-record.ssrg#declaration */}
+```seseragi title="関数の宣言"
+fn caption value: {
+  online: Bool,
+  name: String,
+} -> String =
+  match value {
+    { online: True, name } -> name
+    _ -> "offline"
+  }
+```
+
+`online`がTrueの場合だけ名前を取り出し、その他は`offline`にします。`main`で`let user = { online: True, name: "Aki" }`を用意した後の使い方は、次の式です。
+
+{/* example: examples/learn/focused/pattern-record.ssrg#use */}
+```seseragi title="main内の式"
+user
+|> caption
+|> println
+```
+
+結果は`Aki`です。`online`をFalseへ変えると`offline`になります。必要なフィールドの確認と、一部の値への条件を同じパターンに置けます。
+
 ## tupleの分解と条件を組み合わせる
 
 ここまでのパターンとguardを、座標の分類に組み合わせます。tupleは複数の値を順序付きで一つにまとめた値です。`(3, 0)`は二つの整数からなるtupleで、`describe`はそのtupleを一つの引数として受け取ります。

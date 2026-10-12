@@ -1,0 +1,28 @@
+import * as text from "std/text"
+
+pub effect fn main = do {
+  // docs:start trim
+  "  green tea  "
+  |> text.trim
+  |> println
+  // docs:end trim
+
+  // docs:start split
+  "tea,milk"
+  |> text.split ","
+  |> show
+  |> println
+  // docs:end split
+
+  // docs:start join
+  ["tea", "milk"]
+  |> text.join " / "
+  |> println
+  // docs:end join
+
+  // docs:start replace
+  "green tea"
+  |> text.replace " " "-"
+  |> println
+  // docs:end replace
+}

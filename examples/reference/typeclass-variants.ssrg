@@ -1,0 +1,36 @@
+// docs:start constraints
+fn display<A> value: A -> String
+where Show<A> =
+  show value
+// docs:end constraints
+
+fn increment n: Int -> Int = n + 1
+
+// docs:start functor
+fn raise<F<_>> values: F<Int>
+  -> F<Int>
+where Functor<F> =
+  map increment values
+// docs:end functor
+
+// docs:start deriving
+newtype Tag deriving Eq, Show =
+  String
+// docs:end deriving
+
+pub effect fn main = do {
+  // docs:start show-cases
+  println $ display 42
+  println $ display True
+  // docs:end show-cases
+  // docs:start instances
+  println $ show $ raise [1, 2]
+  println $ show $ raise $ Just 2
+  println $ show $ raise `[3, 4]
+  // docs:end instances
+  // docs:start equality
+  Tag "docs" == Tag "docs"
+  |> show
+  |> println
+  // docs:end equality
+}

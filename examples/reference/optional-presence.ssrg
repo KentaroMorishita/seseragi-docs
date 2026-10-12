@@ -1,0 +1,23 @@
+// docs:start declarations
+alias Optional = { id?: String }
+alias Required = {
+  id: Maybe<String>,
+}
+// docs:end declarations
+
+pub effect fn main = do {
+  // docs:start optional
+  let absent: Optional = {}
+  let present: Optional = {
+    id: "intro",
+  }
+  println $ show absent.id
+  println $ show present.id
+  // docs:end optional
+  // docs:start required
+  let required: Required = {
+    id: Nothing,
+  }
+  println $ show required.id
+  // docs:end required
+}

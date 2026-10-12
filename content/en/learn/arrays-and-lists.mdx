@@ -3,9 +3,202 @@ title: "Arrays and lists"
 description: "Transform, filter, and summarize collections, choosing between Array and List."
 ---
 
-Square several integers, keep the even results, and add them. Functions describe each stage without updating elements or appending to a temporary array.
+Try changing Array elements and selecting which elements to keep separately. Then cover indexing, reduction, and Lists before combining the operations.
 
-## Transform and summarize an Array
+## Change elements with map
+
+`[1, 2, 3]` is an `Array<Int>`. `map` applies a function to every element and creates a new Array with the same element count. This expression belongs inside `main`:
+
+{/* example: examples/learn/focused/array-map.ssrg#map */}
+```seseragi title="Expression in main"
+[1, 2, 3]
+|> map (\n -> n * 2)
+|> show
+|> println
+```
+
+```text title="Output"
+[2, 4, 6]
+```
+
+The lambda doubles one integer and is applied to each of the three elements. The original Array does not change. `map` is available from the prelude; [Type classes](/en/docs/learn/type-classes) explains its use with other types.
+
+## Select elements with filter
+
+`filter` retains elements for which a function returns True. Place this import at module scope first:
+
+{/* example: examples/learn/focused/array-filter.ssrg#import */}
+```seseragi title="Import declaration"
+import * as arrays from "std/array"
+```
+
+These bindings belong inside `main`:
+
+{/* example: examples/learn/focused/array-filter.ssrg#keep */}
+```seseragi title="Binding in main"
+let kept =
+  [1, 2, 3, 4]
+  |> arrays.filter (\n -> n % 2 == 0)
+```
+
+`kept` is `[2, 4]`. The same condition produces an empty result when the input has no even numbers:
+
+{/* example: examples/learn/focused/array-filter.ssrg#empty */}
+```seseragi title="Binding in main"
+let removed =
+  [1, 3, 5]
+  |> arrays.filter (\n -> n % 2 == 0)
+```
+
+`removed` is `[]`. Map changes element values; filter chooses which elements remain. An empty filter result is not an execution failure.
+
+## Indexing returns Maybe
+
+`[10][0]` has type `Maybe<Int>` and is `Just 10`. An out-of-range index such as `[10][99]`, or a negative index, returns Nothing. `[10][0] ?? 0` extracts the existing value or uses 0 if the element is absent.
+
+All elements must have the same type; `[1, "two"]` is invalid. An empty array also needs an element type. If context cannot determine it, annotate the binding as `let empty: Array<Int> = []`.
+
+Compare the fallback behavior for an empty input. These bindings belong inside `main`:
+
+{/* example: examples/learn/focused/array-missing-index.ssrg#index */}
+```seseragi title="Bindings in main"
+let empty: Array<Int> = []
+let first = [10][0] ?? 99
+let missing = empty[0] ?? 99
+```
+
+`first` is 10 and `missing` is 99. This distinguishes an existing value of 10 from an absent element at index zero.
+
+### An initial value and a reduction
+
+`reduce` starts with an initial value and processes elements in order to produce one result. To try something besides addition, append each integer to a string. Place this function at module scope:
+
+{/* example: examples/learn/focused/array-reduce.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn appendDigit text: String
+  -> n: Int -> String =
+  `${text}${n}`
+```
+
+Use this expression inside `main`:
+
+{/* example: examples/learn/focused/array-reduce.ssrg#fold */}
+```seseragi title="Expression in main"
+[1, 2, 3]
+|> reduce "" appendDigit
+|> println
+```
+
+The output is `123`. The argument order of `reduce` is initial value, step function, then input. Starting at `""`, it produces `"1"`, `"12"`, and `"123"`. The result type need not match the element type. Empty input returns the initial value without calling the step function.
+
+## List is a distinct collection
+
+An Array is written `[1, 2, 3]`; a List begins with a backtick: `` `[1, 2, 3] ``. Both are immutable. Arrays support indexing, while Lists support efficient prepending and sharing of tails. They are not implicitly converted.
+
+First, place this function at module scope to inspect only emptiness and the head. It uses no recursion:
+
+{/* example: examples/learn/focused/list-empty-and-head.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn caption values: List<Int>
+  -> String =
+  match values {
+    `[] -> "empty"
+    `[head, ..._] -> `first: ${head}`
+  }
+```
+
+These bindings belong inside `main`:
+
+{/* example: examples/learn/focused/list-empty-and-head.ssrg#inputs */}
+```seseragi title="Bindings in main"
+let empty = caption `[]
+let full = caption (1 : `[2, 3])
+```
+
+The value of `empty` is the string `"empty"`; `full` is `"first: 1"`. `1 : ...` adds a head, and the pattern extracts it. `_` marks the remaining List that the function does not need.
+
+`1 : tail` prepends 1 to a List. This complete example matches a List as empty or as its head and remaining tail:
+
+{/* example: examples/learn/list-patterns.ssrg */}
+```seseragi title="list-patterns.ssrg"
+fn total values: List<Int> -> Int =
+  match values {
+    `[] -> 0
+    `[head, ...tail] ->
+      head + total tail
+  }
+
+pub effect fn main =
+  1 : `[2, 3]
+  |> total
+  |> show
+  |> println
+```
+
+```text title="Output"
+6
+```
+
+`total` returns an integer. Convert it to a string with `show` before passing it to `println`.
+
+In `` `[head, ...tail] ``, `tail` is a `List<Int>`. With an Array pattern `[head, ...tail]`, the tail is another Array. Lists have no indexing syntax. Convert explicitly with `toList` from `std/array` or `toArray` from `std/list`.
+
+### Convert Array and List explicitly
+
+Place these imports at module scope:
+
+{/* example: examples/learn/focused/list-array-conversion.ssrg#imports */}
+```seseragi title="Import declarations"
+import * as arrays from "std/array"
+import * as lists from "std/list"
+```
+
+Use this expression inside `main`:
+
+{/* example: examples/learn/focused/list-array-conversion.ssrg#conversion */}
+```seseragi title="Expression in main"
+[1, 2]
+|> arrays.toList
+|> lists.toArray
+|> show
+|> println
+```
+
+The output is `[1, 2]`. It retains elements and order while converting Array to List and back. Decide which shape the following operation needs before repeatedly performing conversions that copy data.
+
+## Use a range and a comprehension
+
+A range is a value representing an integer interval, rather than an Array. A comprehension can collect elements from it into an Array. Both bindings belong inside `main`:
+
+{/* example: examples/learn/focused/array-ranges.ssrg#inclusive */}
+```seseragi title="Binding in main"
+let inclusive = [n | n <- 1..=3]
+```
+
+{/* example: examples/learn/focused/array-ranges.ssrg#exclusive */}
+```seseragi title="Binding in main"
+let exclusive = [n | n <- 1..3]
+```
+
+`inclusive` is `[1, 2, 3]`; `exclusive` is `[1, 2]`. `..=` includes the endpoint and `..` excludes it.
+
+Also specify a transformation and a condition for keeping elements:
+
+{/* example: examples/learn/focused/array-ranges.ssrg#comprehension */}
+```seseragi title="Binding in main"
+let squares =
+  [n * n | n <- 1..=5, n % 2 == 0]
+```
+
+`squares` is `[4, 16]`. The right-hand clauses are processed from left to right: `n <- ...` extracts values, and the following Bool condition selects elements. A comprehension is a pure calculation.
+
+## Choose a traversal
+
+Splitting a List into its head and tail can share the existing tail. Repeatedly splitting an Array with `[head, ...tail]` creates another remaining Array each time and is unsuitable for large inputs. Use `map`, `filter`, or `reduce` for whole-Array traversal.
+
+The List example's `head + total tail` still performs addition after the recursive call, so it is not tail recursive. Use the standard `sum` for a large List. [Recursion](/en/docs/learn/recursion) explains termination and stack behavior when writing recursion yourself.
+
+## Combine the operations you learned
 
 {/* example: examples/learn/arrays-and-lists.ssrg */}
 ```seseragi title="arrays-and-lists.ssrg"
@@ -39,57 +232,9 @@ first: 1
 
 `map` and `sum` are available from the prelude. This example imports `std/array` as `arrays` to use its `filter`. `map` also works with other types through a type class, explained in [Type classes](/en/docs/learn/type-classes).
 
-## Indexing returns Maybe
 
-`numbers[0]` returns a `Maybe<Int>`, rather than the integer directly. It is `Just 1` when the element exists and `Nothing` for an out-of-range or negative index. `numbers[0] ?? 0` extracts the existing value or uses 0 when it is absent.
 
-All elements must have the same type; `[1, "two"]` is invalid. An empty array also needs an element type. If context cannot determine it, annotate the binding as `let empty: Array<Int> = []`.
-
-## List is a distinct collection
-
-An Array is written `[1, 2, 3]`; a List begins with a backtick: `` `[1, 2, 3] ``. Both are immutable. Arrays support indexing, while Lists support efficient prepending and sharing of tails. They are not implicitly converted.
-
-`1 : tail` prepends 1 to a List. This complete example matches a List as empty or as its head and remaining tail:
-
-{/* example: examples/learn/list-patterns.ssrg */}
-```seseragi title="list-patterns.ssrg"
-fn total values: List<Int> -> Int =
-  match values {
-    `[] -> 0
-    `[head, ...tail] ->
-      head + total tail
-  }
-
-pub effect fn main =
-  1 : `[2, 3]
-  |> total
-  |> show
-  |> println
-```
-
-```text title="Output"
-6
-```
-
-`total` returns an integer. Convert it to a string with `show` before passing it to `println`.
-
-In `` `[head, ...tail] ``, `tail` is a `List<Int>`. With an Array pattern `[head, ...tail]`, the tail is another Array. Lists have no indexing syntax. Convert explicitly with `toList` from `std/array` or `toArray` from `std/list`.
-
-## Use a range and a comprehension
-
-This fragment squares the even values between 1 and 5 into an Array:
-
-```text
-[n * n | n <- 1..=5, n % 2 == 0]
-```
-
-The result is `[4, 16]`. `1..=5` includes 5; `1..5` excludes it. Clauses after `|` are processed from left to right. `n <- ...` binds each element, and the following `Bool` condition filters it. A comprehension is pure; it does not perform output or asynchronous work.
-
-## Choose a traversal
-
-Splitting a List into its head and tail can share the existing tail. Repeatedly splitting an Array with `[head, ...tail]` creates another remaining Array each time and is unsuitable for large inputs. Use `map`, `filter`, or `reduce` for whole-Array traversal.
-
-The List example's `head + total tail` still performs addition after the recursive call, so it is not tail recursive. Use the standard `sum` for a large List. [Recursion](/en/docs/learn/recursion) explains termination and stack behavior when writing recursion yourself.
+The complete program uses `do` to perform its two output steps in order. The later [Effect](/en/docs/learn/effects) chapter explains ordering and the composition of external work.
 
 ## Change the filter
 

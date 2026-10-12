@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { resolve, dirname, relative } from "node:path";
 import { structure } from "fumadocs-core/mdx-plugins";
+import { readExample } from "./example-source.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const errors = [];
@@ -13,6 +14,11 @@ const pages = new Map();
 const paths = new Map();
 const text = (path) => readFileSync(path, "utf8");
 const bodyOf = (source) => source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "");
+const checkedExamples = ["examples/hello.ssrg", "examples/parcel.ssrg"];
+for (const name of readdirSync(resolve(root, "examples"))) {
+  const manifest = resolve(root, "examples", name, "checks.json");
+  if (existsSync(manifest)) checkedExamples.push(...JSON.parse(text(manifest)).map((example) => example.file));
+}
 for (const [directory, base] of [["content/docs", "/docs"], ["content/en", "/en/docs"]]) {
   for (const file of walk(resolve(root, directory)).filter((path) => /\.mdx?$/.test(path))) {
     const source = text(file);
@@ -26,9 +32,14 @@ for (const [directory, base] of [["content/docs", "/docs"], ["content/en", "/en/
     paths.set(file, route);
     if (/<!--\s*example:/.test(body)) errors.push(`${route}: use MDX JSX comments for example markers`);
     for (const match of body.matchAll(/\{\/\*\s*example:\s*(examples\/[^\s*]+)\s*\*\/\}\s*\n\s*```[^\n]*\n([\s\S]*?)\n```/g)) {
-      const example = resolve(root, match[1]);
-      if (!example.startsWith(resolve(root, "examples") + "/") || !existsSync(example)) errors.push(`${route}: missing example ${match[1]}`);
-      else if (text(example).trimEnd() !== match[2].trimEnd()) errors.push(`${route}: displayed code differs from ${match[1]}`);
+      try {
+        if (readExample(match[1], root) !== match[2].trimEnd()) errors.push(`${route}: displayed code differs from ${match[1]}`);
+        if (match[1].includes("#")) {
+          const file = match[1].split("#")[0];
+          const covered = checkedExamples.some((checked) => file === checked || (existsSync(resolve(root, checked)) && statSync(resolve(root, checked)).isDirectory() && file.startsWith(checked.replace(/\/$/, "") + "/")));
+          if (!covered) errors.push(`${route}: excerpt is not in a checked example ${match[1]}`);
+        }
+      } catch (error) { errors.push(`${route}: ${error.message}`); }
     }
     for (const match of body.matchAll(/```seseragi[^\n]*\n([\s\S]*?)\n```/g)) {
       const lines = match[1].split("\n");

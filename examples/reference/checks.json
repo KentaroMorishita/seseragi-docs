@@ -63,5 +63,110 @@
     "file": "examples/reference/provider-clock/src/main.ssrg",
     "stdout": "Clock ready\n",
     "mode": "run"
+  },
+  {
+    "file": "examples/reference/expression-forms.ssrg",
+    "mode": "run",
+    "stdout": "positive\n120\n()\n{}\n"
+  },
+  {
+    "file": "examples/reference/function-values.ssrg",
+    "mode": "run",
+    "stdout": "12\n12\n13\n[2, 3, 4]\n[2, 4, 6]\n[2, 4, 6]\n"
+  },
+  {
+    "file": "examples/reference/local-functions.ssrg",
+    "mode": "run",
+    "stdout": "10\n"
+  },
+  {
+    "file": "examples/reference/record-shapes.ssrg",
+    "mode": "run",
+    "stdout": "Aki\nAki\nMio\n"
+  },
+  {
+    "file": "examples/reference/alias-newtype.ssrg",
+    "mode": "run",
+    "stdout": "42\n42\n"
+  },
+  {
+    "file": "examples/reference/optional-presence.ssrg",
+    "mode": "run",
+    "stdout": "Nothing\nJust intro\nNothing\n"
+  },
+  {
+    "file": "examples/reference/pattern-variants.ssrg",
+    "mode": "run",
+    "stdout": "positive\nnon-positive\nmissing\nAki\nMio: 7\n0\n3\n"
+  },
+  {
+    "file": "examples/reference/inference-context.ssrg",
+    "mode": "run",
+    "stdout": "42: ready\n[]\nNothing\n"
+  },
+  {
+    "file": "examples/reference/typeclass-variants.ssrg",
+    "mode": "run",
+    "stdout": "42\nTrue\n[2, 3]\nJust 3\n`[4, 5]\nTrue\n"
+  },
+  {
+    "file": "examples/reference/do-variants.ssrg",
+    "mode": "run",
+    "stdout": "Just 5\nNothing\n[11, 21, 12, 22]\n"
+  },
+  {
+    "file": "examples/reference/effect-execution.ssrg",
+    "mode": "run",
+    "stdout": "constructed\nran\nran\nmapped\n42\n"
+  },
+  {
+    "file": "examples/reference/effect-contracts.ssrg",
+    "mode": "run",
+    "stdout": "4: 5\n"
+  },
+  {
+    "file": "examples/reference/signal-snapshots.ssrg",
+    "mode": "run",
+    "stdout": "1: 2\n2: 10\n6\n"
+  },
+  {
+    "file": "examples/reference/signal-transaction.ssrg",
+    "mode": "run",
+    "stdout": "8\n15\n"
+  },
+  {
+    "file": "examples/reference/adt-variants.ssrg",
+    "mode": "run",
+    "stdout": "0\n12\n"
+  },
+  {
+    "file": "examples/reference/invalid/if-results.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-T0101"
+  },
+  {
+    "file": "examples/reference/invalid/refutable-binding.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-T0101"
+  },
+  {
+    "file": "examples/reference/invalid/newtype-coercion.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-T0101"
+  },
+  {
+    "file": "examples/reference/invalid/missing-constraint.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-T0201"
+  },
+  {
+    "file": "examples/reference/invalid/direct-operator.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-T0101"
+  },
+  {
+    "file": "examples/reference/invalid/pure-effect.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-T0101"
   }
 ]

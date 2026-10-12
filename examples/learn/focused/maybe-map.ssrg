@@ -1,0 +1,13 @@
+pub effect fn main = {
+  // docs:start present
+  let present =
+    Just 21
+    |> map (\n -> n * 2)
+  // docs:end present
+  // docs:start absent
+  let absent: Maybe<Int> =
+    Nothing
+    |> map (\n: Int -> n * 2)
+  // docs:end absent
+  println `${show present}/${show absent}`
+}

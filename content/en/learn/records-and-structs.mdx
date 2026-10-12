@@ -11,18 +11,92 @@ Represent a point as two integers. We will write a function that returns a horiz
 
 Records are structurally typed. This declaration accepts a record containing a `name`:
 
-```text
+{/* example: examples/learn/focused/record-fields.ssrg#declaration */}
+```seseragi title="Function declaration"
 fn nameOf value: { name: String }
   -> String = value.name
 ```
 
 You can pass `{ name: "Aki", score: 42 }` because it contains the required `name: String` field. This acceptance of additional fields is called width subtyping. A missing field or a field of the wrong type is still rejected.
 
+This expression belongs inside `main`. Pass a record with `score` to `nameOf`, which requires only `name`:
+
+{/* example: examples/learn/focused/record-fields.ssrg#use */}
+```seseragi title="Expression in main"
+{ name: "Aki", score: 42 }
+|> nameOf
+|> println
+```
+
+The output is `Aki`. The function's type identifies the fields it needs.
+
 ## Give a type a name with struct
 
 `struct Point` declares a type named `Point`. Construct it with `Point { x: 1, y: 2 }` and read its fields.
 
 A separate `struct Size` with the same fields is still a different type. Unlike records, matching field shapes do not make `Point` and `Size` interchangeable. This distinction based on a declaration's identity is called nominal typing.
+
+Place this struct declaration at module scope:
+
+{/* example: examples/learn/focused/struct-fields.ssrg#declaration */}
+```seseragi title="Struct declaration"
+struct Point {
+  x: Int,
+  y: Int,
+}
+```
+
+Construct and read a value inside `main`:
+
+{/* example: examples/learn/focused/struct-fields.ssrg#access */}
+```seseragi title="Expression in main"
+let point = Point { x: 3, y: 4 }
+point.x
+|> show
+|> println
+```
+
+The output is 3. This example isolates construction with `Point { ... }` and field access with `.x`.
+
+Declaring another type with the same fields still does not create a Point:
+
+{/* example: examples/learn/focused/struct-nominal-error.ssrg#size */}
+```seseragi title="Another struct"
+struct Size {
+  x: Int,
+  y: Int,
+}
+```
+
+This function requires a Point:
+
+{/* example: examples/learn/focused/struct-nominal-error.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn readX point: Point -> Int =
+  point.x
+```
+
+These bindings inside `main` are an intentional compile-error example:
+
+{/* example: examples/learn/focused/struct-nominal-error.ssrg#invalid */}
+```seseragi title="Bindings with a type error"
+let size = Size { x: 3, y: 4 }
+let wrong = readX size
+```
+
+`readX size` produces `SES-T0101` because it supplies Size where Point is required. A record's rule of accepting the required fields does not apply to structs.
+
+### Try record spread on its own
+
+These bindings belong inside `main`:
+
+{/* example: examples/learn/focused/record-spread.ssrg#update */}
+```seseragi title="Bindings in main"
+let base = { name: "Aki", score: 30 }
+let next = { ...base, score: 42 }
+```
+
+`base.score` is 30; `next.score` is 42. `next.name` retains `"Aki"`. Record spread copies the existing fields, then the following field supplies a new value. The original `base` does not change.
 
 ## Produce an updated value
 
@@ -68,6 +142,22 @@ let { x: dx, y: dy } = offset
 ```
 
 `x: dx` takes the value of field `x` and binds the name `dx`. It does not write to another field. Struct patterns include the type name; record patterns do not.
+
+To isolate record decomposition, first define this value inside `main`:
+
+{/* example: examples/learn/focused/record-decomposition.ssrg#point */}
+```seseragi title="Binding in main"
+let point = { x: 3, y: 4 }
+```
+
+Then extract the fields with different binding names:
+
+{/* example: examples/learn/focused/record-decomposition.ssrg#rename */}
+```seseragi title="Binding in main"
+let { x: dx, y: dy } = point
+```
+
+`dx` is 3 and `dy` is 4. This lets you check extraction separately from creating an updated record.
 
 ## Choose the data type
 

@@ -5,6 +5,20 @@ description: "変化する状態をEffectから読み書きし、派生値を明
 
 通常の値は不変です。時間とともに変わる状態が必要な場合は、`MutableSignal<A>`を作り、Effectから読み書きします。状態から計算した値は、読み取り専用の`Signal<A>`としてつなげられます。
 
+## 値を指定して更新する
+
+まず派生値を作らず、更新と読み取りだけを試します。モジュールでは`std/signal`をsignalsとしてimportしてください。次は`main`のdo内に置く式です。
+
+{/* example: examples/learn/focused/signal-set.ssrg#set */}
+```seseragi title="mainのdo内の式"
+count <- signals.make 1
+before <- *count
+count := 5
+after <- *count
+```
+
+`before`は1、`after`は5です。`count := 5`は保存した状態を変えます。すでに読み取った`before`は、更新後も1のままです。次の例で、状態から計算した値へ進みます。
+
 ## 更新元と派生値を作る
 
 {/* example: examples/learn/signals.ssrg */}
@@ -84,6 +98,100 @@ pub effect fn main = do {
 更新を継続的に受け取るには`subscribe`を明示します。成功時には現在値も一度通知されます。返されたSubscriptionは、不要になったら`unsubscribe`で解除します。派生値を作ったり一度読んだりするだけでは、購読は始まりません。
 
 同じ値の更新も既定では通知されます。重複を避けたい場合は`distinct`を使います。購読の寿命や失敗の扱いは[Signalリファレンス](/docs/reference/signals)、画面との接続は[状態とアクション](/docs/guides/state-and-actions)で扱います。
+
+### 購読開始と解除を確かめる
+
+通知された整数を、別のSignalにListで記録してみます。次の宣言をモジュールに置きます。Historyは、長い型に付けた別名です。
+
+{/* example: examples/learn/focused/signal-subscription.ssrg#callback */}
+```seseragi title="通知を記録する関数"
+alias History =
+  signals.MutableSignal<List<Int>>
+
+effect fn remember history: History
+  -> n: Int -> Unit = {
+  let prepend = \seen -> n : seen
+  signals.update prepend history
+}
+```
+
+このobserverはSignalを更新するだけで、失敗型はNeverです。Consoleへの出力はmainで行います。確認用プログラムのmainは、Consoleの環境と失敗を明示しています。次はその宣言の先頭の断片で、後のコードをこのdoブロック内に置きます。
+
+{/* example: examples/learn/focused/signal-subscription.ssrg#entry */}
+```seseragi title="mainの宣言の先頭"
+pub effect fn main -> Unit
+with Console
+fails ConsoleError = do {
+```
+
+まず、観測する状態と、記録用の空Listを用意します。
+
+{/* example: examples/learn/focused/signal-subscription.ssrg#setup */}
+```seseragi title="mainのdo内の式"
+count <- signals.make 0
+let empty: List<Int> = `[]
+history <- signals.make empty
+```
+
+次に購読を開始し、状態を一度変えます。
+
+{/* example: examples/learn/focused/signal-subscription.ssrg#subscription */}
+```seseragi title="mainのdo内の式"
+let observer = remember history
+subscription <-
+  count
+  |> signals.subscribe observer
+count := 1
+```
+
+購読開始時の0と、更新後の1が通知されます。記録は先頭に追加するので、新しい通知が先頭になります。
+
+{/* example: examples/learn/focused/signal-subscription.ssrg#cleanup */}
+```seseragi title="mainのdo内の式"
+signals.unsubscribe subscription
+count := 2
+events <- *history
+```
+
+`events`をshowで表示すると、次のListです。
+
+```text title="記録された値"
+`[1, 0]
+```
+
+解除後の2は記録されません。読み取りと、通知を受け続ける購読の寿命を分けて確認できます。
+
+### 同じ値の通知を減らす
+
+上のrememberを使い、普通の購読とdistinctを通した購読を比べます。mainのdo内でcountを0から作り、記録用のMutableSignalをallとuniqueとして空Listから作った後の式です。
+
+{/* example: examples/learn/focused/signal-distinct.ssrg#views */}
+```seseragi title="mainのdo内の式"
+let distinct = signals.distinct count
+let allObserver = remember all
+let uniqueObserver = remember unique
+normalSub <-
+  count
+  |> signals.subscribe allObserver
+uniqueSub <-
+  distinct
+  |> signals.subscribe uniqueObserver
+```
+
+二つの購読へ、同じ更新を渡します。
+
+{/* example: examples/learn/focused/signal-distinct.ssrg#updates */}
+```seseragi title="mainのdo内の式"
+count := 1
+count := 1
+```
+
+| 購読するSignal | 記録された値 |
+| --- | --- |
+| count | `` `[1, 1, 0] `` |
+| distinct | `` `[1, 0] `` |
+
+普通の購読は同じ1への更新も通知し、distinct側は直前と等しい値を抑えます。この例も、最後に両方のSubscriptionをunsubscribeしています。distinctは更新元を書き換える操作ではなく、通知する側の振る舞いを変えます。
 
 ## 更新と計算を変える
 

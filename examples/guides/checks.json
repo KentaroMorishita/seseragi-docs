@@ -76,5 +76,45 @@
     "file": "examples/guides/typescript-bindings",
     "mode": "run",
     "stdout": "[ready]\nPlease try again\n"
+  },
+  {
+    "file": "examples/guides/cli-normalization.ssrg",
+    "mode": "run",
+    "stdout": "Quantity: 3\nEnter quantity\nEnter a whole number\nQuantity: 0\n"
+  },
+  {
+    "file": "examples/guides/form-validation.ssrg",
+    "mode": "run",
+    "stdout": "Hello, Ada\nEnter your name\nEnter your name\n"
+  },
+  {
+    "file": "examples/guides/state-fields.ssrg",
+    "mode": "run",
+    "stdout": "Ada\nCount: 2\nOriginal: \"\"\nCount: 0\nAda\n"
+  },
+  {
+    "file": "examples/guides/component-props.ssrg",
+    "mode": "run",
+    "stdout": "<span class=\"badge\">Ready</span>\n<span class=\"badge\">Waiting</span>\n<span class=\"badge\">&lt;script&gt;</span>\n"
+  },
+  {
+    "file": "examples/guides/signal-independence.ssrg",
+    "mode": "run",
+    "stdout": "Today: 2\nTomorrow: 1\n"
+  },
+  {
+    "file": "examples/guides/signal-shared.ssrg",
+    "mode": "run",
+    "stdout": "Source: 2\nSame: 2\n"
+  },
+  {
+    "file": "examples/guides/error-recovery.ssrg",
+    "mode": "run",
+    "stdout": "light\ndark\n"
+  },
+  {
+    "file": "examples/guides/testing-validation",
+    "mode": "test",
+    "stdout": "PASS names::name::valid\nPASS names::name::trimmed\nPASS names::name::blank\nPASS names::name::spaces\n4 passed; 0 failed; 0 skipped\n"
   }
 ]

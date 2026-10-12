@@ -1,0 +1,15 @@
+pub effect fn main = do {
+  // docs:start inclusive
+  let inclusive = [n | n <- 1..=3]
+  // docs:end inclusive
+  // docs:start exclusive
+  let exclusive = [n | n <- 1..3]
+  // docs:end exclusive
+  // docs:start comprehension
+  let squares =
+    [n * n | n <- 1..=5, n % 2 == 0]
+  // docs:end comprehension
+  println (show inclusive)
+  println (show exclusive)
+  println (show squares)
+}

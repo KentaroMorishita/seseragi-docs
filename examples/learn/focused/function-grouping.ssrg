@@ -1,0 +1,14 @@
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+fn double n: Int -> Int = n * 2
+
+pub effect fn main = {
+  // docs:start arithmetic
+  let grouped = add (20 + 1) 22
+  // docs:end arithmetic
+  // docs:start nested
+  let nested = double (add 20 1)
+  // docs:end nested
+  println `${grouped}/${nested}`
+}

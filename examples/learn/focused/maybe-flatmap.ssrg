@@ -1,0 +1,25 @@
+// docs:start declaration
+fn positive n: Int -> Maybe<Int> =
+  if n > 0 then Just n else Nothing
+// docs:end declaration
+
+pub effect fn main = do {
+  // docs:start nested
+  let nested =
+    Just 2
+    |> map positive
+  // docs:end nested
+  // docs:start chained
+  let chained =
+    Just 2
+    |> flatMap positive
+  // docs:end chained
+  // docs:start rejected
+  let rejected =
+    Just (-1)
+    |> flatMap positive
+  // docs:end rejected
+  println (show nested)
+  println (show chained)
+  println (show rejected)
+}

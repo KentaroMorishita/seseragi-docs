@@ -106,5 +106,203 @@
     "file": "examples/learn/pattern-tuples.ssrg",
     "stdout": "east\n",
     "mode": "run"
+  },
+  {
+    "file": "examples/learn/focused/function-lambda.ssrg",
+    "mode": "run",
+    "stdout": "42\n"
+  },
+  {
+    "file": "examples/learn/focused/function-closure.ssrg",
+    "mode": "run",
+    "stdout": "Hi, Aki\n"
+  },
+  {
+    "file": "examples/learn/focused/function-grouping.ssrg",
+    "mode": "run",
+    "stdout": "43/42\n"
+  },
+  {
+    "file": "examples/learn/focused/record-fields.ssrg",
+    "mode": "run",
+    "stdout": "Aki\n"
+  },
+  {
+    "file": "examples/learn/focused/record-spread.ssrg",
+    "mode": "run",
+    "stdout": "30 -> 42\n"
+  },
+  {
+    "file": "examples/learn/focused/record-decomposition.ssrg",
+    "mode": "run",
+    "stdout": "3, 4\n"
+  },
+  {
+    "file": "examples/learn/focused/adt-tuple-payload.ssrg",
+    "mode": "build"
+  },
+  {
+    "file": "examples/learn/focused/adt-struct-payload.ssrg",
+    "mode": "build"
+  },
+  {
+    "file": "examples/learn/focused/pattern-record.ssrg",
+    "mode": "run",
+    "stdout": "Aki\n"
+  },
+  {
+    "file": "examples/learn/focused/pattern-guard.ssrg",
+    "mode": "run",
+    "stdout": "negative/zero/positive\n"
+  },
+  {
+    "file": "examples/learn/focused/array-map.ssrg",
+    "mode": "run",
+    "stdout": "[2, 4, 6]\n"
+  },
+  {
+    "file": "examples/learn/focused/array-filter.ssrg",
+    "mode": "run",
+    "stdout": "[2, 4]/[]\n"
+  },
+  {
+    "file": "examples/learn/focused/array-missing-index.ssrg",
+    "mode": "run",
+    "stdout": "10/99\n"
+  },
+  {
+    "file": "examples/learn/focused/array-reduce.ssrg",
+    "mode": "run",
+    "stdout": "123\n"
+  },
+  {
+    "file": "examples/learn/focused/array-ranges.ssrg",
+    "mode": "run",
+    "stdout": "[1, 2, 3]\n[1, 2]\n[4, 16]\n"
+  },
+  {
+    "file": "examples/learn/focused/list-empty-and-head.ssrg",
+    "mode": "run",
+    "stdout": "empty/first: 1\n"
+  },
+  {
+    "file": "examples/learn/focused/list-array-conversion.ssrg",
+    "mode": "run",
+    "stdout": "[1, 2]\n"
+  },
+  {
+    "file": "examples/learn/focused/maybe-map.ssrg",
+    "mode": "run",
+    "stdout": "Just 42/Nothing\n"
+  },
+  {
+    "file": "examples/learn/focused/maybe-flatmap.ssrg",
+    "mode": "run",
+    "stdout": "Just Just 2\nJust 2\nNothing\n"
+  },
+  {
+    "file": "examples/learn/focused/either-map.ssrg",
+    "mode": "run",
+    "stdout": "Right 42\nLeft invalid\n"
+  },
+  {
+    "file": "examples/learn/focused/either-do.ssrg",
+    "mode": "run",
+    "stdout": "Right 5\nLeft must be positive\n"
+  },
+  {
+    "file": "examples/learn/focused/generic-identity.ssrg",
+    "mode": "run",
+    "stdout": "42/hello\n"
+  },
+  {
+    "file": "examples/learn/focused/generic-map-box.ssrg",
+    "mode": "run",
+    "stdout": "score: 42\n"
+  },
+  {
+    "file": "examples/learn/focused/generic-result.ssrg",
+    "mode": "run",
+    "stdout": "42/untitled\n"
+  },
+  {
+    "file": "examples/learn/focused/generic-local-function.ssrg",
+    "mode": "run",
+    "stdout": "42/hello\n"
+  },
+  {
+    "file": "examples/learn/focused/recursion-factorial.ssrg",
+    "mode": "run",
+    "stdout": "1/120\n"
+  },
+  {
+    "file": "examples/learn/focused/recursion-mutual.ssrg",
+    "mode": "run",
+    "stdout": "even/odd\n"
+  },
+  {
+    "file": "examples/learn/focused/recursion-tree.ssrg",
+    "mode": "run",
+    "stdout": "3\n"
+  },
+  {
+    "file": "examples/learn/focused/effect-bind.ssrg",
+    "mode": "run",
+    "stdout": "42\n"
+  },
+  {
+    "file": "examples/learn/focused/effect-recovery.ssrg",
+    "mode": "run",
+    "stdout": "0\n"
+  },
+  {
+    "file": "examples/learn/focused/effect-map-error.ssrg",
+    "mode": "run",
+    "stdout": "invalid: empty\n"
+  },
+  {
+    "file": "examples/learn/focused/function-unit.ssrg",
+    "mode": "run",
+    "stdout": "ready\n"
+  },
+  {
+    "file": "examples/learn/focused/signal-set.ssrg",
+    "mode": "run",
+    "stdout": "1/5\n"
+  },
+  {
+    "file": "examples/learn/focused/signal-subscription.ssrg",
+    "mode": "run",
+    "stdout": "`[1, 0]\n"
+  },
+  {
+    "file": "examples/learn/focused/signal-distinct.ssrg",
+    "mode": "run",
+    "stdout": "`[1, 1, 0]\n`[1, 0]\n"
+  },
+  {
+    "file": "examples/learn/focused/type-class-eq.ssrg",
+    "mode": "run",
+    "stdout": "True\nTrue\nFalse\n"
+  },
+  {
+    "file": "examples/learn/focused/type-class-instances.ssrg",
+    "mode": "run",
+    "stdout": "<ADMIN>\n<#help>\n"
+  },
+  {
+    "file": "examples/learn/focused/type-class-derived-fields.ssrg",
+    "mode": "run",
+    "stdout": "False\nPoint { x: 1, y: 2 }\n"
+  },
+  {
+    "file": "examples/learn/focused/struct-fields.ssrg",
+    "mode": "run",
+    "stdout": "3\n"
+  },
+  {
+    "file": "examples/learn/focused/struct-nominal-error.ssrg",
+    "mode": "diagnostic",
+    "code": "SES-T0101"
   }
 ]

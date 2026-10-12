@@ -85,6 +85,56 @@ match number {
 
 `n` binds the input integer. A `True` condition selects the first branch; a `False` condition proceeds to the next branch. Guards do not establish exhaustiveness, so another branch must handle inputs for which the condition fails.
 
+Turn the guard into a function that distinguishes positive, zero, and negative integers. Place this declaration at module scope:
+
+{/* example: examples/learn/focused/pattern-guard.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn sign number: Int -> String =
+  match number {
+    n when n > 0 -> "positive"
+    0 -> "zero"
+    _ -> "negative"
+  }
+```
+
+These bindings belong inside `main`:
+
+{/* example: examples/learn/focused/pattern-guard.ssrg#inputs */}
+```seseragi title="Bindings in main"
+let negative = sign (-1)
+let zero = sign 0
+let positive = sign 1
+```
+
+They produce `negative`, `zero`, and `positive`, respectively. −1 matches neither the first condition nor zero, so it reaches the last branch.
+
+### Match fields of a record
+
+A pattern can inspect a record's shape. This declaration accepts a record containing `online` and `name`:
+
+{/* example: examples/learn/focused/pattern-record.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn caption value: {
+  online: Bool,
+  name: String,
+} -> String =
+  match value {
+    { online: True, name } -> name
+    _ -> "offline"
+  }
+```
+
+It extracts the name only when `online` is True, and returns `offline` otherwise. After defining `let user = { online: True, name: "Aki" }` in `main`, use this expression:
+
+{/* example: examples/learn/focused/pattern-record.ssrg#use */}
+```seseragi title="Expression in main"
+user
+|> caption
+|> println
+```
+
+The output is `Aki`. Changing `online` to False produces `offline`. A pattern can check the required fields and place a condition on one of their values.
+
 ## Combine tuple decomposition and a condition
 
 Combine these patterns and guards to classify coordinates. A tuple groups values into one ordered value. `(3, 0)` is a tuple of two integers, and `describe` receives that tuple as one argument.

@@ -1,0 +1,13 @@
+// docs:start declaration
+fn prefixWith prefix: String
+  -> (String -> String) =
+  \name -> `${prefix}${name}`
+// docs:end declaration
+
+pub effect fn main = {
+  // docs:start use
+  let welcome = prefixWith "Hi, "
+  welcome "Aki"
+  |> println
+  // docs:end use
+}

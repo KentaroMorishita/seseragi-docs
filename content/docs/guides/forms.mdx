@@ -128,6 +128,71 @@ seseragi dev --open
 
 この例では、空白だけの文字列も名前として扱います。要件として空白を除きたい場合は、検証前に文字列の正規化を加えてください。サーバーへの送信や保存は行いません。
 
+## 名前の検証を小さく試す
+
+ここでは「前後の空白を除き、空になった名前を拒否する」という別の入力規則を試します。以下の三つのコードを順に`form-validation.ssrg`へ保存すると、画面を使わずに実行できます。先のWebフォームの`src/main.ssrg`とは独立したプログラムです。
+
+### 成功した名前と失敗を返す
+
+[Either](/docs/learn/maybe-and-either)の`Right`に受け入れた名前を、`Left`に直し方を入れます。`name`はDOMに触れず、同じ文字列から同じ結果を返します。
+
+{/* example: examples/guides/form-validation.ssrg#validation */}
+```seseragi title="form-validation.ssrg"
+import * as text from "std/text"
+
+alias Name = Either<String, String>
+
+fn name input: String -> Name = {
+  let cleaned = text.trim input
+  if cleaned == "" then
+    Left "Enter your name"
+  else
+    Right cleaned
+}
+```
+
+### 結果を挨拶へ変える
+
+{/* example: examples/guides/form-validation.ssrg#greeting */}
+```seseragi title="form-validation.ssrg"
+fn greeting result: Name -> String =
+  match result {
+    Right value -> `Hello, ${value}`
+    Left message -> message
+  }
+```
+
+`greeting`は成功した名前を使い、失敗時は案内をそのまま返します。ここでも出力は行わず、文字列を計算します。
+
+### 正常・空・空白だけを比べる
+
+{/* example: examples/guides/form-validation.ssrg#inputs */}
+```seseragi title="form-validation.ssrg"
+pub effect fn main = do {
+  name " Ada "
+  |> greeting
+  |> println
+  name ""
+  |> greeting
+  |> println
+  name "   "
+  |> greeting
+  |> println
+}
+```
+
+```sh
+seseragi run form-validation.ssrg
+```
+
+```text
+Hello, Ada
+Enter your name
+Enter your name
+```
+
+`" Ada "`から受け入れる名前は`Ada`です。`""`と`"   "`は同じ入力の問題になります。この規則をWebフォームへ採用する場合は、`Submitted`で`name model.draft`を検証し、その結果から次の`message`を作ります。編集中の`draft`を正規化するか、送信時だけ正規化するかは別に決めます。
+
 ## 検証結果を画面へ戻す
 
 `Submitted`は失敗でDOMランタイムを終了させず、入力の問題を`message`として次の状態へ返します。`role: "status"`を付けた段落が、その結果を表示します。

@@ -1,0 +1,29 @@
+import * as set from "std/set"
+
+pub effect fn main = do {
+  // docs:start deduplicate
+  [1, 1, 2]
+  |> set.fromIterable
+  |> set.size
+  |> show
+  |> println
+  // docs:end deduplicate
+
+  // docs:start membership
+  [1, 2]
+  |> set.fromIterable
+  |> set.contains 2
+  |> show
+  |> println
+  // docs:end membership
+
+  // docs:start difference
+  let excluded = set.singleton 2
+  [1, 2]
+  |> set.fromIterable
+  |> set.difference excluded
+  |> set.size
+  |> show
+  |> println
+  // docs:end difference
+}

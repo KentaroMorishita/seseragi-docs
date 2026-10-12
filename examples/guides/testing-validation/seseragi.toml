@@ -1,0 +1,11 @@
+[package]
+name = "docs/names"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[exports]
+"." = "names"
+
+[test]
+target = "node"
+jobs = 1

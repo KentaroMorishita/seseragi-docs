@@ -1,0 +1,33 @@
+import * as signals from "std/signal"
+
+// docs:start increment
+fn increment n: Int -> Int = n + 1
+// docs:end increment
+
+fn double n: Int -> Int = n * 2
+
+pub effect fn main = do {
+  // docs:start read-update
+  source <- signals.make 1
+  before <- *source
+  source
+  |> signals.update increment
+  after <- *source
+  println `${before}: ${after}`
+  // docs:end read-update
+  // docs:start snapshot
+  saved <- *source
+  source := 10
+  current <- *source
+  println `${saved}: ${current}`
+  // docs:end snapshot
+  // docs:start dependence
+  let doubled =
+    signals.map double source
+  source := 3
+  value <- *doubled
+  value
+  |> show
+  |> println
+  // docs:end dependence
+}

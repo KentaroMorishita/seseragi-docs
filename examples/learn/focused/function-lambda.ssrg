@@ -1,0 +1,10 @@
+pub effect fn main = {
+  // docs:start lambda
+  let double = \n: Int -> n * 2
+  // docs:end lambda
+  // docs:start call
+  double 21
+  |> show
+  |> println
+  // docs:end call
+}

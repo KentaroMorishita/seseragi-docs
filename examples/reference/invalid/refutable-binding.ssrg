@@ -1,0 +1,8 @@
+// docs:start invalid
+pub effect fn main = do {
+  let Just value = Just 1
+  value
+  |> show
+  |> println
+}
+// docs:end invalid

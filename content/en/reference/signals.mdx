@@ -41,6 +41,42 @@ pub effect fn main = do {
 
 The output is 6. `*doubled` is not a pure dereference; it is a Task that reads a snapshot at execution time. The do block creates, updates, and reads the source in sequence.
 
+### Updating the current value with a function
+
+{/* example: examples/reference/signal-snapshots.ssrg#increment */}
+
+```seseragi title="Declaration: pure update function"
+fn increment n: Int -> Int = n + 1
+```
+
+This main-body fragment aliases std/signal as signals. Both reading and updating return Tasks, executed in the do.
+
+{/* example: examples/reference/signal-snapshots.ssrg#read-update */}
+
+```seseragi title="Main body: read and update"
+source <- signals.make 1
+before <- *source
+source
+|> signals.update increment
+after <- *source
+println `${before}: ${after}`
+```
+
+The output is 1: 2. update applies increment once to the current value at execution time.
+
+### A read snapshot is immutable
+
+{/* example: examples/reference/signal-snapshots.ssrg#snapshot */}
+
+```seseragi title="Main body: snapshot and the next read"
+saved <- *source
+source := 10
+current <- *source
+println `${saved}: ${current}`
+```
+
+Continuing with the preceding source produces 2: 10. The saved Int does not follow later Signal updates.
+
 ## Derived graphs
 
 map derives a Signal from one source; combine derives one from two. Their transformation functions are pure. There is no implicit dependency tracking from reads inside a function.
@@ -48,6 +84,24 @@ map derives a Signal from one source; combine derives one from two. Their transf
 constant has no source. distinct uses Eq to suppress publications equal to the previous published value. Setting the same value does not suppress notifications by default.
 
 Signal has Functor and Applicative instances, but no Monad instance. Use switchMap for explicit dynamic dependency switching. A switch detaches the old inner Signal and publishes the stable current value of the new one.
+
+### Reading an explicitly dependent value
+
+double is the pure doubling function from the complete example above. This main-body fragment uses the same source.
+
+{/* example: examples/reference/signal-snapshots.ssrg#dependence */}
+
+```seseragi title="Main body: derived Signal"
+let doubled =
+  signals.map double source
+source := 3
+value <- *doubled
+value
+|> show
+|> println
+```
+
+After source becomes 3, reading doubled produces 6. The dependency passed to map is the source Signal itself, not an Int read earlier.
 
 ## Transactions
 
@@ -63,6 +117,42 @@ signals.transaction [
 Changes apply in Array order. A later planUpdate on the same source sees the staged value from earlier changes. A defect or cancellation before commit publishes none of them. Successful changes commit once; affected derived nodes are recomputed at most once in dependency order before subscribers are notified. No intermediate inconsistent combination is observable.
 
 A transaction makes Signal updates atomic. It does not wrap arbitrary I/O or a whole Effect computation.
+
+### Committing two sources together
+
+{/* example: examples/reference/signal-transaction.ssrg#area */}
+
+```seseragi title="Declaration: combining two values"
+fn area width: Int
+  -> height: Int -> Int =
+  width * height
+```
+
+{/* example: examples/reference/signal-transaction.ssrg#combine */}
+
+```seseragi title="Main body: combine and read"
+width <- signals.make 2
+height <- signals.make 4
+let combined =
+  signals.combine area width height
+before <- *combined
+println $ show before
+```
+
+The first output is 8. Next, in the same main, supply both changes to a transaction.
+
+{/* example: examples/reference/signal-transaction.ssrg#transaction */}
+
+```seseragi title="Main body: reading after a transaction"
+signals.transaction [
+  signals.planSet 3 width,
+  signals.planSet 5 height,
+]
+after <- *combined
+println $ show after
+```
+
+The next output is 15, computed from committed width 3 and height 5. This does not make arbitrary I/O atomic.
 
 ## Snapshot boundaries
 

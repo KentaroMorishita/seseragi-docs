@@ -1,0 +1,17 @@
+// docs:start independent
+import * as signals from "std/signal"
+
+fn increment n: Int -> Int = n + 1
+
+pub effect fn main = do {
+  first <- signals.make 0
+  second <- signals.make 0
+  signals.update increment first
+  signals.update increment first
+  signals.update increment second
+  today <- signals.read first
+  tomorrow <- signals.read second
+  println `Today: ${today}`
+  println `Tomorrow: ${tomorrow}`
+}
+// docs:end independent

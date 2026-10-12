@@ -37,6 +37,73 @@ pub effect fn main = {
 Right 42
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### 成功値だけを変換する
+
+mapRightはRightの整数を変換します。foldで失敗文字列か成功値の表示を選びます。
+
+{/* example: examples/library/either-recipes.ssrg#map-success */}
+
+```seseragi
+let success: Either<String, Int> =
+  Right 41
+success
+|> either.mapRight (\n -> n + 1)
+|> either.fold (\e -> e) show
+|> println
+```
+
+出力:
+
+```text
+42
+```
+
+### 失敗をそのまま残す
+
+LeftにmapRightを適用しても、成功値の関数は使われず、失敗文字列が残ります。
+
+{/* example: examples/library/either-recipes.ssrg#keep-failure */}
+
+```seseragi
+let failure: Either<String, Int> =
+  Left "offline"
+failure
+|> either.mapRight (\n -> n + 1)
+|> either.fold (\e -> e) show
+|> println
+```
+
+出力:
+
+```text
+offline
+```
+
+### 失敗側を変換する
+
+mapLeftで失敗の文字列だけを変換できます。成功側の型はIntのままです。
+
+{/* example: examples/library/either-recipes.ssrg#map-failure */}
+
+```seseragi
+let annotated: Either<String, Int> =
+  Left "offline"
+annotated
+|> either.mapLeft (\e -> "API: " + e)
+|> either.fold (\e -> e) show
+|> println
+```
+
+出力:
+
+```text
+API: offline
+```
+
 ## 選び方と注意
 
 - Eitherは評価済みの同期結果です。Left/Rightを作ることは、遅延した処理を実行することではありません。

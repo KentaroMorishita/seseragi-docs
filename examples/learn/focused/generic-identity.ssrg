@@ -1,0 +1,11 @@
+// docs:start declaration
+fn identity<A> value: A -> A = value
+// docs:end declaration
+
+pub effect fn main = {
+  // docs:start explicit
+  let number = identity<Int> 42
+  let text = identity<String> "hello"
+  // docs:end explicit
+  println `${number}/${text}`
+}

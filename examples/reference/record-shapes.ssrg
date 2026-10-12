@@ -1,0 +1,25 @@
+// docs:start record-param
+fn name value: { name: String }
+  -> String =
+  value.name
+// docs:end record-param
+
+// docs:start person
+struct Person { name: String }
+// docs:end person
+
+pub effect fn main = do {
+  // docs:start record-width
+  name { name: "Aki", age: 30 }
+  |> println
+  // docs:end record-width
+  // docs:start struct-update
+  let draft = Person { name: "Aki" }
+  let edited = Person {
+    ...draft,
+    name: "Mio",
+  }
+  println draft.name
+  println edited.name
+  // docs:end struct-update
+}

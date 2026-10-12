@@ -1,0 +1,50 @@
+// docs:start parser
+import * as ints from "std/int"
+import * as text from "std/text"
+
+type InputError =
+  | EmptyLine
+  | NotANumber
+
+alias Parsed =
+  Either<InputError, Int>
+
+fn parse input: String -> Parsed = {
+  let cleaned = text.trim input
+  if cleaned == "" then
+    Left EmptyLine
+  else
+    match ints.parse cleaned {
+      Right n -> Right n
+      Left _ -> Left NotANumber
+    }
+}
+// docs:end parser
+
+// docs:start message
+fn message result: Parsed -> String =
+  match result {
+    Right n -> `Quantity: ${n}`
+    Left EmptyLine ->
+      "Enter quantity"
+    Left NotANumber ->
+      "Enter a whole number"
+  }
+// docs:end message
+
+// docs:start inputs
+pub effect fn main = do {
+  parse " 3 "
+  |> message
+  |> println
+  parse ""
+  |> message
+  |> println
+  parse "many"
+  |> message
+  |> println
+  parse "0"
+  |> message
+  |> println
+}
+// docs:end inputs

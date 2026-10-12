@@ -1,0 +1,13 @@
+// docs:start shared
+import * as signals from "std/signal"
+
+pub effect fn main = do {
+  source <- signals.make 0
+  let same = source
+  signals.set 2 same
+  first <- signals.read source
+  second <- signals.read same
+  println `Source: ${first}`
+  println `Same: ${second}`
+}
+// docs:end shared

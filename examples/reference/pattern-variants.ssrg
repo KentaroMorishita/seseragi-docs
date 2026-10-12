@@ -1,0 +1,40 @@
+// docs:start maybe-guard
+fn describe value: Maybe<Int>
+  -> String =
+  match value {
+    Just n when n > 0 -> "positive"
+    Just _ -> "non-positive"
+    Nothing -> "missing"
+  }
+// docs:end maybe-guard
+
+// docs:start array-pattern
+fn first values: Array<Int> -> Int =
+  match values {
+    [] -> 0
+    [head, ..._] -> head
+  }
+// docs:end array-pattern
+
+pub effect fn main = do {
+  // docs:start guard-cases
+  println $ describe $ Just 3
+  println $ describe $ Just 0
+  println $ describe Nothing
+  // docs:end guard-cases
+  // docs:start wildcard
+  let (label, _) = ("Aki", 42)
+  println label
+  // docs:end wildcard
+  // docs:start record-bind
+  let { name, age: years } = {
+    name: "Mio",
+    age: 7,
+  }
+  println `${name}: ${years}`
+  // docs:end record-bind
+  // docs:start array-cases
+  println $ show $ first []
+  println $ show $ first [3, 4]
+  // docs:end array-cases
+}

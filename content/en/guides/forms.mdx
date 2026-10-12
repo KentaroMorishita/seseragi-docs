@@ -128,6 +128,71 @@ Enter `Ada` and submit to display “Hello, Ada”. Submitting an empty string d
 
 This example accepts whitespace-only names. Add string normalization before validation if your requirement rejects them. It does not send data to a server or persist it.
 
+## Check name validation in isolation
+
+Try a different input policy: remove surrounding whitespace and reject a name that becomes empty. Save the following three blocks in order as `form-validation.ssrg` to run without a UI. This program is independent of the Web form's `src/main.ssrg` above.
+
+### Return an accepted name or a failure
+
+[Either](/en/docs/learn/maybe-and-either) puts an accepted name in `Right` and a correction message in `Left`. `name` does not access the DOM and returns the same result for the same string.
+
+{/* example: examples/guides/form-validation.ssrg#validation */}
+```seseragi title="form-validation.ssrg"
+import * as text from "std/text"
+
+alias Name = Either<String, String>
+
+fn name input: String -> Name = {
+  let cleaned = text.trim input
+  if cleaned == "" then
+    Left "Enter your name"
+  else
+    Right cleaned
+}
+```
+
+### Turn the result into a greeting
+
+{/* example: examples/guides/form-validation.ssrg#greeting */}
+```seseragi title="form-validation.ssrg"
+fn greeting result: Name -> String =
+  match result {
+    Right value -> `Hello, ${value}`
+    Left message -> message
+  }
+```
+
+`greeting` uses an accepted name or returns the correction message. It also computes a string without writing output.
+
+### Compare valid, empty, and whitespace-only input
+
+{/* example: examples/guides/form-validation.ssrg#inputs */}
+```seseragi title="form-validation.ssrg"
+pub effect fn main = do {
+  name " Ada "
+  |> greeting
+  |> println
+  name ""
+  |> greeting
+  |> println
+  name "   "
+  |> greeting
+  |> println
+}
+```
+
+```sh
+seseragi run form-validation.ssrg
+```
+
+```text
+Hello, Ada
+Enter your name
+Enter your name
+```
+
+`" Ada "` loses its surrounding whitespace. Both `""` and `"   "` become the same input problem. To adopt this policy in the Web form, validate `name model.draft` in `Submitted` and use its result to produce the next `message`. Decide separately whether to normalize the editable `draft` or only normalize when submitting.
+
 ## Return validation to the interface
 
 `Submitted` returns an input problem in the next model's `message` rather than failing the DOM runtime. A paragraph with `role: "status"` displays the result.

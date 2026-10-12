@@ -5,6 +5,35 @@ description: "Describe external work as a delayed computation and compose its or
 
 Computing a string and printing it are different operations. An `Effect` represents output, external state access, and asynchronous work as a computation value that can be executed.
 
+## Receive the value from a successful computation
+
+First, create an Effect that succeeds without an external service. Place this import at module scope:
+
+{/* example: examples/learn/focused/effect-bind.ssrg#import */}
+```seseragi title="Import declaration"
+import * as effects from "std/effect"
+```
+
+`succeed` lifts an ordinary value into a successful computation. Place this function at module scope:
+
+{/* example: examples/learn/focused/effect-bind.ssrg#declaration */}
+```seseragi title="Function declaration"
+effect fn answer -> Int =
+  effects.succeed 42
+```
+
+Calling `answer ()` produces an Effect that succeeds with an integer, rather than an integer itself. Inside `main = do { ... }`, extract that successful value and display it:
+
+{/* example: examples/learn/focused/effect-bind.ssrg#bind */}
+```seseragi title="Expressions in main do"
+value <- answer ()
+value
+|> show
+|> println
+```
+
+The output is 42. `value <- ...` receives the success value during execution; subsequent code treats it as an ordinary integer.
+
 ## Separate construction from execution
 
 {/* example: examples/learn/effects.ssrg */}
@@ -69,6 +98,104 @@ Recoverable error types must agree within one composition. `Never`, which cannot
 Defects and cancellation are separate from recoverable errors. `recover` is not a catch-all for every abnormal outcome. See [Error handling](/en/docs/guides/error-handling) for designing those paths.
 
 The CLI executes the exported `main` Effect. An ordinary `fn` can also return an Effect as a value with an explicit type. `effect fn` makes that declaration easier to read; it does not introduce another execution model.
+
+### Recover a failure into a success value
+
+Define the failure type at module scope first. This example also imports `std/effect` as effects:
+
+{/* example: examples/learn/focused/effect-recovery.ssrg#failure-type */}
+```seseragi title="Type declaration"
+type CheckError =
+  | Rejected
+```
+
+This computation succeeds with 42 when allowed and fails with Rejected otherwise:
+
+{/* example: examples/learn/focused/effect-recovery.ssrg#declaration */}
+```seseragi title="Function declaration"
+effect fn accepted allowed: Bool
+  -> Int fails CheckError =
+  if allowed then
+    effects.succeed 42
+  else
+    effects.fail Rejected
+```
+
+The recovery function also returns an Effect. Its success value must have the same Int type:
+
+{/* example: examples/learn/focused/effect-recovery.ssrg#fallback */}
+```seseragi title="Function declaration"
+effect fn fallback error: CheckError
+  -> Int =
+  effects.succeed 0
+```
+
+Chain them inside the do block of `main`:
+
+{/* example: examples/learn/focused/effect-recovery.ssrg#recover */}
+```seseragi title="Expressions in main do"
+value <-
+  accepted False
+  |> effects.recover fallback
+```
+
+`value` is 0. Changing False to True produces 42 without calling fallback. Recovery runs only when the initial computation fails.
+
+### Convert the failure type
+
+Use mapError to wrap a String reason in the application's ADT. Place this declaration at module scope:
+
+{/* example: examples/learn/focused/effect-map-error.ssrg#failure-type */}
+```seseragi title="Type declaration"
+type InputError =
+  | Invalid String
+```
+
+The source computation fails with a String:
+
+{/* example: examples/learn/focused/effect-map-error.ssrg#source */}
+```seseragi title="Function declaration"
+effect fn load -> String
+fails String =
+  effects.fail "empty"
+```
+
+`mapError Invalid` constructs an InputError case from that String:
+
+{/* example: examples/learn/focused/effect-map-error.ssrg#mapping */}
+```seseragi title="Function declaration"
+effect fn checked -> String
+fails InputError =
+  load ()
+  |> effects.mapError Invalid
+```
+
+MapError does not recover on its own. Recovering checked with this function produces the successful string `invalid: empty`:
+
+{/* example: examples/learn/focused/effect-map-error.ssrg#recovery */}
+```seseragi title="Recovery function"
+effect fn describe error: InputError
+  -> String =
+  match error {
+    Invalid reason -> {
+      let message =
+        `invalid: ${reason}`
+      effects.succeed message
+    }
+  }
+```
+
+Recover and display the string inside the do block of main:
+
+{/* example: examples/learn/focused/effect-map-error.ssrg#use */}
+```seseragi title="Expressions in main do"
+value <-
+  checked ()
+  |> effects.recover describe
+println value
+```
+
+The output is `invalid: empty`. Error mapping classifies a failure; recovery creates a subsequent success result.
 
 ## Change the execution count
 

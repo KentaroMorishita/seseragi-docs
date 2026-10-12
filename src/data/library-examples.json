@@ -1,0 +1,328 @@
+{
+  "std/array": [
+    {
+      "example": "examples/library/array-recipes.ssrg#find-first",
+      "jaTitle": "条件を満たす最初の要素",
+      "enTitle": "Find the first matching element",
+      "ja": "3より大きい要素は5と8です。findは最初の5だけをJustで返します。",
+      "en": "Both 5 and 8 exceed 3. find returns only the first match, wrapped in Just.",
+      "stdout": "Just 5\n"
+    },
+    {
+      "example": "examples/library/array-recipes.ssrg#find-none",
+      "jaTitle": "該当する要素がない",
+      "enTitle": "Handle no matching element",
+      "ja": "同じ配列でも、9より大きい要素はありません。結果はNothingです。",
+      "en": "No element in the same array exceeds 9, so the result is Nothing.",
+      "stdout": "Nothing\n"
+    },
+    {
+      "example": "examples/library/array-recipes.ssrg#get-outside",
+      "jaTitle": "範囲外の位置を読む",
+      "enTitle": "Read an out-of-range index",
+      "ja": "getの位置は0から数えます。二要素の配列に位置2はなく、Nothingを返します。",
+      "en": "Indices start at zero. Index 2 does not exist in a two-element array, so get returns Nothing.",
+      "stdout": "Nothing\n"
+    },
+    {
+      "example": "examples/library/array-recipes.ssrg#take-zero",
+      "jaTitle": "先頭から0個取る",
+      "enTitle": "Take zero elements",
+      "ja": "takeへ0を渡すと、元の配列の要素数にかかわらず空の配列を返します。",
+      "en": "Taking zero elements returns an empty array regardless of the source length.",
+      "stdout": "[]\n"
+    }
+  ],
+  "std/list": [
+    {
+      "example": "examples/library/list-recipes.ssrg#head-present",
+      "jaTitle": "先頭の要素を読む",
+      "enTitle": "Read the first element",
+      "ja": "先頭にバッククォートを付けたリテラルでListを作ります。headは最初の4をJustで返します。",
+      "en": "A literal prefixed with a backtick constructs a List. head returns its first element as Just 4.",
+      "stdout": "Just 4\n"
+    },
+    {
+      "example": "examples/library/list-recipes.ssrg#head-empty",
+      "jaTitle": "空のListを読む",
+      "enTitle": "Read an empty List",
+      "ja": "emptyはUnitを受け取り、空のListを作ります。そのheadはNothingです。型注釈で要素型をIntと指定しています。",
+      "en": "empty takes Unit and constructs an empty List. Its head is Nothing; the annotation selects Int as the element type.",
+      "stdout": "Nothing\n"
+    },
+    {
+      "example": "examples/library/list-recipes.ssrg#take-prefix",
+      "jaTitle": "先頭の一部を残す",
+      "enTitle": "Keep a prefix",
+      "ja": "take 2は先頭の二要素を持つListを返します。出力も、Listリテラルと同じバッククォート付きの形です。",
+      "en": "take 2 returns a List containing the first two elements. Its output retains the backtick prefix used for List literals.",
+      "stdout": "`[1, 2]\n"
+    }
+  ],
+  "std/maybe": [
+    {
+      "example": "examples/library/maybe-recipes.ssrg#default-missing",
+      "jaTitle": "値がない場合の既定値",
+      "enTitle": "Use a default for absence",
+      "ja": "NothingにwithDefault 0を適用すると、Intの0を返します。",
+      "en": "Applying withDefault 0 to Nothing returns the Int value 0.",
+      "stdout": "0\n"
+    },
+    {
+      "example": "examples/library/maybe-recipes.ssrg#alternative-present",
+      "jaTitle": "既にある値を優先する",
+      "enTitle": "Keep a present value",
+      "ja": "orElseの最初の引数は代替のMaybeです。処理対象がJust 9なら、代替のJust 7は選びません。",
+      "en": "The first argument to orElse is an alternative Maybe. The subject Just 9 is kept instead of Just 7.",
+      "stdout": "Just 9\n"
+    },
+    {
+      "example": "examples/library/maybe-recipes.ssrg#alternative-missing",
+      "jaTitle": "代替のMaybeを選ぶ",
+      "enTitle": "Choose an alternative Maybe",
+      "ja": "処理対象がNothingのときだけ、orElseは代替のJust 7を選びます。",
+      "en": "When the subject is Nothing, orElse selects the alternative Just 7.",
+      "stdout": "Just 7\n"
+    },
+    {
+      "example": "examples/library/maybe-recipes.ssrg#sequence-present",
+      "jaTitle": "全要素に値がある配列",
+      "enTitle": "Collect present values",
+      "ja": "sequenceはArray<Maybe<Int>>をMaybe<Array<Int>>へ変換します。全要素がJustなら、中の値を集めた配列をJustで返します。",
+      "en": "sequence converts Array<Maybe<Int>> into Maybe<Array<Int>>. When every element is Just, it returns the collected values inside Just.",
+      "stdout": "Just [1, 2]\n"
+    },
+    {
+      "example": "examples/library/maybe-recipes.ssrg#sequence-missing",
+      "jaTitle": "一つでも値がない配列",
+      "enTitle": "Stop collecting on absence",
+      "ja": "一要素でもNothingなら、sequence全体の結果はNothingです。Nothingを除いた配列を作る操作とは違います。",
+      "en": "If any element is Nothing, the entire result is Nothing. This operation does not discard absent elements and retain the rest.",
+      "stdout": "Nothing\n"
+    }
+  ],
+  "std/either": [
+    {
+      "example": "examples/library/either-recipes.ssrg#map-success",
+      "jaTitle": "成功値だけを変換する",
+      "enTitle": "Transform only success",
+      "ja": "mapRightはRightの整数を変換します。foldで失敗文字列か成功値の表示を選びます。",
+      "en": "mapRight transforms the integer in Right. fold then chooses the failure string or a formatted success value.",
+      "stdout": "42\n"
+    },
+    {
+      "example": "examples/library/either-recipes.ssrg#keep-failure",
+      "jaTitle": "失敗をそのまま残す",
+      "enTitle": "Preserve failure",
+      "ja": "LeftにmapRightを適用しても、成功値の関数は使われず、失敗文字列が残ります。",
+      "en": "On Left, mapRight does not apply the success transformation; the failure string is preserved.",
+      "stdout": "offline\n"
+    },
+    {
+      "example": "examples/library/either-recipes.ssrg#map-failure",
+      "jaTitle": "失敗側を変換する",
+      "enTitle": "Transform the failure side",
+      "ja": "mapLeftで失敗の文字列だけを変換できます。成功側の型はIntのままです。",
+      "en": "mapLeft transforms only the failure string and keeps the success type Int.",
+      "stdout": "API: offline\n"
+    }
+  ],
+  "std/text": [
+    {
+      "example": "examples/library/text-recipes.ssrg#trim",
+      "jaTitle": "前後の空白を取り除く",
+      "enTitle": "Trim surrounding whitespace",
+      "ja": "trimは両端の空白を取り除きます。文字列の途中の空白は残ります。",
+      "en": "trim removes surrounding whitespace and preserves spaces inside the string.",
+      "stdout": "green tea\n"
+    },
+    {
+      "example": "examples/library/text-recipes.ssrg#split",
+      "jaTitle": "区切り文字で分ける",
+      "enTitle": "Split on a separator",
+      "ja": "splitは区切り文字を先に、対象の文字列を後に受け取ります。結果はArray<String>です。",
+      "en": "split takes the separator first and the subject string last. It returns Array<String>.",
+      "stdout": "[tea, milk]\n"
+    },
+    {
+      "example": "examples/library/text-recipes.ssrg#join",
+      "jaTitle": "区切り文字でつなぐ",
+      "enTitle": "Join with a separator",
+      "ja": "joinはStringの配列を一つのStringへまとめ、要素間に区切り文字を入れます。",
+      "en": "join combines an array of strings into one string, inserting the separator between elements.",
+      "stdout": "tea / milk\n"
+    },
+    {
+      "example": "examples/library/text-recipes.ssrg#replace",
+      "jaTitle": "文字列を置き換える",
+      "enTitle": "Replace text",
+      "ja": "最初の引数が探す文字列、次が置換する文字列、最後が処理対象です。この例では一つの空白をハイフンへ変えます。",
+      "en": "The arguments are the search string, replacement, and subject. This example changes one space to a hyphen.",
+      "stdout": "green-tea\n"
+    }
+  ],
+  "std/map": [
+    {
+      "example": "examples/library/map-recipes.ssrg#get-present",
+      "jaTitle": "あるキーを読む",
+      "enTitle": "Look up a present key",
+      "ja": "singletonで一組だけのMapを作ります。getはキーに対応する値をJustで返します。",
+      "en": "singleton constructs a one-entry Map. get returns the corresponding value inside Just.",
+      "stdout": "Just 1\n"
+    },
+    {
+      "example": "examples/library/map-recipes.ssrg#get-missing",
+      "jaTitle": "ないキーを読む",
+      "enTitle": "Look up an absent key",
+      "ja": "MapにないキーではNothingを返します。数値の0と、キーが存在しないことは別です。",
+      "en": "An absent key returns Nothing. A stored zero and an absent key are distinct.",
+      "stdout": "Nothing\n"
+    },
+    {
+      "example": "examples/library/map-recipes.ssrg#persistent-insert",
+      "jaTitle": "元のMapを保って更新する",
+      "enTitle": "Keep the original Map on update",
+      "ja": "insertは新しいMapを返します。同じキーを更新しても、beforeから読むと1、afterから読むと2です。",
+      "en": "insert returns a new Map. Reading the same key from before yields 1, while reading after yields 2.",
+      "stdout": "Just 1\nJust 2\n"
+    }
+  ],
+  "std/set": [
+    {
+      "example": "examples/library/set-recipes.ssrg#deduplicate",
+      "jaTitle": "重複する値を一つにする",
+      "enTitle": "Deduplicate values",
+      "ja": "fromIterableは同じ値を重複して保持しません。三要素の入力でも、異なる値は二つです。",
+      "en": "fromIterable keeps each distinct value once. This three-element input has two distinct values.",
+      "stdout": "2\n"
+    },
+    {
+      "example": "examples/library/set-recipes.ssrg#membership",
+      "jaTitle": "値を含むか調べる",
+      "enTitle": "Check membership",
+      "ja": "containsは要素の有無をBoolで返します。配列の位置を調べる操作ではありません。",
+      "en": "contains reports membership as Bool. It does not look up an array index.",
+      "stdout": "True\n"
+    },
+    {
+      "example": "examples/library/set-recipes.ssrg#difference",
+      "jaTitle": "除外する集合を指定する",
+      "enTitle": "Exclude a set of values",
+      "ja": "differenceの最初の引数が除外するSetで、最後が処理対象です。この例では1と2のうち2を除き、一要素が残ります。",
+      "en": "difference takes the excluded Set first and the subject last. Removing 2 from the set of 1 and 2 leaves one element.",
+      "stdout": "1\n"
+    }
+  ],
+  "std/regex": [
+    {
+      "example": "examples/library/regex-recipes.ssrg#matched",
+      "jaTitle": "パターンに一致する入力",
+      "enTitle": "Match a pattern",
+      "ja": "compileはEitherを返します。成功したRegexで、文字列に数字の連続があるかをisMatchで調べます。",
+      "en": "compile returns Either. On success, isMatch checks whether the string contains a sequence of digits.",
+      "stdout": "True\n"
+    },
+    {
+      "example": "examples/library/regex-recipes.ssrg#unmatched",
+      "jaTitle": "一致しない入力",
+      "enTitle": "Handle no match",
+      "ja": "同じパターンで数字を含まない入力を調べるとfalseです。Regexの作成失敗とは区別できます。",
+      "en": "The same pattern returns false for an input with no digits. No match is distinct from failure to compile the pattern.",
+      "stdout": "False\n"
+    },
+    {
+      "example": "examples/library/regex-recipes.ssrg#invalid-pattern",
+      "jaTitle": "不正なパターンを受け取る",
+      "enTitle": "Handle an invalid pattern",
+      "ja": "閉じていない角括弧はRegexを作れず、Leftの分岐を選びます。この段階では入力との照合を行っていません。",
+      "en": "An unclosed bracket produces Left. Matching an input string has not happened at this stage.",
+      "stdout": "Invalid pattern\n"
+    }
+  ],
+  "std/json": [
+    {
+      "example": "examples/library/json-recipes.ssrg#stringify",
+      "jaTitle": "JSONの文字列を出力する",
+      "enTitle": "Serialize a JSON string",
+      "ja": "JsonStringはJSONの値を作り、stringifyは引用符を含むJSONテキストへ変換します。",
+      "en": "JsonString constructs a JSON value. stringify encodes it as JSON text, including quotation marks.",
+      "stdout": "\"hello\"\n"
+    },
+    {
+      "example": "examples/library/json-recipes.ssrg#invalid-syntax",
+      "jaTitle": "JSONとして読めない入力",
+      "enTitle": "Reject invalid JSON syntax",
+      "ja": "閉じていないオブジェクトはparseに失敗します。Leftを処理することで、後のdecodeへ進めない入力を分けられます。",
+      "en": "An unclosed object fails to parse. Handling Left separates invalid syntax before decoding a value.",
+      "stdout": "Invalid JSON\n"
+    },
+    {
+      "example": "examples/library/json-recipes.ssrg#decode-int",
+      "jaTitle": "JSONの数値をIntで読む",
+      "enTitle": "Decode a JSON number as Int",
+      "ja": "型注釈でIntのdecodeを選びます。JSONの数値42はRight 42として読み取れます。",
+      "en": "The annotation selects decoding to Int. The JSON number 42 decodes successfully as Right 42.",
+      "stdout": "42\n"
+    },
+    {
+      "example": "examples/library/json-recipes.ssrg#wrong-type",
+      "jaTitle": "正しいJSONでも型が違う入力",
+      "enTitle": "Reject a valid JSON value of the wrong type",
+      "ja": "trueは正しいJSONですがIntではありません。構文の読み取りと、欲しい型へのdecodeは別の段階です。",
+      "en": "true is valid JSON but not an Int. Parsing syntax and decoding the requested type are separate steps.",
+      "stdout": "Not an Int\n"
+    }
+  ],
+  "std/bytes/hex": [
+    {
+      "example": "examples/library/bytes-hex-recipes.ssrg#roundtrip",
+      "jaTitle": "16進文字列をBytesへ戻す",
+      "enTitle": "Decode hexadecimal to Bytes",
+      "ja": "decodeが成功するとBytesを得ます。encodeで戻すと、同じ16進文字列を確認できます。",
+      "en": "Successful decode yields Bytes. Encoding those bytes again reproduces the hexadecimal text.",
+      "stdout": "4142\n"
+    },
+    {
+      "example": "examples/library/bytes-hex-recipes.ssrg#invalid",
+      "jaTitle": "16進数以外の文字を受け取る",
+      "enTitle": "Handle non-hexadecimal input",
+      "ja": "Zは16進数の桁として読めないため、decodeはLeftを返します。",
+      "en": "Z is not a hexadecimal digit, so decode returns Left.",
+      "stdout": "Invalid hex\n"
+    }
+  ],
+  "std/int": [
+    {
+      "example": "examples/library/int-recipes.ssrg#invalid-integer",
+      "jaTitle": "整数として読めない入力",
+      "enTitle": "Reject non-integer input",
+      "ja": "parseは失敗をEitherで返します。数値ではない文字列を、Intの値として扱わずに処理できます。",
+      "en": "parse returns failure in Either, allowing a non-numeric string to be handled without pretending it is an Int.",
+      "stdout": "Not an Int\n"
+    },
+    {
+      "example": "examples/library/int-recipes.ssrg#bounded",
+      "jaTitle": "下限と上限へ収める",
+      "enTitle": "Clamp to lower and upper bounds",
+      "ja": "clamp 0 10は、0未満を0、10を超える値を10へ収めます。範囲内の4はそのままです。",
+      "en": "clamp 0 10 bounds values below zero to zero and values above ten to ten. The in-range value 4 is unchanged.",
+      "stdout": "[0, 4, 10]\n"
+    },
+    {
+      "example": "examples/library/int-recipes.ssrg#overflow",
+      "jaTitle": "範囲を超える足し算",
+      "enTitle": "Detect overflow in addition",
+      "ja": "Intの最大値へ1を足すと、checkedAddはNothingを返します。範囲を超えた値をIntとして返しません。",
+      "en": "Adding one to the maximum Int makes checkedAdd return Nothing rather than an out-of-range Int.",
+      "stdout": "Nothing\n"
+    },
+    {
+      "example": "examples/library/int-recipes.ssrg#divide-zero",
+      "jaTitle": "0による除算を処理する",
+      "enTitle": "Handle division by zero",
+      "ja": "checkedDivideは除数を先に受け取ります。0で割る場合はLeftになり、この例ではその失敗を文字列で表示します。",
+      "en": "checkedDivide takes the divisor first. Dividing by zero produces Left, which this example handles by displaying a message.",
+      "stdout": "Cannot divide\n"
+    }
+  ]
+}

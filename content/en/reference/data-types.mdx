@@ -43,6 +43,38 @@ pub effect fn main =
 
 `Closed (TicketId 1)` is also a `Status`, but is not interchangeable with an `Int` or a `Ticket`. Generic ADT constructors quantify every type parameter and infer arguments from payloads, expected types, or explicit arguments. See [Patterns](/en/docs/reference/patterns) for extracting payloads.
 
+### No payload and tuple payload
+
+{/* example: examples/reference/adt-variants.ssrg#variants */}
+
+```seseragi title="Declaration: two variants"
+type Shape =
+  | Point
+  | Rect (Int, Int)
+```
+
+Point is a value. Rect is a constructor taking one tuple, so combine two numbers as Rect (3, 4).
+
+{/* example: examples/reference/adt-variants.ssrg#payload */}
+
+```seseragi title="Declaration: extracting payload"
+fn area shape: Shape -> Int =
+  match shape {
+    Point -> 0
+    Rect (width, height) ->
+      width * height
+  }
+```
+
+{/* example: examples/reference/adt-variants.ssrg#cases */}
+
+```seseragi title="Main body: variant results"
+println $ show $ area Point
+println $ show $ area $ Rect (3, 4)
+```
+
+The outputs are 0 and 12. The Rect payload is destructured as a tuple inside its constructor pattern.
+
 ## Structs and updates
 
 Constructing a struct requires every field. A same-named variable may use field shorthand. An update places exactly one spread of the same struct type first, followed by replacement fields.
@@ -62,6 +94,28 @@ The spread expression is evaluated once first; explicit fields are then evaluate
 
 Fields of a regular public struct are public too. See [Modules](/en/docs/reference/modules) for hiding representation with `opaque`.
 
+### An update preserves the original value
+
+{/* example: examples/reference/record-shapes.ssrg#person */}
+
+```seseragi title="Declaration: nominal struct"
+struct Person { name: String }
+```
+
+{/* example: examples/reference/record-shapes.ssrg#struct-update */}
+
+```seseragi title="Main body: immutable update"
+let draft = Person { name: "Aki" }
+let edited = Person {
+  ...draft,
+  name: "Mio",
+}
+println draft.name
+println edited.name
+```
+
+draft remains Aki; edited is Mio. The spread constructs a new Person instead of modifying the existing value.
+
 ## Records and optional fields
 
 Records are unnamed structural types. Multiple spreads are applied in source order, with later spreads and explicit fields replacing earlier values. Changing a field type creates a new record type. Duplicate explicitly written field names are errors.
@@ -76,11 +130,100 @@ A single shorthand field requires the comma in `{ name, }`. Without it, `{ name 
 
 In `{ id?: String, children: String }`, `id` may be absent. An omitted field is not filled with a runtime `Nothing` property. Access returns `Just value` when present and `Nothing` when absent. Spreading preserves presence too.
 
+### Missing fields and Nothing
+
+{/* example: examples/reference/optional-presence.ssrg#declarations */}
+
+```seseragi title="Declaration: optional and required"
+alias Optional = { id?: String }
+alias Required = {
+  id: Maybe<String>,
+}
+```
+
+The following main-body fragment reads an absent optional field as Nothing and a present field as Just.
+
+{/* example: examples/reference/optional-presence.ssrg#optional */}
+
+```seseragi title="Main body: reading presence"
+let absent: Optional = {}
+let present: Optional = {
+  id: "intro",
+}
+println $ show absent.id
+println $ show present.id
+```
+
+The outputs are Nothing and Just intro. Required instead requires an id field whose value may explicitly be Nothing.
+
+{/* example: examples/reference/optional-presence.ssrg#required */}
+
+```seseragi title="Main body: required Maybe"
+let required: Required = {
+  id: Nothing,
+}
+println $ show required.id
+```
+
+The final output is Nothing. Both field accesses yield Maybe, but their construction rules for omitting the field differ.
+
 ## Newtypes and aliases
 
 `newtype UserId = Int` creates a type distinct from `Int`. Wrap with `UserId 42` and unwrap with a constructor pattern. There is no implicit wrapping or unwrapping, field access, or record spread.
 
 `alias UserId = Int` only adds another name for `Int`. Aliases may be generic, but direct or indirect alias cycles are rejected. Recursive newtype definitions are rejected too.
+
+### Using an alias and a wrapper
+
+{/* example: examples/reference/alias-newtype.ssrg#declarations */}
+
+```seseragi title="Declaration: alias and newtype"
+alias Count = Int
+newtype UserId = Int
+```
+
+{/* example: examples/reference/alias-newtype.ssrg#alias-use */}
+
+```seseragi title="Main body: transparent alias"
+let count: Count = 41
+count + 1
+|> show
+|> println
+```
+
+Count is the same type as Int, so ordinary addition applies. This fragment prints 42.
+
+{/* example: examples/reference/alias-newtype.ssrg#wrap-unwrap */}
+
+```seseragi title="Main body: explicit wrap and unwrap"
+let user = UserId 42
+let UserId raw = user
+raw
+|> show
+|> println
+```
+
+UserId is wrapped by its constructor and unwrapped by a constructor pattern. Its single constructor makes this let pattern irrefutable. The output is 42.
+
+### Passing an Int as a newtype
+
+This program is intentionally invalid. unwrap 42 supplies an Int where UserId is required and produces SES-T0101.
+
+{/* example: examples/reference/invalid/newtype-coercion.ssrg#invalid */}
+
+```seseragi title="Intentional type error"
+newtype UserId = Int
+
+fn unwrap user: UserId -> Int =
+  match user {
+    UserId value -> value
+  }
+
+fn invalid -> Int = unwrap 42
+
+pub effect fn main =
+  println "ready"
+```
 
 ## Tuples, arrays, lists, and ranges
 

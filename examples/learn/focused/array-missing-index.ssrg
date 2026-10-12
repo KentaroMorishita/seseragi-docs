@@ -1,0 +1,8 @@
+pub effect fn main = {
+  // docs:start index
+  let empty: Array<Int> = []
+  let first = [10][0] ?? 99
+  let missing = empty[0] ?? 99
+  // docs:end index
+  println `${first}/${missing}`
+}

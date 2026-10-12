@@ -133,6 +133,74 @@ seseragi dev --open
 
 `create`を`view`の中で呼んで状態を作り直す必要はありません。HTMLの`key`もSignalの状態を生成する指示ではありません。状態の独立性は`create`を実行した単位で決まります。
 
+## Signalの作り方だけを確かめる
+
+HTMLやDOMを外し、状態の独立性だけを確認する二つのプログラムです。それぞれ別のファイルへ保存してください。
+
+### 別々にmakeを実行する
+
+`signal-independence.ssrg`では`signals.make`を二回実行します。片方への更新は、もう片方の値を変えません。
+
+{/* example: examples/guides/signal-independence.ssrg#independent */}
+```seseragi title="signal-independence.ssrg"
+import * as signals from "std/signal"
+
+fn increment n: Int -> Int = n + 1
+
+pub effect fn main = do {
+  first <- signals.make 0
+  second <- signals.make 0
+  signals.update increment first
+  signals.update increment first
+  signals.update increment second
+  today <- signals.read first
+  tomorrow <- signals.read second
+  println `Today: ${today}`
+  println `Tomorrow: ${tomorrow}`
+}
+```
+
+```sh
+seseragi run signal-independence.ssrg
+```
+
+```text
+Today: 2
+Tomorrow: 1
+```
+
+`signals.read`はその時点の値をEffectとして読みます。二つの状態の現在値を確かめるCLIの例です。
+
+### 同じSignalに別の名前を付ける
+
+`signal-shared.ssrg`では`make`の実行は一回です。`same`は`source`と同じSignalを参照します。
+
+{/* example: examples/guides/signal-shared.ssrg#shared */}
+```seseragi title="signal-shared.ssrg"
+import * as signals from "std/signal"
+
+pub effect fn main = do {
+  source <- signals.make 0
+  let same = source
+  signals.set 2 same
+  first <- signals.read source
+  second <- signals.read same
+  println `Source: ${first}`
+  println `Same: ${second}`
+}
+```
+
+```sh
+seseragi run signal-shared.ssrg
+```
+
+```text
+Source: 2
+Same: 2
+```
+
+`let same = source`で状態をコピーしたり、独立したカウンターを作ったりはしません。独立した状態が必要なら`make`を別々に実行し、共有したい状態なら同じSignalを渡します。
+
 ## 共有状態の所有者を選ぶ
 
 二つのカウンターが同じ合計を編集する要件なら、共通の親が状態を作り、子へ現在値や許可する更新Effectを渡します。子へアプリ全体の`MutableSignal`を渡すと、子が変更できる範囲も広がります。

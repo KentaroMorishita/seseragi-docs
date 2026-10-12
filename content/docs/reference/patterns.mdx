@@ -58,6 +58,32 @@ Nothing -> "missing"
 
 guard付きarmは網羅性に寄与しません。`Just value when True`だけを置いても、guardのない`Just`を覆うarmが必要です。guardはpatternが一致した後にだけ評価します。
 
+### Maybeのguardとfallback
+
+{/* example: examples/reference/pattern-variants.ssrg#maybe-guard */}
+
+```seseragi title="宣言: guard付きmatch"
+fn describe value: Maybe<Int>
+  -> String =
+  match value {
+    Just n when n > 0 -> "positive"
+    Just _ -> "non-positive"
+    Nothing -> "missing"
+  }
+```
+
+Justのpayloadが正なら最初のarm、それ以外のJustは二番目、Nothingは三番目へ進みます。guardがFalseなら次のarmを試します。
+
+{/* example: examples/reference/pattern-variants.ssrg#guard-cases */}
+
+```seseragi title="main内: 三つの場合"
+println $ describe $ Just 3
+println $ describe $ Just 0
+println $ describe Nothing
+```
+
+出力はpositive、non-positive、missingの順です。二番目のJust armを省くと、guardだけでは網羅できません。
+
 ## 束縛できる場所
 
 「必ず一致する」パターンをirrefutable、「一致しない値がある」パターンをrefutableと呼びます。
@@ -74,6 +100,44 @@ guard付きarmは網羅性に寄与しません。`Just value when True`だけ�
 名前、`_`、内部も必ず一致するtuple/record/structはirrefutableです。一variantだけのconstructorとnewtypeも、内部patternがirrefutableなら使えます。Array/Listでは固定要素を持たない`[...rest]`だけが必ず一致します。
 
 `let Just value = maybeValue`は使えません。`match`で`Nothing`も処理します。失敗しうるbindを暗黙の例外や`MonadFail`へ変換することはありません。
+
+### 不要な値と名前の付け替え
+
+{/* example: examples/reference/pattern-variants.ssrg#wildcard */}
+
+```seseragi title="main内: wildcard"
+let (label, _) = ("Aki", 42)
+println label
+```
+
+tupleの第二要素は使わず、Akiだけを出力します。`_`は参照できる変数を作りません。
+
+{/* example: examples/reference/pattern-variants.ssrg#record-bind */}
+
+```seseragi title="main内: fieldの別名"
+let { name, age: years } = {
+  name: "Mio",
+  age: 7,
+}
+println `${name}: ${years}`
+```
+
+ageの値をyearsとして束縛するため、出力は`Mio: 7`です。field自体をageからyearsへ改名する操作ではありません。
+
+### letでJustだけを分解する場合
+
+次は意図的なエラー例です。右辺がJustに見えても、MaybeにはNothingがあるためletでは`SES-T0101`になります。matchで両方を扱ってください。
+
+{/* example: examples/reference/invalid/refutable-binding.ssrg#invalid */}
+
+```seseragi title="意図的なpatternエラー"
+pub effect fn main = do {
+  let Just value = Just 1
+  value
+  |> show
+  |> println
+}
+```
 
 ## recordとoptional query
 

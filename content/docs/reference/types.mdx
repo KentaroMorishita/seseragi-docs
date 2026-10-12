@@ -59,6 +59,32 @@ pub effect fn main = do {
 
 `let identity = \value -> value`のような非再帰的な束縛も一般化されます。多相性はrank-1で、関数parameterやrecord fieldの型そのものへ「呼ぶたびに型が変わる関数」を埋め込むhigher-rank型はありません。
 
+### letの一般化と期待型
+
+次はmain内の断片です。非再帰的なidentityのbindingが一般化され、IntとStringへ別々に使えます。
+
+{/* example: examples/reference/inference-context.ssrg#generalized */}
+
+```seseragi title="main内: letの多相性"
+let identity = \value -> value
+let number = identity 42
+let text = identity "ready"
+println `${number}: ${text}`
+```
+
+出力は`42: ready`です。空ArrayやNothingはpayloadから型を決められないので、次のように期待型を指定できます。
+
+{/* example: examples/reference/inference-context.ssrg#context */}
+
+```seseragi title="main内: 型を指定する値"
+let empty: Array<Int> = []
+let missing: Maybe<String> = Nothing
+println $ show empty
+println $ show missing
+```
+
+出力は`[]`と`Nothing`です。注釈が空の値へ要素型を与えています。
+
 ## 同じ型として扱える範囲
 
 ADT、struct、newtypeはnominalです。見た目やfield構成が同じでも、別宣言なら別の型です。aliasは新しい型を作らず、展開先と同じ型です。
@@ -66,6 +92,25 @@ ADT、struct、newtypeはnominalです。見た目やfield構成が同じでも�
 recordにはwidth subtypingがあります。`{ name: String }`が必要な関数へ、`{ id: Int, name: String }`を渡せます。field型は同一である必要があり、fieldの内側へ暗黙のdepth subtypingはしません。
 
 `{ id?: String }`のfield accessは`Maybe<String>`です。optionalはfieldの不在を表し、requiredな`{ id: Maybe<String> }`とは異なります。optionalをrequiredへ暗黙変換することはできません。
+
+### 必要なrecord fieldだけを受け取る
+
+{/* example: examples/reference/record-shapes.ssrg#record-param */}
+
+```seseragi title="宣言: record parameter"
+fn name value: { name: String }
+  -> String =
+  value.name
+```
+
+{/* example: examples/reference/record-shapes.ssrg#record-width */}
+
+```seseragi title="main内: width subtyping"
+name { name: "Aki", age: 30 }
+|> println
+```
+
+追加のageがあっても、必要なnameがStringなのでAkiを返します。nominalなPersonをこのrecord型へ暗黙変換する規則ではありません。
 
 ## 暗黙変換とエラー
 

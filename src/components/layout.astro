@@ -2,7 +2,10 @@
 import "@/styles/global.css";
 interface Props { title: string; description: string; lang?: "ja" | "en"; }
 const { title, description, lang = "ja" } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const canonicalPath = Astro.url.pathname.replace(/\/$/, "") || "/";
+const japanesePath = canonicalPath.replace(/^\/en(?=\/|$)/, "") || "/";
+const englishPath = japanesePath === "/" ? "/en" : `/en${japanesePath}`;
+const canonical = new URL(canonicalPath, Astro.site);
 ---
 <!doctype html>
 <html lang={lang} class="dark">
@@ -15,8 +18,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content={lang === "ja" ? "ja_JP" : "en_US"} />
-    <link rel="alternate" hreflang="ja" href={new URL(Astro.url.pathname.replace(/^\/en(?=\/|$)/, "") || "/", Astro.site)} />
-    <link rel="alternate" hreflang="en" href={new URL(`/en${Astro.url.pathname.replace(/^\/en(?=\/|$)/, "")}`.replace(/\/$/, "") || "/en", Astro.site)} />
+    <link rel="alternate" hreflang="ja" href={new URL(japanesePath, Astro.site)} />
+    <link rel="alternate" hreflang="en" href={new URL(englishPath, Astro.site)} />
     <meta property="og:title" content={`${title} · Seseragi`} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />

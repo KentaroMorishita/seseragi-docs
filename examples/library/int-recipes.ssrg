@@ -1,0 +1,31 @@
+import * as int from "std/int"
+
+pub effect fn main = do {
+  // docs:start invalid-integer
+  match int.parse "tea" {
+    Right n -> println (show n)
+    Left _ -> println "Not an Int"
+  }
+  // docs:end invalid-integer
+
+  // docs:start bounded
+  [-3, 4, 12]
+  |> map (int.clamp 0 10)
+  |> show
+  |> println
+  // docs:end bounded
+
+  // docs:start overflow
+  int.maxValue ()
+  |> int.checkedAdd 1
+  |> show
+  |> println
+  // docs:end overflow
+
+  // docs:start divide-zero
+  match int.checkedDivide 0 12 {
+    Right n -> println (show n)
+    Left _ -> println "Cannot divide"
+  }
+  // docs:end divide-zero
+}

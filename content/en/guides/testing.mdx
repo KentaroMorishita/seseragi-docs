@@ -100,6 +100,121 @@ seseragi test --exact \
 
 `--jobs` selects concurrency. Each case uses an independent environment and resource scope, while reporting remains in definition order.
 
+## Test success and typed failure separately
+
+Use a separate package to divide name input into four cases. It follows the same rule as the [isolated form validation](/en/docs/guides/forms): trim surrounding whitespace and reject an empty name.
+
+### Prepare the names package
+
+```sh
+mkdir -p names/src names/tests
+cd names
+```
+
+Save this as `seseragi.toml`.
+
+{/* example: examples/guides/testing-validation/seseragi.toml */}
+```toml title="seseragi.toml"
+[package]
+name = "docs/names"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[exports]
+"." = "names"
+
+[test]
+target = "node"
+jobs = 1
+```
+
+Put the pure validator in `src/names.ssrg`.
+
+{/* example: examples/guides/testing-validation/src/names.ssrg#validator */}
+```seseragi title="src/names.ssrg"
+import * as text from "std/text"
+
+alias Name = Either<String, String>
+
+pub fn name input: String -> Name = {
+  let cleaned = text.trim input
+  if cleaned == "" then
+    Left "missing name"
+  else
+    Right cleaned
+}
+```
+
+### Specify expected values and failure reasons
+
+Save these two blocks in order as `tests/names.ssrg`. `accepted` fixes the expected value's type as `Either<String, String>`; `missing` checks the accepted failure reason.
+
+{/* example: examples/guides/testing-validation/tests/names.ssrg#helpers */}
+```seseragi title="tests/names.ssrg"
+import * as test from "std/test"
+import * as effects from "std/effect"
+import { name } from "docs/names"
+
+alias Name = Either<String, String>
+
+fn accepted value: String -> Name =
+  Right value
+
+fn missing error: String -> Bool =
+  error == "missing name"
+```
+
+Use `test.equal` for accepted input. For empty input, `test.expectFailure` checks both that a typed failure occurs and that its reason matches.
+
+{/* example: examples/guides/testing-validation/tests/names.ssrg#cases */}
+```seseragi title="tests/names.ssrg"
+pub let tests: test.Test =
+  test.suite "name" [
+    test.test "valid" $
+      test.equal (accepted "Ada") $
+        name "Ada",
+    test.test "trimmed" $
+      test.equal (accepted "Ada") $
+        name " Ada ",
+    test.test "blank" $
+      name ""
+      |> effects.fromEither
+      |> test.expectFailure missing,
+    test.test "spaces" $
+      name "   "
+      |> effects.fromEither
+      |> test.expectFailure missing
+  ]
+```
+
+```sh
+seseragi lock update
+seseragi test
+```
+
+```text
+PASS names::name::valid
+PASS names::name::trimmed
+PASS names::name::blank
+PASS names::name::spaces
+4 passed; 0 failed; 0 skipped
+```
+
+`blank` and `spaces` pass by verifying that validation fails. `effects.fromEither` moves the validator's `Either` into an Effect.
+
+### Read failing tests
+
+Change only the expected value in `valid` to `accepted "Eve"`, update the lock, and run `seseragi test --filter valid`. The report distinguishes the expected `Right "Eve"` from the actual `Right "Ada"`. Restore the expected value before trying each of these changes separately.
+
+| Change | Problem reported by `blank` |
+| --- | --- |
+| Return `Right "default"` for empty input | `expected a typed failure` |
+| Make `missing` require another reason | `typed failure did not match` |
+
+After each lock update, run `seseragi test --filter blank`. The first case succeeds when a failure was expected; the second fails with a different reason. Both test runs exit with code 1. Restore each change, update the lock, and check that all four cases pass again.
+
+`expectFailure` verifies typed failures. It does not turn defects or cancellation into successful checks for an expected input error.
+
 ## Choose what to verify
 
 These tests verify the fee rule, not browser input or interaction. Check input, focus, and event behavior in a browser as well. Pure update functions can be tested directly with the same `test.equal`.

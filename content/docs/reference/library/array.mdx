@@ -36,6 +36,86 @@ pub effect fn main =
 [2, 4]
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### 条件を満たす最初の要素
+
+3より大きい要素は5と8です。findは最初の5だけをJustで返します。
+
+{/* example: examples/library/array-recipes.ssrg#find-first */}
+
+```seseragi
+[2, 5, 8]
+|> array.find (\n -> n > 3)
+|> show
+|> println
+```
+
+出力:
+
+```text
+Just 5
+```
+
+### 該当する要素がない
+
+同じ配列でも、9より大きい要素はありません。結果はNothingです。
+
+{/* example: examples/library/array-recipes.ssrg#find-none */}
+
+```seseragi
+[2, 5, 8]
+|> array.find (\n -> n > 9)
+|> show
+|> println
+```
+
+出力:
+
+```text
+Nothing
+```
+
+### 範囲外の位置を読む
+
+getの位置は0から数えます。二要素の配列に位置2はなく、Nothingを返します。
+
+{/* example: examples/library/array-recipes.ssrg#get-outside */}
+
+```seseragi
+[10, 20]
+|> array.get 2
+|> show
+|> println
+```
+
+出力:
+
+```text
+Nothing
+```
+
+### 先頭から0個取る
+
+takeへ0を渡すと、元の配列の要素数にかかわらず空の配列を返します。
+
+{/* example: examples/library/array-recipes.ssrg#take-zero */}
+
+```seseragi
+[10, 20]
+|> array.take 0
+|> show
+|> println
+```
+
+出力:
+
+```text
+[]
+```
+
 ## 選び方と注意
 
 - 添字で読む列にはArrayを使います。`get`と添字構文は、負の添字や範囲外を`Nothing`で返します。

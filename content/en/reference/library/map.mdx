@@ -14,6 +14,75 @@ description: "Store and retrieve values using keys with Eq and Hash. Distinguish
 import * as map from "std/map"
 ```
 
+## Try specific cases
+
+Each excerpt can be tried on its own inside the `do` block of `main`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](/en/docs/learn/first-program) and [Effect](/en/docs/learn/effects).
+
+### Look up a present key
+
+singleton constructs a one-entry Map. get returns the corresponding value inside Just.
+
+{/* example: examples/library/map-recipes.ssrg#get-present */}
+
+```seseragi
+map.singleton "visits" 1
+|> map.get "visits"
+|> show
+|> println
+```
+
+Output:
+
+```text
+Just 1
+```
+
+### Look up an absent key
+
+An absent key returns Nothing. A stored zero and an absent key are distinct.
+
+{/* example: examples/library/map-recipes.ssrg#get-missing */}
+
+```seseragi
+map.singleton "visits" 1
+|> map.get "errors"
+|> show
+|> println
+```
+
+Output:
+
+```text
+Nothing
+```
+
+### Keep the original Map on update
+
+insert returns a new Map. Reading the same key from before yields 1, while reading after yields 2.
+
+{/* example: examples/library/map-recipes.ssrg#persistent-insert */}
+
+```seseragi
+let before = map.singleton "visits" 1
+let after =
+  map.insert "visits" 2 before
+before
+|> map.get "visits"
+|> show
+|> println
+after
+|> map.get "visits"
+|> show
+|> println
+```
+
+Output:
+
+```text
+Just 1
+Just 2
+```
+
 ## Choosing operations
 
 - Keys need Eq and Hash, with equal keys producing equal hashes. Good hashes give expected O(1) lookup/point updates; collisions can make them linear.

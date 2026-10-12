@@ -1,0 +1,13 @@
+// docs:start imports
+import * as arrays from "std/array"
+import * as lists from "std/list"
+// docs:end imports
+
+pub effect fn main =
+  // docs:start conversion
+  [1, 2]
+  |> arrays.toList
+  |> lists.toArray
+  |> show
+  |> println
+  // docs:end conversion

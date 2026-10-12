@@ -1,0 +1,31 @@
+import * as map from "std/map"
+
+pub effect fn main = do {
+  // docs:start get-present
+  map.singleton "visits" 1
+  |> map.get "visits"
+  |> show
+  |> println
+  // docs:end get-present
+
+  // docs:start get-missing
+  map.singleton "visits" 1
+  |> map.get "errors"
+  |> show
+  |> println
+  // docs:end get-missing
+
+  // docs:start persistent-insert
+  let before = map.singleton "visits" 1
+  let after =
+    map.insert "visits" 2 before
+  before
+  |> map.get "visits"
+  |> show
+  |> println
+  after
+  |> map.get "visits"
+  |> show
+  |> println
+  // docs:end persistent-insert
+}

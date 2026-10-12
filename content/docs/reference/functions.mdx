@@ -41,6 +41,40 @@ pub effect fn main = do {
 
 `increment`の型は`Int -> Int`です。`show`でIntをStringへ変換し、`println`へ渡すので出力は42です。入力を先に書く`value |> function`は`function value`と同じです。標準collection APIなどはdata argumentが最後なので、関数を部分適用してpipelineへ置けます。
 
+### 括弧でまとめる範囲
+
+以下は`add`を使う`main`の`do`ブロック内へ置く断片です。最初の二つは同じ適用を別の括弧で書き、最後は引数の計算を括弧でまとめます。
+
+{/* example: examples/reference/function-values.ssrg#grouping */}
+
+```seseragi title="mainのdo内: 適用と括弧"
+add 10 2
+|> show
+|> println
+(add 10) 2
+|> show
+|> println
+add (10 + 1) 2
+|> show
+|> println
+```
+
+出力は順に12、12、13です。関数へ渡す引数の区切りと、計算をまとめる括弧を区別してください。
+
+### 残りの引数を受け取る関数
+
+{/* example: examples/reference/function-values.ssrg#partial */}
+
+```seseragi title="mainのdo内: 部分適用"
+let increment = add 1
+[1, 2, 3]
+|> map increment
+|> show
+|> println
+```
+
+`add 1`の型は`Int -> Int`です。Arrayへ適用した出力は`[2, 3, 4]`になります。
+
 ## 評価順とlambda
 
 Seseragiはstrict evaluationです。引数を左から右へ一度ずつ評価し、適用された本体を評価します。部分適用は残りのparameterを受け取る関数を作り、まだ与えていない引数を評価しません。Effectを返す関数の呼び出しは、返した計算の実行とは別です。
@@ -52,6 +86,43 @@ map (\value: Int -> value + 1) [1, 2]
 ```
 
 lambdaは必要なlexical bindingをcaptureします。型parameterは実行時の値ではないので、generic関数の中で型名を調べて分岐することはできません。
+
+### 匿名関数とoperator value
+
+lambdaを直接渡す場合も、名前付き関数を渡す場合も、必要な型は同じです。次はmain内の断片で、`[2, 4, 6]`を出力します。
+
+{/* example: examples/reference/function-values.ssrg#lambda */}
+
+```seseragi title="mainのdo内: lambda"
+[1, 2, 3]
+|> map (\n: Int -> n * 2)
+|> show
+|> println
+```
+
+operator valueは、型を指定したbindingへ保存してから使えます。この断片も`[2, 4, 6]`を出力します。
+
+{/* example: examples/reference/function-values.ssrg#operator */}
+
+```seseragi title="mainのdo内: operator value"
+let times: Int -> Int -> Int = (*)
+let twice = times 2
+[1, 2, 3]
+|> map twice
+|> show
+|> println
+```
+
+0.61.25には、`(+) 20 22`のような直接適用を`SES-T0101`で拒否するcompiler制約があります。operatorを関数値にすること自体の禁止ではありません。上のbindingを介する形を使ってください。
+
+{/* example: examples/reference/invalid/direct-operator.ssrg#invalid */}
+
+```seseragi title="0.61.25で拒否される形"
+fn answer -> Int = (+) 20 22
+
+pub effect fn main =
+  println "ready"
+```
 
 ## ブロックとlocal関数
 
@@ -65,6 +136,21 @@ fn twice value: Int -> Int = {
 ```
 
 関数を宣言するだけでは、本体のuser codeやEffectを実行しません。localな相互再帰は`rec { ... }`へまとめます。local functionへ`pub`は付けられません。
+
+### local関数がcaptureする値
+
+{/* example: examples/reference/local-functions.ssrg#closure */}
+
+```seseragi title="宣言: lexical capture"
+fn shifted amount: Int -> value: Int
+  -> Int = {
+  fn shift n: Int -> Int =
+    n + amount
+  shift value
+}
+```
+
+`shift`は外側のparameter `amount`をcaptureします。`shifted 3 7`は10です。後から宣言するlocal bindingをcaptureする規則ではありません。
 
 ## 再帰
 

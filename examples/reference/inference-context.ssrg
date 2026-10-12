@@ -1,0 +1,14 @@
+pub effect fn main = do {
+  // docs:start generalized
+  let identity = \value -> value
+  let number = identity 42
+  let text = identity "ready"
+  println `${number}: ${text}`
+  // docs:end generalized
+  // docs:start context
+  let empty: Array<Int> = []
+  let missing: Maybe<String> = Nothing
+  println $ show empty
+  println $ show missing
+  // docs:end context
+}

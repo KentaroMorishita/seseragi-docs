@@ -1,0 +1,11 @@
+import * as signals from "std/signal"
+
+pub effect fn main = do {
+  // docs:start set
+  count <- signals.make 1
+  before <- *count
+  count := 5
+  after <- *count
+  // docs:end set
+  println `${before}/${after}`
+}

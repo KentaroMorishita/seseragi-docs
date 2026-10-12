@@ -1,0 +1,21 @@
+import * as bytes_hex
+  from "std/bytes/hex"
+
+pub effect fn main = do {
+  // docs:start roundtrip
+  match bytes_hex.decode "4142" {
+    Right bytes ->
+      bytes
+      |> bytes_hex.encode
+      |> println
+    Left _ -> println "Invalid hex"
+  }
+  // docs:end roundtrip
+
+  // docs:start invalid
+  match bytes_hex.decode "ZZ" {
+    Right _ -> println "Valid hex"
+    Left _ -> println "Invalid hex"
+  }
+  // docs:end invalid
+}

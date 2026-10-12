@@ -39,7 +39,7 @@ facts. All documented API examples were checked against the live CLI.
 
 ## Executable evidence
 
-`examples/guides/checks.json` now contains sixteen entries. The ten original application/program entries passed the earlier gate; the six independent migration comparisons passed after the beginner-path revision:
+`examples/guides/checks.json` contains twenty-four entries. The ten original application/program entries passed the earlier gate; six independent migration comparisons passed after the beginner-path revision. Eight further checks cover the focused practical recipes below:
 
 | Example | Verification | Result |
 | --- | --- | --- |
@@ -59,6 +59,15 @@ facts. All documented API examples were checked against the live CLI.
 | testing | `seseragi test` | three shipping boundary cases pass |
 | packages/app | run | path dependency resolves; prints `400` |
 | typescript-bindings | run | `[ready]`, then `Please try again` |
+
+| cli-normalization.ssrg | run | normalized integer, blank, invalid text, integer zero |
+| form-validation.ssrg | run | accepted Ada; empty and whitespace-only names rejected |
+| state-fields.ssrg | run | changed field, preserved field, original immutable value |
+| component-props.ssrg | run | Ready/Waiting props; `<script>` escaped as text |
+| signal-independence.ssrg | run | Today 2 / Tomorrow 1 from two separate sources |
+| signal-shared.ssrg | run | two names read the same updated value 2 |
+| error-recovery.ssrg | run | absent setting uses light; present dark stays dark |
+| testing-validation | test | valid, trimmed, blank, and spaces all pass |
 
 The CLI example also rejected `0`, `many`, and EOF: exit 1, no stdout. The test
 runner's exact selection passed the case named `shipping::fee::at threshold`.
@@ -167,3 +176,69 @@ only the repeated output-label colons, which were removed once; there were no
 other prose notices. Added prerequisite paragraphs were checked separately.
 The nine new prerequisite paragraphs passed yomiyasu lint at 100/100. The root
 agent owns the final integrated docs-site layout and deployment checks.
+
+
+## Focused practical recipes
+
+Seven paired guides now provide additional small examples. The migration guide,
+package/deployment guide, bindings guide, and existing browser programs were not
+expanded with duplicate demonstrations. The additions each answer a practical
+question:
+
+- CLI: trim a line, distinguish blank input from malformed input, and show why
+  integer parsing alone does not enforce the business range (zero parses).
+- Forms: compare accepted, empty, and whitespace-only names without DOM input.
+  This is explicitly a separate normalization policy; the existing Web form's
+  blank-only rule was not silently changed.
+- State/Actions: edit only draft, reset only count, and inspect the original Model.
+  Every branch constructs a new nominal struct value and preserves other fields.
+- Components: vary one prop across Ready, Waiting, and literal `<script>` text.
+  Execution checks SSR serialization and escaping, without implying DOM mounting.
+- Stateful features: execute make twice for independent states, then compare a
+  separate program binding two names to one source. read is an Effectful current
+  snapshot, not an untested subscription/DOM assertion.
+- Failure recovery: use a fallback only for MissingSetting and preserve the
+  successful dark setting, separately from the earlier attempt/match program.
+- Tests: validate accepted and trimmed names, and verify both failure occurrence
+  and reason for blank/whitespace-only names with expectFailure.
+
+Seven new single-file recipes and the new testing-validation package passed
+Seseragi 0.61.25: exit 0, exact expected stdout, and empty stderr. Results are
+saved in `/tmp/seseragi-guides-recipes-checks.json`. The tests pass four cases.
+Three additional mutations were made only in owned temporary copies, each after
+lock update. The published package remains passing:
+
+| Mutation and selection | Exit | Actual diagnostic |
+| --- | --- | --- |
+| valid expected Eve, actual Ada | 1 | values are not equal; expected Right "Eve"; actual Right "Ada" |
+| blank validator unexpectedly returns Right | 1 | expected a typed failure |
+| blank failure predicate requests another reason | 1 | typed failure did not match: "missing name" |
+
+Each mutation reported zero passed and one failed. Raw evidence is in
+`/tmp/seseragi-guides-test-failures.json`; the temporary copies were removed.
+The tutorial instructs lock update after edits/restoration and distinguishes
+assertion failures from stale-lock/configuration exit 2. expectFailure tests
+recoverable typed failures and does not accept defects/cancellation as input
+validation success.
+
+There are now 80 exact source fences across both Guide locales. The new material
+adds 18 named regions and one full manifest per locale (38 fences in total).
+Every new displayed source line is at most 37 characters; all pipelines remain
+vertical and aligned. Region source files are covered by checks.json either
+directly or through their checked package. Programs split into declarations and
+main explicitly tell the reader to save those blocks in order; each independent
+recipe names its file and run command. Existing whole-file markers were kept
+intact.
+
+Applied yomiyasu once to the seven changed Japanese pages. Initial scores were
+83–100. Notices were polite ending repetition and the explicit distinction
+between a Signal snapshot and subscriptions. One prose pass shortened the new
+paragraphs while preserving input policies, typed channels, and state ownership.
+Raw lint evidence is `/tmp/seseragi-guides-recipes-yomiyasu.json`. The Action
+introduction now says it specifies the operation to apply rather than implying
+that every Action is a past event; both locales agree.
+
+No browser application behavior or project source was changed during this pass,
+so the previously recorded application browser evidence remains the relevant
+verification. The root agent owns the final docs-site layout/search/navigation
+and shared integration gates for the new excerpts.

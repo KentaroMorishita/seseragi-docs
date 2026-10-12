@@ -5,6 +5,25 @@ description: "Reuse data shapes and behavior while preserving each argument type
 
 Instead of separate containers for integers and strings, define `Box<A>` with a type parameter. `A` names a type within the declaration; it is not a runtime value.
 
+## Keep the argument and result types related
+
+First, declare a small function with one type parameter at module scope:
+
+{/* example: examples/learn/focused/generic-identity.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn identity<A> value: A -> A = value
+```
+
+Each application gives A a concrete type. These bindings inside `main` supply type arguments explicitly:
+
+{/* example: examples/learn/focused/generic-identity.ssrg#explicit */}
+```seseragi title="Bindings in main"
+let number = identity<Int> 42
+let text = identity<String> "hello"
+```
+
+`number` is the Int 42 and `text` is the String `"hello"`. The same function body retains the relationship that its argument and result have the same type. It does not declare an unrelated String result for an integer input.
+
 ## Parameterize a type
 
 {/* example: examples/learn/generics.ssrg */}
@@ -56,11 +75,36 @@ Type arguments are inferred from arguments or the expected result type. You can 
 
 An empty collection has no values from which to infer an element type. `let empty: Array<Int> = []` supplies an expected type. When the compiler cannot determine a type, it requests an annotation instead of falling back to `Any`.
 
+### Transform to a different type
+
+A function transforming a value inside Box separates the input type A from the output type B. This declaration uses Box above:
+
+{/* example: examples/learn/focused/generic-map-box.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn mapBox<A, B> f: (A -> B)
+  -> box: Box<A> -> Box<B> =
+  Box { value: f box.value }
+```
+
+These bindings belong inside `main`:
+
+{/* example: examples/learn/focused/generic-map-box.ssrg#transform */}
+```seseragi title="Bindings in main"
+let number: Box<Int> =
+  Box { value: 42 }
+let labeled: Box<String> =
+  number
+  |> mapBox (\n -> `score: ${n}`)
+```
+
+`number` is `Box<Int>` and `labeled` is `Box<String>`. `labeled.value` is `score: 42`. The transformation returns String from Int, and the Box types preserve that relationship.
+
 ## Reuse a data shape
 
 ADTs can have type parameters too. This fragment uses `A` for its successful payload:
 
-```text
+{/* example: examples/learn/focused/generic-result.ssrg#data */}
+```seseragi title="Type declaration"
 type Result<A> =
   | Failed String
   | Succeeded A
@@ -70,11 +114,48 @@ type Result<A> =
 
 If you only need another name for a type, use `alias Pair<A> = (A, A)`. An alias does not introduce a new nominal type identity. It serves a different purpose from a struct or newtype.
 
+A function extracting data from Result can also preserve the type parameter. Place it at module scope:
+
+{/* example: examples/learn/focused/generic-result.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn valueOr<A> fallback: A
+  -> result: Result<A> -> A =
+  match result {
+    Failed _ -> fallback
+    Succeeded value -> value
+  }
+```
+
+These bindings belong inside `main`:
+
+{/* example: examples/learn/focused/generic-result.ssrg#inputs */}
+```seseragi title="Bindings in main"
+let number =
+  Succeeded 42
+  |> valueOr 0
+let text =
+  Failed "unavailable"
+  |> valueOr "untitled"
+```
+
+`number` is 42; `text` is `untitled`. The success and fallback share A, so the function's result has that type. Whether to display a failure reason or replace it with a fallback is a policy chosen by the caller.
+
 ## Reuse a function bound with let
 
 A function bound with a non-recursive `let` can be instantiated differently at each use. For example, bind `let same = \value -> value` inside a block and apply it separately to an integer and a string. This is called let-polymorphism.
 
 Generalization does not allow different element types within one Array. `Array<Int>` and `Array<String>` are different types. Nor does a `Box<Int>` implicitly convert to a `Box<Float>`.
+
+Put this fragment inside `main` to apply one bound function at two types:
+
+{/* example: examples/learn/focused/generic-local-function.ssrg#polymorphic */}
+```seseragi title="Bindings in main"
+let same = \value -> value
+let number = same 42
+let text = same "hello"
+```
+
+`number` is 42; `text` is `hello`. The function is not fixed to the type of its first use.
 
 ## Extract another type
 

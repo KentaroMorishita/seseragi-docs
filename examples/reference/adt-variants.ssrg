@@ -1,0 +1,21 @@
+// docs:start variants
+type Shape =
+  | Point
+  | Rect (Int, Int)
+// docs:end variants
+
+// docs:start payload
+fn area shape: Shape -> Int =
+  match shape {
+    Point -> 0
+    Rect (width, height) ->
+      width * height
+  }
+// docs:end payload
+
+pub effect fn main = do {
+  // docs:start cases
+  println $ show $ area Point
+  println $ show $ area $ Rect (3, 4)
+  // docs:end cases
+}

@@ -53,7 +53,8 @@ let measured: Reading = Measured 23
 
 A case can hold several values by using one tuple as its payload. In this fragment, a rectangle holds width and height:
 
-```text title="Type declaration with a tuple"
+{/* example: examples/learn/focused/adt-tuple-payload.ssrg#declaration */}
+```seseragi title="Type declaration"
 type Shape =
   | Circle Int
   | Rectangle (Int, Int)
@@ -61,7 +62,45 @@ type Shape =
 
 Construct a value with `Rectangle (3, 4)`. The tuple `(3, 4)` groups two integers into one value, and that tuple is the constructor's single argument. `Rectangle 3 4` does not work as a two-argument call.
 
+This binding belongs inside `main` and uses Shape from above. Its annotation also confirms that supplying a tuple produces a Shape:
+
+{/* example: examples/learn/focused/adt-tuple-payload.ssrg#value */}
+```seseragi title="Binding in main"
+let rectangle: Shape =
+  Rectangle (3, 4)
+```
+
 When field names help distinguish the data, group it into a struct as in the previous chapter, then use the struct as a case's payload. The ADT selects a state; the struct defines the values held together.
+
+### Use a struct as a payload
+
+Consider a type that holds account information only when signed in. Define the information at module scope first:
+
+{/* example: examples/learn/focused/adt-struct-payload.ssrg#data */}
+```seseragi title="Struct declaration"
+struct Account {
+  name: String,
+}
+```
+
+Then define the case that needs it:
+
+{/* example: examples/learn/focused/adt-struct-payload.ssrg#declaration */}
+```seseragi title="Type declaration"
+type Session =
+  | Guest
+  | SignedIn Account
+```
+
+`Guest` needs no information. `SignedIn` requires an Account. This binding belongs inside `main`:
+
+{/* example: examples/learn/focused/adt-struct-payload.ssrg#value */}
+```seseragi title="Binding in main"
+let session: Session =
+  SignedIn (Account { name: "Aki" })
+```
+
+Parentheses group the inner Account construction into the single argument supplied to SignedIn. These are also declaration and value fragments. The next chapter introduces selecting a case and reading its data with pattern matching.
 
 ## Type names and input conditions
 

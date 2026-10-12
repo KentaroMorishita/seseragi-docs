@@ -133,6 +133,74 @@ Both counters start at 0. Click “Today” twice: only Today becomes 2. Click �
 
 You do not call `create` from `view` to recreate state. An HTML `key` does not allocate Signal state either. The separate executions of `create` establish independent state.
 
+## Check Signal creation in isolation
+
+These two programs check state independence without HTML or DOM operations. Save each in its own file.
+
+### Execute make separately
+
+`signal-independence.ssrg` executes `signals.make` twice. Updating either state does not change the other one's value.
+
+{/* example: examples/guides/signal-independence.ssrg#independent */}
+```seseragi title="signal-independence.ssrg"
+import * as signals from "std/signal"
+
+fn increment n: Int -> Int = n + 1
+
+pub effect fn main = do {
+  first <- signals.make 0
+  second <- signals.make 0
+  signals.update increment first
+  signals.update increment first
+  signals.update increment second
+  today <- signals.read first
+  tomorrow <- signals.read second
+  println `Today: ${today}`
+  println `Tomorrow: ${tomorrow}`
+}
+```
+
+```sh
+seseragi run signal-independence.ssrg
+```
+
+```text
+Today: 2
+Tomorrow: 1
+```
+
+`signals.read` reads the current value through an Effect. This CLI example checks the current values of two states.
+
+### Bind another name to the same Signal
+
+`signal-shared.ssrg` executes `make` once. `same` refers to the same Signal as `source`.
+
+{/* example: examples/guides/signal-shared.ssrg#shared */}
+```seseragi title="signal-shared.ssrg"
+import * as signals from "std/signal"
+
+pub effect fn main = do {
+  source <- signals.make 0
+  let same = source
+  signals.set 2 same
+  first <- signals.read source
+  second <- signals.read same
+  println `Source: ${first}`
+  println `Same: ${second}`
+}
+```
+
+```sh
+seseragi run signal-shared.ssrg
+```
+
+```text
+Source: 2
+Same: 2
+```
+
+`let same = source` does not copy state or create an independent counter. Execute `make` separately for independent state; pass the same Signal when sharing state is intended.
+
 ## Choose the owner of shared state
 
 If both counters must edit the same total, their common parent creates that state and passes current values or permitted update Effects to its children. Passing a whole application `MutableSignal` gives each child a broader mutation capability.

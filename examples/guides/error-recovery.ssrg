@@ -1,0 +1,30 @@
+// docs:start fallback
+import * as effects from "std/effect"
+
+type ThemeError =
+  | MissingSetting
+
+effect fn theme saved: Maybe<String>
+  -> String fails ThemeError =
+  effects.fromMaybe MissingSetting $
+    saved
+
+effect fn fallback error: ThemeError
+  -> String =
+  match error {
+    MissingSetting -> succeed "light"
+  }
+// docs:end fallback
+
+// docs:start paths
+pub effect fn main = do {
+  missing <-
+    theme Nothing
+    |> effects.recover fallback
+  println missing
+  present <-
+    theme (Just "dark")
+    |> effects.recover fallback
+  println present
+}
+// docs:end paths

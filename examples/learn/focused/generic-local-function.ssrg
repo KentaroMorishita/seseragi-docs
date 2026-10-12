@@ -1,0 +1,8 @@
+pub effect fn main = {
+  // docs:start polymorphic
+  let same = \value -> value
+  let number = same 42
+  let text = same "hello"
+  // docs:end polymorphic
+  println `${number}/${text}`
+}

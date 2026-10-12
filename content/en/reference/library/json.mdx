@@ -35,6 +35,91 @@ Output:
 Valid JSON
 ```
 
+## Try specific cases
+
+Each excerpt can be tried on its own inside the `do` block of `main`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](/en/docs/learn/first-program) and [Effect](/en/docs/learn/effects).
+
+### Serialize a JSON string
+
+JsonString constructs a JSON value. stringify encodes it as JSON text, including quotation marks.
+
+{/* example: examples/library/json-recipes.ssrg#stringify */}
+
+```seseragi
+json.JsonString "hello"
+|> json.stringify
+|> println
+```
+
+Output:
+
+```text
+"hello"
+```
+
+### Reject invalid JSON syntax
+
+An unclosed object fails to parse. Handling Left separates invalid syntax before decoding a value.
+
+{/* example: examples/library/json-recipes.ssrg#invalid-syntax */}
+
+```seseragi
+match json.parse "{" {
+  Right _ -> println "Valid JSON"
+  Left _ -> println "Invalid JSON"
+}
+```
+
+Output:
+
+```text
+Invalid JSON
+```
+
+### Decode a JSON number as Int
+
+The annotation selects decoding to Int. The JSON number 42 decodes successfully as Right 42.
+
+{/* example: examples/library/json-recipes.ssrg#decode-int */}
+
+```seseragi
+let decodedNumber:
+  Either<json.JsonReadError, Int> =
+    json.decodeString "42"
+match decodedNumber {
+  Right n -> println (show n)
+  Left _ -> println "Not an Int"
+}
+```
+
+Output:
+
+```text
+42
+```
+
+### Reject a valid JSON value of the wrong type
+
+true is valid JSON but not an Int. Parsing syntax and decoding the requested type are separate steps.
+
+{/* example: examples/library/json-recipes.ssrg#wrong-type */}
+
+```seseragi
+let typeMismatch:
+  Either<json.JsonReadError, Int> =
+    json.decodeString "true"
+match typeMismatch {
+  Right n -> println (show n)
+  Left _ -> println "Not an Int"
+}
+```
+
+Output:
+
+```text
+Not an Int
+```
+
 ## Choosing operations
 
 - JSON numbers parse as exact Decimals. Duplicate object fields are errors rather than last-wins; NaN, infinity, comments, and trailing commas are rejected.

@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
+import { readExample } from "./example-source.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const readJSON = (path) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
@@ -12,6 +13,7 @@ const notes = readJSON("src/data/library-notes.json");
 const signatureOverrides = readJSON("src/data/library-signature-overrides.json");
 const fields = readJSON("src/data/library-fields.json");
 const checks = readJSON("examples/library/checks.json");
+const examples = readJSON("src/data/library-examples.json");
 const verifyOnly = process.argv.includes("--check");
 const writePage = (path, content) => {
   if (verifyOnly) {
@@ -41,6 +43,26 @@ for (const item of snapshot.items.filter((item) => item.kind === "struct")) {
 }
 for (const identity of Object.keys(fields)) {
   if (!snapshot.items.some((item) => item.identity === identity && item.kind === "struct")) throw new Error(`Not a public struct: ${identity}`);
+}
+for (const [specifier, recipes] of Object.entries(examples)) {
+  if (!snapshot.modules.some((module) => module.specifier === specifier && module.status !== "contract-only")) throw new Error(`Unknown examples module: ${specifier}`);
+  const byFile = new Map();
+  for (const recipe of recipes) {
+    if (!recipe.jaTitle || !recipe.enTitle || !recipe.ja || !recipe.en || typeof recipe.stdout !== "string") throw new Error(`Incomplete paired recipe: ${recipe.example}`);
+    if (!recipe.example.startsWith("examples/library/") || !recipe.example.includes("#")) throw new Error(`Recipe needs a checked excerpt: ${recipe.example}`);
+    const snippet = readExample(recipe.example);
+    if (snippet.split("\n").some((line) => line.length > 37)) throw new Error(`Recipe exceeds the mobile line budget: ${recipe.example}`);
+    const [file, region] = recipe.example.split("#");
+    const group = byFile.get(file) ?? [];
+    group.push({ region, stdout: recipe.stdout });
+    byFile.set(file, group);
+  }
+  for (const [file, outputs] of byFile) {
+    const check = checks.find((check) => check.file === file && check.mode === "run");
+    if (!check || check.stdout !== outputs.map((entry) => entry.stdout).join("")) throw new Error(`Recipe outputs differ from the run check: ${file}`);
+    const regions = [...readFileSync(resolve(root, file), "utf8").matchAll(/^\s*\/\/\s*docs:start\s+([a-z][a-z0-9-]*)\s*$/gm)].map((match) => match[1]);
+    if (JSON.stringify(regions) !== JSON.stringify(outputs.map((entry) => entry.region))) throw new Error(`Recipe order differs from its checked source: ${file}`);
+  }
 }
 const groups = {
   core: ["基本の型と結果", "Core types and results", "maybe-and-either"],
@@ -192,6 +214,13 @@ for (const locale of ["ja", "en"]) {
     const example = checks.find((example) => example.file.endsWith(`/${slug}.ssrg`));
     if (example) {
       page += `## ${en ? "Example" : "使ってみる"}\n\n{/* example: ${example.file} */}\n\n\`\`\`seseragi\n${readFileSync(resolve(root, example.file), "utf8").trimEnd()}\n\`\`\`\n\n${en ? "Output:" : "出力:"}\n\n${code(example.stdout.trimEnd())}\n`;
+    }
+    if (examples[module.specifier]?.length) {
+      page += `## ${en ? "Try specific cases" : "目的から試す"}\n\n`;
+      page += en ? `Each excerpt can be tried on its own inside the \`do\` block of \`main\`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](${base}/learn/first-program) and [Effect](${base}/learn/effects).\n\n` : `各断片は、このページ冒頭のimportを使い、\`main\`の\`do\`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](${base}/learn/first-program)、\`do\`の順次実行は[Effect](${base}/learn/effects)を参照してください。\n\n`;
+      for (const recipe of examples[module.specifier]) {
+        page += `### ${recipe[en ? "enTitle" : "jaTitle"]}\n\n${escape(recipe[locale])}\n\n{/* example: ${recipe.example} */}\n\n\`\`\`seseragi\n${readExample(recipe.example)}\n\`\`\`\n\n${en ? "Output:" : "出力:"}\n\n${code(recipe.stdout.trimEnd())}\n`;
+      }
     }
     if (notes[module.specifier]) {
       page += `## ${en ? "Choosing operations" : "選び方と注意"}\n\n`;

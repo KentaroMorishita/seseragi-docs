@@ -48,6 +48,61 @@ pub effect fn main =
 
 ブロックは`{ ... }`で囲み、最後の式の値を返します。宣言だけなら`Unit`です。空の`{}`はempty recordなので、何もしないブロックは`{ () }`と書きます。
 
+### 式とブロックの結果
+
+次の二つは式の断片です。`let`の右辺へ置くと、最初はString、次はIntとして推論されます。
+
+{/* example: examples/reference/expression-forms.ssrg#if-value */}
+
+```seseragi title="式: if"
+if 3 > 0 then
+  "positive"
+else
+  "zero"
+```
+
+この条件式の値は`"positive"`です。
+
+{/* example: examples/reference/expression-forms.ssrg#block-result */}
+
+```seseragi title="式: 最後の値"
+{
+  let minutes = 2
+  minutes * 60
+}
+```
+
+最後の`minutes * 60`がブロックの結果で、値は120です。`let minutes`自体の値を返すわけではありません。
+
+{/* example: examples/reference/expression-forms.ssrg#unit */}
+
+```seseragi title="宣言: Unitを返す"
+fn idle -> Unit = { () }
+```
+
+`idle ()`はUnitの値`()`を返します。空recordは次の式で、Unitとは別の型です。
+
+{/* example: examples/reference/expression-forms.ssrg#empty-record */}
+
+```seseragi title="式: empty record"
+{}
+```
+
+### ifの結果型が違う場合
+
+これは意図的なエラー例です。Stringを返すbranchとIntを返すbranchは揃わず、0.61.25は`SES-T0101`で拒否します。
+
+{/* example: examples/reference/invalid/if-results.ssrg#invalid */}
+
+```seseragi title="意図的な型エラー"
+fn choose ready: Bool -> String =
+  if ready then "ready" else 0
+
+pub effect fn main =
+  choose True
+  |> println
+```
+
 ## 改行と継続
 
 インデント幅は意味を変えません。宣言や式を改行または`;`で区切り、括弧内は自由に改行できます。直前のtokenが右辺を必要とする場合や、次のtokenがpipeline・算術・比較などの継続operatorの場合、その改行は式を区切りません。

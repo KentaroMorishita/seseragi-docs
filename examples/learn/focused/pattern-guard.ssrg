@@ -1,0 +1,19 @@
+// docs:start declaration
+fn sign number: Int -> String =
+  match number {
+    n when n > 0 -> "positive"
+    0 -> "zero"
+    _ -> "negative"
+  }
+// docs:end declaration
+
+pub effect fn main = {
+  // docs:start inputs
+  let negative = sign (-1)
+  let zero = sign 0
+  let positive = sign 1
+  // docs:end inputs
+  let report =
+    `${negative}/${zero}/${positive}`
+  println report
+}

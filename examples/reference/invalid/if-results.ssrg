@@ -1,0 +1,8 @@
+// docs:start invalid
+fn choose ready: Bool -> String =
+  if ready then "ready" else 0
+
+pub effect fn main =
+  choose True
+  |> println
+// docs:end invalid

@@ -83,6 +83,56 @@ Use 1 to 1000
 
 The validation failures for “many” and 0 are recovered into messages, so this run succeeds. It does not recover a failure of `println` itself. An inability to write to Console still fails.
 
+## Use a default only on failure
+
+This independent example uses `light` when a setting is absent and preserves it when present. Save the following two blocks in order as `error-recovery.ssrg`. It reads no files or environment variables; `Maybe<String>` supplies presence or absence.
+
+{/* example: examples/guides/error-recovery.ssrg#fallback */}
+```seseragi title="error-recovery.ssrg"
+import * as effects from "std/effect"
+
+type ThemeError =
+  | MissingSetting
+
+effect fn theme saved: Maybe<String>
+  -> String fails ThemeError =
+  effects.fromMaybe MissingSetting $
+    saved
+
+effect fn fallback error: ThemeError
+  -> String =
+  match error {
+    MissingSetting -> succeed "light"
+  }
+```
+
+`effects.fromMaybe` turns `Nothing` into the typed failure `MissingSetting`. `fallback` also constructs an Effect: it requires no additional services and returns `light` without a typed failure. Its return type is `Task<String>`.
+
+{/* example: examples/guides/error-recovery.ssrg#paths */}
+```seseragi title="error-recovery.ssrg"
+pub effect fn main = do {
+  missing <-
+    theme Nothing
+    |> effects.recover fallback
+  println missing
+  present <-
+    theme (Just "dark")
+    |> effects.recover fallback
+  println present
+}
+```
+
+```sh
+seseragi run error-recovery.ssrg
+```
+
+```text
+light
+dark
+```
+
+`recover` calls `fallback` on the failure path created from `Nothing`. The successful value from `Just "dark"` passes through. Where `attempt` returns success or failure as a value to inspect, this example supplies an alternative Effect for failure.
+
 ## Unify application failures
 
 When combining input, filesystem, or network Effects, use `mapError` to convert each failure into an application failure type. [Build a CLI application](/en/docs/guides/cli-app) unifies `InputFailure StdinError` and `OutputFailure ConsoleError` in `AppError`.

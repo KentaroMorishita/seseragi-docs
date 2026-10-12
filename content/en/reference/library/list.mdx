@@ -34,6 +34,69 @@ Output:
 [10, 20, 30]
 ```
 
+## Try specific cases
+
+Each excerpt can be tried on its own inside the `do` block of `main`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](/en/docs/learn/first-program) and [Effect](/en/docs/learn/effects).
+
+### Read the first element
+
+A literal prefixed with a backtick constructs a List. head returns its first element as Just 4.
+
+{/* example: examples/library/list-recipes.ssrg#head-present */}
+
+```seseragi
+`[4, 8]
+|> list.head
+|> show
+|> println
+```
+
+Output:
+
+```text
+Just 4
+```
+
+### Read an empty List
+
+empty takes Unit and constructs an empty List. Its head is Nothing; the annotation selects Int as the element type.
+
+{/* example: examples/library/list-recipes.ssrg#head-empty */}
+
+```seseragi
+let items: List<Int> =
+  list.empty ()
+items
+|> list.head
+|> show
+|> println
+```
+
+Output:
+
+```text
+Nothing
+```
+
+### Keep a prefix
+
+take 2 returns a List containing the first two elements. Its output retains the backtick prefix used for List literals.
+
+{/* example: examples/library/list-recipes.ssrg#take-prefix */}
+
+```seseragi
+`[1, 2, 3]
+|> list.take 2
+|> show
+|> println
+```
+
+Output:
+
+```text
+`[1, 2]
+```
+
 ## Choosing operations
 
 - Choose List when building by prepending. Cons and tail take O(1) and may share an existing tail.

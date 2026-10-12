@@ -14,6 +14,75 @@ description: "正規表現のコンパイル・検索・置換を行います。
 import * as regex from "std/regex"
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### パターンに一致する入力
+
+compileはEitherを返します。成功したRegexで、文字列に数字の連続があるかをisMatchで調べます。
+
+{/* example: examples/library/regex-recipes.ssrg#matched */}
+
+```seseragi
+match regex.compile "[0-9]+" {
+  Right pattern ->
+    "item 42"
+    |> regex.isMatch pattern
+    |> show
+    |> println
+  Left _ -> println "Invalid pattern"
+}
+```
+
+出力:
+
+```text
+True
+```
+
+### 一致しない入力
+
+同じパターンで数字を含まない入力を調べるとfalseです。Regexの作成失敗とは区別できます。
+
+{/* example: examples/library/regex-recipes.ssrg#unmatched */}
+
+```seseragi
+match regex.compile "[0-9]+" {
+  Right pattern ->
+    "tea"
+    |> regex.isMatch pattern
+    |> show
+    |> println
+  Left _ -> println "Invalid pattern"
+}
+```
+
+出力:
+
+```text
+False
+```
+
+### 不正なパターンを受け取る
+
+閉じていない角括弧はRegexを作れず、Leftの分岐を選びます。この段階では入力との照合を行っていません。
+
+{/* example: examples/library/regex-recipes.ssrg#invalid-pattern */}
+
+```seseragi
+match regex.compile "[" {
+  Right _ -> println "Valid pattern"
+  Left _ -> println "Invalid pattern"
+}
+```
+
+出力:
+
+```text
+Invalid pattern
+```
+
 ## このページの読み方
 
 以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。

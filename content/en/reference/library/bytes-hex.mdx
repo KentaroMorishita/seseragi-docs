@@ -39,6 +39,51 @@ Output:
 4142
 ```
 
+## Try specific cases
+
+Each excerpt can be tried on its own inside the `do` block of `main`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](/en/docs/learn/first-program) and [Effect](/en/docs/learn/effects).
+
+### Decode hexadecimal to Bytes
+
+Successful decode yields Bytes. Encoding those bytes again reproduces the hexadecimal text.
+
+{/* example: examples/library/bytes-hex-recipes.ssrg#roundtrip */}
+
+```seseragi
+match bytes_hex.decode "4142" {
+  Right bytes ->
+    bytes
+    |> bytes_hex.encode
+    |> println
+  Left _ -> println "Invalid hex"
+}
+```
+
+Output:
+
+```text
+4142
+```
+
+### Handle non-hexadecimal input
+
+Z is not a hexadecimal digit, so decode returns Left.
+
+{/* example: examples/library/bytes-hex-recipes.ssrg#invalid */}
+
+```seseragi
+match bytes_hex.decode "ZZ" {
+  Right _ -> println "Valid hex"
+  Left _ -> println "Invalid hex"
+}
+```
+
+Output:
+
+```text
+Invalid hex
+```
+
 ## Use this reference
 
 The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.

@@ -1,0 +1,11 @@
+// docs:start declaration
+fn nameOf value: { name: String }
+  -> String = value.name
+// docs:end declaration
+
+pub effect fn main =
+  // docs:start use
+  { name: "Aki", score: 42 }
+  |> nameOf
+  |> println
+  // docs:end use

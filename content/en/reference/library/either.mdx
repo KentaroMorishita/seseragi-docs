@@ -37,6 +37,73 @@ Output:
 Right 42
 ```
 
+## Try specific cases
+
+Each excerpt can be tried on its own inside the `do` block of `main`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](/en/docs/learn/first-program) and [Effect](/en/docs/learn/effects).
+
+### Transform only success
+
+mapRight transforms the integer in Right. fold then chooses the failure string or a formatted success value.
+
+{/* example: examples/library/either-recipes.ssrg#map-success */}
+
+```seseragi
+let success: Either<String, Int> =
+  Right 41
+success
+|> either.mapRight (\n -> n + 1)
+|> either.fold (\e -> e) show
+|> println
+```
+
+Output:
+
+```text
+42
+```
+
+### Preserve failure
+
+On Left, mapRight does not apply the success transformation; the failure string is preserved.
+
+{/* example: examples/library/either-recipes.ssrg#keep-failure */}
+
+```seseragi
+let failure: Either<String, Int> =
+  Left "offline"
+failure
+|> either.mapRight (\n -> n + 1)
+|> either.fold (\e -> e) show
+|> println
+```
+
+Output:
+
+```text
+offline
+```
+
+### Transform the failure side
+
+mapLeft transforms only the failure string and keeps the success type Int.
+
+{/* example: examples/library/either-recipes.ssrg#map-failure */}
+
+```seseragi
+let annotated: Either<String, Int> =
+  Left "offline"
+annotated
+|> either.mapLeft (\e -> "API: " + e)
+|> either.fold (\e -> e) show
+|> println
+```
+
+Output:
+
+```text
+API: offline
+```
+
 ## Choosing operations
 
 - Either is an evaluated synchronous result. Constructing Left/Right does not execute deferred work.

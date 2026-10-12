@@ -1,0 +1,13 @@
+// docs:start closure
+fn shifted amount: Int -> value: Int
+  -> Int = {
+  fn shift n: Int -> Int =
+    n + amount
+  shift value
+}
+// docs:end closure
+
+pub effect fn main =
+  shifted 3 7
+  |> show
+  |> println

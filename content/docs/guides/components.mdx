@@ -70,6 +70,55 @@ seseragi run components.ssrg
 
 `renderToString`は純粋関数で、DOMを生成しません。出力文字列をConsoleへ書く`println`がEffectです。
 
+## propsを変えて比べる
+
+カード全体を使わず、文字列だけを表示するバッジでpropsを確かめます。次の二つのコードを順に`component-props.ssrg`へ保存してください。
+
+{/* example: examples/guides/component-props.ssrg#badge */}
+```seseragi title="component-props.ssrg"
+import * as html from "std/web/html"
+
+alias BadgeProps = { label: String }
+
+fn badge props: BadgeProps
+  -> html.Html<Never> =
+  html.span {
+    class: "badge",
+    children: props.label
+  }
+```
+
+このバッジはイベントを送らないため、Actionの型を`Never`にしています。`label`が同じなら同じHTMLを返し、呼び出し同士で状態を共有しません。
+
+{/* example: examples/guides/component-props.ssrg#labels */}
+```seseragi title="component-props.ssrg"
+pub effect fn main = do {
+  badge { label: "Ready" }
+  |> html.renderToString
+  |> println
+  badge { label: "Waiting" }
+  |> html.renderToString
+  |> println
+  badge { label: "<script>" }
+  |> html.renderToString
+  |> println
+}
+```
+
+```sh
+seseragi run component-props.ssrg
+```
+
+最初の二行は、同じ`span`へそれぞれ`Ready`と`Waiting`を表示するHTMLです。三行目の`"<script>"`もテキストとして描画されます。その行を読みやすく改行すると、次の構造になります。
+
+```html
+<span class="badge">
+  &lt;script&gt;
+</span>
+```
+
+propsの文字列をHTMLソースとして解釈していないことも、この小さな例で確認できます。SSRの文字列出力を検証した例で、DOMへの接続やクリックの動作は含みません。
+
 ## Webの画面から呼ぶ
 
 [Webアプリを作る](/docs/guides/web-app)の`view`へ`card { title: "Delivery", detail: "Sent to Kyoto" }`を子として渡せます。`card`は自分のDOMターゲットやイベントリスナーを持ちません。

@@ -1,0 +1,32 @@
+import * as regex from "std/regex"
+
+pub effect fn main = do {
+  // docs:start matched
+  match regex.compile "[0-9]+" {
+    Right pattern ->
+      "item 42"
+      |> regex.isMatch pattern
+      |> show
+      |> println
+    Left _ -> println "Invalid pattern"
+  }
+  // docs:end matched
+
+  // docs:start unmatched
+  match regex.compile "[0-9]+" {
+    Right pattern ->
+      "tea"
+      |> regex.isMatch pattern
+      |> show
+      |> println
+    Left _ -> println "Invalid pattern"
+  }
+  // docs:end unmatched
+
+  // docs:start invalid-pattern
+  match regex.compile "[" {
+    Right _ -> println "Valid pattern"
+    Left _ -> println "Invalid pattern"
+  }
+  // docs:end invalid-pattern
+}

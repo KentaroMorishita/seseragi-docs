@@ -14,6 +14,72 @@ description: "Build duplicate-free collections with Eq and Hash and perform set 
 import * as set from "std/set"
 ```
 
+## Try specific cases
+
+Each excerpt can be tried on its own inside the `do` block of `main`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](/en/docs/learn/first-program) and [Effect](/en/docs/learn/effects).
+
+### Deduplicate values
+
+fromIterable keeps each distinct value once. This three-element input has two distinct values.
+
+{/* example: examples/library/set-recipes.ssrg#deduplicate */}
+
+```seseragi
+[1, 1, 2]
+|> set.fromIterable
+|> set.size
+|> show
+|> println
+```
+
+Output:
+
+```text
+2
+```
+
+### Check membership
+
+contains reports membership as Bool. It does not look up an array index.
+
+{/* example: examples/library/set-recipes.ssrg#membership */}
+
+```seseragi
+[1, 2]
+|> set.fromIterable
+|> set.contains 2
+|> show
+|> println
+```
+
+Output:
+
+```text
+True
+```
+
+### Exclude a set of values
+
+difference takes the excluded Set first and the subject last. Removing 2 from the set of 1 and 2 leaves one element.
+
+{/* example: examples/library/set-recipes.ssrg#difference */}
+
+```seseragi
+let excluded = set.singleton 2
+[1, 2]
+|> set.fromIterable
+|> set.difference excluded
+|> set.size
+|> show
+|> println
+```
+
+Output:
+
+```text
+1
+```
+
 ## Choosing operations
 
 - Use Set for membership with deduplication. Elements need Eq and Hash; iteration follows first insertion order.

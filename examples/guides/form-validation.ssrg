@@ -1,0 +1,35 @@
+// docs:start validation
+import * as text from "std/text"
+
+alias Name = Either<String, String>
+
+fn name input: String -> Name = {
+  let cleaned = text.trim input
+  if cleaned == "" then
+    Left "Enter your name"
+  else
+    Right cleaned
+}
+// docs:end validation
+
+// docs:start greeting
+fn greeting result: Name -> String =
+  match result {
+    Right value -> `Hello, ${value}`
+    Left message -> message
+  }
+// docs:end greeting
+
+// docs:start inputs
+pub effect fn main = do {
+  name " Ada "
+  |> greeting
+  |> println
+  name ""
+  |> greeting
+  |> println
+  name "   "
+  |> greeting
+  |> println
+}
+// docs:end inputs

@@ -1,0 +1,9 @@
+// docs:start declaration
+fn ready -> String = "ready"
+// docs:end declaration
+
+pub effect fn main =
+  // docs:start use
+  ready ()
+  |> println
+  // docs:end use

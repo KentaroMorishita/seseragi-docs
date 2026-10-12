@@ -1,0 +1,20 @@
+struct Box<A> {
+  value: A,
+}
+
+// docs:start declaration
+fn mapBox<A, B> f: (A -> B)
+  -> box: Box<A> -> Box<B> =
+  Box { value: f box.value }
+// docs:end declaration
+
+pub effect fn main = {
+  // docs:start transform
+  let number: Box<Int> =
+    Box { value: 42 }
+  let labeled: Box<String> =
+    number
+    |> mapBox (\n -> `score: ${n}`)
+  // docs:end transform
+  println labeled.value
+}

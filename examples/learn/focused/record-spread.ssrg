@@ -1,0 +1,9 @@
+pub effect fn main = {
+  // docs:start update
+  let base = { name: "Aki", score: 30 }
+  let next = { ...base, score: 42 }
+  // docs:end update
+  let report =
+    `${base.score} -> ${next.score}`
+  println report
+}

@@ -1,0 +1,33 @@
+// docs:start helpers
+import * as test from "std/test"
+import * as effects from "std/effect"
+import { name } from "docs/names"
+
+alias Name = Either<String, String>
+
+fn accepted value: String -> Name =
+  Right value
+
+fn missing error: String -> Bool =
+  error == "missing name"
+// docs:end helpers
+
+// docs:start cases
+pub let tests: test.Test =
+  test.suite "name" [
+    test.test "valid" $
+      test.equal (accepted "Ada") $
+        name "Ada",
+    test.test "trimmed" $
+      test.equal (accepted "Ada") $
+        name " Ada ",
+    test.test "blank" $
+      name ""
+      |> effects.fromEither
+      |> test.expectFailure missing,
+    test.test "spaces" $
+      name "   "
+      |> effects.fromEither
+      |> test.expectFailure missing
+  ]
+// docs:end cases

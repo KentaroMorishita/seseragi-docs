@@ -90,6 +90,87 @@ Both produce an unhandled typed failure `InvalidQuantity` and exit with code 1. 
 
 To display a user-facing message, use `attempt` and `match` as shown in [Handle failures](/en/docs/guides/error-handling).
 
+## Distinguish blank input from parsing failure
+
+This independent program checks input normalization. Save the following three blocks in order as `cli-normalization.ssrg`. It uses fixed strings and does not read stdin.
+
+### Trim before parsing
+
+`trim` from `std/text` removes surrounding whitespace. An input that becomes empty produces `EmptyLine`; an input that cannot be parsed as an integer produces `NotANumber`. Keep those reasons distinct before turning them into Actions or wording.
+
+{/* example: examples/guides/cli-normalization.ssrg#parser */}
+```seseragi title="cli-normalization.ssrg"
+import * as ints from "std/int"
+import * as text from "std/text"
+
+type InputError =
+  | EmptyLine
+  | NotANumber
+
+alias Parsed =
+  Either<InputError, Int>
+
+fn parse input: String -> Parsed = {
+  let cleaned = text.trim input
+  if cleaned == "" then
+    Left EmptyLine
+  else
+    match ints.parse cleaned {
+      Right n -> Right n
+      Left _ -> Left NotANumber
+    }
+}
+```
+
+### Give each reason its own message
+
+`message` turns validation into display text. It neither reads input nor writes to Console.
+
+{/* example: examples/guides/cli-normalization.ssrg#message */}
+```seseragi title="cli-normalization.ssrg"
+fn message result: Parsed -> String =
+  match result {
+    Right n -> `Quantity: ${n}`
+    Left EmptyLine ->
+      "Enter quantity"
+    Left NotANumber ->
+      "Enter a whole number"
+  }
+```
+
+### Compare four inputs
+
+{/* example: examples/guides/cli-normalization.ssrg#inputs */}
+```seseragi title="cli-normalization.ssrg"
+pub effect fn main = do {
+  parse " 3 "
+  |> message
+  |> println
+  parse ""
+  |> message
+  |> println
+  parse "many"
+  |> message
+  |> println
+  parse "0"
+  |> message
+  |> println
+}
+```
+
+```sh
+seseragi run cli-normalization.ssrg
+```
+
+```text
+Quantity: 3
+Enter quantity
+Enter a whole number
+Quantity: 0
+```
+
+`" 3 "` becomes 3, while the empty string and `"many"` receive different messages. Zero is also a valid integer, so this small parser accepts it. Validate the business range of 1–1000 separately, as the earlier `quantity` function does.
+
 ## Move into a package
 
 Use a package with `seseragi.toml` when you want reusable modules or tests. Set `target = "process"` in `[run]` for this entry point.

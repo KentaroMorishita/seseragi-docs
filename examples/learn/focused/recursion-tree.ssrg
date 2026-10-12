@@ -1,0 +1,29 @@
+// docs:start data
+type Tree =
+  | Leaf
+  | Branch (Tree, Tree)
+// docs:end data
+
+// docs:start declaration
+fn countLeaves tree: Tree -> Int =
+  match tree {
+    Leaf -> 1
+    Branch (left, right) -> {
+      let leftCount =
+        countLeaves left
+      let rightCount =
+        countLeaves right
+      leftCount + rightCount
+    }
+  }
+// docs:end declaration
+
+pub effect fn main = {
+  // docs:start input
+  let pair = Branch (Leaf, Leaf)
+  Branch (pair, Leaf)
+  |> countLeaves
+  |> show
+  |> println
+  // docs:end input
+}

@@ -1,0 +1,6 @@
+// docs:start invalid
+effect fn answer = 42
+
+pub effect fn main =
+  println "ready"
+// docs:end invalid

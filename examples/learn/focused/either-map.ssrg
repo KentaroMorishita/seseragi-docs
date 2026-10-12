@@ -1,0 +1,17 @@
+alias Result = Either<String, Int>
+
+pub effect fn main = do {
+  // docs:start success
+  let success: Result =
+    Right 21
+    |> map (\n -> n * 2)
+  // docs:end success
+  // docs:start failure
+  let input: Result = Left "invalid"
+  let failure =
+    input
+    |> map (\n -> n * 2)
+  // docs:end failure
+  println (show success)
+  println (show failure)
+}

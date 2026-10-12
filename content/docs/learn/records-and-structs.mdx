@@ -11,18 +11,92 @@ description: "名前付きの値をまとめ、structとレコードの型の違
 
 レコードは構造で型を判定します。たとえば、次の宣言は`name`を持つレコードを受け取る形です。
 
-```text
+{/* example: examples/learn/focused/record-fields.ssrg#declaration */}
+```seseragi title="関数の宣言"
 fn nameOf value: { name: String }
   -> String = value.name
 ```
 
 `{ name: "Aki", score: 42 }`には必要な`name: String`があるので渡せます。余分なフィールドを許すこの規則をwidth subtypingと呼びます。必要なフィールドがない場合や、その型が異なる場合には渡せません。
 
+次は`main`内に置く式です。`score`を使わない`nameOf`へ、`score`も持つレコードを渡します。
+
+{/* example: examples/learn/focused/record-fields.ssrg#use */}
+```seseragi title="main内の式"
+{ name: "Aki", score: 42 }
+|> nameOf
+|> println
+```
+
+結果は`Aki`です。関数が要求するフィールドを、関数の型から確認できます。
+
 ## structは名前を持つ型
 
 `struct Point`は`Point`という型を定義します。`Point { x: 1, y: 2 }`でその値を作り、`x`と`y`を読み取れます。
 
 同じフィールド構成の`struct Size`を別に定義しても、`Point`と`Size`は別の型です。レコードとは違い、フィールドが一致するだけで代わりに渡せません。このように宣言の名前で区別する性質をnominal typingと呼びます。
+
+まず、モジュールにこのstructを宣言します。
+
+{/* example: examples/learn/focused/struct-fields.ssrg#declaration */}
+```seseragi title="structの宣言"
+struct Point {
+  x: Int,
+  y: Int,
+}
+```
+
+次は`main`内に置く生成と読み取りです。
+
+{/* example: examples/learn/focused/struct-fields.ssrg#access */}
+```seseragi title="main内の式"
+let point = Point { x: 3, y: 4 }
+point.x
+|> show
+|> println
+```
+
+結果は3です。`Point { ... }`で生成し、`.x`でフィールドを読むところまでを、この例で確認します。
+
+同じフィールドを持つ次の型を別に宣言しても、Pointにはなりません。
+
+{/* example: examples/learn/focused/struct-nominal-error.ssrg#size */}
+```seseragi title="別のstructの宣言"
+struct Size {
+  x: Int,
+  y: Int,
+}
+```
+
+この関数が要求するのはPointです。
+
+{/* example: examples/learn/focused/struct-nominal-error.ssrg#declaration */}
+```seseragi title="関数の宣言"
+fn readX point: Point -> Int =
+  point.x
+```
+
+次の`main`内の束縛は、意図したコンパイルエラーの例です。
+
+{/* example: examples/learn/focused/struct-nominal-error.ssrg#invalid */}
+```seseragi title="型エラーになる束縛"
+let size = Size { x: 3, y: 4 }
+let wrong = readX size
+```
+
+`readX size`は、Pointを要求する場所へSizeを渡しているため`SES-T0101`になります。レコードの「必要なフィールドがあれば渡せる」という規則を、structには当てはめません。
+
+### レコードのspreadだけを試す
+
+次の束縛は`main`内に置きます。
+
+{/* example: examples/learn/focused/record-spread.ssrg#update */}
+```seseragi title="main内の束縛"
+let base = { name: "Aki", score: 30 }
+let next = { ...base, score: 42 }
+```
+
+`base.score`は30、`next.score`は42です。`next.name`は元の`"Aki"`を引き継ぎます。レコードのspreadで既存フィールドをコピーし、後ろのフィールドで新しい値を指定しています。元の`base`は変わりません。
 
 ## 元の値を保って更新する
 
@@ -68,6 +142,22 @@ let { x: dx, y: dy } = offset
 ```
 
 `x: dx`は、フィールド`x`の値を`dx`という名前で取り出します。値を別のフィールドへ書き込む操作ではありません。structには型名を付けたパターンを使い、レコードには名前のないパターンを使います。
+
+レコードの分解だけを試すなら、`main`内で次の値を用意します。
+
+{/* example: examples/learn/focused/record-decomposition.ssrg#point */}
+```seseragi title="main内の束縛"
+let point = { x: 3, y: 4 }
+```
+
+続けて、フィールドとは違う名前で取り出します。
+
+{/* example: examples/learn/focused/record-decomposition.ssrg#rename */}
+```seseragi title="main内の束縛"
+let { x: dx, y: dy } = point
+```
+
+`dx`は3、`dy`は4です。値の取り出しと、更新用レコードの作成を分けて確認できます。
 
 ## データ型を選ぶ
 

@@ -1,0 +1,42 @@
+import * as signals from "std/signal"
+
+// docs:start callback
+alias History =
+  signals.MutableSignal<List<Int>>
+
+effect fn remember history: History
+  -> n: Int -> Unit = {
+  let prepend = \seen -> n : seen
+  signals.update prepend history
+}
+// docs:end callback
+
+pub effect fn main -> Unit
+with Console
+fails ConsoleError = do {
+  count <- signals.make 0
+  let empty: List<Int> = `[]
+  all <- signals.make empty
+  unique <- signals.make empty
+  // docs:start views
+  let distinct = signals.distinct count
+  let allObserver = remember all
+  let uniqueObserver = remember unique
+  normalSub <-
+    count
+    |> signals.subscribe allObserver
+  uniqueSub <-
+    distinct
+    |> signals.subscribe uniqueObserver
+  // docs:end views
+  // docs:start updates
+  count := 1
+  count := 1
+  // docs:end updates
+  normalEvents <- *all
+  uniqueEvents <- *unique
+  println (show normalEvents)
+  println (show uniqueEvents)
+  signals.unsubscribe normalSub
+  signals.unsubscribe uniqueSub
+}

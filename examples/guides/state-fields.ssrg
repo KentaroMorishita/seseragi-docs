@@ -1,0 +1,44 @@
+// docs:start model
+struct Model {
+  count: Int,
+  draft: String
+}
+
+type Action =
+  | Edited String
+  | ResetCount
+// docs:end model
+
+// docs:start update
+fn update action: Action
+  -> model: Model -> Model =
+  match action {
+    Edited draft -> Model {
+      ...model,
+      draft
+    }
+    ResetCount -> Model {
+      ...model,
+      count: 0
+    }
+  }
+// docs:end update
+
+// docs:start cases
+pub effect fn main = do {
+  let initial = Model {
+    count: 2,
+    draft: ""
+  }
+  let edited =
+    update (Edited "Ada") initial
+  println edited.draft
+  println `Count: ${edited.count}`
+  `Original: "${initial.draft}"`
+  |> println
+  let reset =
+    update ResetCount edited
+  println `Count: ${reset.count}`
+  println reset.draft
+}
+// docs:end cases

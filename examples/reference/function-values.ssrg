@@ -1,0 +1,40 @@
+// docs:start add
+fn add left: Int -> right: Int
+  -> Int =
+  left + right
+// docs:end add
+
+pub effect fn main = do {
+  // docs:start grouping
+  add 10 2
+  |> show
+  |> println
+  (add 10) 2
+  |> show
+  |> println
+  add (10 + 1) 2
+  |> show
+  |> println
+  // docs:end grouping
+  // docs:start partial
+  let increment = add 1
+  [1, 2, 3]
+  |> map increment
+  |> show
+  |> println
+  // docs:end partial
+  // docs:start lambda
+  [1, 2, 3]
+  |> map (\n: Int -> n * 2)
+  |> show
+  |> println
+  // docs:end lambda
+  // docs:start operator
+  let times: Int -> Int -> Int = (*)
+  let twice = times 2
+  [1, 2, 3]
+  |> map twice
+  |> show
+  |> println
+  // docs:end operator
+}

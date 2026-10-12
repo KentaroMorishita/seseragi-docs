@@ -1,8 +1,10 @@
 import { chromium } from "playwright";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { readExample } from "./example-source.mjs";
 
 const base = (process.env.SITE_URL ?? "http://127.0.0.1:4322").replace(/\/$/, "");
+const canonicalOrigin = "https://seseragi-docs.vercel.app";
 const quick = process.argv.includes("--quick");
 const output = resolve(process.env.QA_OUTPUT ?? "/tmp/seseragi-docs-browser");
 mkdirSync(output, { recursive: true });
@@ -23,7 +25,11 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
 try {
   const sitemap = await context.request.get(`${base}/sitemap.xml`);
   assert(sitemap.status() === 200, "Missing sitemap");
-  const paths = [...(await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
+  const paths = [...(await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => {
+    const url = new URL(match[1]);
+    assert(url.origin === canonicalOrigin, `Wrong sitemap domain ${url.origin}`);
+    return url.pathname;
+  });
   assert(paths.length >= 200, "Incomplete official docs sitemap");
   for (let i = 0; i < paths.length; i += 12) {
     const results = await Promise.all(paths.slice(i, i + 12).map(async (path) => {
@@ -32,14 +38,29 @@ try {
       const html = await response.text();
       assert(/<h1\b/.test(html), `Missing heading ${path}`);
       assert(html.includes(`lang="${path.startsWith("/en") ? "en" : "ja"}"`), `Wrong language ${path}`);
+      assert(html.includes(`<link rel="canonical" href="${canonicalOrigin}${path}"`), `Wrong canonical URL ${path}`);
+      assert(html.includes(`<meta property="og:url" content="${canonicalOrigin}${path}"`), `Wrong social URL ${path}`);
+      const japanesePath = path.replace(/^\/en(?=\/|$)/, "") || "/";
+      const englishPath = japanesePath === "/" ? "/en" : `/en${japanesePath}`;
+      assert(html.includes(`hreflang="ja" href="${canonicalOrigin}${japanesePath}"`) && html.includes(`hreflang="en" href="${canonicalOrigin}${englishPath}"`), `Wrong alternate language URL ${path}`);
       return path;
     }));
     pagesChecked.push(...results);
   }
   assert((await context.request.get(`${base}/does-not-exist`)).status() === 404, "Missing 404 response");
   const robots = await context.request.get(`${base}/robots.txt`);
-  assert((await robots.text()).includes("/sitemap.xml"), "robots sitemap missing");
+  assert((await robots.text()).includes(`${canonicalOrigin}/sitemap.xml`), "robots sitemap domain incorrect");
   console.log(`HTTP: ${paths.length} routes, language metadata, sitemap, robots, and 404 passed.`);
+
+  if (base === canonicalOrigin) {
+    for (const path of ["/", "/docs/learn/arrays-and-lists?ref=migration", "/en/docs/reference/library/maybe?ref=migration"]) {
+      const response = await context.request.get(`https://seseragi-docs-site.vercel.app${path}`, { maxRedirects: 0 });
+      assert(response.status() === 308, `Missing old-domain redirect ${path}`);
+      assert(response.headers().location === `${canonicalOrigin}${path}`, `Redirect changed path or query ${path}`);
+      assert((await context.request.get(`${canonicalOrigin}${path}`, { maxRedirects: 0 })).status() === 200, `Redirect destination loops or fails ${path}`);
+    }
+    console.log("Domain migration: old hostname redirects to the same path and query; the destination serves each page without a loop.");
+  }
 
   const firstProgram = readFileSync(new URL("../examples/hello.ssrg", import.meta.url), "utf8").trim();
   for (const prefix of ["", "/en"]) {
@@ -47,6 +68,20 @@ try {
     assert((await page.locator("pre").first().textContent()).trim() === firstProgram, `Outdated introductory code ${prefix || "ja"}`);
   }
   console.log("Introduction: both locales display the checked, focused Hello world example.");
+
+  const recipes = JSON.parse(readFileSync(new URL("../src/data/library-examples.json", import.meta.url), "utf8"));
+  for (const [module, region] of [["std/maybe", "sequence-missing"], ["std/map", "persistent-insert"], ["std/json", "wrong-type"]]) {
+    const recipe = recipes[module].find((recipe) => recipe.example.endsWith("#" + region));
+    const slug = module.replace(/^std\//, "").replaceAll("/", "-");
+    for (const prefix of ["", "/en"]) {
+      await page.goto(`${base}${prefix}/docs/reference/library/${slug}`); await ready(page);
+      await page.getByRole("heading", { name: recipe[prefix ? "enTitle" : "jaTitle"], exact: true }).waitFor();
+      const blocks = await page.locator("pre").allTextContents();
+      assert(blocks.some((block) => block.trim() === readExample(recipe.example)), `Outdated focused example ${prefix}/${slug}/${region}`);
+      assert(blocks.some((block) => block.trim() === recipe.stdout.trim()), `Missing focused output ${prefix}/${slug}/${region}`);
+    }
+  }
+  console.log("Focused examples: both locales display the current absence, persistence, and decoding cases with checked outputs.");
 
   await page.goto(base); await ready(page);
   await page.getByRole("link", { name: "用途別ガイド", exact: true }).first().click();
@@ -93,6 +128,10 @@ try {
     "/docs/guides/forms", "/en/docs/guides/forms", "/docs/guides/stateful-features",
     "/docs/reference/types", "/docs/reference/library",
     "/docs/reference/library/array", "/en/docs/reference/library/array",
+    "/docs/learn/arrays-and-lists", "/en/docs/learn/arrays-and-lists",
+    "/docs/learn/maybe-and-either", "/docs/learn/effects", "/docs/reference/functions",
+    "/docs/reference/library/maybe", "/en/docs/reference/library/maybe",
+    "/docs/reference/library/map", "/docs/reference/library/json", "/en/docs/reference/library/json",
     "/docs/reference/library/web-html", "/docs/reference/library/effect",
     "/docs/reference/library/regex", "/docs/reference/library/transformer-state",
   ];

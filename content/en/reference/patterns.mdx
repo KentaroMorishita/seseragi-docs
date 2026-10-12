@@ -58,6 +58,32 @@ Nothing -> "missing"
 
 Guarded arms do not contribute to exhaustiveness. Even `Just value when True` needs an unguarded arm covering `Just`. A guard is evaluated only after its pattern matches.
 
+### Maybe guards and fallback arms
+
+{/* example: examples/reference/pattern-variants.ssrg#maybe-guard */}
+
+```seseragi title="Declaration: guarded match"
+fn describe value: Maybe<Int>
+  -> String =
+  match value {
+    Just n when n > 0 -> "positive"
+    Just _ -> "non-positive"
+    Nothing -> "missing"
+  }
+```
+
+A positive Just payload selects the first arm, other Just values the second, and Nothing the third. A False guard proceeds to the next arm.
+
+{/* example: examples/reference/pattern-variants.ssrg#guard-cases */}
+
+```seseragi title="Main body: three cases"
+println $ describe $ Just 3
+println $ describe $ Just 0
+println $ describe Nothing
+```
+
+Outputs are positive, non-positive, and missing. Omitting the second Just arm leaves the match nonexhaustive because a guard does not establish coverage.
+
 ## Binding contexts
 
 An irrefutable pattern always matches its input type. A refutable pattern can fail.
@@ -74,6 +100,44 @@ An irrefutable pattern always matches its input type. A refutable pattern can fa
 Names and `_` are irrefutable. Tuples, records, and structs are irrefutable when all nested patterns are. A single-variant constructor, including a newtype constructor, is irrefutable when its payload pattern is. For Array/List, only a rest-only pattern with no fixed elements always matches.
 
 `let Just value = maybeValue` is not allowed. Use a match that also handles `Nothing`. Refutable bindings are not silently converted into exceptions or `MonadFail`.
+
+### Ignoring values and renaming bindings
+
+{/* example: examples/reference/pattern-variants.ssrg#wildcard */}
+
+```seseragi title="Main body: wildcard"
+let (label, _) = ("Aki", 42)
+println label
+```
+
+The second tuple element is ignored; only Aki is printed. The wildcard creates no variable that can be referenced.
+
+{/* example: examples/reference/pattern-variants.ssrg#record-bind */}
+
+```seseragi title="Main body: field binding names"
+let { name, age: years } = {
+  name: "Mio",
+  age: 7,
+}
+println `${name}: ${years}`
+```
+
+The age value is bound as years, producing Mio: 7. This binds a different variable name; it does not rename the record field.
+
+### Destructuring only Just in a let
+
+This is intentionally invalid. Even when the right-hand side visibly constructs Just, Maybe also has Nothing, so the refutable let fails with SES-T0101. Handle both cases with match.
+
+{/* example: examples/reference/invalid/refutable-binding.ssrg#invalid */}
+
+```seseragi title="Intentional pattern error"
+pub effect fn main = do {
+  let Just value = Just 1
+  value
+  |> show
+  |> println
+}
+```
 
 ## Records and optional queries
 

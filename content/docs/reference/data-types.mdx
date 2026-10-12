@@ -43,6 +43,38 @@ pub effect fn main =
 
 `Closed (TicketId 1)`も`Status`ですが、`Int`や`Ticket`とは互換ではありません。generic ADTではconstructorが全型parameterを量化し、payload・期待型・明示型引数から決めます。[パターン](/docs/reference/patterns)ではpayloadを取り出す規則を説明しています。
 
+### payloadなしとtuple payload
+
+{/* example: examples/reference/adt-variants.ssrg#variants */}
+
+```seseragi title="宣言: 二つのvariant"
+type Shape =
+  | Point
+  | Rect (Int, Int)
+```
+
+`Point`は値です。`Rect`はtupleを一つ受け取るconstructorなので、二つの数値は`Rect (3, 4)`へまとめます。
+
+{/* example: examples/reference/adt-variants.ssrg#payload */}
+
+```seseragi title="宣言: payloadの分解"
+fn area shape: Shape -> Int =
+  match shape {
+    Point -> 0
+    Rect (width, height) ->
+      width * height
+  }
+```
+
+{/* example: examples/reference/adt-variants.ssrg#cases */}
+
+```seseragi title="main内: variant別の結果"
+println $ show $ area Point
+println $ show $ area $ Rect (3, 4)
+```
+
+出力は0と12です。Rectのpayloadはconstructor patternの中でtupleとして分解しています。
+
 ## structと更新
 
 struct生成時には全fieldが必要です。同名の変数がある場合はfield shorthandを使えます。更新は同じstruct型のspreadを先頭に一個置き、変更するfieldを後ろに書きます。
@@ -62,6 +94,28 @@ spread式を最初に一度評価し、明示fieldをsource順に一度ずつ評
 
 通常の公開structはfieldも公開します。表現を隠す`opaque`の規則は[モジュール](/docs/reference/modules)を参照してください。
 
+### 更新後も元の値は残る
+
+{/* example: examples/reference/record-shapes.ssrg#person */}
+
+```seseragi title="宣言: nominal struct"
+struct Person { name: String }
+```
+
+{/* example: examples/reference/record-shapes.ssrg#struct-update */}
+
+```seseragi title="main内: 不変値の更新"
+let draft = Person { name: "Aki" }
+let edited = Person {
+  ...draft,
+  name: "Mio",
+}
+println draft.name
+println edited.name
+```
+
+`draft`はAki、`edited`はMioです。spreadは既存値を書き換えず、新しいPersonを作ります。
+
 ## recordとoptional field
 
 recordは名前を持たないstructural型です。複数spreadをsource順に適用でき、後のspread・明示fieldが前の値を置き換えます。field型の変更は新しいrecord型を作ります。直接指定したfield名の重複はエラーです。
@@ -76,11 +130,100 @@ recordは名前を持たないstructural型です。複数spreadをsource順に�
 
 `{ id?: String, children: String }`では`id`を省略できます。省略したfieldをruntimeで`Nothing`へ埋めることはありません。field accessはpresentなら`Just value`、absentなら`Nothing`です。spreadはこのpresenceも保持します。
 
+### fieldの不在とNothing
+
+{/* example: examples/reference/optional-presence.ssrg#declarations */}
+
+```seseragi title="宣言: optionalとrequired"
+alias Optional = { id?: String }
+alias Required = {
+  id: Maybe<String>,
+}
+```
+
+次はmain内の断片です。optional fieldの不在を読むとNothingになり、presentなfieldはJustで返します。
+
+{/* example: examples/reference/optional-presence.ssrg#optional */}
+
+```seseragi title="main内: presenceを読む"
+let absent: Optional = {}
+let present: Optional = {
+  id: "intro",
+}
+println $ show absent.id
+println $ show present.id
+```
+
+出力は`Nothing`、`Just intro`です。対してRequiredはidというfieldを必要とし、その値としてNothingを明示できます。
+
+{/* example: examples/reference/optional-presence.ssrg#required */}
+
+```seseragi title="main内: requiredなMaybe"
+let required: Required = {
+  id: Nothing,
+}
+println $ show required.id
+```
+
+最後の出力はNothingです。どちらもfield accessはMaybeになりますが、値の構築時にfieldを省略できる条件が違います。
+
 ## newtypeとalias
 
 `newtype UserId = Int`は`Int`と区別される型を作ります。`UserId 42`で包み、constructor patternで取り出します。暗黙のwrap/unwrap、field access、record spreadはありません。
 
 `alias UserId = Int`は別名だけを作り、`Int`と区別しません。aliasはgenericにもできますが、直接・間接の循環はエラーです。newtypeも循環定義はできません。
+
+### 別名とwrapperを使う
+
+{/* example: examples/reference/alias-newtype.ssrg#declarations */}
+
+```seseragi title="宣言: aliasとnewtype"
+alias Count = Int
+newtype UserId = Int
+```
+
+{/* example: examples/reference/alias-newtype.ssrg#alias-use */}
+
+```seseragi title="main内: aliasは透明"
+let count: Count = 41
+count + 1
+|> show
+|> println
+```
+
+CountはIntと同じ型なので、通常の加算が使えます。この断片は42を出力します。
+
+{/* example: examples/reference/alias-newtype.ssrg#wrap-unwrap */}
+
+```seseragi title="main内: 明示したwrapとunwrap"
+let user = UserId 42
+let UserId raw = user
+raw
+|> show
+|> println
+```
+
+UserIdはconstructorで包み、constructor patternで取り出します。constructorが一つなので、このlet patternは必ず一致します。出力は42です。
+
+### Intをnewtypeとして渡す場合
+
+次のプログラムは意図的なエラー例です。`unwrap 42`はUserIdを必要とする場所へIntを渡し、`SES-T0101`になります。
+
+{/* example: examples/reference/invalid/newtype-coercion.ssrg#invalid */}
+
+```seseragi title="意図的な型エラー"
+newtype UserId = Int
+
+fn unwrap user: UserId -> Int =
+  match user {
+    UserId value -> value
+  }
+
+fn invalid -> Int = unwrap 42
+
+pub effect fn main =
+  println "ready"
+```
 
 ## tuple、Array、List、range
 

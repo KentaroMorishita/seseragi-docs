@@ -1,0 +1,16 @@
+// docs:start declaration
+fn caption values: List<Int>
+  -> String =
+  match values {
+    `[] -> "empty"
+    `[head, ..._] -> `first: ${head}`
+  }
+// docs:end declaration
+
+pub effect fn main = {
+  // docs:start inputs
+  let empty = caption `[]
+  let full = caption (1 : `[2, 3])
+  // docs:end inputs
+  println `${empty}/${full}`
+}

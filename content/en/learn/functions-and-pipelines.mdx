@@ -41,6 +41,25 @@ answer: 42
 
 `add` is an ordinary function that returns the calculation result. `main` binds that result to `answer` and displays it using the string template introduced in the previous chapter.
 
+### Call a declaration without named parameters
+
+A function that omits named parameters still receives the `Unit` value `()` when called. Place this declaration at module scope:
+
+{/* example: examples/learn/focused/function-unit.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn ready -> String = "ready"
+```
+
+Use this expression inside `main` to call `ready` and display its string:
+
+{/* example: examples/learn/focused/function-unit.ssrg#use */}
+```seseragi title="Expression in main"
+ready ()
+|> println
+```
+
+The output is `ready`. In `ready ()`, `()` is one argument containing the Unit value; it is not an argument-list call syntax. `ready` alone refers to the function before application.
+
 ## Supply some arguments
 
 `add` has type `Int -> Int -> Int`. Function types associate to the right, so read this as `Int -> (Int -> Int)`. `add 1` is a function waiting for one more integer.
@@ -77,32 +96,65 @@ The value `20` goes through `increment` to produce 21, then through `double` to 
 
 ## Group an expression used as an argument
 
-When an argument is a calculation, parentheses can group that expression. This fragment uses `20 + 1` as the first argument:
+When an argument is a calculation, parentheses mark its extent. This binding belongs inside `main` and uses `add` from above:
 
-```text
-add (20 + 1) 22
+{/* example: examples/learn/focused/function-grouping.ssrg#arithmetic */}
+```seseragi title="Binding in main"
+let grouped = add (20 + 1) 22
 ```
 
-The grouped expression returns 21. `add` receives 21 and 22, then returns 43. Parentheses mark the extent of one expression; they do not introduce an argument-list call such as `add(20, 22)`.
+`20 + 1` becomes the first argument: `add` receives 21 and 22, so `grouped` is 43. Parentheses group one expression; they do not introduce an argument-list call such as `add(20, 22)`.
 
-Use the same grouping to pass another function's result:
+Group another function's result in the same way. This binding also uses `double` from the previous example:
 
-```text
-double (add 20 1)
+{/* example: examples/learn/focused/function-grouping.ssrg#nested */}
+```seseragi title="Binding in main"
+let nested = double (add 20 1)
 ```
 
-`add 20 1` returns 21, which becomes the single argument to `double`, producing 42. This nests expressions in the same order as the previous pipeline.
+The result of `add 20 1`, 21, is the single argument to `double`, so `nested` is 42. This nests expressions in the same order as the pipeline.
 
-## Pass a function as an argument
+## Create a function without a declaration
 
-A lambda creates a function without giving it a name. These expressions describe the same doubling behavior:
+A lambda is an expression that creates a function without a named `fn` declaration. Bind a doubling function inside `main`:
 
-```text
-double
-\x: Int -> x * 2
+{/* example: examples/learn/focused/function-lambda.ssrg#lambda */}
+```seseragi title="Binding in main"
+let double = \n: Int -> n * 2
 ```
 
-When the surrounding context determines the parameter type, write `\x -> x * 2`. For two parameters, use `\x y -> x + y`. [Arrays and lists](/en/docs/learn/arrays-and-lists) passes such functions to `map` and `filter`.
+After that binding, call it just like an ordinary function:
+
+{/* example: examples/learn/focused/function-lambda.ssrg#call */}
+```seseragi title="Expression in main"
+double 21
+|> show
+|> println
+```
+
+The output is 42. When the surrounding type determines the parameter type, omit the annotation with `\n -> n * 2`. A two-parameter lambda is `\x y -> x + y`. [Arrays and lists](/en/docs/learn/arrays-and-lists) passes lambdas to `map` and `filter`.
+
+### Return a function that uses an outer value
+
+A function can return another function. This declaration receives a prefix and returns a greeting function that uses that prefix:
+
+{/* example: examples/learn/focused/function-closure.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn prefixWith prefix: String
+  -> (String -> String) =
+  \name -> `${prefix}${name}`
+```
+
+Use it inside `main`:
+
+{/* example: examples/learn/focused/function-closure.ssrg#use */}
+```seseragi title="Expression in main"
+let welcome = prefixWith "Hi, "
+welcome "Aki"
+|> println
+```
+
+The output is `Hi, Aki`. The returned lambda can still refer to `prefix` when called. A function retaining outer values in this way is a closure. It does not update the captured value. Supplying `"Hello, "` creates another function with that prefix.
 
 ## Understand what application evaluates
 

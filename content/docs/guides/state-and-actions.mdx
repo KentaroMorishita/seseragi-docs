@@ -9,7 +9,7 @@ description: 更新規則を純粋関数へまとめ、画面や副作用から�
 
 ## 現在値と操作を分ける
 
-この例の状態は現在の数を表す`Int`です。`Action`は`Increment`と`Reset`の二つで、過去に何が起きたかを渡します。`update action state`は新しい状態を返します。
+この例の状態は現在の数を表す`Int`です。`Action`は`Increment`と`Reset`の二つで、適用する操作を指定します。`update action state`は新しい状態を返します。
 
 イベント名と状態を同じ型に混ぜません。たとえば`Reset`という操作を受けた結果の状態は、`Reset`という値ではなく`0`です。
 
@@ -63,6 +63,76 @@ seseragi run state.ssrg
 フォームでは現在値だけでなく、編集中の文字列や表示メッセージをまとめて持てます。`Model`は名前を持つstructです。新しい状態を作るときは、`Model { ...model, draft: value }`のようにstructの新しい値を作ります。
 
 `let`で束縛したstructのフィールドへ代入して更新することはできません。構造を広げる具体例は[フォーム](/docs/guides/forms)にあります。
+
+### 一つのフィールドだけを変える
+
+次は、カウントと入力文字列を持つ独立した更新例です。三つのコードを順に`state-fields.ssrg`へ保存してください。
+
+{/* example: examples/guides/state-fields.ssrg#model */}
+```seseragi title="state-fields.ssrg"
+struct Model {
+  count: Int,
+  draft: String
+}
+
+type Action =
+  | Edited String
+  | ResetCount
+```
+
+`Edited`は文字列を渡し、`ResetCount`は数だけを0にします。更新しないフィールドは`...model`から引き継ぎます。
+
+{/* example: examples/guides/state-fields.ssrg#update */}
+```seseragi title="state-fields.ssrg"
+fn update action: Action
+  -> model: Model -> Model =
+  match action {
+    Edited draft -> Model {
+      ...model,
+      draft
+    }
+    ResetCount -> Model {
+      ...model,
+      count: 0
+    }
+  }
+```
+
+### 元の値と更新後の値を比べる
+
+{/* example: examples/guides/state-fields.ssrg#cases */}
+```seseragi title="state-fields.ssrg"
+pub effect fn main = do {
+  let initial = Model {
+    count: 2,
+    draft: ""
+  }
+  let edited =
+    update (Edited "Ada") initial
+  println edited.draft
+  println `Count: ${edited.count}`
+  `Original: "${initial.draft}"`
+  |> println
+  let reset =
+    update ResetCount edited
+  println `Count: ${reset.count}`
+  println reset.draft
+}
+```
+
+```sh
+seseragi run state-fields.ssrg
+```
+
+```text
+Ada
+Count: 2
+Original: ""
+Count: 0
+Ada
+```
+
+編集後の`draft`は`Ada`ですが、元の`initial.draft`は空のままです。編集では`count`の2を保ち、Resetでは入力の`Ada`を保ちます。`edited`と`reset`はそれぞれ計算結果を束縛した名前で、同じ変数へ代入し直しているわけではありません。
 
 ## 副作用の位置を決める
 

@@ -1,0 +1,28 @@
+// docs:start unit
+fn idle -> Unit = { () }
+// docs:end unit
+
+pub effect fn main = do {
+  let decision =
+    // docs:start if-value
+    if 3 > 0 then
+      "positive"
+    else
+      "zero"
+    // docs:end if-value
+  println decision
+  let seconds =
+    // docs:start block-result
+    {
+      let minutes = 2
+      minutes * 60
+    }
+    // docs:end block-result
+  println $ show seconds
+  println $ show $ idle ()
+  let record =
+    // docs:start empty-record
+    {}
+    // docs:end empty-record
+  println $ show record
+}

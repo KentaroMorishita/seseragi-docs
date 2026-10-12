@@ -1,0 +1,33 @@
+// docs:start maybe-do
+fn sum left: Maybe<Int>
+  -> right: Maybe<Int>
+  -> Maybe<Int> = do {
+  a <- left
+  b <- right
+  pure (a + b)
+}
+// docs:end maybe-do
+
+// docs:start array-do
+fn choices -> Array<Int> = do {
+  first <- [1, 2]
+  second <- [10, 20]
+  pure (first + second)
+}
+// docs:end array-do
+
+pub effect fn main = do {
+  // docs:start maybe-results
+  sum (Just 2) (Just 3)
+  |> show
+  |> println
+  sum Nothing (Just 3)
+  |> show
+  |> println
+  // docs:end maybe-results
+  // docs:start array-results
+  choices ()
+  |> show
+  |> println
+  // docs:end array-results
+}

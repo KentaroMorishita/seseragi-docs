@@ -41,6 +41,25 @@ answer: 42
 
 `add`は計算の結果を返す通常の関数です。`main`はその結果を`answer`へ束縛し、前の章で学んだ文字列テンプレートを使って表示します。
 
+### 引数のない宣言を呼び出す
+
+名前付き引数を省いた関数でも、呼び出すときは`Unit`の値`()`を渡します。次はモジュールに置く宣言です。
+
+{/* example: examples/learn/focused/function-unit.ssrg#declaration */}
+```seseragi title="関数の宣言"
+fn ready -> String = "ready"
+```
+
+`main`内では、次の式で`ready`を呼び出して文字列を表示できます。
+
+{/* example: examples/learn/focused/function-unit.ssrg#use */}
+```seseragi title="main内の式"
+ready ()
+|> println
+```
+
+結果は`ready`です。`ready ()`の`()`は一つの引数となるUnit値であり、引数一覧を括弧で囲む呼び出し構文ではありません。`ready`だけなら、呼び出す前の関数です。
+
 ## 一部の引数を渡す
 
 `add`の型は`Int -> Int -> Int`です。右に結合するので、`Int -> (Int -> Int)`として読みます。`add 1`は、残りの整数を一つ受け取る関数です。
@@ -77,32 +96,65 @@ pub effect fn main = {
 
 ## 式を一つの引数として渡す
 
-引数が計算式なら、括弧でまとめられます。次の断片は、`20 + 1`を最初の引数にしています。
+引数が計算式なら、括弧でその範囲をまとめます。次の束縛は`main`内に置き、先ほどの`add`を使います。
 
-```text
-add (20 + 1) 22
+{/* example: examples/learn/focused/function-grouping.ssrg#arithmetic */}
+```seseragi title="main内の束縛"
+let grouped = add (20 + 1) 22
 ```
 
-括弧の中の結果は21です。`add`は21と22を受け取り、43を返します。括弧は一つの式の範囲を示しており、`add(20, 22)`のような引数一覧の呼び出し構文ではありません。
+`20 + 1`が最初の引数になり、`add`は21と22を受け取ります。`grouped`は43です。括弧は一つの式をまとめており、`add(20, 22)`のような引数一覧の呼び出し構文ではありません。
 
-別の関数の結果を渡すときも、同じようにまとめます。
+別の関数の結果を渡すときも、同じようにまとめます。次は、前の例で定義した`double`も使う束縛です。
 
-```text
-double (add 20 1)
+{/* example: examples/learn/focused/function-grouping.ssrg#nested */}
+```seseragi title="main内の束縛"
+let nested = double (add 20 1)
 ```
 
-`add 20 1`の結果21が、`double`の一つの引数になり、42を返します。前のパイプラインと同じ順序を、入れ子の式で書いた形です。
+`add 20 1`の結果21が`double`の一つの引数になり、`nested`は42です。パイプラインと同じ順序を、入れ子の式で書いた形です。
 
-## 関数も引数に渡せる
+## 名前を付けずに関数を作る
 
-ラムダは、名前を付けずに関数を作る式です。次の断片は、同じ2倍の計算を名前付き関数とラムダで書いたものです。
+ラムダは、名前付きの`fn`宣言を使わずに関数を作る式です。まず、2倍する関数を`main`内で束縛します。
 
-```text
-double
-\x: Int -> x * 2
+{/* example: examples/learn/focused/function-lambda.ssrg#lambda */}
+```seseragi title="main内の束縛"
+let double = \n: Int -> n * 2
 ```
 
-ラムダの引数型を周囲の型から決められる場合は、`\x -> x * 2`と書けます。引数が二つなら`\x y -> x + y`です。後の[ArrayとList](/docs/learn/arrays-and-lists)では、こうした関数を`map`や`filter`へ渡します。
+この束縛の後なら、通常の関数と同じように呼び出せます。
+
+{/* example: examples/learn/focused/function-lambda.ssrg#call */}
+```seseragi title="main内の式"
+double 21
+|> show
+|> println
+```
+
+結果は42です。周囲から引数型を決められる場合は、`\n -> n * 2`と注釈を省けます。引数が二つなら`\x y -> x + y`です。[ArrayとList](/docs/learn/arrays-and-lists)では、ラムダを`map`や`filter`へ渡します。
+
+### 外側の値を使う関数を返す
+
+関数の結果として、別の関数を返せます。次の宣言は、接頭辞を受け取り、その接頭辞を使って挨拶する関数を返します。
+
+{/* example: examples/learn/focused/function-closure.ssrg#declaration */}
+```seseragi title="関数の宣言"
+fn prefixWith prefix: String
+  -> (String -> String) =
+  \name -> `${prefix}${name}`
+```
+
+次は`main`内の使い方です。
+
+{/* example: examples/learn/focused/function-closure.ssrg#use */}
+```seseragi title="main内の式"
+let welcome = prefixWith "Hi, "
+welcome "Aki"
+|> println
+```
+
+結果は`Hi, Aki`です。返されたラムダは、呼び出されるときにも`prefix`を参照します。このように外側の値を保持する関数をclosureと呼びます。保持した値を更新する操作はありません。`"Hello, "`を渡せば、その接頭辞を持つ別の関数ができます。
 
 ## 適用と計算の境界
 

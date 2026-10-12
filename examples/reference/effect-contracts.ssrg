@@ -1,0 +1,20 @@
+import * as effects from "std/effect"
+
+// docs:start compact
+effect fn compact value: Int =
+  effects.succeed value
+// docs:end compact
+
+// docs:start contract
+effect fn contract value: Int
+  -> Int =
+  effects.succeed value
+// docs:end contract
+
+pub effect fn main = do {
+  // docs:start run-contracts
+  first <- compact 4
+  second <- contract 5
+  println `${first}: ${second}`
+  // docs:end run-contracts
+}

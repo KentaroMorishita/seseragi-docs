@@ -5,6 +5,35 @@ description: "外部処理を遅延された計算として表し、doで順番�
 
 文字列を計算することと、その文字列を出力することは違います。`Effect`は、出力、状態の読み書き、非同期処理などを、実行できる計算の値として表します。
 
+## 成功する計算から値を受け取る
+
+まず、外部のサービスを使わずに成功値を返すEffectを作ります。モジュールに次のimportを置きます。
+
+{/* example: examples/learn/focused/effect-bind.ssrg#import */}
+```seseragi title="importの宣言"
+import * as effects from "std/effect"
+```
+
+`succeed`は、通常の値から成功する計算を作ります。次はモジュールに置く関数です。
+
+{/* example: examples/learn/focused/effect-bind.ssrg#declaration */}
+```seseragi title="関数の宣言"
+effect fn answer -> Int =
+  effects.succeed 42
+```
+
+`answer ()`を呼ぶと、整数そのものではなく整数で成功するEffectが得られます。`main = do { ... }`の中では、次のように成功値を取り出して出力できます。
+
+{/* example: examples/learn/focused/effect-bind.ssrg#bind */}
+```seseragi title="mainのdo内の式"
+value <- answer ()
+value
+|> show
+|> println
+```
+
+結果は42です。`value <- ...`で実行時の成功値を受け取り、そこから先では通常の整数として扱っています。
+
 ## 計算を作ることと実行すること
 
 {/* example: examples/learn/effects.ssrg */}
@@ -65,6 +94,104 @@ Effect<
 ## 失敗と実行の境界
 
 同じ`do`で組み合わせる回復可能な失敗の型は揃えます。`Never`は失敗しない型として必要な失敗型へ広げられます。予想する失敗は`fail`や標準APIの失敗値で表し、`recover`で回復できます。
+
+### 失敗を回復した成功値にする
+
+失敗の型を、まずモジュールで定義します。この例でも`std/effect`をeffectsとしてimportします。
+
+{/* example: examples/learn/focused/effect-recovery.ssrg#failure-type */}
+```seseragi title="型の宣言"
+type CheckError =
+  | Rejected
+```
+
+次は、許可されれば42で成功し、許可されなければRejectedで失敗する計算です。
+
+{/* example: examples/learn/focused/effect-recovery.ssrg#declaration */}
+```seseragi title="関数の宣言"
+effect fn accepted allowed: Bool
+  -> Int fails CheckError =
+  if allowed then
+    effects.succeed 42
+  else
+    effects.fail Rejected
+```
+
+回復用の関数もEffectを返します。成功時と同じIntを返す必要があります。
+
+{/* example: examples/learn/focused/effect-recovery.ssrg#fallback */}
+```seseragi title="関数の宣言"
+effect fn fallback error: CheckError
+  -> Int =
+  effects.succeed 0
+```
+
+`main`のdo内では、次のようにつなげられます。
+
+{/* example: examples/learn/focused/effect-recovery.ssrg#recover */}
+```seseragi title="mainのdo内の式"
+value <-
+  accepted False
+  |> effects.recover fallback
+```
+
+`value`は0です。FalseをTrueへ変えると42になり、fallbackを呼びません。失敗が起きた場合だけ回復の計算へ進みます。
+
+### 失敗の型を変換する
+
+Stringの理由を、アプリで使うADTへまとめる場合はmapErrorを使います。次の宣言をモジュールに置きます。
+
+{/* example: examples/learn/focused/effect-map-error.ssrg#failure-type */}
+```seseragi title="型の宣言"
+type InputError =
+  | Invalid String
+```
+
+変換元はStringで失敗する計算です。
+
+{/* example: examples/learn/focused/effect-map-error.ssrg#source */}
+```seseragi title="関数の宣言"
+effect fn load -> String
+fails String =
+  effects.fail "empty"
+```
+
+`mapError Invalid`は、そのStringからInputErrorのケースを作ります。
+
+{/* example: examples/learn/focused/effect-map-error.ssrg#mapping */}
+```seseragi title="関数の宣言"
+effect fn checked -> String
+fails InputError =
+  load ()
+  |> effects.mapError Invalid
+```
+
+mapErrorだけでは回復しません。このcheckedを次の関数でrecoverすると、成功する文字列`invalid: empty`を得られます。
+
+{/* example: examples/learn/focused/effect-map-error.ssrg#recovery */}
+```seseragi title="回復する関数の宣言"
+effect fn describe error: InputError
+  -> String =
+  match error {
+    Invalid reason -> {
+      let message =
+        `invalid: ${reason}`
+      effects.succeed message
+    }
+  }
+```
+
+mainのdo内で回復し、文字列を出力する部分です。
+
+{/* example: examples/learn/focused/effect-map-error.ssrg#use */}
+```seseragi title="mainのdo内の式"
+value <-
+  checked ()
+  |> effects.recover describe
+println value
+```
+
+結果は`invalid: empty`です。変換は失敗の分類、回復は次の成功結果を作る操作です。
 
 defectやキャンセルは、回復可能な失敗とは別です。`recover`をすべての異常を捕まえる`catch`のように扱いません。処理の設計は[エラー処理](/docs/guides/error-handling)で扱います。
 

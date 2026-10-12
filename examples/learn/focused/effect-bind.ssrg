@@ -1,0 +1,17 @@
+// docs:start import
+import * as effects from "std/effect"
+// docs:end import
+
+// docs:start declaration
+effect fn answer -> Int =
+  effects.succeed 42
+// docs:end declaration
+
+pub effect fn main = do {
+  // docs:start bind
+  value <- answer ()
+  value
+  |> show
+  |> println
+  // docs:end bind
+}

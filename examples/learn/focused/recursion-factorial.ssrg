@@ -1,0 +1,15 @@
+// docs:start declaration
+fn factorial n: Int -> Int =
+  if n <= 1 then
+    1
+  else
+    n * factorial (n - 1)
+// docs:end declaration
+
+pub effect fn main = {
+  // docs:start inputs
+  let zero = factorial 0
+  let five = factorial 5
+  // docs:end inputs
+  println `${zero}/${five}`
+}

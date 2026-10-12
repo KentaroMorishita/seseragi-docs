@@ -34,10 +34,109 @@ pub effect fn main =
 42
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### 値がない場合の既定値
+
+NothingにwithDefault 0を適用すると、Intの0を返します。
+
+{/* example: examples/library/maybe-recipes.ssrg#default-missing */}
+
+```seseragi
+Nothing
+|> maybe.withDefault 0
+|> show
+|> println
+```
+
+出力:
+
+```text
+0
+```
+
+### 既にある値を優先する
+
+orElseの最初の引数は代替のMaybeです。処理対象がJust 9なら、代替のJust 7は選びません。
+
+{/* example: examples/library/maybe-recipes.ssrg#alternative-present */}
+
+```seseragi
+Just 9
+|> maybe.orElse (Just 7)
+|> show
+|> println
+```
+
+出力:
+
+```text
+Just 9
+```
+
+### 代替のMaybeを選ぶ
+
+処理対象がNothingのときだけ、orElseは代替のJust 7を選びます。
+
+{/* example: examples/library/maybe-recipes.ssrg#alternative-missing */}
+
+```seseragi
+Nothing
+|> maybe.orElse (Just 7)
+|> show
+|> println
+```
+
+出力:
+
+```text
+Just 7
+```
+
+### 全要素に値がある配列
+
+sequenceはArray&lt;Maybe&lt;Int>>をMaybe&lt;Array&lt;Int>>へ変換します。全要素がJustなら、中の値を集めた配列をJustで返します。
+
+{/* example: examples/library/maybe-recipes.ssrg#sequence-present */}
+
+```seseragi
+[Just 1, Just 2]
+|> maybe.sequence
+|> show
+|> println
+```
+
+出力:
+
+```text
+Just [1, 2]
+```
+
+### 一つでも値がない配列
+
+一要素でもNothingなら、sequence全体の結果はNothingです。Nothingを除いた配列を作る操作とは違います。
+
+{/* example: examples/library/maybe-recipes.ssrg#sequence-missing */}
+
+```seseragi
+[Just 1, Nothing]
+|> maybe.sequence
+|> show
+|> println
+```
+
+出力:
+
+```text
+Nothing
+```
+
 ## 選び方と注意
 
 - 欠如自体が正常ならMaybeを使います。失敗理由が必要な値にはEither、実行する操作にはEffectを使います。
-- `withDefault`と`orElse`の引数はstrictです。Justでも代替値の式を先に評価するため、必要なときだけ計算する代替値には`??`を使います。
+- `withDefault`と`orElse`の引数はstrictです。Justでも代替値の式を先に評価します。中身のAを返す`withDefault`の代わりに、必要なときだけ代替値を計算するなら`??`を使えます。`orElse`と同じくMaybeを保ち、代替値の評価を遅らせたい場合は`match`で分岐します。
 - `traverse`は結果にNothingがあっても、後続のpure コールバックを呼ばない保証はありません。走査自体を途中で止めるなら`reduceUntil`を使います。
 
 ## このページの読み方

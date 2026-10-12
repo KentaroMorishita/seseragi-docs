@@ -47,6 +47,38 @@ If several traits introduce the same method name and types cannot determine the 
 
 Standard collection Show instances require an element Show instance too. Empty Arrays and Nothing do not bypass this constraint based on their runtime value. A missing required instance produces `SES-T0201`.
 
+### Constraints on a generic function
+
+{/* example: examples/reference/typeclass-variants.ssrg#constraints */}
+
+```seseragi title="Declaration: Show constraint"
+fn display<A> value: A -> String
+where Show<A> =
+  show value
+```
+
+{/* example: examples/reference/typeclass-variants.ssrg#show-cases */}
+
+```seseragi title="Main body: concrete calls"
+println $ display 42
+println $ display True
+```
+
+The calls select the Int and Bool Show instances, printing 42 and True.
+
+The following intentionally invalid declaration omits where. There is no Show evidence for generic A, producing SES-T0201.
+
+{/* example: examples/reference/invalid/missing-constraint.ssrg#invalid */}
+
+```seseragi title="Intentional constraint error"
+fn display<A> value: A -> String =
+  show value
+
+pub effect fn main =
+  display 42
+  |> println
+```
+
 ## Coherence and orphan rules
 
 A trait application has exactly one instance across the program. Declare it in the module defining the trait or the outermost nominal type in the instance head. There are no local instances, priorities, or overlapping instances.
@@ -72,6 +104,29 @@ Standard `Iterable<C, A>` determines `A` from `C`; arithmetic traits determine t
 
 A standard operator declaration in a struct/newtype impl is sugar for the corresponding standard trait instance. Custom symbols and fixities use a separate module-level operator declaration.
 
+### Using the same map across types
+
+Here increment is a pure Int function that adds one. The raise declaration requires Functor without committing to Array, Maybe, or List.
+
+{/* example: examples/reference/typeclass-variants.ssrg#functor */}
+
+```seseragi title="Declaration: type-constructor parameter"
+fn raise<F<_>> values: F<Int>
+  -> F<Int>
+where Functor<F> =
+  map increment values
+```
+
+{/* example: examples/reference/typeclass-variants.ssrg#instances */}
+
+```seseragi title="Main body: three instances"
+println $ show $ raise [1, 2]
+println $ show $ raise $ Just 2
+println $ show $ raise `[3, 4]
+```
+
+The outputs are [2, 3], Just 3, and a List containing 4 and 5, in that order. Input types determine the selected instances.
+
 ## Deriving and laws
 
 Supported deriving traits are Eq, Ord, Show, Debug, Hash, JsonEncode, and JsonDecode. Each required field or payload type must support the same trait. Generic types add the necessary conditions to the generated instance.
@@ -79,6 +134,25 @@ Supported deriving traits are Eq, Ord, Show, Debug, Hash, JsonEncode, and JsonDe
 Hash also requires Eq for the same type. Deriving and an explicit instance cannot define the same application twice. Derived Ord first compares variant declaration order, then payloads lexicographically. Newtype Show retains its constructor name.
 
 Laws for Eq, Ord, Functor, Applicative, and Monad are instance contracts. Type checking alone does not prove them. Check behavior with [Tests](/en/docs/guides/testing) too.
+
+### Using derived Eq
+
+{/* example: examples/reference/typeclass-variants.ssrg#deriving */}
+
+```seseragi title="Declaration: deriving"
+newtype Tag deriving Eq, Show =
+  String
+```
+
+{/* example: examples/reference/typeclass-variants.ssrg#equality */}
+
+```seseragi title="Main body: derived Eq"
+Tag "docs" == Tag "docs"
+|> show
+|> println
+```
+
+The Tags have equal payloads, so the output is True. Deriving does not implicitly equate the wrapper type with Int or String.
 
 ## Do notation
 
@@ -95,3 +169,56 @@ do {
 `<-` binds a monadic payload; let binds a pure value. An intermediate monadic expression discards its result and continues; the final monadic expression is the block result and is mandatory.
 
 All computations use the same type constructor. Explicitly convert an Either to Effect with an operation such as fromEither. Bind patterns must be irrefutable; failure is not inserted implicitly. See [Patterns](/en/docs/reference/patterns).
+
+### Maybe do
+
+This is a pure function declaration. Both inputs use the same Maybe Monad; their payloads are added and returned in Maybe.
+
+{/* example: examples/reference/do-variants.ssrg#maybe-do */}
+
+```seseragi title="Declaration: composing Maybe"
+fn sum left: Maybe<Int>
+  -> right: Maybe<Int>
+  -> Maybe<Int> = do {
+  a <- left
+  b <- right
+  pure (a + b)
+}
+```
+
+{/* example: examples/reference/do-variants.ssrg#maybe-results */}
+
+```seseragi title="Main body: success and absence"
+sum (Just 2) (Just 3)
+|> show
+|> println
+sum Nothing (Just 3)
+|> show
+|> println
+```
+
+The outputs are Just 5 and Nothing.
+
+### Array do
+
+{/* example: examples/reference/do-variants.ssrg#array-do */}
+
+```seseragi title="Declaration: Array combinations"
+fn choices -> Array<Int> = do {
+  first <- [1, 2]
+  second <- [10, 20]
+  pure (first + second)
+}
+```
+
+{/* example: examples/reference/do-variants.ssrg#array-results */}
+
+```seseragi title="Main body: Array result"
+choices ()
+|> show
+|> println
+```
+
+The output is [11, 21, 12, 22]: the first Array forms the outer combinations and the second the inner combinations.
+
+Version 0.61.25 has a compiler restriction on placing another monad’s do directly in a pure let inside an Effect function’s do. Put it in a separate pure function, as above, and use its result. The language specification does not limit do to Effect.

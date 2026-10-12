@@ -1,0 +1,20 @@
+// docs:start declarations
+alias Count = Int
+newtype UserId = Int
+// docs:end declarations
+
+pub effect fn main = do {
+  // docs:start alias-use
+  let count: Count = 41
+  count + 1
+  |> show
+  |> println
+  // docs:end alias-use
+  // docs:start wrap-unwrap
+  let user = UserId 42
+  let UserId raw = user
+  raw
+  |> show
+  |> println
+  // docs:end wrap-unwrap
+}

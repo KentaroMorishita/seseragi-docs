@@ -53,7 +53,8 @@ let measured: Reading = Measured 23
 
 一つのケースで複数の値を持つには、tupleを一つのpayloadとして使えます。次の断片では、長方形が幅と高さを持ちます。
 
-```text title="tupleを持つ型の構文例"
+{/* example: examples/learn/focused/adt-tuple-payload.ssrg#declaration */}
+```seseragi title="型の宣言"
 type Shape =
   | Circle Int
   | Rectangle (Int, Int)
@@ -61,7 +62,45 @@ type Shape =
 
 値は`Rectangle (3, 4)`です。`(3, 4)`は二つの整数を一つにまとめたtupleであり、コンストラクターの引数はそのtuple一つです。`Rectangle 3 4`という二引数の呼び出しにはなりません。
 
+次は上のShape宣言を使い、`main`内へ置く束縛です。tupleを渡した結果がShapeであることを、注釈でも確認できます。
+
+{/* example: examples/learn/focused/adt-tuple-payload.ssrg#value */}
+```seseragi title="main内の束縛"
+let rectangle: Shape =
+  Rectangle (3, 4)
+```
+
 フィールド名で区別したいデータは、前の章で学んだstructにまとめ、そのstructをケースに持たせられます。ADTで状態を選び、structで一緒に持つデータを定義します。
+
+### structをpayloadにする
+
+ログイン済みの場合だけ、アカウント情報を持つ型を考えます。先に、モジュールで情報の形を定義します。
+
+{/* example: examples/learn/focused/adt-struct-payload.ssrg#data */}
+```seseragi title="structの宣言"
+struct Account {
+  name: String,
+}
+```
+
+次に、その情報が必要なケースを定義します。
+
+{/* example: examples/learn/focused/adt-struct-payload.ssrg#declaration */}
+```seseragi title="型の宣言"
+type Session =
+  | Guest
+  | SignedIn Account
+```
+
+`Guest`は情報なしで作れます。`SignedIn`ではAccountが必須です。次の束縛は`main`内に置きます。
+
+{/* example: examples/learn/focused/adt-struct-payload.ssrg#value */}
+```seseragi title="main内の束縛"
+let session: Session =
+  SignedIn (Account { name: "Aki" })
+```
+
+内側のAccountの生成を括弧で一つの引数にまとめ、SignedInへ渡しています。これらも宣言と値の断片です。ケースを区別して情報を読む方法は、次のパターンマッチで学びます。
 
 ## 型の名前と入力の条件
 

@@ -1,0 +1,20 @@
+// docs:start declaration
+fn parity n: Int -> String = {
+  rec {
+    fn even n: Int -> Bool =
+      if n == 0 then True
+      else odd (n - 1)
+
+    fn odd n: Int -> Bool =
+      if n == 0 then False
+      else even (n - 1)
+  }
+  if even n then "even" else "odd"
+}
+// docs:end declaration
+
+pub effect fn main = {
+  let six = parity 6
+  let seven = parity 7
+  println `${six}/${seven}`
+}

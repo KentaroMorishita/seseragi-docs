@@ -1,0 +1,27 @@
+import * as effects from "std/effect"
+
+// docs:start announce
+effect fn announce text: String =
+  println text
+// docs:end announce
+
+pub effect fn main = do {
+  // docs:start cold
+  let job = announce "ran"
+  println "constructed"
+  job
+  job
+  // docs:end cold
+  // docs:start map-task
+  let calculation =
+    effects.succeed 21
+    |> map (\n: Int -> n * 2)
+  println "mapped"
+  // docs:end map-task
+  // docs:start execution
+  value <- calculation
+  value
+  |> show
+  |> println
+  // docs:end execution
+}

@@ -14,6 +14,75 @@ description: "EqとHashを満たすキーで値を保存・検索します。挿
 import * as map from "std/map"
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### あるキーを読む
+
+singletonで一組だけのMapを作ります。getはキーに対応する値をJustで返します。
+
+{/* example: examples/library/map-recipes.ssrg#get-present */}
+
+```seseragi
+map.singleton "visits" 1
+|> map.get "visits"
+|> show
+|> println
+```
+
+出力:
+
+```text
+Just 1
+```
+
+### ないキーを読む
+
+MapにないキーではNothingを返します。数値の0と、キーが存在しないことは別です。
+
+{/* example: examples/library/map-recipes.ssrg#get-missing */}
+
+```seseragi
+map.singleton "visits" 1
+|> map.get "errors"
+|> show
+|> println
+```
+
+出力:
+
+```text
+Nothing
+```
+
+### 元のMapを保って更新する
+
+insertは新しいMapを返します。同じキーを更新しても、beforeから読むと1、afterから読むと2です。
+
+{/* example: examples/library/map-recipes.ssrg#persistent-insert */}
+
+```seseragi
+let before = map.singleton "visits" 1
+let after =
+  map.insert "visits" 2 before
+before
+|> map.get "visits"
+|> show
+|> println
+after
+|> map.get "visits"
+|> show
+|> println
+```
+
+出力:
+
+```text
+Just 1
+Just 2
+```
+
 ## 選び方と注意
 
 - キーは`Eq`と`Hash`を持ち、等しいキーのハッシュも等しくなる必要があります。適切なハッシュなら検索・個別の更新は期待計算量O(1)ですが、衝突時は線形になります。

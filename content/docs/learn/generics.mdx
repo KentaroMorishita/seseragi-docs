@@ -5,6 +5,25 @@ description: "型引数を使って、異なる型にも同じ処理とデータ
 
 整数を包む型と文字列を包む型を別々に書く代わりに、中身の型を引数にする`Box<A>`を作れます。`A`は実行時の値ではなく、宣言の中で使う型の名前です。
 
+## 引数と結果の型を同じに保つ
+
+まず、型引数を一つ使う小さな関数をモジュールに宣言します。
+
+{/* example: examples/learn/focused/generic-identity.ssrg#declaration */}
+```seseragi title="関数の宣言"
+fn identity<A> value: A -> A = value
+```
+
+`A`は呼び出しごとに具体的な型になります。次は`main`内で型引数を明示する束縛です。
+
+{/* example: examples/learn/focused/generic-identity.ssrg#explicit */}
+```seseragi title="main内の束縛"
+let number = identity<Int> 42
+let text = identity<String> "hello"
+```
+
+`number`はIntの42、`text`はStringの`"hello"`です。関数の同じ本体を使いながら、引数と結果が同じ型である関係を保ちます。整数の引数から、無関係なStringを返す宣言ではありません。
+
 ## 型を引数にする
 
 {/* example: examples/learn/generics.ssrg */}
@@ -56,11 +75,36 @@ hello
 
 空のコレクションなど、値から要素型が分からない場合もあります。`let empty: Array<Int> = []`なら期待型を与えられます。型を決められない場合、コンパイラーは`Any`へ逃がさず注釈を求めます。
 
+### 入力とは違う型へ変換する
+
+Boxの中の値を変換する関数では、入力の型Aと出力の型Bを分けます。次の宣言は、上のBoxを使います。
+
+{/* example: examples/learn/focused/generic-map-box.ssrg#declaration */}
+```seseragi title="関数の宣言"
+fn mapBox<A, B> f: (A -> B)
+  -> box: Box<A> -> Box<B> =
+  Box { value: f box.value }
+```
+
+次は`main`内の束縛です。
+
+{/* example: examples/learn/focused/generic-map-box.ssrg#transform */}
+```seseragi title="main内の束縛"
+let number: Box<Int> =
+  Box { value: 42 }
+let labeled: Box<String> =
+  number
+  |> mapBox (\n -> `score: ${n}`)
+```
+
+`number`は`Box<Int>`、`labeled`は`Box<String>`です。`labeled.value`は`score: 42`になります。変換関数がIntからStringを返し、その関係がBoxの型にも反映されます。
+
 ## データの形を型で再利用する
 
 ADTも型引数を持てます。次の断片では、成功値の型を`A`で表します。
 
-```text
+{/* example: examples/learn/focused/generic-result.ssrg#data */}
+```seseragi title="型の宣言"
 type Result<A> =
   | Failed String
   | Succeeded A
@@ -70,9 +114,46 @@ type Result<A> =
 
 型へ別の名前を付けるだけなら、`alias Pair<A> = (A, A)`と書けます。aliasは新しいnominal型を作りません。名前によって区別するstructやnewtypeとは役割が違います。
 
+このResultから値を取り出す関数も、型引数を保って書けます。モジュールに置く宣言です。
+
+{/* example: examples/learn/focused/generic-result.ssrg#declaration */}
+```seseragi title="関数の宣言"
+fn valueOr<A> fallback: A
+  -> result: Result<A> -> A =
+  match result {
+    Failed _ -> fallback
+    Succeeded value -> value
+  }
+```
+
+次は`main`内の束縛です。
+
+{/* example: examples/learn/focused/generic-result.ssrg#inputs */}
+```seseragi title="main内の束縛"
+let number =
+  Succeeded 42
+  |> valueOr 0
+let text =
+  Failed "unavailable"
+  |> valueOr "untitled"
+```
+
+`number`は42、`text`は`untitled`です。成功値と既定値が同じAなので、関数の結果もそのAになります。失敗理由を表示するか、既定値へ置き換えるかは、この関数を選ぶ側の方針です。
+
 ## letで束縛した関数も再利用できる
 
 非再帰的な`let`で束縛した関数は、利用ごとに型を具体化できます。たとえば、ブロックの中で`let same = \value -> value`を束縛し、整数と文字列にそれぞれ使えます。これをlet-polymorphismと呼びます。
+
+次の断片を`main`内に置くと、同じ関数を二つの型へ適用できます。
+
+{/* example: examples/learn/focused/generic-local-function.ssrg#polymorphic */}
+```seseragi title="main内の束縛"
+let same = \value -> value
+let number = same 42
+let text = same "hello"
+```
+
+`number`は42、`text`は`hello`です。一つの関数の型を、最初の呼び出しの型だけへ固定しているわけではありません。
 
 型の一般化は、同じArrayに異なる要素型を混ぜることを許す規則ではありません。`Array<Int>`と`Array<String>`は別の型です。また、`Box<Int>`が`Box<Float>`へ暗黙に変換されることもありません。
 

@@ -59,6 +59,32 @@ The output is `42: ready`. Explicit arguments are also supported: `identity<Stri
 
 Nonrecursive bindings such as `let identity = \value -> value` are generalized too. Polymorphism is rank-1: a function parameter or record field cannot itself contain a higher-rank function whose type changes on every call.
 
+### Let generalization and expected types
+
+In this main-body fragment, the nonrecursive identity binding is generalized and can be used separately for Int and String.
+
+{/* example: examples/reference/inference-context.ssrg#generalized */}
+
+```seseragi title="Main body: polymorphic let"
+let identity = \value -> value
+let number = identity 42
+let text = identity "ready"
+println `${number}: ${text}`
+```
+
+The output is 42: ready. Empty Arrays and Nothing cannot determine an element type from their payload; supply an expected type as follows.
+
+{/* example: examples/reference/inference-context.ssrg#context */}
+
+```seseragi title="Main body: giving values a type"
+let empty: Array<Int> = []
+let missing: Maybe<String> = Nothing
+println $ show empty
+println $ show missing
+```
+
+The outputs are [] and Nothing. The annotations supply element types to the empty values.
+
 ## Type compatibility
 
 ADTs, structs, and newtypes are nominal. Distinct declarations remain distinct types even with identical fields or representation. An alias creates no new identity; it is the same type as its expansion.
@@ -66,6 +92,25 @@ ADTs, structs, and newtypes are nominal. Distinct declarations remain distinct t
 Records support width subtyping. A function requiring `{ name: String }` may receive `{ id: Int, name: String }`. Corresponding field types must be identical; there is no implicit depth subtyping inside fields.
 
 Accessing a field from `{ id?: String }` returns `Maybe<String>`. An optional field may be absent; this differs from the required field in `{ id: Maybe<String> }`. Optional fields do not implicitly become required.
+
+### Accepting only the required record fields
+
+{/* example: examples/reference/record-shapes.ssrg#record-param */}
+
+```seseragi title="Declaration: record parameter"
+fn name value: { name: String }
+  -> String =
+  value.name
+```
+
+{/* example: examples/reference/record-shapes.ssrg#record-width */}
+
+```seseragi title="Main body: width subtyping"
+name { name: "Aki", age: 30 }
+|> println
+```
+
+The extra age field is allowed because the required name is a String, producing Aki. This does not imply implicit conversion of a nominal Person to this record type.
 
 ## Conversions and errors
 

@@ -1,0 +1,38 @@
+import * as maybe from "std/maybe"
+
+pub effect fn main = do {
+  // docs:start default-missing
+  Nothing
+  |> maybe.withDefault 0
+  |> show
+  |> println
+  // docs:end default-missing
+
+  // docs:start alternative-present
+  Just 9
+  |> maybe.orElse (Just 7)
+  |> show
+  |> println
+  // docs:end alternative-present
+
+  // docs:start alternative-missing
+  Nothing
+  |> maybe.orElse (Just 7)
+  |> show
+  |> println
+  // docs:end alternative-missing
+
+  // docs:start sequence-present
+  [Just 1, Just 2]
+  |> maybe.sequence
+  |> show
+  |> println
+  // docs:end sequence-present
+
+  // docs:start sequence-missing
+  [Just 1, Nothing]
+  |> maybe.sequence
+  |> show
+  |> println
+  // docs:end sequence-missing
+}

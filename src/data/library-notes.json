@@ -58,12 +58,12 @@
   "std/maybe": {
     "ja": [
       "欠如自体が正常ならMaybeを使います。失敗理由が必要な値にはEither、実行する操作にはEffectを使います。",
-      "`withDefault`と`orElse`の引数はstrictです。Justでも代替値の式を先に評価するため、必要なときだけ計算する代替値には`??`を使います。",
+      "`withDefault`と`orElse`の引数はstrictです。Justでも代替値の式を先に評価します。中身のAを返す`withDefault`の代わりに、必要なときだけ代替値を計算するなら`??`を使えます。`orElse`と同じくMaybeを保ち、代替値の評価を遅らせたい場合は`match`で分岐します。",
       "`traverse`は結果にNothingがあっても、後続のpure コールバックを呼ばない保証はありません。走査自体を途中で止めるなら`reduceUntil`を使います。"
     ],
     "en": [
       "Use Maybe when absence is normal. Use Either when a reason is needed and Effect when an operation must execute.",
-      "withDefault and orElse have strict arguments: the fallback expression is evaluated even for Just. Use ?? for a fallback evaluated only when needed.",
+      "`withDefault` and `orElse` evaluate arguments strictly, including the alternative expression when the subject is Just. For a lazy alternative to `withDefault` that returns the contained A, use `??`. To preserve Maybe as `orElse` does while delaying the alternative expression, branch with `match`.",
       "traverse does not guarantee skipping later pure callbacks after Nothing. Use reduceUntil when the traversal itself must stop early."
     ]
   },

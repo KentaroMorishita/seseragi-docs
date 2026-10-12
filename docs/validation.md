@@ -26,9 +26,11 @@
 
 ## 掲載コード
 
-`bun run check:examples`はSeseragi 0.61.25で65件成功。CLI実行のstdout、Webアプリのbuild、テストの成功、期待する3種類の診断を検査した。教材の課題やperformanceのdevelopment/release確認は、担当エージェントの記録に追加している。
+`bun run check:examples`はSeseragi 0.61.25で145件成功。内訳は実行126件、build7件、test2件、期待する診断10件。CLI実行のstdout、Webアプリと型のbuild、テストの成功、期待する診断IDと終了コード2を検査した。教材の課題やperformanceのdevelopment/release確認は、担当エージェントの記録に追加している。
 
 本文のMDXコメントが指すファイルと、掲載コードを照合する。パイプラインは初期値と各`|>`を同じ字下げで縦に置く。長い署名は型・矢印の境界で、式は分岐や適用の境界で改行する。スマホの本文では37文字以内を目安にし、実際の描画でも検査する。
+
+説明する概念を絞りながら、基本形と、入力の違い・空・該当なし・失敗・操作の比較を増やした。追加した名前付き抜粋は日英それぞれ214個、37の対応ページに計428箇所。Learnのindexも更新した。検証ソースから必要な範囲を抜き出し、importや宣言の依存関係、mainのdo内などの配置を明示する。追加80件の検証と、読者役レビューでの修正は`reviews/examples.md`にまとめた。
 
 Webガイドのcounter、form、独立した二つのcounterはChromeで操作した。加算・Reset、空入力・正常入力・Enter送信・focus、独立した状態更新を確認。アプリのJavaScript例外はなく、配信されたコードとアプリのrequestは成功。CLIの既定HTMLが要求する未配置faviconの404はfixtureの制限として記録した。
 
@@ -42,9 +44,15 @@ Webガイドのcounter、form、独立した二つのcounterはChromeで操作�
 
 ローカルのproduction buildをChromeで確認し、全222ページのHTTPと375px表示が成功した。型の詳細を開き、自動折り返しを無効にした状態でも、コードの見切れ・コピー表示の重なり・ページの横はみ出し・負の字間は0件。ブラウザのJavaScript例外とconsole errorも0件だった。上記のナビゲーション、コピー、配色、言語切り替え、検索、スマホメニュー、JavaScriptなしの本文表示も成功した。
 
+追加した214組の抜粋と新ドメインを含む今回の結果は`/tmp/seseragi-docs-examples-browser-local/report.json`。canonical、OG URL、日英のalternate URLは、sitemapと同じ末尾スラッシュの規則に揃え、全222ページで一致を確認した。
+
 タイトルがないコード欄にもヘッダーを設け、コピー操作を本文の外へ移した。一行目との重なりをブラウザ検査で検出する。
 
-公開確認では全ページのHTTPに加え、導入例とTypeScript比較を含む25ページの375px表示と操作を再検査する。日英の最初の掲載コードが検証済み`hello.ssrg`と一致することも確認する。
+公開確認では全ページのHTTPに加え、導入例、TypeScript比較、Array・Maybe・Effectと追加したAPI例を含む35ページの375px表示と操作を再検査する。日英の最初の掲載コードが検証済み`hello.ssrg`と一致することも確認する。Maybeの欠如、Mapの更新前後、JSONの型違いは、追加したコードと出力そのものが配信されていることを日英で検査する。
+
+公開ドメインは`https://seseragi-docs.vercel.app`。撤去した旧Docs用のVercelプロジェクトから、現在のサイト用プロジェクトへ割り当てを移した。Vercelのproject domainとdeployment alias、HTTPSの200応答を確認。canonical、OG URL、日英のalternate URL、sitemap、robotsの参照先を同じドメインへ変更し、全ページのHTTP検査でも照合する。
+
+旧`seseragi-docs-site.vercel.app`だけを対象に308転送を設定した。公開検査では、トップと日英の記事でパス・クエリが保たれ、新URLが転送なしで200を返すことを確かめる。結果は`/tmp/seseragi-docs-examples-browser-production/report.json`に保存する。
 
 ## 出典と確認の限界
 

@@ -38,6 +38,86 @@ pub effect fn main =
 42
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### 整数として読めない入力
+
+parseは失敗をEitherで返します。数値ではない文字列を、Intの値として扱わずに処理できます。
+
+{/* example: examples/library/int-recipes.ssrg#invalid-integer */}
+
+```seseragi
+match int.parse "tea" {
+  Right n -> println (show n)
+  Left _ -> println "Not an Int"
+}
+```
+
+出力:
+
+```text
+Not an Int
+```
+
+### 下限と上限へ収める
+
+clamp 0 10は、0未満を0、10を超える値を10へ収めます。範囲内の4はそのままです。
+
+{/* example: examples/library/int-recipes.ssrg#bounded */}
+
+```seseragi
+[-3, 4, 12]
+|> map (int.clamp 0 10)
+|> show
+|> println
+```
+
+出力:
+
+```text
+[0, 4, 10]
+```
+
+### 範囲を超える足し算
+
+Intの最大値へ1を足すと、checkedAddはNothingを返します。範囲を超えた値をIntとして返しません。
+
+{/* example: examples/library/int-recipes.ssrg#overflow */}
+
+```seseragi
+int.maxValue ()
+|> int.checkedAdd 1
+|> show
+|> println
+```
+
+出力:
+
+```text
+Nothing
+```
+
+### 0による除算を処理する
+
+checkedDivideは除数を先に受け取ります。0で割る場合はLeftになり、この例ではその失敗を文字列で表示します。
+
+{/* example: examples/library/int-recipes.ssrg#divide-zero */}
+
+```seseragi
+match int.checkedDivide 0 12 {
+  Right n -> println (show n)
+  Left _ -> println "Cannot divide"
+}
+```
+
+出力:
+
+```text
+Cannot divide
+```
+
 ## 選び方と注意
 
 - Intはsafe integerです。通常の算術overflowはdefectなので、入力から起こりうるoverflowにはchecked operationを使います。saturating operationは境界へclampする別の方針です。

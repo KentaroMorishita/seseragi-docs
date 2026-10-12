@@ -1,0 +1,8 @@
+// docs:start invalid
+fn display<A> value: A -> String =
+  show value
+
+pub effect fn main =
+  display 42
+  |> println
+// docs:end invalid

@@ -5,14 +5,51 @@ description: "Define type-specific operations and require them in generic functi
 
 The same `map` works with Array and Maybe because their types provide the operation. A type class describes operations available for a type. Here we define a custom rendering operation.
 
+## Use a standard operation as a constraint
+
+The `==` used earlier requires Eq for the compared type. A function with a type parameter states that requirement with where. Place this declaration at module scope:
+
+{/* example: examples/learn/focused/type-class-eq.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn same<A> left: A -> right: A
+  -> Bool where Eq<A> =
+  left == right
+```
+
+Try each expression independently in the do block of main:
+
+{/* example: examples/learn/focused/type-class-eq.ssrg#numbers */}
+```seseragi title="Expression in main do"
+println (show (same 42 42))
+```
+
+{/* example: examples/learn/focused/type-class-eq.ssrg#strings */}
+```seseragi title="Expression in main do"
+println (show (same "Aki" "Aki"))
+```
+
+{/* example: examples/learn/focused/type-class-eq.ssrg#arrays */}
+```seseragi title="Expression in main do"
+println (show (same [1, 2] [2, 1]))
+```
+
+The results are True, True, and False. The body of same stays unchanged while using Eq for Int, String, and Array. Array equality compares element values and order, making the last result False.
+
 ## Declare an operation with trait
 
-{/* example: examples/learn/type-classes.ssrg */}
-```seseragi title="type-classes.ssrg"
+Define a custom operation in separate steps. Start by placing the required operation declaration at module scope:
+
+{/* example: examples/learn/focused/type-class-instances.ssrg#trait */}
+```seseragi title="Trait declaration"
 trait Render<A> {
   fn render value: A -> String
 }
+```
 
+Then declare its target type and the implementation for that type:
+
+{/* example: examples/learn/focused/type-class-instances.ssrg#badge */}
+```seseragi title="Type and instance"
 struct Badge {
   label: String,
 }
@@ -21,19 +58,6 @@ instance Render<Badge> {
   fn render value: Badge -> String =
     value.label
 }
-
-fn framed<A> value: A -> String
-where Render<A> =
-  `<${render value}>`
-
-pub effect fn main =
-  Badge { label: "ADMIN" }
-  |> framed
-  |> println
-```
-
-```text title="Output"
-<ADMIN>
 ```
 
 `trait Render<A>` requires an operation `render` that takes an `A` and returns a `String`. Its declaration contains the operation's type, without a function body.
@@ -45,6 +69,26 @@ pub effect fn main =
 `framed<A>` accepts an `A`, but `where Render<A>` requires that type to support Render. The requirement needed to call `render value` is part of the function's type.
 
 A `Badge` has the corresponding instance, so it can be passed to `framed`. A type without an instance is rejected during compilation. Selection does not inspect the runtime object's fields or its JavaScript constructor.
+
+Declare the function at module scope:
+
+{/* example: examples/learn/focused/type-class-instances.ssrg#framed */}
+```seseragi title="Function declaration"
+fn framed<A> value: A -> String
+where Render<A> =
+  `<${render value}>`
+```
+
+Inside main, pass a Badge to framed:
+
+{/* example: examples/learn/focused/type-class-instances.ssrg#badge-use */}
+```seseragi title="Expression in main"
+Badge { label: "ADMIN" }
+|> framed
+|> println
+```
+
+The output is `<ADMIN>`. The trait, instance, and constrained function are defined before composing them.
 
 ## Use one operation with different types
 
@@ -75,6 +119,45 @@ Done
 
 For a type with payloads or fields, those component types must also provide the derived operations. You cannot unconditionally derive Show for a field type with no Show instance. Nor can `deriving` generate the custom Render class.
 
+### Derive operations for a type with fields
+
+Eq and Show can also be derived for a struct's fields. Declare this type at module scope:
+
+{/* example: examples/learn/focused/type-class-derived-fields.ssrg#declaration */}
+```seseragi title="Struct declaration"
+struct Point deriving Eq, Show {
+  x: Int,
+  y: Int,
+}
+```
+
+Prepare two values differing only in y inside the do block of main:
+
+{/* example: examples/learn/focused/type-class-derived-fields.ssrg#values */}
+```seseragi title="Bindings in main do"
+let left = Point { x: 1, y: 2 }
+let right = Point { x: 1, y: 3 }
+```
+
+Compare and display them with separate expressions:
+
+{/* example: examples/learn/focused/type-class-derived-fields.ssrg#comparison */}
+```seseragi title="Expression in main do"
+println (show (left == right))
+```
+
+{/* example: examples/learn/focused/type-class-derived-fields.ssrg#display */}
+```seseragi title="Expression in main do"
+println (show left)
+```
+
+```text title="Output"
+False
+Point { x: 1, y: 2 }
+```
+
+The derived Eq compares the field differences. Show turns the type name and fields into text. Both operations are available for the Int fields, allowing them to be derived for this type.
+
 ## Respect instance boundaries and contracts
 
 There cannot be multiple instances for the same class application. Declare an instance in the module defining either the trait or the outermost target type. These rules prevent an added import from silently replacing an operation's implementation.
@@ -82,6 +165,33 @@ There cannot be multiple instances for the same class application. Declare an in
 Methods in `impl Badge` and an `instance Render<Badge>` serve different purposes. The former defines type-specific methods; the latter satisfies a type class requirement. Classes do not create inheritance hierarchies or runtime object interfaces.
 
 The compiler checks operation types but does not prove laws such as Eq reflexivity or Functor composition. Test those contracts when defining an instance. See the [type class reference](/en/docs/reference/type-classes) for details.
+
+### Define a second instance
+
+Add another type and its display rule at module scope:
+
+{/* example: examples/learn/focused/type-class-instances.ssrg#tag */}
+```seseragi title="Type and instance"
+struct Tag {
+  text: String,
+}
+
+instance Render<Tag> {
+  fn render value: Tag -> String =
+    `#${value.text}`
+}
+```
+
+Pass it to the same framed function inside main:
+
+{/* example: examples/learn/focused/type-class-instances.ssrg#tag-use */}
+```seseragi title="Expression in main"
+Tag { text: "help" }
+|> framed
+|> println
+```
+
+The output is `<#help>`. Tag's render prefixes `#`, and framed encloses that result. Keep the display difference in the instance without rewriting framed.
 
 ## Reuse the function with another type
 

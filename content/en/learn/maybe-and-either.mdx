@@ -3,15 +3,138 @@ title: "Maybe and Either"
 description: "Distinguish an absent value from a failure that needs a reason."
 ---
 
-A missing search result and an invalid input are different outcomes. Use `Maybe` for normal absence and `Either` when a failure needs a reason. Here we retrieve a candidate port number and then validate its range.
+A missing search result and an invalid input are different outcomes. Use `Maybe` for normal absence and `Either` when a failure needs a reason. First handle absence and failure separately, then combine candidate port lookup with validation.
 
 ## Represent presence and absence with Maybe
 
-`Maybe<A>` has two cases: `Just A`, containing a value, and `Nothing`, containing none. `ports[0]` has type `Maybe<Int>` and describes whether a first candidate exists.
+`Maybe<A>` is either `Just A`, holding a value, or `Nothing`, holding none. `Just 21` represents an existing integer. If absence alone leaves the inner type unknown, annotate it, for example `let absent: Maybe<Int> = Nothing`.
 
-`maybeValue ?? fallback` returns the payload of `Just` or uses the right-hand value for `Nothing`. The fallback is evaluated only for `Nothing`. This operator is specific to Maybe; it does not extract success values from Either.
+`maybeValue ?? fallback` extracts the value from Just or returns the fallback for Nothing. The fallback is evaluated only for Nothing. `??` is specific to Maybe; it does not extract success from Either.
+
+### Change only an existing value
+
+This binding belongs inside `main`. The `map` used with Arrays also works on a value inside Maybe:
+
+{/* example: examples/learn/focused/maybe-map.ssrg#present */}
+```seseragi title="Binding in main"
+let present =
+  Just 21
+  |> map (\n -> n * 2)
+```
+
+`present` is `Just 42`. Apply the same operation when there is no value:
+
+{/* example: examples/learn/focused/maybe-map.ssrg#absent */}
+```seseragi title="Binding in main"
+let absent: Maybe<Int> =
+  Nothing
+  |> map (\n: Int -> n * 2)
+```
+
+`absent` remains Nothing. Map does not apply the lambda to Nothing or invent an integer.
 
 ## Preserve a failure reason with Either
+
+`Either<E, A>` is either `Left E`, representing failure, or `Right A`, representing success. Give the type with a string failure and an integer success this alias at module scope. It does not create a new nominal type:
+
+{/* example: examples/learn/focused/either-do.ssrg#result-type */}
+```seseragi title="Type alias"
+alias Result = Either<String, Int>
+```
+
+This binding belongs inside `main`:
+
+{/* example: examples/learn/focused/either-map.ssrg#success */}
+```seseragi title="Binding in main"
+let success: Result =
+  Right 21
+  |> map (\n -> n * 2)
+```
+
+`success` is `Right 42`. Try map on a failure too:
+
+{/* example: examples/learn/focused/either-map.ssrg#failure */}
+```seseragi title="Binding in main"
+let input: Result = Left "invalid"
+let failure =
+  input
+  |> map (\n -> n * 2)
+```
+
+`failure` remains `Left "invalid"`. Left holds no success value, so the Result annotation determines that type first. As with Nothing in Maybe, map does not apply its transformation to the failure side. It also preserves the failure reason.
+
+## Transform a payload or continue a computation
+
+Consider a transformation that itself returns Maybe. This function retains positive integers and returns absence otherwise. Place it at module scope:
+
+{/* example: examples/learn/focused/maybe-flatmap.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn positive n: Int -> Maybe<Int> =
+  if n > 0 then Just n else Nothing
+```
+
+Passing it to map puts another Maybe inside the first one. This binding belongs inside `main`:
+
+{/* example: examples/learn/focused/maybe-flatmap.ssrg#nested */}
+```seseragi title="Binding in main"
+let nested =
+  Just 2
+  |> map positive
+```
+
+`nested` has type `Maybe<Maybe<Int>>`. Its show output is `Just Just 2`, with two Just layers. When the next computation also returns Maybe, chain it with flatMap:
+
+{/* example: examples/learn/focused/maybe-flatmap.ssrg#chained */}
+```seseragi title="Binding in main"
+let chained =
+  Just 2
+  |> flatMap positive
+```
+
+`chained` is `Just 2`, of type `Maybe<Int>`. Also try a next computation that returns absence:
+
+{/* example: examples/learn/focused/maybe-flatmap.ssrg#rejected */}
+```seseragi title="Binding in main"
+let rejected =
+  Just (-1)
+  |> flatMap positive
+```
+
+`rejected` is Nothing. If the initial value is Nothing, the next function is not called. `>>=` expresses the same composition from a success value to the next computation.
+
+### Write dependencies in order with do
+
+Combine two validations returning Either. Using Result above, declare this function at module scope:
+
+{/* example: examples/learn/focused/either-do.ssrg#validation */}
+```seseragi title="Function declaration"
+fn requirePositive n: Int -> Result =
+  if n > 0 then
+    Right n
+  else
+    Left "must be positive"
+```
+
+Addition that needs both successful values can be written as follows. It is still an ordinary pure function:
+
+{/* example: examples/learn/focused/either-do.ssrg#combination */}
+```seseragi title="Function declaration"
+fn addChecked x: Int -> y: Int
+  -> Result = do {
+    left <- requirePositive x
+    right <- requirePositive y
+    Right (left + right)
+  }
+```
+
+| Application expression | Result |
+| --- | --- |
+| `addChecked 2 3` | `Right 5` |
+| `addChecked (-1) 3` | `Left "must be positive"` |
+
+`left <- ...` and `right <- ...` extract the successful value from Right. A first Left retains its reason and skips the next validation. The final `Right (left + right)` supplies the overall success result. Do is not exclusive to Effect: here it composes synchronous Either values.
+
+## Combine candidate lookup and validation
 
 `Either<E, A>` is either `Left E`, a failure, or `Right A`, a success. In this example, `PortError` is the error type and `Int` is the success type. `PortResult` is a type alias for this `Either<PortError, Int>`.
 
@@ -53,17 +176,13 @@ Port: 8080
 
 If no candidate exists, use 3000. Pass that integer to `validPort`: a number from 1 through 65535 produces `Right n`; anything else produces `Left (OutOfRange n)`. Keeping the rejected input in the error payload lets the display include it.
 
+
+
 ## Handle the result with patterns
 
 `explain` extracts a successful port with `Right port` and a rejected integer with `Left (OutOfRange n)`. Both branches return a display `String`.
 
 Constructing `Left` does not throw an exception. An Either is an already evaluated ordinary value, available to `match` and other functions. Output still happens through the Effect returned by the final `println`.
-
-## Transform a payload or continue a computation
-
-`map f` transforms only the success payload of `Just` or `Right`. It leaves `Nothing` and `Left` unchanged.
-
-If the next function itself returns a Maybe or Either, `map` alone produces a nested result. `flatMap` or `>>=` continues from the first success value and stops on absence or failure. Chained Either calculations must share an error type. `do` is readable syntax for this sequential composition; it is not exclusive to Effects.
 
 ## Separate synchronous results from external work
 

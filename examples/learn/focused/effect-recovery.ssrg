@@ -1,0 +1,32 @@
+import * as effects from "std/effect"
+
+// docs:start failure-type
+type CheckError =
+  | Rejected
+// docs:end failure-type
+
+// docs:start declaration
+effect fn accepted allowed: Bool
+  -> Int fails CheckError =
+  if allowed then
+    effects.succeed 42
+  else
+    effects.fail Rejected
+// docs:end declaration
+
+// docs:start fallback
+effect fn fallback error: CheckError
+  -> Int =
+  effects.succeed 0
+// docs:end fallback
+
+pub effect fn main = do {
+  // docs:start recover
+  value <-
+    accepted False
+    |> effects.recover fallback
+  // docs:end recover
+  value
+  |> show
+  |> println
+}

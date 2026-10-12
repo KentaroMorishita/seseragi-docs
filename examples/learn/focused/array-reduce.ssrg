@@ -1,0 +1,12 @@
+// docs:start declaration
+fn appendDigit text: String
+  -> n: Int -> String =
+  `${text}${n}`
+// docs:end declaration
+
+pub effect fn main =
+  // docs:start fold
+  [1, 2, 3]
+  |> reduce "" appendDigit
+  |> println
+  // docs:end fold

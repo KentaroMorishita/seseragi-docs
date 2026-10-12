@@ -53,6 +53,52 @@ pub effect fn main = do {
 
 通常のcodeへEffectの汎用run操作は公開しません。公開`main`、test runner、callback adapterなどの明示境界でhostが実行します。`do`は順次合成です。並列化は`effects.parallel`などで明示し、compilerが順次操作を勝手に並列化することはありません。
 
+### 同じEffectを二度実行する
+
+{/* example: examples/reference/effect-execution.ssrg#announce */}
+
+```seseragi title="宣言: 出力する計算"
+effect fn announce text: String =
+  println text
+```
+
+`announce`を宣言したら、次の断片を`main`の`do`ブロック内へ置きます。通常の値を返すブロックと、Effectを順に実行する`do`を区別してください。
+
+{/* example: examples/reference/effect-execution.ssrg#cold */}
+
+```seseragi title="mainのdo内: 構築と二度の実行"
+let job = announce "ran"
+println "constructed"
+job
+job
+```
+
+出力はconstructed、ran、ranの順です。最初のletは計算を作り、後の二つのjobがそれぞれ実行します。
+
+### 成功値の変換と結果のbind
+
+次も同じ`main`の`do`ブロック内へ置く断片です。`effects`は`std/effect`のmodule aliasです。mapで`Task<Int>`を作っても、その結果を値として取り出したわけではありません。
+
+{/* example: examples/reference/effect-execution.ssrg#map-task */}
+
+```seseragi title="mainのdo内: Taskを合成する"
+let calculation =
+  effects.succeed 21
+  |> map (\n: Int -> n * 2)
+println "mapped"
+```
+
+{/* example: examples/reference/effect-execution.ssrg#execution */}
+
+```seseragi title="mainのdo内: 結果を受け取る"
+value <- calculation
+value
+|> show
+|> println
+```
+
+mappedを出力した後にcalculationを実行し、42を出力します。`let`と`<-`は、ここで異なる役割を持ちます。
+
 ## effect fnの二つの形
 
 compact formはparameterの後へ直接`=`を書きます。`R`・`E`・`A`をbodyから推論し、公開interfaceには正規Effect型を保存します。
@@ -72,6 +118,48 @@ fails ConsoleError =
 ```
 
 contract formで`with`を省略すると`{}`、`fails`を省略すると`Never`です。bodyから補完しません。compact formへ`with`や`fails`だけを混ぜる中間形はありません。どちらもbodyはEffect型が必要で、通常値を暗黙にliftしません。
+
+### 推論する宣言と固定する宣言
+
+次の二つは宣言の断片で、effectsはstd/effectのaliasです。どちらも環境不要、失敗型Never、成功型IntのEffectを返します。
+
+{/* example: examples/reference/effect-contracts.ssrg#compact */}
+
+```seseragi title="宣言: compact form"
+effect fn compact value: Int =
+  effects.succeed value
+```
+
+{/* example: examples/reference/effect-contracts.ssrg#contract */}
+
+```seseragi title="宣言: contract form"
+effect fn contract value: Int
+  -> Int =
+  effects.succeed value
+```
+
+{/* example: examples/reference/effect-contracts.ssrg#run-contracts */}
+
+```seseragi title="mainのdo内: 宣言した計算を使う"
+first <- compact 4
+second <- contract 5
+println `${first}: ${second}`
+```
+
+出力は`4: 5`です。contract formのwith/fails省略は、それぞれ空のenvironmentとNeverを指定します。
+
+### 通常値をEffectへ暗黙liftしない
+
+次は意図的なエラー例です。compact formでもbodyにはEffectが必要なので、Intをそのまま返すanswerは`SES-T0101`になります。
+
+{/* example: examples/reference/invalid/pure-effect.ssrg#invalid */}
+
+```seseragi title="意図的なEffect型エラー"
+effect fn answer = 42
+
+pub effect fn main =
+  println "ready"
+```
 
 ## environmentとfailureの合成
 

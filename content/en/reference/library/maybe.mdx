@@ -34,10 +34,109 @@ Output:
 42
 ```
 
+## Try specific cases
+
+Each excerpt can be tried on its own inside the `do` block of `main`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](/en/docs/learn/first-program) and [Effect](/en/docs/learn/effects).
+
+### Use a default for absence
+
+Applying withDefault 0 to Nothing returns the Int value 0.
+
+{/* example: examples/library/maybe-recipes.ssrg#default-missing */}
+
+```seseragi
+Nothing
+|> maybe.withDefault 0
+|> show
+|> println
+```
+
+Output:
+
+```text
+0
+```
+
+### Keep a present value
+
+The first argument to orElse is an alternative Maybe. The subject Just 9 is kept instead of Just 7.
+
+{/* example: examples/library/maybe-recipes.ssrg#alternative-present */}
+
+```seseragi
+Just 9
+|> maybe.orElse (Just 7)
+|> show
+|> println
+```
+
+Output:
+
+```text
+Just 9
+```
+
+### Choose an alternative Maybe
+
+When the subject is Nothing, orElse selects the alternative Just 7.
+
+{/* example: examples/library/maybe-recipes.ssrg#alternative-missing */}
+
+```seseragi
+Nothing
+|> maybe.orElse (Just 7)
+|> show
+|> println
+```
+
+Output:
+
+```text
+Just 7
+```
+
+### Collect present values
+
+sequence converts Array&lt;Maybe&lt;Int>> into Maybe&lt;Array&lt;Int>>. When every element is Just, it returns the collected values inside Just.
+
+{/* example: examples/library/maybe-recipes.ssrg#sequence-present */}
+
+```seseragi
+[Just 1, Just 2]
+|> maybe.sequence
+|> show
+|> println
+```
+
+Output:
+
+```text
+Just [1, 2]
+```
+
+### Stop collecting on absence
+
+If any element is Nothing, the entire result is Nothing. This operation does not discard absent elements and retain the rest.
+
+{/* example: examples/library/maybe-recipes.ssrg#sequence-missing */}
+
+```seseragi
+[Just 1, Nothing]
+|> maybe.sequence
+|> show
+|> println
+```
+
+Output:
+
+```text
+Nothing
+```
+
 ## Choosing operations
 
 - Use Maybe when absence is normal. Use Either when a reason is needed and Effect when an operation must execute.
-- withDefault and orElse have strict arguments: the fallback expression is evaluated even for Just. Use ?? for a fallback evaluated only when needed.
+- `withDefault` and `orElse` evaluate arguments strictly, including the alternative expression when the subject is Just. For a lazy alternative to `withDefault` that returns the contained A, use `??`. To preserve Maybe as `orElse` does while delaying the alternative expression, branch with `match`.
 - traverse does not guarantee skipping later pure callbacks after Nothing. Use reduceUntil when the traversal itself must stop early.
 
 ## Use this reference

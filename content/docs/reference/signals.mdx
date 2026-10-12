@@ -41,6 +41,42 @@ pub effect fn main = do {
 
 出力は6です。`*doubled`は値を返すpure dereferenceではなく、実行時点のsnapshotを読むTaskです。`count`の作成・変更・readを`do`で順に実行しています。
 
+### 現在値へ関数を適用する
+
+{/* example: examples/reference/signal-snapshots.ssrg#increment */}
+
+```seseragi title="宣言: 更新に使うpure関数"
+fn increment n: Int -> Int = n + 1
+```
+
+次はsignalsをstd/signalのaliasとするmain内の断片です。readはTask、updateもTaskなので、doで実行します。
+
+{/* example: examples/reference/signal-snapshots.ssrg#read-update */}
+
+```seseragi title="main内: readとupdate"
+source <- signals.make 1
+before <- *source
+source
+|> signals.update increment
+after <- *source
+println `${before}: ${after}`
+```
+
+出力は`1: 2`です。updateは実行時点の現在値へincrementを一度適用します。
+
+### 読んだsnapshotは不変値
+
+{/* example: examples/reference/signal-snapshots.ssrg#snapshot */}
+
+```seseragi title="main内: snapshotと次のread"
+saved <- *source
+source := 10
+current <- *source
+println `${saved}: ${current}`
+```
+
+直前のsourceを使うと、出力は`2: 10`です。保存したIntが後のSignal更新へ追従することはありません。
+
 ## derived graph
 
 `map`は一つのsource、`combine`は二つのsourceからderived Signalを作ります。構築に使う関数はpureです。関数内のreadを追跡する暗黙dependency trackingはありません。
@@ -48,6 +84,24 @@ pub effect fn main = do {
 `constant`はsourceを持たず、`distinct`は`Eq`を使って直前の公開値と等しい更新を止めます。sourceへ同じ値をsetしただけでは、既定で通知を止めません。
 
 SignalはFunctorとApplicativeを持ちますが、Monadは持ちません。動的なdependency切り替えは`switchMap`で明示します。切り替え時は古いinnerを解除し、新しいinnerの安定した現在値を公開します。
+
+### dependencyを明示して更新を読む
+
+doubleは上の完全な例と同じ、Intを二倍するpure関数です。次は同じsourceを使うmain内の断片です。
+
+{/* example: examples/reference/signal-snapshots.ssrg#dependence */}
+
+```seseragi title="main内: derived Signal"
+let doubled =
+  signals.map double source
+source := 3
+value <- *doubled
+value
+|> show
+|> println
+```
+
+sourceを3へ変えた後にdoubledを読むため、出力は6です。mapの関数へ渡すdependencyはsourceそのもので、先にreadしたIntではありません。
 
 ## transaction
 
@@ -63,6 +117,42 @@ signals.transaction [
 changeをArray順に適用し、同じsourceの後続`planUpdate`はstaging済みの値を受け取ります。commit前のdefectやcancellationでは一件も公開しません。成功後に一度commitし、影響するderived nodeをdependency順に高々一度再計算してからsubscriberへ通知します。途中の不整合な組み合わせは見えません。
 
 transactionがatomicにするのはSignal更新です。任意のI/OやEffect全体をtransactionへ入れる仕組みではありません。
+
+### 二つのsourceをまとめてcommitする
+
+{/* example: examples/reference/signal-transaction.ssrg#area */}
+
+```seseragi title="宣言: 二つの値を合成する"
+fn area width: Int
+  -> height: Int -> Int =
+  width * height
+```
+
+{/* example: examples/reference/signal-transaction.ssrg#combine */}
+
+```seseragi title="main内: combineとread"
+width <- signals.make 2
+height <- signals.make 4
+let combined =
+  signals.combine area width height
+before <- *combined
+println $ show before
+```
+
+最初の出力は8です。続いて、同じmain内で二つの変更をtransactionへ渡します。
+
+{/* example: examples/reference/signal-transaction.ssrg#transaction */}
+
+```seseragi title="main内: transaction後のread"
+signals.transaction [
+  signals.planSet 3 width,
+  signals.planSet 5 height,
+]
+after <- *combined
+println $ show after
+```
+
+次の出力は15です。readはcommit後の幅3と高さ5から求めた値を返します。I/O全体をatomicにする例ではありません。
 
 ## snapshotの範囲
 

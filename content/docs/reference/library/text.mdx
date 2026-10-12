@@ -14,6 +14,83 @@ description: "Stringの検索・分割・変換を行います。文字数や位
 import * as text from "std/text"
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### 前後の空白を取り除く
+
+trimは両端の空白を取り除きます。文字列の途中の空白は残ります。
+
+{/* example: examples/library/text-recipes.ssrg#trim */}
+
+```seseragi
+"  green tea  "
+|> text.trim
+|> println
+```
+
+出力:
+
+```text
+green tea
+```
+
+### 区切り文字で分ける
+
+splitは区切り文字を先に、対象の文字列を後に受け取ります。結果はArray&lt;String>です。
+
+{/* example: examples/library/text-recipes.ssrg#split */}
+
+```seseragi
+"tea,milk"
+|> text.split ","
+|> show
+|> println
+```
+
+出力:
+
+```text
+[tea, milk]
+```
+
+### 区切り文字でつなぐ
+
+joinはStringの配列を一つのStringへまとめ、要素間に区切り文字を入れます。
+
+{/* example: examples/library/text-recipes.ssrg#join */}
+
+```seseragi
+["tea", "milk"]
+|> text.join " / "
+|> println
+```
+
+出力:
+
+```text
+tea / milk
+```
+
+### 文字列を置き換える
+
+最初の引数が探す文字列、次が置換する文字列、最後が処理対象です。この例では一つの空白をハイフンへ変えます。
+
+{/* example: examples/library/text-recipes.ssrg#replace */}
+
+```seseragi
+"green tea"
+|> text.replace " " "-"
+|> println
+```
+
+出力:
+
+```text
+green-tea
+```
+
 ## 選び方と注意
 
 - indexの単位はUnicode scalarです。UTF-8バイト長や、画面上の一文字を数えるgrapheme APIとは使い分けます。

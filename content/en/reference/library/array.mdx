@@ -36,6 +36,86 @@ Output:
 [2, 4]
 ```
 
+## Try specific cases
+
+Each excerpt can be tried on its own inside the `do` block of `main`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](/en/docs/learn/first-program) and [Effect](/en/docs/learn/effects).
+
+### Find the first matching element
+
+Both 5 and 8 exceed 3. find returns only the first match, wrapped in Just.
+
+{/* example: examples/library/array-recipes.ssrg#find-first */}
+
+```seseragi
+[2, 5, 8]
+|> array.find (\n -> n > 3)
+|> show
+|> println
+```
+
+Output:
+
+```text
+Just 5
+```
+
+### Handle no matching element
+
+No element in the same array exceeds 9, so the result is Nothing.
+
+{/* example: examples/library/array-recipes.ssrg#find-none */}
+
+```seseragi
+[2, 5, 8]
+|> array.find (\n -> n > 9)
+|> show
+|> println
+```
+
+Output:
+
+```text
+Nothing
+```
+
+### Read an out-of-range index
+
+Indices start at zero. Index 2 does not exist in a two-element array, so get returns Nothing.
+
+{/* example: examples/library/array-recipes.ssrg#get-outside */}
+
+```seseragi
+[10, 20]
+|> array.get 2
+|> show
+|> println
+```
+
+Output:
+
+```text
+Nothing
+```
+
+### Take zero elements
+
+Taking zero elements returns an empty array regardless of the source length.
+
+{/* example: examples/library/array-recipes.ssrg#take-zero */}
+
+```seseragi
+[10, 20]
+|> array.take 0
+|> show
+|> println
+```
+
+Output:
+
+```text
+[]
+```
+
 ## Choosing operations
 
 - Choose Array for indexed sequences. get and indexing return Nothing for negative or out-of-bounds indices.

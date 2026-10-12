@@ -1,0 +1,13 @@
+// docs:start declaration
+type Shape =
+  | Circle Int
+  | Rectangle (Int, Int)
+// docs:end declaration
+
+pub effect fn main = {
+  // docs:start value
+  let rectangle: Shape =
+    Rectangle (3, 4)
+  // docs:end value
+  println ""
+}

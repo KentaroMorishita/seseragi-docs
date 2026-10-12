@@ -25,7 +25,7 @@ const grammar = JSON.parse(readFileSync(new URL('./src/lib/seseragi.tmLanguage.j
 const rehypePlugins = [[rehypeCode, { langs: [{ ...grammar, name: 'seseragi', aliases: ['ssrg'] }] }]];
 
 export default defineConfig({
-  site: 'https://seseragi-docs-site.vercel.app',
+  site: 'https://seseragi-docs.vercel.app',
   markdown: {
     processor: unified({
       remarkPlugins,

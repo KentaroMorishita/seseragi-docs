@@ -1,0 +1,30 @@
+import * as either from "std/either"
+
+pub effect fn main = do {
+  // docs:start map-success
+  let success: Either<String, Int> =
+    Right 41
+  success
+  |> either.mapRight (\n -> n + 1)
+  |> either.fold (\e -> e) show
+  |> println
+  // docs:end map-success
+
+  // docs:start keep-failure
+  let failure: Either<String, Int> =
+    Left "offline"
+  failure
+  |> either.mapRight (\n -> n + 1)
+  |> either.fold (\e -> e) show
+  |> println
+  // docs:end keep-failure
+
+  // docs:start map-failure
+  let annotated: Either<String, Int> =
+    Left "offline"
+  annotated
+  |> either.mapLeft (\e -> "API: " + e)
+  |> either.fold (\e -> e) show
+  |> println
+  // docs:end map-failure
+}

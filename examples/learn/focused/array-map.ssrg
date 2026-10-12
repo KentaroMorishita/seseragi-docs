@@ -1,0 +1,7 @@
+pub effect fn main =
+  // docs:start map
+  [1, 2, 3]
+  |> map (\n -> n * 2)
+  |> show
+  |> println
+  // docs:end map

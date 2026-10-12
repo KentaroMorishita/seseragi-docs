@@ -1,0 +1,31 @@
+import * as array from "std/array"
+
+pub effect fn main = do {
+  // docs:start find-first
+  [2, 5, 8]
+  |> array.find (\n -> n > 3)
+  |> show
+  |> println
+  // docs:end find-first
+
+  // docs:start find-none
+  [2, 5, 8]
+  |> array.find (\n -> n > 9)
+  |> show
+  |> println
+  // docs:end find-none
+
+  // docs:start get-outside
+  [10, 20]
+  |> array.get 2
+  |> show
+  |> println
+  // docs:end get-outside
+
+  // docs:start take-zero
+  [10, 20]
+  |> array.take 0
+  |> show
+  |> println
+  // docs:end take-zero
+}

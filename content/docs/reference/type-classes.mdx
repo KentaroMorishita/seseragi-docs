@@ -47,6 +47,38 @@ pub effect fn main =
 
 standard collectionの`Show`などは要素型のinstanceも必要です。空Arrayや`Nothing`であっても、値を見て要素のconstraintを省略しません。必要なinstanceがない場合は`SES-T0201`です。
 
+### generic関数へconstraintを渡す
+
+{/* example: examples/reference/typeclass-variants.ssrg#constraints */}
+
+```seseragi title="宣言: Show constraint"
+fn display<A> value: A -> String
+where Show<A> =
+  show value
+```
+
+{/* example: examples/reference/typeclass-variants.ssrg#show-cases */}
+
+```seseragi title="main内: 具体型で呼ぶ"
+println $ display 42
+println $ display True
+```
+
+IntとBoolのShow instanceをそれぞれ選び、42とTrueを出力します。
+
+whereを省いた次の宣言は、genericなAにShowの証拠がなく、`SES-T0201`です。これは意図的なエラー例です。
+
+{/* example: examples/reference/invalid/missing-constraint.ssrg#invalid */}
+
+```seseragi title="意図的なconstraintエラー"
+fn display<A> value: A -> String =
+  show value
+
+pub effect fn main =
+  display 42
+  |> println
+```
+
 ## coherenceとorphan rule
 
 同じtrait適用には、プログラム全体で一つのinstanceだけ存在できます。instanceを置けるのはtraitを定義したmodule、またはheadの最外nominal型を定義したmoduleです。局所instance、重複候補への優先順位、overlapはありません。
@@ -72,6 +104,29 @@ aliasはinstance identityを作りません。aliasと展開先に別のinstance
 
 struct/newtypeの`impl`内の標準`operator`宣言は、対応する標準trait instanceの糖衣です。独自symbolや優先順位は別のトップレベル`operator`宣言で定義します。
 
+### 同じmapを複数の型へ使う
+
+以下ではincrementをIntへ1を足すpure関数とします。raiseの宣言はArray、Maybe、Listのいずれにも特定せず、Functor constraintを要求します。
+
+{/* example: examples/reference/typeclass-variants.ssrg#functor */}
+
+```seseragi title="宣言: 型構築子parameter"
+fn raise<F<_>> values: F<Int>
+  -> F<Int>
+where Functor<F> =
+  map increment values
+```
+
+{/* example: examples/reference/typeclass-variants.ssrg#instances */}
+
+```seseragi title="main内: 三つのinstance"
+println $ show $ raise [1, 2]
+println $ show $ raise $ Just 2
+println $ show $ raise `[3, 4]
+```
+
+順に`[2, 3]`、`Just 3`、`` `[4, 5] ``を出力します。instanceは入力の型から選びます。
+
 ## derivingとlaws
 
 `deriving`で導出できるのは`Eq`、`Ord`、`Show`、`Debug`、`Hash`、`JsonEncode`、`JsonDecode`です。必要なfield/payload型にも同じtraitのinstanceが必要です。generic型なら、その条件を生成instanceへ加えます。
@@ -79,6 +134,25 @@ struct/newtypeの`impl`内の標準`operator`宣言は、対応する標準trait
 `Hash`には同じ型の`Eq`も必要です。derivingと明示instanceで同じ適用を二重定義するとエラーです。導出した`Ord`はvariantの宣言順、その後にpayloadの辞書式順序を使います。newtypeのShowはconstructor名を残します。
 
 Eq、Ord、Functor、Applicative、Monadなどのlawはinstanceの契約です。型検査だけでlawを証明することはありません。[テスト](/docs/guides/testing)でも動作を確認してください。
+
+### 導出したEqを使う
+
+{/* example: examples/reference/typeclass-variants.ssrg#deriving */}
+
+```seseragi title="宣言: deriving"
+newtype Tag deriving Eq, Show =
+  String
+```
+
+{/* example: examples/reference/typeclass-variants.ssrg#equality */}
+
+```seseragi title="main内: derived Eq"
+Tag "docs" == Tag "docs"
+|> show
+|> println
+```
+
+同じpayloadを持つTag同士を比較するので、出力はTrueです。IntやStringとwrapperを暗黙に同じ型にはしません。
 
 ## do notation
 
@@ -95,3 +169,56 @@ do {
 `<-`はmonadのpayloadを束縛し、`let`はpureな値を束縛します。途中のmonadic expressionは結果を捨てて続け、最後のmonadic expressionがblock全体の結果です。最後の式は必須です。
 
 すべての計算を同じ型構築子へ揃えます。EitherをEffectへ混ぜるなら`fromEither`などで明示変換します。bind patternは必ず一致する必要があり、refutable patternを暗黙の失敗へ変換しません。[パターン](/docs/reference/patterns)も参照してください。
+
+### Maybeのdo
+
+次はpure関数の宣言です。二つのMaybeを同じMonadへ揃え、payloadを足してMaybeへ戻します。
+
+{/* example: examples/reference/do-variants.ssrg#maybe-do */}
+
+```seseragi title="宣言: Maybeの合成"
+fn sum left: Maybe<Int>
+  -> right: Maybe<Int>
+  -> Maybe<Int> = do {
+  a <- left
+  b <- right
+  pure (a + b)
+}
+```
+
+{/* example: examples/reference/do-variants.ssrg#maybe-results */}
+
+```seseragi title="main内: 成功と欠如"
+sum (Just 2) (Just 3)
+|> show
+|> println
+sum Nothing (Just 3)
+|> show
+|> println
+```
+
+出力はJust 5とNothingです。
+
+### Arrayのdo
+
+{/* example: examples/reference/do-variants.ssrg#array-do */}
+
+```seseragi title="宣言: Arrayの組み合わせ"
+fn choices -> Array<Int> = do {
+  first <- [1, 2]
+  second <- [10, 20]
+  pure (first + second)
+}
+```
+
+{/* example: examples/reference/do-variants.ssrg#array-results */}
+
+```seseragi title="main内: Arrayの結果"
+choices ()
+|> show
+|> println
+```
+
+出力は`[11, 21, 12, 22]`です。最初のArrayが外側、次のArrayが内側の組み合わせになります。
+
+0.61.25では、Effect関数内のdoで別monadのdoを直接pure letへ置く形にcompiler制約があります。上のようにpure関数へ分けて結果を使えます。doをEffectだけに限定する言語仕様ではありません。

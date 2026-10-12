@@ -1,0 +1,6 @@
+// docs:start invalid
+fn answer -> Int = (+) 20 22
+
+pub effect fn main =
+  println "ready"
+// docs:end invalid

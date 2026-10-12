@@ -1,0 +1,25 @@
+// docs:start result-type
+alias Result = Either<String, Int>
+// docs:end result-type
+
+// docs:start validation
+fn requirePositive n: Int -> Result =
+  if n > 0 then
+    Right n
+  else
+    Left "must be positive"
+// docs:end validation
+
+// docs:start combination
+fn addChecked x: Int -> y: Int
+  -> Result = do {
+    left <- requirePositive x
+    right <- requirePositive y
+    Right (left + right)
+  }
+// docs:end combination
+
+pub effect fn main = do {
+  println (show (addChecked 2 3))
+  println (show (addChecked (-1) 3))
+}

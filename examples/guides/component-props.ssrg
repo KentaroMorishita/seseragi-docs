@@ -1,0 +1,26 @@
+// docs:start badge
+import * as html from "std/web/html"
+
+alias BadgeProps = { label: String }
+
+fn badge props: BadgeProps
+  -> html.Html<Never> =
+  html.span {
+    class: "badge",
+    children: props.label
+  }
+// docs:end badge
+
+// docs:start labels
+pub effect fn main = do {
+  badge { label: "Ready" }
+  |> html.renderToString
+  |> println
+  badge { label: "Waiting" }
+  |> html.renderToString
+  |> println
+  badge { label: "<script>" }
+  |> html.renderToString
+  |> println
+}
+// docs:end labels

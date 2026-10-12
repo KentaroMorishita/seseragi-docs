@@ -39,6 +39,51 @@ pub effect fn main =
 4142
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### 16進文字列をBytesへ戻す
+
+decodeが成功するとBytesを得ます。encodeで戻すと、同じ16進文字列を確認できます。
+
+{/* example: examples/library/bytes-hex-recipes.ssrg#roundtrip */}
+
+```seseragi
+match bytes_hex.decode "4142" {
+  Right bytes ->
+    bytes
+    |> bytes_hex.encode
+    |> println
+  Left _ -> println "Invalid hex"
+}
+```
+
+出力:
+
+```text
+4142
+```
+
+### 16進数以外の文字を受け取る
+
+Zは16進数の桁として読めないため、decodeはLeftを返します。
+
+{/* example: examples/library/bytes-hex-recipes.ssrg#invalid */}
+
+```seseragi
+match bytes_hex.decode "ZZ" {
+  Right _ -> println "Valid hex"
+  Left _ -> println "Invalid hex"
+}
+```
+
+出力:
+
+```text
+Invalid hex
+```
+
 ## このページの読み方
 
 以下のsignatureは引数の順に型を並べ、最後に結果の型を示します。カリー化・制約・Effectの環境については[型の読み方](/docs/reference/library#型の読み方)で確認できます。

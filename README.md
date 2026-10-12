@@ -55,6 +55,10 @@ bun run check:browser
 
 signatureだけの断片、期待する診断、ブラウザ用ビルドを、実行済みプログラムとして扱わないでください。
 
+必要な数行だけを掲載するときは、検証ファイルの`// docs:start name`と`// docs:end name`で範囲を囲み、`{/* example: examples/path.ssrg#name */}`で参照します。共通の字下げを除いたコードをそのまま掲載してください。範囲の重複や入れ子、未登録の検証ファイル、本文との不一致は検査で拒否します。短い式、関数の宣言、`main`へ置く断片、独立したプログラムを本文で区別します。
+
+一章の例を一つに制限せず、入力の違い、空や該当なし、失敗、操作の使い分けに応じて補います。一つの例で初めて扱う概念は絞り、結果との対応を同じ節で説明してください。
+
 ## 標準ライブラリの更新
 
 リリース済みCLIとそのtagを使い、compiler-owned catalogを更新します。
@@ -71,9 +75,11 @@ bun run build
 
 公開名と型はsnapshotから、日英の説明は別の辞書から生成します。説明の補正は`library-description-overrides.json`、使い分けと注意点は`library-notes.json`で管理します。公開structのフィールドは`library-fields.json`、版を固定した型情報の補正は`library-signature-overrides.json`に出典とともに記録します。生成結果が元データと異なる場合や、新しい説明・moduleが欠落した場合は検査で停止します。`contract-only`のmoduleには利用可能なAPIページを生成しません。
 
+目的別の短い例は`library-examples.json`で日英の説明・出力・ソース範囲を管理します。掲載順と各出力の連結が、対応する`examples/library/checks.json`の実行条件と一致することを要求します。作例を増やすときも、生成ページを直接編集しません。
+
 ## 公開
 
-GitHubの`main`をVercelの`seseragi-docs-site`へ接続しています。`vercel.json`に静的ビルドの設定を置いています。言語ごとのURL、canonicalとhreflang、sitemapを静的に生成します。
+公開URLは`https://seseragi-docs.vercel.app`です。GitHubの`main`をVercelの`seseragi-docs-site`へ接続しています。`vercel.json`に静的ビルドと旧ドメインからの転送を設定し、記事のパスとクエリを保って新URLへ移動します。言語ごとのURL、canonicalとhreflang、sitemapを静的に生成します。
 
 旧サイト用のVercelプロジェクト`seseragi-docs`は別プロジェクトです。
 

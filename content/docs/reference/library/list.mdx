@@ -34,6 +34,69 @@ pub effect fn main =
 [10, 20, 30]
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### 先頭の要素を読む
+
+先頭にバッククォートを付けたリテラルでListを作ります。headは最初の4をJustで返します。
+
+{/* example: examples/library/list-recipes.ssrg#head-present */}
+
+```seseragi
+`[4, 8]
+|> list.head
+|> show
+|> println
+```
+
+出力:
+
+```text
+Just 4
+```
+
+### 空のListを読む
+
+emptyはUnitを受け取り、空のListを作ります。そのheadはNothingです。型注釈で要素型をIntと指定しています。
+
+{/* example: examples/library/list-recipes.ssrg#head-empty */}
+
+```seseragi
+let items: List<Int> =
+  list.empty ()
+items
+|> list.head
+|> show
+|> println
+```
+
+出力:
+
+```text
+Nothing
+```
+
+### 先頭の一部を残す
+
+take 2は先頭の二要素を持つListを返します。出力も、Listリテラルと同じバッククォート付きの形です。
+
+{/* example: examples/library/list-recipes.ssrg#take-prefix */}
+
+```seseragi
+`[1, 2, 3]
+|> list.take 2
+|> show
+|> println
+```
+
+出力:
+
+```text
+`[1, 2]
+```
+
 ## 選び方と注意
 
 - 先頭を追加しながら組み立てる列にはListを使います。consとtailはO(1)で、既存tailを共有できます。

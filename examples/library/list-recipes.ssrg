@@ -1,0 +1,26 @@
+import * as list from "std/list"
+
+pub effect fn main = do {
+  // docs:start head-present
+  `[4, 8]
+  |> list.head
+  |> show
+  |> println
+  // docs:end head-present
+
+  // docs:start head-empty
+  let items: List<Int> =
+    list.empty ()
+  items
+  |> list.head
+  |> show
+  |> println
+  // docs:end head-empty
+
+  // docs:start take-prefix
+  `[1, 2, 3]
+  |> list.take 2
+  |> show
+  |> println
+  // docs:end take-prefix
+}

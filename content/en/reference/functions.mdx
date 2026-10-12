@@ -41,6 +41,40 @@ pub effect fn main = do {
 
 `increment` has type `Int -> Int`. show converts the Int to String before println, and the output is 42. `value |> function` is ordinary `function value` application. Standard collection operations put data last, making a partially applied operation convenient as a pipeline stage.
 
+### Grouping boundaries
+
+These fragments go inside the do block of main and use add. The first two group the same applications differently; the third groups an argument calculation.
+
+{/* example: examples/reference/function-values.ssrg#grouping */}
+
+```seseragi title="Main do block: application and grouping"
+add 10 2
+|> show
+|> println
+(add 10) 2
+|> show
+|> println
+add (10 + 1) 2
+|> show
+|> println
+```
+
+The outputs are 12, 12, and 13, in that order. Distinguish argument boundaries from grouping a calculation.
+
+### A function for the remaining argument
+
+{/* example: examples/reference/function-values.ssrg#partial */}
+
+```seseragi title="Main do block: partial application"
+let increment = add 1
+[1, 2, 3]
+|> map increment
+|> show
+|> println
+```
+
+add 1 has type Int -> Int. Mapping it over the Array prints [2, 3, 4].
+
 ## Evaluation and lambdas
 
 Seseragi evaluates strictly. Arguments are evaluated once from left to right, followed by the applied body. Partial application produces a function awaiting the remaining parameters; arguments not yet supplied are not evaluated. Calling a function that returns an Effect is separate from executing that Effect.
@@ -52,6 +86,43 @@ map (\value: Int -> value + 1) [1, 2]
 ```
 
 Lambdas capture needed lexical bindings. Type parameters are not runtime values, so generic code cannot inspect a type name and branch on it.
+
+### Anonymous functions and operator values
+
+A lambda and a named function satisfy the same required function type. This main-body fragment prints [2, 4, 6].
+
+{/* example: examples/reference/function-values.ssrg#lambda */}
+
+```seseragi title="Main do block: lambda"
+[1, 2, 3]
+|> map (\n: Int -> n * 2)
+|> show
+|> println
+```
+
+An operator value can be stored in a typed binding before use. This fragment also prints [2, 4, 6].
+
+{/* example: examples/reference/function-values.ssrg#operator */}
+
+```seseragi title="Main do block: operator value"
+let times: Int -> Int -> Int = (*)
+let twice = times 2
+[1, 2, 3]
+|> map twice
+|> show
+|> println
+```
+
+Compiler version 0.61.25 rejects direct application such as (+) 20 22 with SES-T0101. This is a current compiler restriction, not a language-wide ban on operator values. Use the working binding form above.
+
+{/* example: examples/reference/invalid/direct-operator.ssrg#invalid */}
+
+```seseragi title="Form rejected by 0.61.25"
+fn answer -> Int = (+) 20 22
+
+pub effect fn main =
+  println "ready"
+```
 
 ## Blocks and local functions
 
@@ -65,6 +136,21 @@ fn twice value: Int -> Int = {
 ```
 
 Declaring a function does not execute its body or any Effect. Place mutually recursive local functions in `rec { ... }`. Local functions cannot be public.
+
+### Values captured by a local function
+
+{/* example: examples/reference/local-functions.ssrg#closure */}
+
+```seseragi title="Declaration: lexical capture"
+fn shifted amount: Int -> value: Int
+  -> Int = {
+  fn shift n: Int -> Int =
+    n + amount
+  shift value
+}
+```
+
+shift captures the enclosing amount parameter. shifted 3 7 returns 10; this does not permit capturing later local bindings.
 
 ## Recursion
 

@@ -1,0 +1,26 @@
+import * as signals from "std/signal"
+
+// docs:start area
+fn area width: Int
+  -> height: Int -> Int =
+  width * height
+// docs:end area
+
+pub effect fn main = do {
+  // docs:start combine
+  width <- signals.make 2
+  height <- signals.make 4
+  let combined =
+    signals.combine area width height
+  before <- *combined
+  println $ show before
+  // docs:end combine
+  // docs:start transaction
+  signals.transaction [
+    signals.planSet 3 width,
+    signals.planSet 5 height,
+  ]
+  after <- *combined
+  println $ show after
+  // docs:end transaction
+}

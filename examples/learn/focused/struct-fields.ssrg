@@ -1,0 +1,15 @@
+// docs:start declaration
+struct Point {
+  x: Int,
+  y: Int,
+}
+// docs:end declaration
+
+pub effect fn main = {
+  // docs:start access
+  let point = Point { x: 3, y: 4 }
+  point.x
+  |> show
+  |> println
+  // docs:end access
+}

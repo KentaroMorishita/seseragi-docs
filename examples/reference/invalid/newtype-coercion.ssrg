@@ -1,0 +1,13 @@
+// docs:start invalid
+newtype UserId = Int
+
+fn unwrap user: UserId -> Int =
+  match user {
+    UserId value -> value
+  }
+
+fn invalid -> Int = unwrap 42
+
+pub effect fn main =
+  println "ready"
+// docs:end invalid

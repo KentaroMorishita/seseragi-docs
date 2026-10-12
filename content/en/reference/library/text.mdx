@@ -14,6 +14,83 @@ description: "Search, split, and transform Strings. Check the unit used for leng
 import * as text from "std/text"
 ```
 
+## Try specific cases
+
+Each excerpt can be tried on its own inside the `do` block of `main`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](/en/docs/learn/first-program) and [Effect](/en/docs/learn/effects).
+
+### Trim surrounding whitespace
+
+trim removes surrounding whitespace and preserves spaces inside the string.
+
+{/* example: examples/library/text-recipes.ssrg#trim */}
+
+```seseragi
+"  green tea  "
+|> text.trim
+|> println
+```
+
+Output:
+
+```text
+green tea
+```
+
+### Split on a separator
+
+split takes the separator first and the subject string last. It returns Array&lt;String>.
+
+{/* example: examples/library/text-recipes.ssrg#split */}
+
+```seseragi
+"tea,milk"
+|> text.split ","
+|> show
+|> println
+```
+
+Output:
+
+```text
+[tea, milk]
+```
+
+### Join with a separator
+
+join combines an array of strings into one string, inserting the separator between elements.
+
+{/* example: examples/library/text-recipes.ssrg#join */}
+
+```seseragi
+["tea", "milk"]
+|> text.join " / "
+|> println
+```
+
+Output:
+
+```text
+tea / milk
+```
+
+### Replace text
+
+The arguments are the search string, replacement, and subject. This example changes one space to a hyphen.
+
+{/* example: examples/library/text-recipes.ssrg#replace */}
+
+```seseragi
+"green tea"
+|> text.replace " " "-"
+|> println
+```
+
+Output:
+
+```text
+green-tea
+```
+
 ## Choosing operations
 
 - Indices count Unicode scalars. Distinguish them from UTF-8 byte lengths and grapheme APIs for displayed characters.

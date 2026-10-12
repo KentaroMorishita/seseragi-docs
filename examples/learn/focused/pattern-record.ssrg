@@ -1,0 +1,22 @@
+// docs:start declaration
+fn caption value: {
+  online: Bool,
+  name: String,
+} -> String =
+  match value {
+    { online: True, name } -> name
+    _ -> "offline"
+  }
+// docs:end declaration
+
+pub effect fn main = {
+  let user = {
+    online: True,
+    name: "Aki",
+  }
+  // docs:start use
+  user
+  |> caption
+  |> println
+  // docs:end use
+}

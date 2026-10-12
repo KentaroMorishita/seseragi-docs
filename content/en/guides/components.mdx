@@ -70,6 +70,55 @@ The program prints one line of HTML containing an `h2` and `p` inside a `section
 
 `renderToString` is pure and does not create DOM nodes. `println` performs the Effect of writing the resulting string to Console.
 
+## Compare different props
+
+Check props with a badge that displays one string. Save the following two blocks in order as `component-props.ssrg`.
+
+{/* example: examples/guides/component-props.ssrg#badge */}
+```seseragi title="component-props.ssrg"
+import * as html from "std/web/html"
+
+alias BadgeProps = { label: String }
+
+fn badge props: BadgeProps
+  -> html.Html<Never> =
+  html.span {
+    class: "badge",
+    children: props.label
+  }
+```
+
+The badge emits no events, so its Action type is `Never`. The same `label` yields the same HTML; calls do not share state.
+
+{/* example: examples/guides/component-props.ssrg#labels */}
+```seseragi title="component-props.ssrg"
+pub effect fn main = do {
+  badge { label: "Ready" }
+  |> html.renderToString
+  |> println
+  badge { label: "Waiting" }
+  |> html.renderToString
+  |> println
+  badge { label: "<script>" }
+  |> html.renderToString
+  |> println
+}
+```
+
+```sh
+seseragi run component-props.ssrg
+```
+
+The first two lines are HTML displaying `Ready` and `Waiting` in the same kind of `span`. The third renders `"<script>"` as text too. Adding line breaks for readability gives this structure:
+
+```html
+<span class="badge">
+  &lt;script&gt;
+</span>
+```
+
+This small example also checks that the prop string is not interpreted as HTML source. It verifies serialized SSR output, without mounting a DOM or testing clicks.
+
 ## Call it from a Web view
 
 Use `card { title: "Delivery", detail: "Sent to Kyoto" }` as a child in the `view` from [Build a Web application](/en/docs/guides/web-app). The card does not own a DOM target or event listener.

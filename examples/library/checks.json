@@ -43,5 +43,60 @@
     "file": "examples/library/web-html.ssrg",
     "mode": "run",
     "stdout": "<p>Hello</p>\n"
+  },
+  {
+    "file": "examples/library/array-recipes.ssrg",
+    "mode": "run",
+    "stdout": "Just 5\nNothing\nNothing\n[]\n"
+  },
+  {
+    "file": "examples/library/list-recipes.ssrg",
+    "mode": "run",
+    "stdout": "Just 4\nNothing\n`[1, 2]\n"
+  },
+  {
+    "file": "examples/library/maybe-recipes.ssrg",
+    "mode": "run",
+    "stdout": "0\nJust 9\nJust 7\nJust [1, 2]\nNothing\n"
+  },
+  {
+    "file": "examples/library/either-recipes.ssrg",
+    "mode": "run",
+    "stdout": "42\noffline\nAPI: offline\n"
+  },
+  {
+    "file": "examples/library/text-recipes.ssrg",
+    "mode": "run",
+    "stdout": "green tea\n[tea, milk]\ntea / milk\ngreen-tea\n"
+  },
+  {
+    "file": "examples/library/map-recipes.ssrg",
+    "mode": "run",
+    "stdout": "Just 1\nNothing\nJust 1\nJust 2\n"
+  },
+  {
+    "file": "examples/library/set-recipes.ssrg",
+    "mode": "run",
+    "stdout": "2\nTrue\n1\n"
+  },
+  {
+    "file": "examples/library/regex-recipes.ssrg",
+    "mode": "run",
+    "stdout": "True\nFalse\nInvalid pattern\n"
+  },
+  {
+    "file": "examples/library/json-recipes.ssrg",
+    "mode": "run",
+    "stdout": "\"hello\"\nInvalid JSON\n42\nNot an Int\n"
+  },
+  {
+    "file": "examples/library/bytes-hex-recipes.ssrg",
+    "mode": "run",
+    "stdout": "4142\nInvalid hex\n"
+  },
+  {
+    "file": "examples/library/int-recipes.ssrg",
+    "mode": "run",
+    "stdout": "Not an Int\n[0, 4, 10]\nNothing\nCannot divide\n"
   }
 ]

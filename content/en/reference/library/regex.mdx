@@ -14,6 +14,75 @@ description: "Compile patterns and search or replace text, with typed errors for
 import * as regex from "std/regex"
 ```
 
+## Try specific cases
+
+Each excerpt can be tried on its own inside the `do` block of `main`, using this page's import. The output below each excerpt is verified against its complete program. For the entry point and execution steps, see [your first program](/en/docs/learn/first-program) and [Effect](/en/docs/learn/effects).
+
+### Match a pattern
+
+compile returns Either. On success, isMatch checks whether the string contains a sequence of digits.
+
+{/* example: examples/library/regex-recipes.ssrg#matched */}
+
+```seseragi
+match regex.compile "[0-9]+" {
+  Right pattern ->
+    "item 42"
+    |> regex.isMatch pattern
+    |> show
+    |> println
+  Left _ -> println "Invalid pattern"
+}
+```
+
+Output:
+
+```text
+True
+```
+
+### Handle no match
+
+The same pattern returns false for an input with no digits. No match is distinct from failure to compile the pattern.
+
+{/* example: examples/library/regex-recipes.ssrg#unmatched */}
+
+```seseragi
+match regex.compile "[0-9]+" {
+  Right pattern ->
+    "tea"
+    |> regex.isMatch pattern
+    |> show
+    |> println
+  Left _ -> println "Invalid pattern"
+}
+```
+
+Output:
+
+```text
+False
+```
+
+### Handle an invalid pattern
+
+An unclosed bracket produces Left. Matching an input string has not happened at this stage.
+
+{/* example: examples/library/regex-recipes.ssrg#invalid-pattern */}
+
+```seseragi
+match regex.compile "[" {
+  Right _ -> println "Valid pattern"
+  Left _ -> println "Invalid pattern"
+}
+```
+
+Output:
+
+```text
+Invalid pattern
+```
+
 ## Use this reference
 
 The signatures below show types in argument order, then the result. See [how to read library types](/en/docs/reference/library#read-the-types) for currying, constraints, and Effect requirements.

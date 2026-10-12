@@ -100,6 +100,121 @@ seseragi test --exact \
 
 `--jobs`で並列実行数を指定できます。各ケースは独立した環境とリソーススコープで実行され、レポートは定義順で出ます。
 
+## 成功と型付き失敗を小さくテストする
+
+送料とは別のパッケージで、名前の入力を四つのケースに分けます。[フォームの独立した検証例](/docs/guides/forms)と同じ、前後の空白を除いて空の名前を拒否する規則です。
+
+### 名前のパッケージを用意する
+
+```sh
+mkdir -p names/src names/tests
+cd names
+```
+
+次を`seseragi.toml`へ保存します。
+
+{/* example: examples/guides/testing-validation/seseragi.toml */}
+```toml title="seseragi.toml"
+[package]
+name = "docs/names"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[exports]
+"." = "names"
+
+[test]
+target = "node"
+jobs = 1
+```
+
+`src/names.ssrg`には純粋な検証関数を置きます。
+
+{/* example: examples/guides/testing-validation/src/names.ssrg#validator */}
+```seseragi title="src/names.ssrg"
+import * as text from "std/text"
+
+alias Name = Either<String, String>
+
+pub fn name input: String -> Name = {
+  let cleaned = text.trim input
+  if cleaned == "" then
+    Left "missing name"
+  else
+    Right cleaned
+}
+```
+
+### 期待値と失敗理由を指定する
+
+次の二つのコードを順に`tests/names.ssrg`へ保存します。`accepted`は期待値の型を`Either<String, String>`へ揃え、`missing`は受け入れる失敗理由を判定します。
+
+{/* example: examples/guides/testing-validation/tests/names.ssrg#helpers */}
+```seseragi title="tests/names.ssrg"
+import * as test from "std/test"
+import * as effects from "std/effect"
+import { name } from "docs/names"
+
+alias Name = Either<String, String>
+
+fn accepted value: String -> Name =
+  Right value
+
+fn missing error: String -> Bool =
+  error == "missing name"
+```
+
+正常な入力には`test.equal`を使います。空入力には`test.expectFailure`を使い、型付き失敗になることと、その理由の両方を確かめます。
+
+{/* example: examples/guides/testing-validation/tests/names.ssrg#cases */}
+```seseragi title="tests/names.ssrg"
+pub let tests: test.Test =
+  test.suite "name" [
+    test.test "valid" $
+      test.equal (accepted "Ada") $
+        name "Ada",
+    test.test "trimmed" $
+      test.equal (accepted "Ada") $
+        name " Ada ",
+    test.test "blank" $
+      name ""
+      |> effects.fromEither
+      |> test.expectFailure missing,
+    test.test "spaces" $
+      name "   "
+      |> effects.fromEither
+      |> test.expectFailure missing
+  ]
+```
+
+```sh
+seseragi lock update
+seseragi test
+```
+
+```text
+PASS names::name::valid
+PASS names::name::trimmed
+PASS names::name::blank
+PASS names::name::spaces
+4 passed; 0 failed; 0 skipped
+```
+
+`blank`と`spaces`は、検証が失敗したことを確認してテストが成功するケースです。検証の`Either`は`effects.fromEither`でEffectへ移しています。
+
+### 失敗したテストを読む
+
+`valid`の期待値だけを`accepted "Eve"`へ変え、ロックを更新して`seseragi test --filter valid`を実行すると、期待した`Right "Eve"`と実際の`Right "Ada"`の不一致が出ます。期待値を戻してから、次の変更を一つずつ試せます。
+
+| 変更 | `blank`が報告する問題 |
+| --- | --- |
+| 空入力で`Right "default"`を返す | `expected a typed failure` |
+| `missing`が別の理由を求める | `typed failure did not match` |
+
+どちらもロックを更新した後、`seseragi test --filter blank`で確かめられます。前者は失敗するはずの処理が成功した場合、後者は失敗したが理由が違った場合です。テストの終了コードは1です。試した変更を元へ戻すたびに、ロックを更新して四件が通ることを確認してください。
+
+`expectFailure`は型付き失敗を検証するための関数です。defectやキャンセルを、期待した入力エラーとして成功扱いにはしません。
+
 ## 検証する範囲を選ぶ
 
 このテストは送料の規則を検証し、フォームの入力やブラウザーの操作は検証しません。UIの入力・フォーカス・イベントの確認は、ブラウザーでも行います。純粋な更新関数は同じ`test.equal`で直接確認できます。

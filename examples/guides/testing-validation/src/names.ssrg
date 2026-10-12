@@ -1,0 +1,13 @@
+// docs:start validator
+import * as text from "std/text"
+
+alias Name = Either<String, String>
+
+pub fn name input: String -> Name = {
+  let cleaned = text.trim input
+  if cleaned == "" then
+    Left "missing name"
+  else
+    Right cleaned
+}
+// docs:end validator

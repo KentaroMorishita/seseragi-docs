@@ -32,7 +32,7 @@ try {
       console.log(`PASS ${command} ${example.file}`);
     } catch (error) {
       const actual = String(error.stderr ?? "");
-      if (command === "diagnostic" && example.code && actual.includes(example.code)) console.log(`PASS expected ${example.code} ${example.file}`);
+      if (command === "diagnostic" && error.status === 2 && example.code && actual.includes(example.code)) console.log(`PASS expected ${example.code} ${example.file}`);
       else { failures++; console.error(`FAIL ${example.file}: ${error.message}\n${actual}`); }
     }
   }

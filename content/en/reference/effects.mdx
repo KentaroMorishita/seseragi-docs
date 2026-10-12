@@ -53,6 +53,52 @@ pub effect fn main = do {
 
 A general Effect run operation is not exposed to ordinary code. Hosts execute Effects at explicit boundaries such as public main, tests, or callback adapters. A do block sequences operations. Parallelism must be requested with an operation such as `effects.parallel`; the compiler does not automatically parallelize sequential effects.
 
+### Executing the same Effect twice
+
+{/* example: examples/reference/effect-execution.ssrg#announce */}
+
+```seseragi title="Declaration: an output computation"
+effect fn announce text: String =
+  println text
+```
+
+After declaring announce, place the next fragment inside the do block of main. A block returning a plain value and a do block sequencing Effects have different roles.
+
+{/* example: examples/reference/effect-execution.ssrg#cold */}
+
+```seseragi title="Main do block: construction and two runs"
+let job = announce "ran"
+println "constructed"
+job
+job
+```
+
+The outputs are constructed, ran, and ran. The first let constructs the computation; the two later job expressions each execute it.
+
+### Mapping success and binding the result
+
+These fragments belong inside the same do block of main, where `effects` aliases `std/effect`. Mapping creates a `Task<Int>`; it does not extract its result as a plain value.
+
+{/* example: examples/reference/effect-execution.ssrg#map-task */}
+
+```seseragi title="Main do block: composing a Task"
+let calculation =
+  effects.succeed 21
+  |> map (\n: Int -> n * 2)
+println "mapped"
+```
+
+{/* example: examples/reference/effect-execution.ssrg#execution */}
+
+```seseragi title="Main do block: receiving the result"
+value <- calculation
+value
+|> show
+|> println
+```
+
+After `mapped` is printed, `calculation` executes and yields 42 for output. `let` and `<-` have different roles here.
+
 ## Two effect fn forms
 
 The compact form writes `=` immediately after the parameters. It infers `R`, `E`, and `A` from the body and stores a normalized Effect type in the public interface.
@@ -72,6 +118,48 @@ fails ConsoleError =
 ```
 
 In a contract form, omitted `with` means `{}` and omitted `fails` means Never; neither is filled in from the body. There is no intermediate form adding only with/fails to a compact declaration. Both forms require an Effect body; ordinary values are not implicitly lifted.
+
+### Inferred and explicit contracts
+
+These declaration fragments use effects as the std/effect alias. Both return an Effect with empty requirements, Never failure, and Int success.
+
+{/* example: examples/reference/effect-contracts.ssrg#compact */}
+
+```seseragi title="Declaration: compact form"
+effect fn compact value: Int =
+  effects.succeed value
+```
+
+{/* example: examples/reference/effect-contracts.ssrg#contract */}
+
+```seseragi title="Declaration: contract form"
+effect fn contract value: Int
+  -> Int =
+  effects.succeed value
+```
+
+{/* example: examples/reference/effect-contracts.ssrg#run-contracts */}
+
+```seseragi title="Main do block: using the computations"
+first <- compact 4
+second <- contract 5
+println `${first}: ${second}`
+```
+
+The output is 4: 5. Omitting with/fails in contract form specifies an empty environment and Never, respectively.
+
+### No implicit lifting of plain values
+
+This is intentionally invalid. Even compact form requires an Effect body; answer returning a plain Int produces SES-T0101.
+
+{/* example: examples/reference/invalid/pure-effect.ssrg#invalid */}
+
+```seseragi title="Intentional Effect type error"
+effect fn answer = 42
+
+pub effect fn main =
+  println "ready"
+```
 
 ## Combining environments and failures
 

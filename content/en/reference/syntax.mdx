@@ -48,6 +48,61 @@ pub effect fn main =
 
 A `{ ... }` block returns its final expression. A declarations-only block returns `Unit`. Empty `{}` is an empty record, so a no-op block is written `{ () }`.
 
+### Expression and block results
+
+These are expression fragments. As the right-hand side of a let, the first infers String and the second Int.
+
+{/* example: examples/reference/expression-forms.ssrg#if-value */}
+
+```seseragi title="Expression: if"
+if 3 > 0 then
+  "positive"
+else
+  "zero"
+```
+
+The conditional yields "positive".
+
+{/* example: examples/reference/expression-forms.ssrg#block-result */}
+
+```seseragi title="Expression: final value"
+{
+  let minutes = 2
+  minutes * 60
+}
+```
+
+The final minutes * 60 determines the block result: 120. The declaration itself is not the returned value.
+
+{/* example: examples/reference/expression-forms.ssrg#unit */}
+
+```seseragi title="Declaration: returning Unit"
+fn idle -> Unit = { () }
+```
+
+idle () returns the Unit value (). An empty record is the following expression, with a different type.
+
+{/* example: examples/reference/expression-forms.ssrg#empty-record */}
+
+```seseragi title="Expression: empty record"
+{}
+```
+
+### Different if result types
+
+This intentionally invalid program mixes a String branch with an Int branch. Version 0.61.25 rejects it with SES-T0101.
+
+{/* example: examples/reference/invalid/if-results.ssrg#invalid */}
+
+```seseragi title="Intentional type error"
+fn choose ready: Bool -> String =
+  if ready then "ready" else 0
+
+pub effect fn main =
+  choose True
+  |> println
+```
+
 ## Line breaks and continuation
 
 Indentation width does not change meaning. A newline or `;` separates declarations or expressions; line breaks are free inside parentheses. A newline continues an expression if the preceding token requires a right-hand side, or if the next token is a continuation operator such as pipeline, arithmetic, or comparison.

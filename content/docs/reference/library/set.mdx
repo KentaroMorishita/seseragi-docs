@@ -14,6 +14,72 @@ description: "EqとHashによる重複のない集合を作り、集合演算を
 import * as set from "std/set"
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### 重複する値を一つにする
+
+fromIterableは同じ値を重複して保持しません。三要素の入力でも、異なる値は二つです。
+
+{/* example: examples/library/set-recipes.ssrg#deduplicate */}
+
+```seseragi
+[1, 1, 2]
+|> set.fromIterable
+|> set.size
+|> show
+|> println
+```
+
+出力:
+
+```text
+2
+```
+
+### 値を含むか調べる
+
+containsは要素の有無をBoolで返します。配列の位置を調べる操作ではありません。
+
+{/* example: examples/library/set-recipes.ssrg#membership */}
+
+```seseragi
+[1, 2]
+|> set.fromIterable
+|> set.contains 2
+|> show
+|> println
+```
+
+出力:
+
+```text
+True
+```
+
+### 除外する集合を指定する
+
+differenceの最初の引数が除外するSetで、最後が処理対象です。この例では1と2のうち2を除き、一要素が残ります。
+
+{/* example: examples/library/set-recipes.ssrg#difference */}
+
+```seseragi
+let excluded = set.singleton 2
+[1, 2]
+|> set.fromIterable
+|> set.difference excluded
+|> set.size
+|> show
+|> println
+```
+
+出力:
+
+```text
+1
+```
+
 ## 選び方と注意
 
 - 重複を除くmembershipにはSetを使います。要素は`Eq`と`Hash`を必要とし、反復は最初の挿入順です。

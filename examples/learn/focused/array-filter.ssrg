@@ -1,0 +1,17 @@
+// docs:start import
+import * as arrays from "std/array"
+// docs:end import
+
+pub effect fn main = {
+  // docs:start keep
+  let kept =
+    [1, 2, 3, 4]
+    |> arrays.filter (\n -> n % 2 == 0)
+  // docs:end keep
+  // docs:start empty
+  let removed =
+    [1, 3, 5]
+    |> arrays.filter (\n -> n % 2 == 0)
+  // docs:end empty
+  println `${show kept}/${show removed}`
+}

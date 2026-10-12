@@ -9,7 +9,7 @@ This task isolates the counter update rules from [Build a Web application](/en/d
 
 ## Separate state from an operation
 
-State in this example is an `Int` representing the current count. `Action` has `Increment` and `Reset` cases representing what happened. `update action state` returns a new state.
+State in this example is an `Int` representing the current count. `Action` has `Increment` and `Reset` cases specifying the operation to apply. `update action state` returns a new state.
 
 An operation and its result are different values. Receiving `Reset` produces the state `0`; the state is not an Action named `Reset`.
 
@@ -63,6 +63,76 @@ The first pipeline applies `Increment` twice to 0. The second applies `Reset` to
 A form can hold an editing string and a displayed message alongside its current value. `Model` is a named struct. Construct a new struct value to update it, such as `Model { ...model, draft: value }`.
 
 You cannot assign to a field of a struct bound by `let`. [Forms](/en/docs/guides/forms) supplies a concrete struct-based example.
+
+### Change one field at a time
+
+This independent example keeps a count and an input string. Save the following three blocks in order as `state-fields.ssrg`.
+
+{/* example: examples/guides/state-fields.ssrg#model */}
+```seseragi title="state-fields.ssrg"
+struct Model {
+  count: Int,
+  draft: String
+}
+
+type Action =
+  | Edited String
+  | ResetCount
+```
+
+`Edited` carries a string; `ResetCount` sets only the count to zero. Each branch inherits unchanged fields from `...model`.
+
+{/* example: examples/guides/state-fields.ssrg#update */}
+```seseragi title="state-fields.ssrg"
+fn update action: Action
+  -> model: Model -> Model =
+  match action {
+    Edited draft -> Model {
+      ...model,
+      draft
+    }
+    ResetCount -> Model {
+      ...model,
+      count: 0
+    }
+  }
+```
+
+### Compare original and updated values
+
+{/* example: examples/guides/state-fields.ssrg#cases */}
+```seseragi title="state-fields.ssrg"
+pub effect fn main = do {
+  let initial = Model {
+    count: 2,
+    draft: ""
+  }
+  let edited =
+    update (Edited "Ada") initial
+  println edited.draft
+  println `Count: ${edited.count}`
+  `Original: "${initial.draft}"`
+  |> println
+  let reset =
+    update ResetCount edited
+  println `Count: ${reset.count}`
+  println reset.draft
+}
+```
+
+```sh
+seseragi run state-fields.ssrg
+```
+
+```text
+Ada
+Count: 2
+Original: ""
+Count: 0
+Ada
+```
+
+The edited `draft` is `Ada`, while the original `initial.draft` stays empty. Editing preserves the count of 2; resetting preserves the input `Ada`. `edited` and `reset` bind separate computed values rather than reassigning a mutable variable.
 
 ## Place effects at an execution boundary
 

@@ -90,6 +90,87 @@ printf 'many\n' |
 
 利用者向けのメッセージを出したい場合は、[失敗を扱う](/docs/guides/error-handling)の`attempt`と`match`で、回復可能な失敗を表示へ変えられます。
 
+## 空入力と変換失敗を分ける
+
+入力の整え方だけを試す独立したプログラムです。以下の三つのコードを順に`cli-normalization.ssrg`へ保存してください。標準入力の読み取りは含めず、渡す文字列を固定して検証します。
+
+### 前後の空白を除いてから読む
+
+`std/text`の`trim`で前後の空白を除きます。空になった入力は`EmptyLine`、整数として読めない入力は`NotANumber`です。この二つをActionや表示の文言へ変える前に区別します。
+
+{/* example: examples/guides/cli-normalization.ssrg#parser */}
+```seseragi title="cli-normalization.ssrg"
+import * as ints from "std/int"
+import * as text from "std/text"
+
+type InputError =
+  | EmptyLine
+  | NotANumber
+
+alias Parsed =
+  Either<InputError, Int>
+
+fn parse input: String -> Parsed = {
+  let cleaned = text.trim input
+  if cleaned == "" then
+    Left EmptyLine
+  else
+    match ints.parse cleaned {
+      Right n -> Right n
+      Left _ -> Left NotANumber
+    }
+}
+```
+
+### 理由ごとに案内を変える
+
+`message`は検証結果を表示文へ変えます。入力を読むEffectやConsoleへの出力は、この関数にはありません。
+
+{/* example: examples/guides/cli-normalization.ssrg#message */}
+```seseragi title="cli-normalization.ssrg"
+fn message result: Parsed -> String =
+  match result {
+    Right n -> `Quantity: ${n}`
+    Left EmptyLine ->
+      "Enter quantity"
+    Left NotANumber ->
+      "Enter a whole number"
+  }
+```
+
+### 四つの入力を比べる
+
+{/* example: examples/guides/cli-normalization.ssrg#inputs */}
+```seseragi title="cli-normalization.ssrg"
+pub effect fn main = do {
+  parse " 3 "
+  |> message
+  |> println
+  parse ""
+  |> message
+  |> println
+  parse "many"
+  |> message
+  |> println
+  parse "0"
+  |> message
+  |> println
+}
+```
+
+```sh
+seseragi run cli-normalization.ssrg
+```
+
+```text
+Quantity: 3
+Enter quantity
+Enter a whole number
+Quantity: 0
+```
+
+`" 3 "`は3へ変換でき、空文字列と`"many"`には異なる案内が出ます。0も整数として読めるため、この小さなparserでは成功します。1から1000という業務上の範囲には、先の`quantity`のような追加の条件が必要です。
+
 ## パッケージへ進める
 
 関数を別ファイルから再利用したり、テストを置いたりする段階で`seseragi.toml`を持つパッケージへ移します。実行ターゲットは`[run]`の`target = "process"`です。

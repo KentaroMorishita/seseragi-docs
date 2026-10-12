@@ -3,14 +3,40 @@ title: "Recursion"
 description: "Reduce the input with a base case, local functions, and tail recursion."
 ---
 
-Sum the integers from 1 through a supplied limit. Carry the remaining integer and accumulated total as parameters, then return the total when nothing remains.
+Recursion calls the same function on a smaller problem. Start with a small factorial to see the base case, then move to summation, mutual recursion, and trees.
+
+## Check termination with a small example
+
+The factorial of 5 is `5 * 4 * 3 * 2 * 1`. Place this declaration at module scope:
+
+{/* example: examples/learn/focused/recursion-factorial.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn factorial n: Int -> Int =
+  if n <= 1 then
+    1
+  else
+    n * factorial (n - 1)
+```
+
+These bindings belong inside `main`:
+
+{/* example: examples/learn/focused/recursion-factorial.ssrg#inputs */}
+```seseragi title="Bindings in main"
+let zero = factorial 0
+let five = factorial 5
+```
+
+`zero` is 1; `five` is 120. The function ends when `n <= 1`, and otherwise calls itself with the smaller `n - 1`. This implementation also returns 1 for negative inputs. Choose a policy such as validating input first if that range should be rejected.
+
+Multiplication remains after the recursive call, so the function is not tail recursive. Use small inputs here to examine its structure. The next summation example discusses larger inputs.
 
 ## Choose a base case and the next input
 
 {/* example: examples/learn/recursion.ssrg */}
 ```seseragi title="recursion.ssrg"
 fn sumUpTo limit: Int -> Int = {
-  fn loop n: Int -> total: Int -> Int =
+  fn loop n: Int -> total: Int
+    -> Int =
     if n <= 0 then
       total
     else
@@ -50,21 +76,68 @@ The same guarantee does not cover calls such as `n + sumUpTo (n - 1)`, which per
 
 ## Group mutual recursion with rec
 
-When two functions call each other, put them in one `rec` group. This fragment illustrates the declarations:
+Functions that call each other belong to the same `rec` group inside a function block. A bare `rec { ... }` is not permitted at module scope. Place this ordinary function declaration at module scope:
 
-```text
-rec {
-  fn even n: Int -> Bool =
-    if n == 0 then True
-    else odd (n - 1)
+{/* example: examples/learn/focused/recursion-mutual.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn parity n: Int -> String = {
+  rec {
+    fn even n: Int -> Bool =
+      if n == 0 then True
+      else odd (n - 1)
 
-  fn odd n: Int -> Bool =
-    if n == 0 then False
-    else even (n - 1)
+    fn odd n: Int -> Bool =
+      if n == 0 then False
+      else even (n - 1)
+  }
+  if even n then "even" else "odd"
 }
 ```
 
-The definition assumes non-negative input. A negative value never approaches zero, so it does not terminate. Mutual recursion also lacks the direct self tail-call stack guarantee; this fragment is not a recommendation for handling large inputs.
+`parity 6` produces `even`; `parity 7` produces `odd`. The inner even and odd functions can refer to each other within the group.
+
+This definition assumes nonnegative input. Negative input never approaches zero, so it does not terminate. Mutual recursion also lacks the stack guarantee of direct self tail calls; this example is not a replacement for a large-input implementation.
+
+### Walk recursive data
+
+Recursion also works when a data type contains more values of the same type. This declaration represents either one leaf or a branch containing two trees. Place it at module scope:
+
+{/* example: examples/learn/focused/recursion-tree.ssrg#data */}
+```seseragi title="Type declaration"
+type Tree =
+  | Leaf
+  | Branch (Tree, Tree)
+```
+
+Count leaves by returning 1 for a leaf and adding both subtree results for a branch:
+
+{/* example: examples/learn/focused/recursion-tree.ssrg#declaration */}
+```seseragi title="Function declaration"
+fn countLeaves tree: Tree -> Int =
+  match tree {
+    Leaf -> 1
+    Branch (left, right) -> {
+      let leftCount =
+        countLeaves left
+      let rightCount =
+        countLeaves right
+      leftCount + rightCount
+    }
+  }
+```
+
+Use it inside `main`:
+
+{/* example: examples/learn/focused/recursion-tree.ssrg#input */}
+```seseragi title="Expression in main"
+let pair = Branch (Leaf, Leaf)
+Branch (pair, Leaf)
+|> countLeaves
+|> show
+|> println
+```
+
+The output is 3. Each Branch visits both children, and reaching Leaf ends that call. Adding the two results remains afterward, so this function is also not tail recursive.
 
 ## Choose between recursion and collection operations
 

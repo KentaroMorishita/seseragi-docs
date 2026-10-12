@@ -35,6 +35,91 @@ pub effect fn main =
 Valid JSON
 ```
 
+## 目的から試す
+
+各断片は、このページ冒頭のimportを使い、`main`の`do`ブロック内で一つずつ試せます。下に示す出力は、断片を含むプログラムで確認しています。入口と実行手順は[最初のプログラム](/docs/learn/first-program)、`do`の順次実行は[Effect](/docs/learn/effects)を参照してください。
+
+### JSONの文字列を出力する
+
+JsonStringはJSONの値を作り、stringifyは引用符を含むJSONテキストへ変換します。
+
+{/* example: examples/library/json-recipes.ssrg#stringify */}
+
+```seseragi
+json.JsonString "hello"
+|> json.stringify
+|> println
+```
+
+出力:
+
+```text
+"hello"
+```
+
+### JSONとして読めない入力
+
+閉じていないオブジェクトはparseに失敗します。Leftを処理することで、後のdecodeへ進めない入力を分けられます。
+
+{/* example: examples/library/json-recipes.ssrg#invalid-syntax */}
+
+```seseragi
+match json.parse "{" {
+  Right _ -> println "Valid JSON"
+  Left _ -> println "Invalid JSON"
+}
+```
+
+出力:
+
+```text
+Invalid JSON
+```
+
+### JSONの数値をIntで読む
+
+型注釈でIntのdecodeを選びます。JSONの数値42はRight 42として読み取れます。
+
+{/* example: examples/library/json-recipes.ssrg#decode-int */}
+
+```seseragi
+let decodedNumber:
+  Either<json.JsonReadError, Int> =
+    json.decodeString "42"
+match decodedNumber {
+  Right n -> println (show n)
+  Left _ -> println "Not an Int"
+}
+```
+
+出力:
+
+```text
+42
+```
+
+### 正しいJSONでも型が違う入力
+
+trueは正しいJSONですがIntではありません。構文の読み取りと、欲しい型へのdecodeは別の段階です。
+
+{/* example: examples/library/json-recipes.ssrg#wrong-type */}
+
+```seseragi
+let typeMismatch:
+  Either<json.JsonReadError, Int> =
+    json.decodeString "true"
+match typeMismatch {
+  Right n -> println (show n)
+  Left _ -> println "Not an Int"
+}
+```
+
+出力:
+
+```text
+Not an Int
+```
+
 ## 選び方と注意
 
 - JSON numberは正確なDecimalとしてparseします。重複object fieldは後勝ちにせずエラーで、NaN・infinity・comment・trailing commaも受理しません。

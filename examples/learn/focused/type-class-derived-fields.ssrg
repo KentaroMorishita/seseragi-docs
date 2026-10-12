@@ -1,0 +1,19 @@
+// docs:start declaration
+struct Point deriving Eq, Show {
+  x: Int,
+  y: Int,
+}
+// docs:end declaration
+
+pub effect fn main = do {
+  // docs:start values
+  let left = Point { x: 1, y: 2 }
+  let right = Point { x: 1, y: 3 }
+  // docs:end values
+  // docs:start comparison
+  println (show (left == right))
+  // docs:end comparison
+  // docs:start display
+  println (show left)
+  // docs:end display
+}

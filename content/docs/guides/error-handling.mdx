@@ -83,6 +83,56 @@ Use 1 to 1000
 
 「many」と0の検証失敗を表示へ回復しているため、この実行は成功します。ただし、`println`自体の出力失敗は回復していません。Consoleに書けない場合まで成功扱いに変えるコードではありません。
 
+## 失敗したときだけ既定値を返す
+
+設定がなければ`light`を使い、設定があればその値を保つ独立した例です。次の二つのコードを順に`error-recovery.ssrg`へ保存してください。ファイルや環境変数は読まず、設定の有無を`Maybe<String>`で渡します。
+
+{/* example: examples/guides/error-recovery.ssrg#fallback */}
+```seseragi title="error-recovery.ssrg"
+import * as effects from "std/effect"
+
+type ThemeError =
+  | MissingSetting
+
+effect fn theme saved: Maybe<String>
+  -> String fails ThemeError =
+  effects.fromMaybe MissingSetting $
+    saved
+
+effect fn fallback error: ThemeError
+  -> String =
+  match error {
+    MissingSetting -> succeed "light"
+  }
+```
+
+`effects.fromMaybe`は`Nothing`を`MissingSetting`という型付き失敗へ移します。`fallback`もEffectを作る関数で、追加サービスを要求せず、失敗せずに`light`を返します。その戻り値の型は`Task<String>`です。
+
+{/* example: examples/guides/error-recovery.ssrg#paths */}
+```seseragi title="error-recovery.ssrg"
+pub effect fn main = do {
+  missing <-
+    theme Nothing
+    |> effects.recover fallback
+  println missing
+  present <-
+    theme (Just "dark")
+    |> effects.recover fallback
+  println present
+}
+```
+
+```sh
+seseragi run error-recovery.ssrg
+```
+
+```text
+light
+dark
+```
+
+`Nothing`から作った失敗の経路では、`recover`が`fallback`を呼びます。`Just "dark"`から返るのは成功した値そのものです。`attempt`で成功・失敗を値として分岐する方法に対し、この例では失敗時の代替Effectを渡しています。
+
 ## アプリの失敗型へ揃える
 
 入力、ファイル、通信など複数のEffectを組み合わせるときは、`mapError`でアプリの失敗型へ変換します。[CLIアプリを作る](/docs/guides/cli-app)では`InputFailure StdinError`と`OutputFailure ConsoleError`を一つの`AppError`へ揃えています。

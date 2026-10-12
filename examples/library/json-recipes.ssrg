@@ -1,0 +1,36 @@
+import * as json from "std/json"
+
+pub effect fn main = do {
+  // docs:start stringify
+  json.JsonString "hello"
+  |> json.stringify
+  |> println
+  // docs:end stringify
+
+  // docs:start invalid-syntax
+  match json.parse "{" {
+    Right _ -> println "Valid JSON"
+    Left _ -> println "Invalid JSON"
+  }
+  // docs:end invalid-syntax
+
+  // docs:start decode-int
+  let decodedNumber:
+    Either<json.JsonReadError, Int> =
+      json.decodeString "42"
+  match decodedNumber {
+    Right n -> println (show n)
+    Left _ -> println "Not an Int"
+  }
+  // docs:end decode-int
+
+  // docs:start wrong-type
+  let typeMismatch:
+    Either<json.JsonReadError, Int> =
+      json.decodeString "true"
+  match typeMismatch {
+    Right n -> println (show n)
+    Left _ -> println "Not an Int"
+  }
+  // docs:end wrong-type
+}
