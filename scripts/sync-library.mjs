@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 // Explicit maintenance action; builds use the committed snapshot and need no
 // checkout of the compiler, Rust, CLI, WASM, network, or credentials.
 const repository = resolve(process.argv[2] ?? "../seseragi");
-const release = JSON.parse(execFileSync("seseragi", ["--version-json"], { encoding: "utf8" }));
+const release = JSON.parse(execFileSync(process.env.SESERAGI_CLI ?? "seseragi", ["--version-json"], { encoding: "utf8" }));
 if (release.dirty || release.channel !== "release") throw new Error("Use a canonical released CLI.");
 const ref = execFileSync("git", ["-C", repository, "rev-parse", `${release.releaseTag}^{commit}`], { encoding: "utf8" }).trim();
 if (!ref.startsWith(release.commit)) throw new Error("CLI and release tag do not agree.");

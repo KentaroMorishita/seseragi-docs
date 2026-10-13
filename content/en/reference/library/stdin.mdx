@@ -25,7 +25,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 LineLimit
 ```
 
@@ -33,7 +33,7 @@ LineLimit
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ReadSize
 ```
 
@@ -41,7 +41,7 @@ ReadSize
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Stdin
 ```
 
@@ -49,7 +49,7 @@ Stdin
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 StdinConfigError
 ```
 
@@ -57,7 +57,7 @@ StdinConfigError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 StdinError
 ```
 
@@ -67,7 +67,7 @@ StdinError
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ConcurrentStdinRead
   StdinError
 ```
@@ -76,7 +76,7 @@ ConcurrentStdinRead
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidStdinUtf8
   { offset: Int }
   -> StdinError
@@ -86,7 +86,7 @@ InvalidStdinUtf8
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 LineLimitTooLarge
   Int
   -> StdinConfigError
@@ -96,7 +96,7 @@ LineLimitTooLarge
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 NonPositiveLineLimit
   Int
   -> StdinConfigError
@@ -106,7 +106,7 @@ NonPositiveLineLimit
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 NonPositiveReadSize
   Int
   -> StdinConfigError
@@ -116,7 +116,7 @@ NonPositiveReadSize
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ReadSizeTooLarge
   Int
   -> StdinConfigError
@@ -126,7 +126,7 @@ ReadSizeTooLarge
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 StdinLineTooLong
   { limitBytes: Int }
   -> StdinError
@@ -136,7 +136,7 @@ StdinLineTooLong
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 StdinPositionOverflow
   StdinError
 ```
@@ -145,7 +145,7 @@ StdinPositionOverflow
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 StdinReadFailure
   StdinError
 ```
@@ -154,7 +154,7 @@ StdinReadFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 StdinUnavailable
   StdinError
 ```
@@ -165,7 +165,7 @@ StdinUnavailable
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 defaultLineLimit
   Unit
   -> LineLimit
@@ -175,7 +175,7 @@ defaultLineLimit
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 defaultReadSize
   Unit
   -> ReadSize
@@ -185,7 +185,7 @@ defaultReadSize
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 lineLimit
   Int
   -> Either<
@@ -198,7 +198,7 @@ lineLimit
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 lines
   LineLimit
   -> Stream<
@@ -212,7 +212,7 @@ lines
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 readChunk
   ReadSize
   -> Effect<
@@ -226,7 +226,7 @@ readChunk
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 readLine
   Unit
   -> Effect<
@@ -240,7 +240,7 @@ readLine
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 readLineWith
   LineLimit
   -> Effect<
@@ -254,7 +254,7 @@ readLineWith
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 readSize
   Int
   -> Either<

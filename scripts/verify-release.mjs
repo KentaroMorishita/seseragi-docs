@@ -9,13 +9,14 @@ if (process.argv.slice(2).filter((arg) => arg !== "--").join(" ") !== "--reviewe
 }
 const root = fileURLToPath(new URL("..", import.meta.url));
 const catalog = JSON.parse(readFileSync(new URL("../src/data/standard-library.json", import.meta.url), "utf8"));
-const release = JSON.parse(execFileSync("seseragi", ["--version-json"], { encoding: "utf8" }));
+const cli = process.env.SESERAGI_CLI ?? "seseragi";
+const release = JSON.parse(execFileSync(cli, ["--version-json"], { encoding: "utf8" }));
 checkReleaseIdentity(catalog, release);
 const before = examplesDigest(root);
 execFileSync(process.execPath, ["scripts/check-examples.mjs"], { cwd: root, stdio: "inherit" });
 const after = examplesDigest(root);
 if (before !== after) throw new Error("Verification inputs changed during execution. Review the changes and verify again.");
-const help = execFileSync("seseragi", ["--help"], { encoding: "utf8" });
+const help = execFileSync(cli, ["--help"], { encoding: "utf8" });
 const record = {
   schema: 1,
   languageVersion: catalog.languageVersion,

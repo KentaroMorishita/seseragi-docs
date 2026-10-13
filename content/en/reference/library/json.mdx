@@ -139,7 +139,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 Reports the root-to-leaf path and kind of a decode failure.
 
-```text
+```seseragi
 DecodeError
 ```
 
@@ -147,7 +147,7 @@ DecodeError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 DecodeErrorKind
 ```
 
@@ -157,7 +157,7 @@ DecodeErrorKind
 
 Pure Json decoder that reports a typed path-aware DecodeError.
 
-```text
+```seseragi
 Decoder<_>
 ```
 
@@ -167,7 +167,7 @@ Decoder<_>
 
 Pure function that encodes a value as Json.
 
-```text
+```seseragi
 Encoder<_>
 ```
 
@@ -177,7 +177,7 @@ Encoder<_>
 
 Exact JSON value with Decimal numbers and ordered object fields.
 
-```text
+```seseragi
 Json
 ```
 
@@ -187,7 +187,7 @@ Json
 
 Reports invalid syntax or a duplicate object field.
 
-```text
+```seseragi
 JsonParseError
 ```
 
@@ -195,7 +195,7 @@ JsonParseError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 JsonPathSegment
 ```
 
@@ -205,7 +205,7 @@ JsonPathSegment
 
 Distinguishes JSON syntax failure from value decode failure.
 
-```text
+```seseragi
 JsonReadError
 ```
 
@@ -215,7 +215,7 @@ JsonReadError
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 DuplicateJsonField
   {
     path: Array<JsonPathSegment>,
@@ -228,7 +228,7 @@ DuplicateJsonField
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ExpectedJsonType
   String
   -> DecodeErrorKind
@@ -238,7 +238,7 @@ ExpectedJsonType
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidJsonSyntax
   { offset: Int, message: String }
   -> JsonParseError
@@ -248,7 +248,7 @@ InvalidJsonSyntax
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidJsonValue
   String
   -> DecodeErrorKind
@@ -258,7 +258,7 @@ InvalidJsonValue
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 JsonArray
   Array<Json>
   -> Json
@@ -268,7 +268,7 @@ JsonArray
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 JsonBool
   Bool
   -> Json
@@ -278,7 +278,7 @@ JsonBool
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 JsonDecodeFailure
   DecodeError
   -> JsonReadError
@@ -288,7 +288,7 @@ JsonDecodeFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 JsonField
   String
   -> JsonPathSegment
@@ -298,7 +298,7 @@ JsonField
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 JsonIndex
   Int
   -> JsonPathSegment
@@ -308,7 +308,7 @@ JsonIndex
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 JsonNull
   Json
 ```
@@ -317,7 +317,7 @@ JsonNull
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 JsonNumber
   Decimal
   -> Json
@@ -327,7 +327,7 @@ JsonNumber
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 JsonObject
   Map<String, Json>
   -> Json
@@ -337,7 +337,7 @@ JsonObject
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 JsonString
   String
   -> Json
@@ -347,7 +347,7 @@ JsonString
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 JsonSyntaxFailure
   JsonParseError
   -> JsonReadError
@@ -357,7 +357,7 @@ JsonSyntaxFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 MissingJsonField
   String
   -> DecodeErrorKind
@@ -367,7 +367,7 @@ MissingJsonField
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 UnknownJsonField
   String
   -> DecodeErrorKind
@@ -377,7 +377,7 @@ UnknownJsonField
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 UnknownJsonTag
   String
   -> DecodeErrorKind
@@ -391,7 +391,7 @@ UnknownJsonTag
 
 Decodes every JSON array element in source order.
 
-```text
+```seseragi
 array<A>
   (Json -> Either<DecodeError, A>)
   -> Json
@@ -404,7 +404,7 @@ array<A>
 
 Parses and decodes text through its selected JsonDecode dictionary.
 
-```text
+```seseragi
 decodeString<A>
   String
   -> Either<JsonReadError, A>
@@ -418,7 +418,7 @@ where
 
 Encodes a value through its selected JsonEncode dictionary.
 
-```text
+```seseragi
 encodeString<A>
   A
   -> String
@@ -432,7 +432,7 @@ where
 
 Decodes a required object field and prepends its path segment on failure.
 
-```text
+```seseragi
 field<A>
   String
   -> (
@@ -449,7 +449,7 @@ field<A>
 
 Selects a following decoder from a successful decoder result.
 
-```text
+```seseragi
 flatMap<A, B>
   (
     A
@@ -470,7 +470,7 @@ flatMap<A, B>
 
 Decodes one array position and prepends its index on failure.
 
-```text
+```seseragi
 index<A>
   Int
   -> (
@@ -487,7 +487,7 @@ index<A>
 
 Transforms a successful decoder result.
 
-```text
+```seseragi
 map<A, B>
   (A -> B)
   -> (
@@ -504,7 +504,7 @@ map<A, B>
 
 Tries decoders in order and returns the first successful result.
 
-```text
+```seseragi
 oneOf<A>
   Array<
     (Json -> Either<DecodeError, A>)
@@ -519,7 +519,7 @@ oneOf<A>
 
 Decodes an object field as Maybe and accepts only a missing field as Nothing.
 
-```text
+```seseragi
 optionalField<A>
   String
   -> (
@@ -536,7 +536,7 @@ optionalField<A>
 
 Parses RFC 8259 JSON with exact Decimal numbers and duplicate-field rejection.
 
-```text
+```seseragi
 parse
   String
   -> Either<JsonParseError, Json>
@@ -548,7 +548,7 @@ parse
 
 Decodes a declared homogeneous object field set and rejects unknown fields.
 
-```text
+```seseragi
 record<A>
   Array<
     (
@@ -572,7 +572,7 @@ record<A>
 
 Writes compact deterministic JSON with minimal escaping.
 
-```text
+```seseragi
 stringify
   Json
   -> String

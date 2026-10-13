@@ -69,9 +69,10 @@ test("verification fingerprints include fixture sources, manifests, locks, and c
     writeFileSync(resolve(root, "scripts/check-examples.mjs"), "checker");
     writeFileSync(resolve(root, "scripts/release-record.mjs"), "identity");
     writeFileSync(resolve(root, "examples/project/main.ssrg"), "source");
+    writeFileSync(resolve(root, "examples/project/view.tsx"), "component");
     writeFileSync(resolve(root, "examples/project/seseragi.toml"), "manifest");
     writeFileSync(resolve(root, "examples/project/seseragi.lock"), "lock");
-    for (const name of ["main.ssrg", "seseragi.toml", "seseragi.lock"]) {
+    for (const name of ["main.ssrg", "view.tsx", "seseragi.toml", "seseragi.lock"]) {
       const before = examplesDigest(root);
       writeFileSync(resolve(root, "examples/project", name), `changed ${name}`);
       assert.notEqual(examplesDigest(root), before);

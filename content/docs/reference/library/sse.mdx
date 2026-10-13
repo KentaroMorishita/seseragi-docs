@@ -24,7 +24,7 @@ import * as sse from "std/sse"
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 DecodeLimit
 ```
 
@@ -32,7 +32,7 @@ DecodeLimit
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Event
 ```
 
@@ -40,7 +40,7 @@ Event
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 SseBuildError
 ```
 
@@ -48,7 +48,7 @@ SseBuildError
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 SseParseError
 ```
 
@@ -58,7 +58,7 @@ SseParseError
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 InvalidSseComment
   String
   -> SseBuildError
@@ -68,7 +68,7 @@ InvalidSseComment
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 InvalidSseDecodeLimit
   Int
   -> SseBuildError
@@ -78,7 +78,7 @@ InvalidSseDecodeLimit
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 InvalidSseEventId
   String
   -> SseBuildError
@@ -88,7 +88,7 @@ InvalidSseEventId
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 InvalidSseEventName
   String
   -> SseBuildError
@@ -98,7 +98,7 @@ InvalidSseEventName
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 InvalidSseRetryMillis
   Int
   -> SseBuildError
@@ -108,7 +108,7 @@ InvalidSseRetryMillis
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 SseEventTooLarge
   Int
   -> SseParseError
@@ -118,7 +118,7 @@ SseEventTooLarge
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 SseInvalidContentType
   String
   -> SseParseError
@@ -128,7 +128,7 @@ SseInvalidContentType
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 SseInvalidUtf8
   SseParseError
 ```
@@ -137,7 +137,7 @@ SseInvalidUtf8
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 SseMalformedHttpEvents
   String
   -> SseParseError
@@ -147,7 +147,7 @@ SseMalformedHttpEvents
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 SseMalformedId
   SseParseError
 ```
@@ -156,7 +156,7 @@ SseMalformedId
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 SseMalformedRetry
   String
   -> SseParseError
@@ -166,7 +166,7 @@ SseMalformedRetry
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 SseUnexpectedStatus
   Int
   -> SseParseError
@@ -178,7 +178,7 @@ SseUnexpectedStatus
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 decodeLimit
   Int
   -> Either<
@@ -191,7 +191,7 @@ decodeLimit
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 defaultDecodeLimit
   Unit
   -> DecodeLimit
@@ -201,7 +201,7 @@ defaultDecodeLimit
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 encode
   Event
   -> Bytes
@@ -211,7 +211,7 @@ encode
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 event
   String
   -> Event
@@ -221,7 +221,7 @@ event
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 eventData
   Event
   -> String
@@ -231,7 +231,7 @@ eventData
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 eventId
   Event
   -> Maybe<String>
@@ -241,7 +241,7 @@ eventId
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 eventName
   Event
   -> Maybe<String>
@@ -251,7 +251,7 @@ eventName
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 eventRetryMillis
   Event
   -> Maybe<Int>
@@ -261,7 +261,7 @@ eventRetryMillis
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 events<R, E>
   DecodeLimit
   -> Stream<R, E, HttpEvent>
@@ -276,7 +276,7 @@ events<R, E>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 keepAlive
   String
   -> Either<SseBuildError, Bytes>
@@ -286,7 +286,7 @@ keepAlive
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 response<R>
   Array<HttpHeader>
   -> Stream<R, Never, Event>
@@ -301,7 +301,7 @@ response<R>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 withEventName
   String
   -> Event
@@ -312,7 +312,7 @@ withEventName
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 withId
   String
   -> Event
@@ -323,7 +323,7 @@ withId
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 withLastEventId
   String
   -> Request
@@ -334,7 +334,7 @@ withLastEventId
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 withRetryMillis
   Int
   -> Event

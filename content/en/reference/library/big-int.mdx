@@ -27,7 +27,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 Opaque arbitrary-precision signed integer value.
 
-```text
+```seseragi
 BigInt
 ```
 
@@ -37,7 +37,7 @@ BigInt
 
 Describes a BigInt that cannot be narrowed to Int exactly.
 
-```text
+```seseragi
 BigIntConversionError
 ```
 
@@ -47,7 +47,7 @@ BigIntConversionError
 
 Describes checked BigInt division or remainder by zero.
 
-```text
+```seseragi
 BigIntDivisionError
 ```
 
@@ -57,7 +57,7 @@ BigIntDivisionError
 
 Describes an invalid BigInt text or radix without a magnitude limit.
 
-```text
+```seseragi
 BigIntParseError
 ```
 
@@ -67,7 +67,7 @@ BigIntParseError
 
 Describes a checked negative BigInt exponent.
 
-```text
+```seseragi
 BigIntPowerError
 ```
 
@@ -79,7 +79,7 @@ BigIntPowerError
 
 Reports a zero BigInt divisor.
 
-```text
+```seseragi
 BigIntDivisionByZero
   BigIntDivisionError
 ```
@@ -90,7 +90,7 @@ BigIntDivisionByZero
 
 Reports a BigInt outside the safe Int range.
 
-```text
+```seseragi
 BigIntOutsideIntRange
   BigIntConversionError
 ```
@@ -101,7 +101,7 @@ BigIntOutsideIntRange
 
 Reports an empty BigInt input.
 
-```text
+```seseragi
 EmptyBigInt
   BigIntParseError
 ```
@@ -112,7 +112,7 @@ EmptyBigInt
 
 Reports the first invalid BigInt digit at a UTF-8 byte offset.
 
-```text
+```seseragi
 InvalidBigIntDigit
   { offset: Int, radix: Int }
   -> BigIntParseError
@@ -124,7 +124,7 @@ InvalidBigIntDigit
 
 Reports a BigInt radix outside the inclusive range 2 through 36.
 
-```text
+```seseragi
 InvalidBigIntRadix
   Int
   -> BigIntParseError
@@ -136,7 +136,7 @@ InvalidBigIntRadix
 
 Reports a negative Int exponent.
 
-```text
+```seseragi
 NegativeBigIntExponent
   Int
   -> BigIntPowerError
@@ -150,7 +150,7 @@ NegativeBigIntExponent
 
 Returns the exact non-negative magnitude of a BigInt.
 
-```text
+```seseragi
 abs
   BigInt
   -> BigInt
@@ -162,7 +162,7 @@ abs
 
 Divides the second argument by the first, returning a BigInt quotient truncated toward zero or BigIntDivisionByZero for a zero divisor.
 
-```text
+```seseragi
 checkedDivide
   BigInt
   -> BigInt
@@ -178,7 +178,7 @@ checkedDivide
 
 Raises a BigInt by a non-negative Int using exact exponentiation.
 
-```text
+```seseragi
 checkedPower
   Int
   -> BigInt
@@ -194,7 +194,7 @@ checkedPower
 
 Computes truncating BigInt remainder or returns a typed zero-divisor failure.
 
-```text
+```seseragi
 checkedRemainder
   BigInt
   -> BigInt
@@ -210,7 +210,7 @@ checkedRemainder
 
 Formats a BigInt as canonical decimal text.
 
-```text
+```seseragi
 format
   BigInt
   -> String
@@ -222,7 +222,7 @@ format
 
 Formats a BigInt in radix 2 through 36.
 
-```text
+```seseragi
 formatRadix
   Int
   -> BigInt
@@ -238,7 +238,7 @@ formatRadix
 
 Converts Int to BigInt exactly.
 
-```text
+```seseragi
 fromInt
   Int
   -> BigInt
@@ -250,7 +250,7 @@ fromInt
 
 Parses canonical decimal text into an exact BigInt.
 
-```text
+```seseragi
 parse
   String
   -> Either<
@@ -265,7 +265,7 @@ parse
 
 Parses signed BigInt text in radix 2 through 36.
 
-```text
+```seseragi
 parseRadix
   Int
   -> String
@@ -281,7 +281,7 @@ parseRadix
 
 Returns minus one, zero, or one for a BigInt.
 
-```text
+```seseragi
 sign
   BigInt
   -> Int
@@ -293,7 +293,7 @@ sign
 
 Narrows BigInt to Int with a typed range failure.
 
-```text
+```seseragi
 toInt
   BigInt
   -> Either<

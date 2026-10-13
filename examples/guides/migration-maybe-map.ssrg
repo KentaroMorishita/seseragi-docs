@@ -1,0 +1,14 @@
+fn double n: Int -> Int = n * 2
+
+pub effect fn main = do {
+  Just 21
+  |> map double
+  |> show
+  |> println
+  let absent: Maybe<Int> =
+    Nothing
+    |> map double
+  absent
+  |> show
+  |> println
+}

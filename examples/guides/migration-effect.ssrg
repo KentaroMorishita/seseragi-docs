@@ -1,0 +1,13 @@
+// docs:start announce
+effect fn announce text: String =
+  println text
+// docs:end announce
+
+pub effect fn main = do {
+  // docs:start execute
+  let job = announce "ran"
+  println "constructed"
+  job
+  job
+  // docs:end execute
+}

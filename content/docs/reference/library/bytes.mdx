@@ -33,7 +33,7 @@ import * as bytes from "std/bytes"
 
 0〜255を含む範囲のopaqueなunsigned 8-bit値です。
 
-```text
+```seseragi
 Byte
 ```
 
@@ -43,7 +43,7 @@ Byte
 
 Byteで表せないIntを表します。
 
-```text
+```seseragi
 ByteError
 ```
 
@@ -53,7 +53,7 @@ ByteError
 
 copyの境界を明示した不変byte列です。
 
-```text
+```seseragi
 Bytes
 ```
 
@@ -63,7 +63,7 @@ Bytes
 
 不正な半開Bytes slice範囲を表します。
 
-```text
+```seseragi
 BytesSliceError
 ```
 
@@ -73,7 +73,7 @@ BytesSliceError
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 ByteOutOfRange
   Int
   -> ByteError
@@ -83,7 +83,7 @@ ByteOutOfRange
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 InvalidByteRange
   {
     start: Int,
@@ -101,7 +101,7 @@ InvalidByteRange
 
 collectionの値の後ろへsuffixを連結します。
 
-```text
+```seseragi
 append
   Bytes
   -> Bytes
@@ -114,7 +114,7 @@ append
 
 Intを検査し、opaque Byteへ変換します。
 
-```text
+```seseragi
 byte
   Int
   -> Either<ByteError, Byte>
@@ -126,7 +126,7 @@ byte
 
 入れ子collectionを一段だけsource順に平坦化します。
 
-```text
+```seseragi
 concat
   Array<Bytes>
   -> Bytes
@@ -138,7 +138,7 @@ concat
 
 元のBytesから独立したcopyを作ります。
 
-```text
+```seseragi
 copy
   Bytes
   -> Bytes
@@ -150,7 +150,7 @@ copy
 
 空の不変Bytesを作ります。
 
-```text
+```seseragi
 empty
   Unit
   -> Bytes
@@ -162,7 +162,7 @@ empty
 
 ByteのArrayを不変のBytesへcopyします。
 
-```text
+```seseragi
 fromArray
   Array<Byte>
   -> Bytes
@@ -174,7 +174,7 @@ fromArray
 
 Intを順に検査し、Bytesへcopyします。
 
-```text
+```seseragi
 fromInts
   Array<Int>
   -> Either<ByteError, Bytes>
@@ -186,7 +186,7 @@ fromInts
 
 指定indexの要素を返し、不正なindexならNothingを返します。
 
-```text
+```seseragi
 get
   Int
   -> Bytes
@@ -199,7 +199,7 @@ get
 
 collectionに要素がないかを返します。
 
-```text
+```seseragi
 isEmpty
   Bytes
   -> Bool
@@ -211,7 +211,7 @@ isEmpty
 
 collectionの要素数を返します。
 
-```text
+```seseragi
 length
   Bytes
   -> Int
@@ -223,7 +223,7 @@ length
 
 Byte一個だけを含むBytesを作ります。
 
-```text
+```seseragi
 singleton
   Byte
   -> Bytes
@@ -235,7 +235,7 @@ singleton
 
 検査済みの半開sliceを、変更権限を公開せず返します。
 
-```text
+```seseragi
 slice
   Int
   -> Int
@@ -249,7 +249,7 @@ slice
 
 BytesをByteのArrayへcopyします。
 
-```text
+```seseragi
 toArray
   Bytes
   -> Array<Byte>
@@ -261,7 +261,7 @@ toArray
 
 ByteをIntの値へ変換します。
 
-```text
+```seseragi
 toInt
   Byte
   -> Int
@@ -273,7 +273,7 @@ toInt
 
 BytesをIntのArrayへcopyします。
 
-```text
+```seseragi
 toInts
   Bytes
   -> Array<Int>

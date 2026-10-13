@@ -77,7 +77,7 @@ const groups = {
   transformers: ["Monad transformer", "Monad transformers", "type-classes"],
 };
 const escape = (value) => value.replaceAll("<", "&lt;").replaceAll("{", "\\{").replaceAll("}", "\\}");
-const code = (value) => "```text\n" + value + "\n```\n";
+const code = (value, language = "text") => "```" + language + "\n" + value + "\n```\n";
 
 // Break signatures at type boundaries, preserving every type/field/constraint.
 // Parameter labels generated as arg1/arg2 are omitted from this type notation.
@@ -257,7 +257,7 @@ for (const locale of ["ja", "en"]) {
               return lines;
             }), "}"].join("\n")
           : signatureOf(corrected ? { ...item, signature: corrected.signature } : item);
-        const block = code(signature);
+        const block = code(signature, "seseragi");
         page += signature.split("\n").length > 16 ? `<details>\n<summary>${en ? "Show the complete type" : "完全な型を表示"}</summary>\n\n${block}\n</details>\n\n` : block + "\n";
         if (corrected) page += corrected[en ? "enNote" : "jaNote"] + "\n\n";
         if (structure) page += structure.fields.map((field) => `- \`${field.name}\`: ${field[locale]}`).join("\n") + "\n\n";

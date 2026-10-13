@@ -79,7 +79,7 @@ println $ show $ area $ Rect (3, 4)
 
 struct生成時には全fieldが必要です。同名の変数がある場合はfield shorthandを使えます。更新は同じstruct型のspreadを先頭に一個置き、変更するfieldを後ろに書きます。
 
-```text title="値を作る構文"
+```seseragi title="値を作る構文"
 Ticket {
   id,
   title: "Read the docs",
@@ -120,7 +120,7 @@ println edited.name
 
 recordは名前を持たないstructural型です。複数spreadをsource順に適用でき、後のspread・明示fieldが前の値を置き換えます。field型の変更は新しいrecord型を作ります。直接指定したfield名の重複はエラーです。
 
-```text title="recordの構文"
+```seseragi title="recordの構文"
 { name: "Aki", age: 30 }
 { ...profile, age: profile.age + 1 }
 { name, }
@@ -244,7 +244,7 @@ pub effect fn main =
 
 次は構文を示す断片です。
 
-```text title="comprehensionの構文"
+```seseragi title="comprehensionの構文"
 [n * n | n <- 1..=6, n % 2 == 0]
 `[name | Just name <- optionalNames]
 ```

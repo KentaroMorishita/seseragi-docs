@@ -25,7 +25,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 LogError
 ```
 
@@ -33,7 +33,7 @@ LogError
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct LogEvent {
   level: LogLevel,
   message: String,
@@ -49,7 +49,7 @@ struct LogEvent {
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Logger
 ```
 
@@ -57,7 +57,7 @@ Logger
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 LogLevel
 ```
 
@@ -65,7 +65,7 @@ LogLevel
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 LogValue
 ```
 
@@ -75,7 +75,7 @@ LogValue
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 LogBool
   Bool
   -> LogValue
@@ -85,7 +85,7 @@ LogBool
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 LogDebug
   LogLevel
 ```
@@ -94,7 +94,7 @@ LogDebug
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 LogFailure
   LogLevel
 ```
@@ -103,7 +103,7 @@ LogFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 LogFloat
   Float
   -> LogValue
@@ -113,7 +113,7 @@ LogFloat
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 LogInfo
   LogLevel
 ```
@@ -122,7 +122,7 @@ LogInfo
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 LogInt
   Int
   -> LogValue
@@ -132,7 +132,7 @@ LogInt
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 LogString
   String
   -> LogValue
@@ -142,7 +142,7 @@ LogString
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 LogTrace
   LogLevel
 ```
@@ -151,7 +151,7 @@ LogTrace
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 LogWarn
   LogLevel
 ```
@@ -162,7 +162,7 @@ LogWarn
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 log
   LogEvent
   -> Effect<

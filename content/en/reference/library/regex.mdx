@@ -95,7 +95,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 Opaque compiled portable regular expression with pinned Unicode semantics.
 
-```text
+```seseragi
 Regex
 ```
 
@@ -105,7 +105,7 @@ Regex
 
 Captured source text together with its UTF-8 byte span.
 
-```text
+```seseragi
 struct RegexCapture {
   span: RegexSpan,
   text: String
@@ -121,7 +121,7 @@ struct RegexCapture {
 
 Reports a compile failure at a UTF-8 byte offset in the pattern.
 
-```text
+```seseragi
 struct RegexCompileError {
   kind: RegexCompileErrorKind,
   offset: Int
@@ -137,7 +137,7 @@ struct RegexCompileError {
 
 Classifies a portable regular-expression compile failure.
 
-```text
+```seseragi
 RegexCompileErrorKind
 ```
 
@@ -147,7 +147,7 @@ RegexCompileErrorKind
 
 A leftmost match with ordered and named captures.
 
-```text
+```seseragi
 struct RegexMatch {
   span: RegexSpan,
   text: String,
@@ -172,7 +172,7 @@ struct RegexMatch {
 
 Controls case folding, multiline anchors, and dot-newline matching.
 
-```text
+```seseragi
 struct RegexOptions {
   caseInsensitive: Bool,
   multiline: Bool,
@@ -190,7 +190,7 @@ struct RegexOptions {
 
 Half-open UTF-8 byte span in the searched text.
 
-```text
+```seseragi
 struct RegexSpan {
   start: Int,
   end: Int
@@ -208,7 +208,7 @@ struct RegexSpan {
 
 Reports a repeated named-capture identifier.
 
-```text
+```seseragi
 DuplicateCaptureName
   String
   -> RegexCompileErrorKind
@@ -220,7 +220,7 @@ DuplicateCaptureName
 
 Reports an invalid or incomplete regular-expression escape.
 
-```text
+```seseragi
 InvalidRegexEscape
   RegexCompileErrorKind
 ```
@@ -231,7 +231,7 @@ InvalidRegexEscape
 
 Reports a malformed or misplaced quantifier.
 
-```text
+```seseragi
 InvalidRegexQuantifier
   RegexCompileErrorKind
 ```
@@ -242,7 +242,7 @@ InvalidRegexQuantifier
 
 Reports an invalid character-class range.
 
-```text
+```seseragi
 InvalidRegexRange
   RegexCompileErrorKind
 ```
@@ -253,7 +253,7 @@ InvalidRegexRange
 
 Reports a pattern that ends before its syntax is complete.
 
-```text
+```seseragi
 UnexpectedRegexEnd
   RegexCompileErrorKind
 ```
@@ -264,7 +264,7 @@ UnexpectedRegexEnd
 
 Reports an unexpected pattern character.
 
-```text
+```seseragi
 UnexpectedRegexToken
   Char
   -> RegexCompileErrorKind
@@ -276,7 +276,7 @@ UnexpectedRegexToken
 
 Reports syntax intentionally excluded from the portable Regex contract.
 
-```text
+```seseragi
 UnsupportedRegexFeature
   String
   -> RegexCompileErrorKind
@@ -290,7 +290,7 @@ UnsupportedRegexFeature
 
 Compiles a portable pattern or returns a typed error without throwing.
 
-```text
+```seseragi
 compile
   String
   -> Either<
@@ -305,7 +305,7 @@ compile
 
 Compiles a portable pattern using explicit RegexOptions.
 
-```text
+```seseragi
 compileWith
   RegexOptions
   -> String
@@ -321,7 +321,7 @@ compileWith
 
 Returns the portable Regex defaults with every option disabled.
 
-```text
+```seseragi
 defaultOptions
   Unit
   -> RegexOptions
@@ -333,7 +333,7 @@ defaultOptions
 
 Escapes text so it denotes a literal portable Regex fragment.
 
-```text
+```seseragi
 escape
   String
   -> String
@@ -345,7 +345,7 @@ escape
 
 Finds the first leftmost match and returns a RegexMatch with UTF-8 byte spans and captures, or Nothing when no match exists.
 
-```text
+```seseragi
 find
   Regex
   -> String
@@ -358,7 +358,7 @@ find
 
 Returns non-overlapping matches and advances one scalar after an empty match.
 
-```text
+```seseragi
 findAll
   Regex
   -> String
@@ -371,7 +371,7 @@ findAll
 
 Reports whether the leftmost-first engine finds a match.
 
-```text
+```seseragi
 isMatch
   Regex
   -> String
@@ -384,7 +384,7 @@ isMatch
 
 Replaces every match with literal text; capture markers are not expanded.
 
-```text
+```seseragi
 replaceAll
   Regex
   -> String
@@ -398,7 +398,7 @@ replaceAll
 
 Replaces matches by invoking a callback in source order.
 
-```text
+```seseragi
 replaceAllWith
   Regex
   -> (RegexMatch -> String)
@@ -412,7 +412,7 @@ replaceAllWith
 
 Splits text at non-overlapping portable Regex matches.
 
-```text
+```seseragi
 split
   Regex
   -> String

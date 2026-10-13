@@ -25,7 +25,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct WriterT<W, M<_>, A> {
   run: M<(A, W)>
 }
@@ -39,7 +39,7 @@ struct WriterT<W, M<_>, A> {
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 lift<W, M<_>, A>
   M<A>
   -> WriterT<W, M<_>, A>
@@ -52,7 +52,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 listen<W, M<_>, A>
   WriterT<W, M<_>, A>
   -> WriterT<W, M<_>, (A, W)>
@@ -65,7 +65,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 run<W, M<_>, A>
   WriterT<W, M<_>, A>
   -> M<(A, W)>
@@ -75,7 +75,7 @@ run<W, M<_>, A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 tell<W, M<_>>
   W
   -> WriterT<W, M<_>, Unit>

@@ -22,6 +22,10 @@ bun run preview
 bun run check:examples
 ```
 
+手元の既定CLIと対象版が異なる場合は、対象版の正式配布binaryを別の場所に置き、`SESERAGI_CLI=/absolute/path/seseragi bun run check:examples`のように指定できます。`sync:library`と`verify:release`も同じ指定を使います。版・commit・release tagの照合は省略されません。既定CLIを入れ替える必要はありません。
+
+比較用のTypeScriptは`checks.json`の`typescript`でstrict型チェックとNode.jsによる出力の検証を行います。ReactのTSXなど、実行せず型だけを調べる抜粋は`typecheck`で登録します。TSXも対応版の検証入力へ含め、変更後は`verify:release`をやり直します。
+
 表示と操作は、ビルドしたサイトをブラウザで確認します。macOSではインストール済みChromeを使い、それ以外ではPlaywrightのChromiumを用意します。
 
 ```sh
@@ -54,6 +58,8 @@ bun run check:browser
 ````
 
 signatureだけの断片、期待する診断、ブラウザ用ビルドを、実行済みプログラムとして扱わないでください。
+
+ソースには対応する言語のfenceを使います。Seseragiの宣言・型・式の断片も`seseragi`で表示し、`text`は出力や通常のテキストに使います。TypeScriptは`typescript`、ReactのJSX付きコードは`tsx`です。`check:highlight`はサイトの実設定を使い、両テーマの色とLibrary生成時のsignature・stdoutの区別を確認します。`check`と`build`でもこの検査を実行します。
 
 必要な数行だけを掲載するときは、検証ファイルの`// docs:start name`と`// docs:end name`で範囲を囲み、`{/* example: examples/path.ssrg#name */}`で参照します。共通の字下げを除いたコードをそのまま掲載してください。範囲の重複や入れ子、未登録の検証ファイル、本文との不一致は検査で拒否します。短い式、関数の宣言、`main`へ置く断片、独立したプログラムを本文で区別します。
 

@@ -139,7 +139,7 @@ Not an Int
 
 decode失敗のrootからleafまでのpathと失敗種別を報告します。
 
-```text
+```seseragi
 DecodeError
 ```
 
@@ -147,7 +147,7 @@ DecodeError
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 DecodeErrorKind
 ```
 
@@ -157,7 +157,7 @@ DecodeErrorKind
 
 path付きの型付きDecodeErrorを返すpureなJson decoderです。
 
-```text
+```seseragi
 Decoder<_>
 ```
 
@@ -167,7 +167,7 @@ Decoder<_>
 
 値をJsonへencodeするpure関数です。
 
-```text
+```seseragi
 Encoder<_>
 ```
 
@@ -177,7 +177,7 @@ Encoder<_>
 
 正確なDecimal数値と順序付きobject fieldを持つJSON値です。
 
-```text
+```seseragi
 Json
 ```
 
@@ -187,7 +187,7 @@ Json
 
 不正な構文または重複object fieldを報告します。
 
-```text
+```seseragi
 JsonParseError
 ```
 
@@ -195,7 +195,7 @@ JsonParseError
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 JsonPathSegment
 ```
 
@@ -205,7 +205,7 @@ JsonPathSegment
 
 JSONの構文失敗と値のdecode失敗を区別します。
 
-```text
+```seseragi
 JsonReadError
 ```
 
@@ -215,7 +215,7 @@ JsonReadError
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 DuplicateJsonField
   {
     path: Array<JsonPathSegment>,
@@ -228,7 +228,7 @@ DuplicateJsonField
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 ExpectedJsonType
   String
   -> DecodeErrorKind
@@ -238,7 +238,7 @@ ExpectedJsonType
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 InvalidJsonSyntax
   { offset: Int, message: String }
   -> JsonParseError
@@ -248,7 +248,7 @@ InvalidJsonSyntax
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 InvalidJsonValue
   String
   -> DecodeErrorKind
@@ -258,7 +258,7 @@ InvalidJsonValue
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 JsonArray
   Array<Json>
   -> Json
@@ -268,7 +268,7 @@ JsonArray
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 JsonBool
   Bool
   -> Json
@@ -278,7 +278,7 @@ JsonBool
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 JsonDecodeFailure
   DecodeError
   -> JsonReadError
@@ -288,7 +288,7 @@ JsonDecodeFailure
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 JsonField
   String
   -> JsonPathSegment
@@ -298,7 +298,7 @@ JsonField
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 JsonIndex
   Int
   -> JsonPathSegment
@@ -308,7 +308,7 @@ JsonIndex
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 JsonNull
   Json
 ```
@@ -317,7 +317,7 @@ JsonNull
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 JsonNumber
   Decimal
   -> Json
@@ -327,7 +327,7 @@ JsonNumber
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 JsonObject
   Map<String, Json>
   -> Json
@@ -337,7 +337,7 @@ JsonObject
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 JsonString
   String
   -> Json
@@ -347,7 +347,7 @@ JsonString
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 JsonSyntaxFailure
   JsonParseError
   -> JsonReadError
@@ -357,7 +357,7 @@ JsonSyntaxFailure
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 MissingJsonField
   String
   -> DecodeErrorKind
@@ -367,7 +367,7 @@ MissingJsonField
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 UnknownJsonField
   String
   -> DecodeErrorKind
@@ -377,7 +377,7 @@ UnknownJsonField
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 UnknownJsonTag
   String
   -> DecodeErrorKind
@@ -391,7 +391,7 @@ UnknownJsonTag
 
 JSON Arrayの全要素をsource順に復号します。
 
-```text
+```seseragi
 array<A>
   (Json -> Either<DecodeError, A>)
   -> Json
@@ -404,7 +404,7 @@ array<A>
 
 選択されたJsonDecode辞書でtextをparseしてdecodeします。
 
-```text
+```seseragi
 decodeString<A>
   String
   -> Either<JsonReadError, A>
@@ -418,7 +418,7 @@ where
 
 選択されたJsonEncode辞書で値をencodeします。
 
-```text
+```seseragi
 encodeString<A>
   A
   -> String
@@ -432,7 +432,7 @@ where
 
 必須object fieldを復号し、失敗pathの先頭へfieldのsegmentを追加します。
 
-```text
+```seseragi
 field<A>
   String
   -> (
@@ -449,7 +449,7 @@ field<A>
 
 成功したdecoder結果から、次のdecoderを選びます。
 
-```text
+```seseragi
 flatMap<A, B>
   (
     A
@@ -470,7 +470,7 @@ flatMap<A, B>
 
 Arrayの一つの位置を復号し、失敗pathの先頭へindexを追加します。
 
-```text
+```seseragi
 index<A>
   Int
   -> (
@@ -487,7 +487,7 @@ index<A>
 
 decoderの成功結果を変換します。
 
-```text
+```seseragi
 map<A, B>
   (A -> B)
   -> (
@@ -504,7 +504,7 @@ map<A, B>
 
 decoderを順に試し、最初の成功結果を返します。
 
-```text
+```seseragi
 oneOf<A>
   Array<
     (Json -> Either<DecodeError, A>)
@@ -519,7 +519,7 @@ oneOf<A>
 
 object fieldをMaybeとして復号し、field不在だけをNothingとして受理します。
 
-```text
+```seseragi
 optionalField<A>
   String
   -> (
@@ -536,7 +536,7 @@ optionalField<A>
 
 RFC 8259 JSONを正確なDecimal数値としてparseし、重複fieldを拒否します。
 
-```text
+```seseragi
 parse
   String
   -> Either<JsonParseError, Json>
@@ -548,7 +548,7 @@ parse
 
 宣言した同種object field集合を復号し、未知のfieldを拒否します。
 
-```text
+```seseragi
 record<A>
   Array<
     (
@@ -572,7 +572,7 @@ record<A>
 
 最小限のescapeで、compactかつ決定的なJSONを書きます。
 
-```text
+```seseragi
 stringify
   Json
   -> String

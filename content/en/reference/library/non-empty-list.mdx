@@ -25,7 +25,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 NonEmptyList<_>
 ```
 
@@ -35,7 +35,7 @@ NonEmptyList<_>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 cons<A>
   A
   -> List<A>
@@ -46,7 +46,7 @@ cons<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 fromList<A>
   List<A>
   -> Maybe<NonEmptyList<A>>
@@ -58,7 +58,7 @@ fromList<A>
 
 Returns the first value of a NonEmptyList directly as A.
 
-```text
+```seseragi
 head<A>
   NonEmptyList<A>
   -> A
@@ -68,7 +68,7 @@ head<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 reduce1<A>
   (A -> A -> A)
   -> NonEmptyList<A>
@@ -79,7 +79,7 @@ reduce1<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 singleton<A>
   A
   -> NonEmptyList<A>
@@ -91,7 +91,7 @@ singleton<A>
 
 Returns the remaining values as a List, which is empty for a singleton NonEmptyList.
 
-```text
+```seseragi
 tail<A>
   NonEmptyList<A>
   -> List<A>
@@ -103,7 +103,7 @@ tail<A>
 
 Converts a NonEmptyList to an ordinary List while preserving its head and remaining order.
 
-```text
+```seseragi
 toList<A>
   NonEmptyList<A>
   -> List<A>

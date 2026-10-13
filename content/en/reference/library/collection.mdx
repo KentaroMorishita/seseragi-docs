@@ -27,7 +27,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 Pure reduction control: Next continues and Done stops.
 
-```text
+```seseragi
 ReduceStep<_>
 ```
 
@@ -35,7 +35,7 @@ ReduceStep<_>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 SizeError
 ```
 
@@ -47,7 +47,7 @@ SizeError
 
 Constructs a ReduceStep value requesting that reduceUntil stop with the final result.
 
-```text
+```seseragi
 Done<A>
   A
   -> ReduceStep<A>
@@ -59,7 +59,7 @@ Done<A>
 
 Constructs a ReduceStep value requesting that reduceUntil continue with the new accumulator.
 
-```text
+```seseragi
 Next<A>
   A
   -> ReduceStep<A>
@@ -69,7 +69,7 @@ Next<A>
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 NonPositiveSize
   Int
   -> SizeError
@@ -83,7 +83,7 @@ NonPositiveSize
 
 Folds an Iterable in source order until Done; does not pull the remaining elements.
 
-```text
+```seseragi
 reduceUntil<C, A, B>
   B
   -> (B -> A -> ReduceStep<B>)

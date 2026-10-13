@@ -9,7 +9,7 @@ description: "取りうる状態をケースで表し、その状態に必要な
 
 `type`の宣言では、`|`でケースを並べます。このように複数のケースから一つを選ぶ型を、代数的データ型、またはADTと呼びます。次の構文例は二つのケースを持つ型の宣言です。
 
-```text title="型宣言の構文例"
+```seseragi title="型宣言の構文例"
 type Light =
   | Red
   | Green
@@ -23,7 +23,7 @@ type Light =
 
 `Red`と`Green`には追加のデータがないので、ケース名だけで値になります。上の宣言を使うと、次の束縛を書けます。これは`main`などのブロック内へ置く構文例です。
 
-```text title="値の束縛の構文例"
+```seseragi title="値の束縛の構文例"
 let red: Light = Red
 let green: Light = Green
 ```
@@ -34,7 +34,7 @@ let green: Light = Green
 
 次に、測定結果の型を作ります。測定していない状態には追加のデータがなく、測定済みの状態は整数を一つ持ちます。
 
-```text title="payloadを持つ型の構文例"
+```seseragi title="payloadを持つ型の構文例"
 type Reading =
   | NoReading
   | Measured Int
@@ -42,7 +42,7 @@ type Reading =
 
 `NoReading`はそれだけで`Reading`の値です。`Measured`は整数を一つ受け取るコンストラクターで、データを渡すと`Reading`の値が完成します。ケースが持つデータをpayloadと呼びます。
 
-```text title="値の束縛の構文例"
+```seseragi title="値の束縛の構文例"
 let absent: Reading = NoReading
 let measured: Reading = Measured 23
 ```

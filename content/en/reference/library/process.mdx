@@ -26,7 +26,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Process
 ```
 
@@ -34,7 +34,7 @@ Process
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ProcessError
 ```
 
@@ -42,7 +42,7 @@ ProcessError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ProcessSignal
 ```
 
@@ -52,7 +52,7 @@ ProcessSignal
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 CurrentDirectoryUnavailable
   ProcessError
 ```
@@ -61,7 +61,7 @@ CurrentDirectoryUnavailable
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Hangup
   ProcessSignal
 ```
@@ -70,7 +70,7 @@ Hangup
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Interrupt
   ProcessSignal
 ```
@@ -79,7 +79,7 @@ Interrupt
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidArgumentEncoding
   Int
   -> ProcessError
@@ -89,7 +89,7 @@ InvalidArgumentEncoding
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidEnvironmentEncoding
   String
   -> ProcessError
@@ -99,7 +99,7 @@ InvalidEnvironmentEncoding
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidEnvironmentName
   String
   -> ProcessError
@@ -109,7 +109,7 @@ InvalidEnvironmentName
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Quit
   ProcessSignal
 ```
@@ -118,7 +118,7 @@ Quit
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ReservedProcessSignal
   ProcessSignal
   -> ProcessError
@@ -128,7 +128,7 @@ ReservedProcessSignal
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Terminate
   ProcessSignal
 ```
@@ -137,7 +137,7 @@ Terminate
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 UnsupportedProcessSignal
   ProcessSignal
   -> ProcessError
@@ -147,7 +147,7 @@ UnsupportedProcessSignal
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 User1
   ProcessSignal
 ```
@@ -156,7 +156,7 @@ User1
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 User2
   ProcessSignal
 ```
@@ -167,7 +167,7 @@ User2
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 arguments
   Unit
   -> Effect<
@@ -181,7 +181,7 @@ arguments
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 currentDirectory
   Unit
   -> Effect<
@@ -195,7 +195,7 @@ currentDirectory
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 environment
   String
   -> Effect<
@@ -209,7 +209,7 @@ environment
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 signals
   NonEmptyList<ProcessSignal>
   -> Stream<

@@ -1,0 +1,10 @@
+pub effect fn main = {
+  let base = { count: 1 }
+  let next = {
+    ...base,
+    count: base.count + 1
+  }
+  let report =
+    `${base.count}, ${next.count}`
+  println report
+}

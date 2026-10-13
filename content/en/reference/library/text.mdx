@@ -108,7 +108,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 TextSliceError
 ```
 
@@ -118,7 +118,7 @@ TextSliceError
 
 Reports the byte offset of the first invalid UTF-8 sequence.
 
-```text
+```seseragi
 Utf8DecodeError
 ```
 
@@ -128,7 +128,7 @@ Utf8DecodeError
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidScalarRange
   {
     start: Int,
@@ -142,7 +142,7 @@ InvalidScalarRange
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidUtf8
   { offset: Int }
   -> Utf8DecodeError
@@ -154,7 +154,7 @@ InvalidUtf8
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 caseFold
   String
   -> String
@@ -166,7 +166,7 @@ caseFold
 
 Concatenates the Strings in Array order into one String.
 
-```text
+```seseragi
 concat
   Array<String>
   -> String
@@ -176,7 +176,7 @@ concat
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 contains
   String
   -> String
@@ -189,7 +189,7 @@ contains
 
 Strictly decodes UTF-8 or reports the first invalid byte offset.
 
-```text
+```seseragi
 decodeUtf8
   Bytes
   -> Either<Utf8DecodeError, String>
@@ -201,7 +201,7 @@ decodeUtf8
 
 Decodes UTF-8 and replaces invalid sequences.
 
-```text
+```seseragi
 decodeUtf8Lossy
   Bytes
   -> String
@@ -213,7 +213,7 @@ decodeUtf8Lossy
 
 Encodes String as UTF-8 Bytes.
 
-```text
+```seseragi
 encodeUtf8
   String
   -> Bytes
@@ -223,7 +223,7 @@ encodeUtf8
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 endsWith
   String
   -> String
@@ -236,7 +236,7 @@ endsWith
 
 Returns whether the collection contains no elements.
 
-```text
+```seseragi
 isEmpty
   String
   -> Bool
@@ -246,7 +246,7 @@ isEmpty
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 join
   String
   -> Array<String>
@@ -257,7 +257,7 @@ join
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 lengthBytes
   String
   -> Int
@@ -267,7 +267,7 @@ lengthBytes
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 lengthScalars
   String
   -> Int
@@ -277,7 +277,7 @@ lengthScalars
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 lines
   String
   -> Array<String>
@@ -287,7 +287,7 @@ lines
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 replace
   String
   -> String
@@ -299,7 +299,7 @@ replace
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 replaceAll
   String
   -> String
@@ -311,7 +311,7 @@ replaceAll
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 scalarAt
   Int
   -> String
@@ -322,7 +322,7 @@ scalarAt
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 sliceScalars
   Int
   -> Int
@@ -334,7 +334,7 @@ sliceScalars
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 split
   String
   -> String
@@ -345,7 +345,7 @@ split
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 startsWith
   String
   -> String
@@ -356,7 +356,7 @@ startsWith
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 toLower
   String
   -> String
@@ -366,7 +366,7 @@ toLower
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 toUpper
   String
   -> String
@@ -376,7 +376,7 @@ toUpper
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 trim
   String
   -> String
@@ -386,7 +386,7 @@ trim
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 trimEnd
   String
   -> String
@@ -396,7 +396,7 @@ trimEnd
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 trimStart
   String
   -> String
@@ -406,7 +406,7 @@ trimStart
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 words
   String
   -> Array<String>

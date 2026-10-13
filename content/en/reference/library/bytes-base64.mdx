@@ -27,7 +27,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 Describes a strict RFC 4648 Base64 decoding failure.
 
-```text
+```seseragi
 Base64DecodeError
 ```
 
@@ -39,7 +39,7 @@ Base64DecodeError
 
 Reports the UTF-8 byte offset of the first invalid Base64 digit.
 
-```text
+```seseragi
 InvalidBase64Digit
   { offset: Int }
   -> Base64DecodeError
@@ -51,7 +51,7 @@ InvalidBase64Digit
 
 Reports an invalid Base64 input length measured in UTF-8 bytes.
 
-```text
+```seseragi
 InvalidBase64Length
   Int
   -> Base64DecodeError
@@ -63,7 +63,7 @@ InvalidBase64Length
 
 Reports the UTF-8 byte offset of invalid Base64 padding.
 
-```text
+```seseragi
 InvalidBase64Padding
   { offset: Int }
   -> Base64DecodeError
@@ -75,7 +75,7 @@ InvalidBase64Padding
 
 Reports non-zero unused bits in the final Base64 sextet.
 
-```text
+```seseragi
 NonCanonicalBase64Bits
   { offset: Int }
   -> Base64DecodeError
@@ -89,7 +89,7 @@ NonCanonicalBase64Bits
 
 Strictly decodes canonical padded RFC 4648 Base64 text.
 
-```text
+```seseragi
 decode
   String
   -> Either<
@@ -104,7 +104,7 @@ decode
 
 Strictly decodes canonical unpadded URL-safe Base64 text.
 
-```text
+```seseragi
 decodeUrl
   String
   -> Either<
@@ -119,7 +119,7 @@ decodeUrl
 
 Encodes Bytes as canonical padded RFC 4648 Base64 text.
 
-```text
+```seseragi
 encode
   Bytes
   -> String
@@ -131,7 +131,7 @@ encode
 
 Encodes Bytes as canonical unpadded URL-safe Base64 text.
 
-```text
+```seseragi
 encodeUrl
   Bytes
   -> String

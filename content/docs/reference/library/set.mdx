@@ -97,7 +97,7 @@ let excluded = set.singleton 2
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Set<_>
 ```
 
@@ -107,7 +107,7 @@ Set<_>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 contains<A>
   A
   -> Set<A>
@@ -121,7 +121,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 difference<A>
   Set<A>
   -> Set<A>
@@ -135,7 +135,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 empty<A>
   Unit
   -> Set<A>
@@ -147,7 +147,7 @@ empty<A>
 
 条件がTrueになるcollection要素を残します。
 
-```text
+```seseragi
 filter<A>
   (A -> Bool)
   -> Set<A>
@@ -158,7 +158,7 @@ filter<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 fromIterable<C, A>
   C
   -> Set<A>
@@ -172,7 +172,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 insert<A>
   A
   -> Set<A>
@@ -186,7 +186,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 intersection<A>
   Set<A>
   -> Set<A>
@@ -202,7 +202,7 @@ where
 
 collectionに要素がないかを返します。
 
-```text
+```seseragi
 isEmpty<A>
   Set<A>
   -> Bool
@@ -212,7 +212,7 @@ isEmpty<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 isSubsetOf<A>
   Set<A>
   -> Set<A>
@@ -226,7 +226,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 map<A, B>
   (A -> B)
   -> Set<A>
@@ -240,7 +240,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 remove<A>
   A
   -> Set<A>
@@ -254,7 +254,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 singleton<A>
   A
   -> Set<A>
@@ -267,7 +267,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 size<A>
   Set<A>
   -> Int
@@ -279,7 +279,7 @@ size<A>
 
 Setの要素を反復順に並べたArrayを返します。
 
-```text
+```seseragi
 toArray<A>
   Set<A>
   -> Array<A>
@@ -291,7 +291,7 @@ toArray<A>
 
 Setの要素を反復順に並べたListを返します。
 
-```text
+```seseragi
 toList<A>
   Set<A>
   -> List<A>
@@ -301,7 +301,7 @@ toList<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 union<A>
   Set<A>
   -> Set<A>

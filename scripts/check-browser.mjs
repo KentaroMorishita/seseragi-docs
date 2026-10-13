@@ -146,6 +146,8 @@ try {
     "/docs/reference/library/array", "/en/docs/reference/library/array",
     "/docs/learn/arrays-and-lists", "/en/docs/learn/arrays-and-lists",
     "/docs/learn/maybe-and-either", "/docs/learn/effects", "/docs/reference/functions",
+    "/docs/reference/effects", "/en/docs/reference/effects",
+    "/docs/reference/library/prelude", "/en/docs/reference/library/prelude",
     "/docs/reference/library/maybe", "/en/docs/reference/library/maybe",
     "/docs/reference/library/map", "/docs/reference/library/json", "/en/docs/reference/library/json",
     "/docs/reference/library/web-html", "/docs/reference/library/effect",
@@ -176,6 +178,67 @@ try {
     if (representative.includes(path)) await phone.screenshot({ path: resolve(output, `mobile${path.replaceAll("/", "-")}.png`), fullPage: true });
     if (index % 40 === 39) console.log(`Mobile: ${index + 1}/${mobilePaths.length} pages checked.`);
   }
+  writeFileSync(resolve(output, "report.json"), JSON.stringify({ base, languageVersion, phase: "mobile-layout", pagesChecked, mobilePages: mobilePaths.length, overflows, errors }, null, 2));
+  assert(overflows.length === 0, `Mobile layout failed: ${JSON.stringify(overflows.slice(0, 8))}`);
+  assert(errors.length === 0, `Browser errors: ${JSON.stringify(errors)}`);
+
+  const displayedBlock = async (source, label) => {
+    const blocks = await phone.locator("pre").allTextContents();
+    const index = blocks.findIndex((block) => block.trim() === source.trim());
+    assert(index >= 0, `Missing current code ${label}`);
+    return phone.locator("pre").nth(index);
+  };
+  const colorsIn = async (block) => block.locator("code span").evaluateAll((nodes) => [...new Set(nodes.filter((node) => node.textContent.trim()).map((node) => getComputedStyle(node).color))]);
+  const setTheme = async (theme) => phone.locator("html").evaluate((node, theme) => node.classList.toggle("dark", theme === "dark"), theme);
+  let highlightedChecks = 0;
+  for (const prefix of ["", "/en"]) {
+    await phone.goto(`${base}${prefix}/docs/guides/typescript-to-seseragi`); await ready(phone);
+    assert(await phone.locator("div.prose.flex-1 h2").count() === 18, `Incomplete migration guide ${prefix}`);
+    const guide = readFileSync(new URL(`../content/${prefix ? "en" : "docs"}/guides/typescript-to-seseragi.mdx`, import.meta.url), "utf8");
+    const references = [...guide.matchAll(/\{\/\*\s*example:\s*(examples\/[^\s*]+)\s*\*\/\}/g)].map((match) => match[1]);
+    for (const reference of references) await displayedBlock(readExample(reference), `${prefix}/${reference}`);
+    for (const theme of ["light", "dark"]) {
+      await setTheme(theme);
+      for (const reference of ["examples/guides/migration.ssrg", "examples/guides/migration-typescript/call.ts#example", "examples/guides/migration-typescript/react.tsx#badge"]) {
+        const block = await displayedBlock(readExample(reference), reference);
+        assert((await colorsIn(block)).length > 1, `Missing ${theme} syntax colors ${prefix}/${reference}`);
+        highlightedChecks++;
+      }
+    }
+    await (await displayedBlock(readExample("examples/guides/migration-typescript/react.tsx#badge"), "React props")).scrollIntoViewIfNeeded();
+    await phone.screenshot({ path: resolve(output, `highlight-migration-${prefix ? "en" : "ja"}.png`) });
+
+    await phone.goto(`${base}${prefix}/docs/reference/effects`); await ready(phone);
+    for (const theme of ["light", "dark"]) {
+      await setTheme(theme);
+      for (const title of ["compact form", "contract form"]) {
+        const block = phone.locator("figure").filter({ has: phone.locator("figcaption", { hasText: new RegExp(`^${title}$`, "i") }) }).locator("pre");
+        assert(await block.count() === 1, `Missing ${title} ${prefix}`);
+        assert((await colorsIn(block)).length > 1, `Uncolored ${title}, ${theme}, ${prefix}`);
+        highlightedChecks++;
+      }
+    }
+    await phone.locator("figure").filter({ has: phone.locator("figcaption", { hasText: /^compact form$/i }) }).scrollIntoViewIfNeeded();
+    await phone.screenshot({ path: resolve(output, `highlight-effects-${prefix ? "en" : "ja"}.png`) });
+
+    await phone.goto(`${base}${prefix}/docs/reference/library/prelude`); await ready(phone);
+    const blocks = await phone.locator("pre").allTextContents();
+    const index = blocks.findIndex((block) => /^map</.test(block));
+    assert(index >= 0, `Missing generated map signature ${prefix}`);
+    for (const theme of ["light", "dark"]) {
+      await setTheme(theme);
+      assert((await colorsIn(phone.locator("pre").nth(index))).length > 1, `Uncolored generated signature ${theme}/${prefix}`);
+      highlightedChecks++;
+    }
+    await phone.goto(`${base}${prefix}/docs/reference/library/maybe`); await ready(phone);
+    const recipe = recipes["std/maybe"].find((recipe) => recipe.example.endsWith("#sequence-missing"));
+    const stdout = await displayedBlock(recipe.stdout, "Maybe output");
+    for (const theme of ["light", "dark"]) {
+      await setTheme(theme);
+      assert((await colorsIn(stdout)).length <= 1, `Output colored as source ${theme}/${prefix}`);
+    }
+  }
+  console.log(`Migration: all displayed source excerpts match checked fixtures in both locales. Syntax: ${highlightedChecks} mobile color checks passed in light/dark themes; outputs stay plain.`);
   await phone.goto(`${base}/docs/guides/forms`); await ready(phone);
   await phone.getByRole("button", { name: "メニューを開く", exact: true }).first().click();
   await phone.getByRole("link", { name: "English", exact: true }).first().click();
@@ -186,7 +249,7 @@ try {
   await article.goto(`${base}/docs/learn/effects`);
   assert(await article.getByRole("heading", { level: 1 }).isVisible(), "Article requires JavaScript");
   assert((await article.locator("body").innerText()).includes("Effect"), "No-JS text missing");
-  writeFileSync(resolve(output, "report.json"), JSON.stringify({ base, languageVersion, pagesChecked, mobilePages: mobilePaths.length, overflows, errors }, null, 2));
+  writeFileSync(resolve(output, "report.json"), JSON.stringify({ base, languageVersion, pagesChecked, mobilePages: mobilePaths.length, highlightedChecks, overflows, errors }, null, 2));
   assert(overflows.length === 0, `Mobile layout failed: ${JSON.stringify(overflows.slice(0, 8))}`);
   assert(errors.length === 0, `Browser errors: ${JSON.stringify(errors)}`);
   console.log(`PASS: ${paths.length} routes; ${mobilePaths.length} mobile pages without clipped/covered code or negative tracking; browser errors 0.`);

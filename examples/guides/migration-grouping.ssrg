@@ -1,6 +1,7 @@
 fn double n: Int -> Int = n * 2
 
 pub effect fn main = {
-  let answer = double (20 + 1)
-  printValue answer
+  let outside = double 20 + 1
+  let grouped = double (20 + 1)
+  println `${outside}, ${grouped}`
 }

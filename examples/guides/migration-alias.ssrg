@@ -1,0 +1,13 @@
+// docs:start declaration
+alias Point = { x: Int, y: Int }
+
+fn horizontal point: Point -> Int =
+  point.x
+// docs:end declaration
+
+pub effect fn main = {
+  // docs:start use
+  let point: Point = { x: 3, y: 4 }
+  printValue (horizontal point)
+  // docs:end use
+}

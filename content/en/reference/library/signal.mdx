@@ -31,7 +31,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 MutableSignal<_>
 ```
 
@@ -39,7 +39,7 @@ MutableSignal<_>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Signal<_>
 ```
 
@@ -47,7 +47,7 @@ Signal<_>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 SignalChange
 ```
 
@@ -55,7 +55,7 @@ SignalChange
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Subscription
 ```
 
@@ -65,7 +65,7 @@ Subscription
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 combine<A, B, C>
   (A -> B -> C)
   -> Signal<A>
@@ -77,7 +77,7 @@ combine<A, B, C>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 constant<A>
   A
   -> Signal<A>
@@ -87,7 +87,7 @@ constant<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 distinct<A>
   Signal<A>
   -> Signal<A>
@@ -101,7 +101,7 @@ where
 
 Creates a mutable Signal inside Effect.
 
-```text
+```seseragi
 make<A>
   A
   -> Effect<
@@ -117,7 +117,7 @@ make<A>
 
 Derives a Signal by transforming each current value.
 
-```text
+```seseragi
 map<A, B>
   (A -> B)
   -> Signal<A>
@@ -128,7 +128,7 @@ map<A, B>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 planSet<A>
   A
   -> MutableSignal<A>
@@ -139,7 +139,7 @@ planSet<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 planUpdate<A>
   (A -> A)
   -> MutableSignal<A>
@@ -150,7 +150,7 @@ planUpdate<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 read<A>
   Signal<A>
   -> Effect<{}, Never, A>
@@ -160,7 +160,7 @@ read<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 set<A>
   A
   -> MutableSignal<A>
@@ -171,7 +171,7 @@ set<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 subscribe<R, A>
   (A -> Effect<R, Never, Unit>)
   -> Signal<A>
@@ -182,7 +182,7 @@ subscribe<R, A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 switchMap<A, B>
   (A -> Signal<B>)
   -> Signal<A>
@@ -193,7 +193,7 @@ switchMap<A, B>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 transaction
   Array<SignalChange>
   -> Effect<{}, Never, Unit>
@@ -203,7 +203,7 @@ transaction
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 unsubscribe
   Subscription
   -> Effect<{}, Never, Unit>
@@ -213,7 +213,7 @@ unsubscribe
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 update<A>
   (A -> A)
   -> MutableSignal<A>

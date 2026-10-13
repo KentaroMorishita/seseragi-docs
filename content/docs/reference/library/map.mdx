@@ -100,7 +100,7 @@ Just 2
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Map<_, _>
 ```
 
@@ -110,7 +110,7 @@ Map<_, _>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 containsKey<K, V>
   K
   -> Map<K, V>
@@ -124,7 +124,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 empty<K, V>
   Unit
   -> Map<K, V>
@@ -134,7 +134,7 @@ empty<K, V>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 entries<K, V>
   Map<K, V>
   -> Array<(K, V)>
@@ -146,7 +146,7 @@ entries<K, V>
 
 条件がTrueになるcollection要素を残します。
 
-```text
+```seseragi
 filter<K, V>
   (K -> V -> Bool)
   -> Map<K, V>
@@ -157,7 +157,7 @@ filter<K, V>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 fromEntries<C, K, V>
   C
   -> Map<K, V>
@@ -173,7 +173,7 @@ where
 
 キーのEqとHashを使って対応する値を検索し、キーがなければNothingを返します。
 
-```text
+```seseragi
 get<K, V>
   K
   -> Map<K, V>
@@ -187,7 +187,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 insert<K, V>
   K
   -> V
@@ -204,7 +204,7 @@ where
 
 collectionに要素がないかを返します。
 
-```text
+```seseragi
 isEmpty<K, V>
   Map<K, V>
   -> Bool
@@ -214,7 +214,7 @@ isEmpty<K, V>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 keys<K, V>
   Map<K, V>
   -> Array<K>
@@ -224,7 +224,7 @@ keys<K, V>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 mapKeysWith<K1, K2, V>
   (V -> V -> V)
   -> (K1 -> K2)
@@ -239,7 +239,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 mapValues<K, A, B>
   (A -> B)
   -> Map<K, A>
@@ -250,7 +250,7 @@ mapValues<K, A, B>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 mergeWith<K, V>
   (V -> V -> V)
   -> Map<K, V>
@@ -265,7 +265,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 remove<K, V>
   K
   -> Map<K, V>
@@ -279,7 +279,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 singleton<K, V>
   K
   -> V
@@ -293,7 +293,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 size<K, V>
   Map<K, V>
   -> Int
@@ -303,7 +303,7 @@ size<K, V>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 upsert<K, V>
   K
   -> (Maybe<V> -> V)
@@ -318,7 +318,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 values<K, V>
   Map<K, V>
   -> Array<V>

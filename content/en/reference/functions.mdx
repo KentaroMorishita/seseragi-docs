@@ -9,7 +9,7 @@ Functions are values. They accept one argument at a time, can be passed to other
 
 Separate parameter names and types with `->`, ending with the result type. Ordinary functions require parameter and result annotations.
 
-```text title="Declaration syntax"
+```seseragi title="Declaration syntax"
 fn add x: Int -> y: Int -> Int =
   x + y
 ```
@@ -81,7 +81,7 @@ Seseragi evaluates strictly. Arguments are evaluated once from left to right, fo
 
 Write a lambda as `\x -> x + 1`, or with multiple parameters as `\x y -> x + y`. Parameter annotations may be omitted when context determines the types. Otherwise annotate, for example `\x: Int -> x + 1`.
 
-```text title="Higher-order application syntax"
+```seseragi title="Higher-order application syntax"
 map (\value: Int -> value + 1) [1, 2]
 ```
 
@@ -128,7 +128,7 @@ pub effect fn main =
 
 A block returns its final expression. A `let` binding cannot be reassigned and is visible from the following item to the end of the block. A local `fn` is visible in its own body and after its declaration. It may capture earlier bindings, but not later ones.
 
-```text title="Local-function syntax"
+```seseragi title="Local-function syntax"
 fn twice value: Int -> Int = {
   fn double x: Int -> Int = x + x
   double value

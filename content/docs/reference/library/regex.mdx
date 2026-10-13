@@ -95,7 +95,7 @@ Invalid pattern
 
 Unicodeの意味を固定した、compile済みportable Regexのopaque型です。
 
-```text
+```seseragi
 Regex
 ```
 
@@ -105,7 +105,7 @@ Regex
 
 captureした元テキストと、そのUTF-8 byte範囲です。
 
-```text
+```seseragi
 struct RegexCapture {
   span: RegexSpan,
   text: String
@@ -121,7 +121,7 @@ struct RegexCapture {
 
 pattern内のUTF-8 byte offsetでcompile失敗を報告します。
 
-```text
+```seseragi
 struct RegexCompileError {
   kind: RegexCompileErrorKind,
   offset: Int
@@ -137,7 +137,7 @@ struct RegexCompileError {
 
 portableな正規表現のcompile失敗を分類します。
 
-```text
+```seseragi
 RegexCompileErrorKind
 ```
 
@@ -147,7 +147,7 @@ RegexCompileErrorKind
 
 最左の一致と、順序付きcaptureおよび名前付きcaptureを保持します。
 
-```text
+```seseragi
 struct RegexMatch {
   span: RegexSpan,
   text: String,
@@ -172,7 +172,7 @@ struct RegexMatch {
 
 case folding、複数行anchor、dotと改行の一致を指定します。
 
-```text
+```seseragi
 struct RegexOptions {
   caseInsensitive: Bool,
   multiline: Bool,
@@ -190,7 +190,7 @@ struct RegexOptions {
 
 検索したtext内の半開UTF-8 byte範囲です。
 
-```text
+```seseragi
 struct RegexSpan {
   start: Int,
   end: Int
@@ -208,7 +208,7 @@ struct RegexSpan {
 
 重複した名前付きcaptureの識別子を報告します。
 
-```text
+```seseragi
 DuplicateCaptureName
   String
   -> RegexCompileErrorKind
@@ -220,7 +220,7 @@ DuplicateCaptureName
 
 不正または未完の正規表現escapeを報告します。
 
-```text
+```seseragi
 InvalidRegexEscape
   RegexCompileErrorKind
 ```
@@ -231,7 +231,7 @@ InvalidRegexEscape
 
 不正なquantifierまたは不正な位置のquantifierを報告します。
 
-```text
+```seseragi
 InvalidRegexQuantifier
   RegexCompileErrorKind
 ```
@@ -242,7 +242,7 @@ InvalidRegexQuantifier
 
 不正なcharacter-class範囲を報告します。
 
-```text
+```seseragi
 InvalidRegexRange
   RegexCompileErrorKind
 ```
@@ -253,7 +253,7 @@ InvalidRegexRange
 
 構文が完成する前に終わったpatternを報告します。
 
-```text
+```seseragi
 UnexpectedRegexEnd
   RegexCompileErrorKind
 ```
@@ -264,7 +264,7 @@ UnexpectedRegexEnd
 
 pattern内の予期しない文字を報告します。
 
-```text
+```seseragi
 UnexpectedRegexToken
   Char
   -> RegexCompileErrorKind
@@ -276,7 +276,7 @@ UnexpectedRegexToken
 
 portable Regexの契約で意図的に除外した構文を報告します。
 
-```text
+```seseragi
 UnsupportedRegexFeature
   String
   -> RegexCompileErrorKind
@@ -290,7 +290,7 @@ UnsupportedRegexFeature
 
 portableなpatternをcompileし、失敗はthrowせず型付きerrorで返します。
 
-```text
+```seseragi
 compile
   String
   -> Either<
@@ -305,7 +305,7 @@ compile
 
 明示したRegexOptionsでportableなpatternをcompileします。
 
-```text
+```seseragi
 compileWith
   RegexOptions
   -> String
@@ -321,7 +321,7 @@ compileWith
 
 全optionを無効にしたportable Regexの既定値を返します。
 
-```text
+```seseragi
 defaultOptions
   Unit
   -> RegexOptions
@@ -333,7 +333,7 @@ defaultOptions
 
 portable Regexのliteral fragmentを表すようtextをescapeします。
 
-```text
+```seseragi
 escape
   String
   -> String
@@ -345,7 +345,7 @@ escape
 
 左端優先で最初のmatchを探し、UTF-8のバイト範囲とcaptureを含むRegexMatchを返します。見つからなければNothingです。
 
-```text
+```seseragi
 find
   Regex
   -> String
@@ -358,7 +358,7 @@ find
 
 重ならない一致を返し、空の一致の後は一scalar進みます。
 
-```text
+```seseragi
 findAll
   Regex
   -> String
@@ -371,7 +371,7 @@ findAll
 
 最左優先engineが一致を見つけるかを返します。
 
-```text
+```seseragi
 isMatch
   Regex
   -> String
@@ -384,7 +384,7 @@ isMatch
 
 各一致をliteral textで置き換え、capture markerは展開しません。
 
-```text
+```seseragi
 replaceAll
   Regex
   -> String
@@ -398,7 +398,7 @@ replaceAll
 
 source順にcallbackを呼び、一致を置き換えます。
 
-```text
+```seseragi
 replaceAllWith
   Regex
   -> (RegexMatch -> String)
@@ -412,7 +412,7 @@ replaceAllWith
 
 重ならないportable Regexの一致位置でtextを分割します。
 
-```text
+```seseragi
 split
   Regex
   -> String

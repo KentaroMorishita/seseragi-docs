@@ -44,14 +44,14 @@ for (const [directory, base] of [["content/docs", "/docs"], ["content/en", "/en/
       for (const error of checkVersionSource(source)) errors.push(`${route}: ${error}`);
     }
     if (/<!--\s*example:/.test(body)) errors.push(`${route}: use MDX JSX comments for example markers`);
-    for (const match of body.matchAll(/\{\/\*\s*example:\s*(examples\/[^\s*]+)\s*\*\/\}\s*\n\s*```[^\n]*\n([\s\S]*?)\n```/g)) {
+    for (const match of body.matchAll(/\{\/\*\s*example:\s*(examples\/[^\s*]+)\s*\*\/\}\s*\n\s*```([^\s`]+)[^\n]*\n([\s\S]*?)\n```/g)) {
       try {
-        if (readExample(match[1], root) !== match[2].trimEnd()) errors.push(`${route}: displayed code differs from ${match[1]}`);
-        if (match[1].includes("#")) {
-          const file = match[1].split("#")[0];
-          const covered = checkedExamples.some((checked) => file === checked || (existsSync(resolve(root, checked)) && statSync(resolve(root, checked)).isDirectory() && file.startsWith(checked.replace(/\/$/, "") + "/")));
-          if (!covered) errors.push(`${route}: excerpt is not in a checked example ${match[1]}`);
-        }
+        if (readExample(match[1], root) !== match[3].trimEnd()) errors.push(`${route}: displayed code differs from ${match[1]}`);
+        const file = match[1].split("#")[0];
+        const languages = file.endsWith(".ssrg") ? ["seseragi", "ssrg"] : file.endsWith(".tsx") ? ["tsx"] : file.endsWith(".ts") ? ["typescript", "ts"] : undefined;
+        if (languages && !languages.includes(match[2])) errors.push(`${route}: ${file} requires a ${languages[0]} code fence, got ${match[2]}`);
+        const covered = checkedExamples.some((checked) => file === checked || (existsSync(resolve(root, checked)) && statSync(resolve(root, checked)).isDirectory() && file.startsWith(checked.replace(/\/$/, "") + "/")));
+        if (match[1].includes("#") && !covered) errors.push(`${route}: excerpt is not in a checked example ${match[1]}`);
       } catch (error) { errors.push(`${route}: ${error.message}`); }
     }
     for (const match of body.matchAll(/```seseragi[^\n]*\n([\s\S]*?)\n```/g)) {

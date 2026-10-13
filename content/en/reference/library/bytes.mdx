@@ -33,7 +33,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 Opaque unsigned 8-bit value in the inclusive range 0 through 255.
 
-```text
+```seseragi
 Byte
 ```
 
@@ -43,7 +43,7 @@ Byte
 
 Describes an Int that cannot be represented as a Byte.
 
-```text
+```seseragi
 ByteError
 ```
 
@@ -53,7 +53,7 @@ ByteError
 
 Immutable sequence of bytes with explicit copy boundaries.
 
-```text
+```seseragi
 Bytes
 ```
 
@@ -63,7 +63,7 @@ Bytes
 
 Describes an invalid half-open Bytes slice range.
 
-```text
+```seseragi
 BytesSliceError
 ```
 
@@ -73,7 +73,7 @@ BytesSliceError
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ByteOutOfRange
   Int
   -> ByteError
@@ -83,7 +83,7 @@ ByteOutOfRange
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidByteRange
   {
     start: Int,
@@ -101,7 +101,7 @@ InvalidByteRange
 
 Appends the suffix after the collection values.
 
-```text
+```seseragi
 append
   Bytes
   -> Bytes
@@ -114,7 +114,7 @@ append
 
 Validates an Int and converts it to an opaque Byte.
 
-```text
+```seseragi
 byte
   Int
   -> Either<ByteError, Byte>
@@ -126,7 +126,7 @@ byte
 
 Flattens one level of nested collections in source order.
 
-```text
+```seseragi
 concat
   Array<Bytes>
   -> Bytes
@@ -138,7 +138,7 @@ concat
 
 Creates an independent copy of Bytes.
 
-```text
+```seseragi
 copy
   Bytes
   -> Bytes
@@ -150,7 +150,7 @@ copy
 
 Creates an empty immutable Bytes value.
 
-```text
+```seseragi
 empty
   Unit
   -> Bytes
@@ -162,7 +162,7 @@ empty
 
 Copies an Array of Byte values into immutable Bytes.
 
-```text
+```seseragi
 fromArray
   Array<Byte>
   -> Bytes
@@ -174,7 +174,7 @@ fromArray
 
 Validates Int values in order and copies them into Bytes.
 
-```text
+```seseragi
 fromInts
   Array<Int>
   -> Either<ByteError, Bytes>
@@ -186,7 +186,7 @@ fromInts
 
 Returns the indexed element, or Nothing when the index is invalid.
 
-```text
+```seseragi
 get
   Int
   -> Bytes
@@ -199,7 +199,7 @@ get
 
 Returns whether the collection contains no elements.
 
-```text
+```seseragi
 isEmpty
   Bytes
   -> Bool
@@ -211,7 +211,7 @@ isEmpty
 
 Returns the number of elements in the collection.
 
-```text
+```seseragi
 length
   Bytes
   -> Int
@@ -223,7 +223,7 @@ length
 
 Creates Bytes containing exactly one Byte.
 
-```text
+```seseragi
 singleton
   Byte
   -> Bytes
@@ -235,7 +235,7 @@ singleton
 
 Returns a validated half-open slice without exposing mutation.
 
-```text
+```seseragi
 slice
   Int
   -> Int
@@ -249,7 +249,7 @@ slice
 
 Copies Bytes into an Array of Byte values.
 
-```text
+```seseragi
 toArray
   Bytes
   -> Array<Byte>
@@ -261,7 +261,7 @@ toArray
 
 Converts a Byte to its Int value.
 
-```text
+```seseragi
 toInt
   Byte
   -> Int
@@ -273,7 +273,7 @@ toInt
 
 Copies Bytes into an Array of Int values.
 
-```text
+```seseragi
 toInts
   Bytes
   -> Array<Int>

@@ -1,0 +1,16 @@
+// docs:start name
+fn name value: Maybe<String>
+  -> String =
+  value ?? "Guest"
+// docs:end name
+
+pub effect fn main = do {
+  // docs:start inputs
+  let present = name (Just "Ada")
+  let absent = name Nothing
+  let empty = name (Just "")
+  println ("[" + present + "]")
+  println ("[" + absent + "]")
+  println ("[" + empty + "]")
+  // docs:end inputs
+}

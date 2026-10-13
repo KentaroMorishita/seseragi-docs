@@ -26,7 +26,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 WebSocketClient
 ```
 
@@ -34,7 +34,7 @@ WebSocketClient
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 WebSocketClose
 ```
 
@@ -42,7 +42,7 @@ WebSocketClose
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 WebSocketConnection
 ```
 
@@ -50,7 +50,7 @@ WebSocketConnection
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 WebSocketError
 ```
 
@@ -58,7 +58,7 @@ WebSocketError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 WebSocketEvent
 ```
 
@@ -68,7 +68,7 @@ WebSocketEvent
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 closeCode
   WebSocketClose
   -> Int
@@ -78,7 +78,7 @@ closeCode
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 closeConnection
   Int
   -> String
@@ -94,7 +94,7 @@ closeConnection
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 closeReason
   WebSocketClose
   -> String
@@ -104,7 +104,7 @@ closeReason
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 closeWasClean
   WebSocketClose
   -> Bool
@@ -114,7 +114,7 @@ closeWasClean
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 connect
   {
     url: String,
@@ -135,7 +135,7 @@ connect
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 errorMessage
   WebSocketError
   -> String
@@ -145,7 +145,7 @@ errorMessage
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 foldEvent<A>
   (String -> A)
   -> (Bytes -> A)
@@ -158,7 +158,7 @@ foldEvent<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 messages
   WebSocketConnection
   -> Stream<
@@ -172,7 +172,7 @@ messages
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 selectedProtocol
   WebSocketConnection
   -> String
@@ -182,7 +182,7 @@ selectedProtocol
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 sendBytes
   Bytes
   -> WebSocketConnection
@@ -197,7 +197,7 @@ sendBytes
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 sendText
   String
   -> WebSocketConnection

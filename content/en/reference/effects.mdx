@@ -103,14 +103,14 @@ After `mapped` is printed, `calculation` executes and yields 42 for output. `let
 
 The compact form writes `=` immediately after the parameters. It infers `R`, `E`, and `A` from the body and stores a normalized Effect type in the public interface.
 
-```text title="Compact form"
+```seseragi title="Compact form"
 effect fn greet name: String =
   println $ `Hello, ${name}`
 ```
 
 The contract form starts with the success type and fixes the environment and error in the source.
 
-```text title="Contract form"
+```seseragi title="Contract form"
 effect fn greet name: String -> Unit
 with Console
 fails ConsoleError =

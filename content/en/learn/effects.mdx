@@ -65,7 +65,7 @@ Effects are cold. Constructing one does not start its external work; executing i
 
 In `Effect<R, E, A>`, `R` is the required environment, `E` is the recoverable failure type, and `A` is the success type. `greet` requires Console, may fail with ConsoleError, and succeeds with Unit.
 
-```text
+```seseragi
 Effect<
   { console: Console },
   ConsoleError,

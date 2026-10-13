@@ -123,7 +123,7 @@ API: offline
 
 選択されたLeftまたはRightのbranchを一度だけ変換します。
 
-```text
+```seseragi
 bimap<E, F, A, B>
   (E -> F)
   -> (A -> B)
@@ -137,7 +137,7 @@ bimap<E, F, A, B>
 
 選択されたbranchの関数だけを呼んでEitherを結果へ変換します。
 
-```text
+```seseragi
 fold<E, A, B>
   (E -> B)
   -> (A -> B)
@@ -151,7 +151,7 @@ fold<E, A, B>
 
 Leftのpayloadだけを変換します。
 
-```text
+```seseragi
 mapLeft<E, F, A>
   (E -> F)
   -> Either<E, A>
@@ -164,7 +164,7 @@ mapLeft<E, F, A>
 
 標準Functor instanceでRightのpayloadだけを変換します。
 
-```text
+```seseragi
 mapRight<E, A, B>
   (A -> B)
   -> Either<E, A>
@@ -177,7 +177,7 @@ mapRight<E, A, B>
 
 identityでwrapped値を走査し、sourceの形と順序を保ちます。
 
-```text
+```seseragi
 sequence<F<_>, E, A>
   F<Either<E, A>>
   -> Either<E, F<A>>
@@ -191,7 +191,7 @@ where
 
 payloadを変えずLeftとRightを入れ替えます。
 
-```text
+```seseragi
 swap<E, A>
   Either<E, A>
   -> Either<A, E>
@@ -203,7 +203,7 @@ swap<E, A>
 
 sourceのTraversableと、このmoduleのApplicativeを使います。別の走査実装は作りません。
 
-```text
+```seseragi
 traverse<F<_>, E, A, B>
   (A -> Either<E, B>)
   -> F<A>

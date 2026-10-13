@@ -34,7 +34,7 @@ import * as validation
 
 Validな値、または空でないsource順のerror collectionを持つ独立validationです。
 
-```text
+```seseragi
 Validation<_, _>
 ```
 
@@ -46,7 +46,7 @@ Validation<_, _>
 
 NonEmptyListから、errorの順序を保ってInvalidを作ります。
 
-```text
+```seseragi
 Invalid<E, A>
   NonEmptyList<E>
   -> Validation<E, A>
@@ -58,7 +58,7 @@ Invalid<E, A>
 
 成功したValidationを作ります。
 
-```text
+```seseragi
 Valid<E, A>
   A
   -> Validation<E, A>
@@ -72,7 +72,7 @@ Valid<E, A>
 
 Leftをerror一件へ、RightをValidへ明示変換します。
 
-```text
+```seseragi
 fromEither<E, A>
   Either<E, A>
   -> Validation<E, A>
@@ -84,7 +84,7 @@ fromEither<E, A>
 
 error一件を持つInvalidを作ります。
 
-```text
+```seseragi
 invalid<E, A>
   E
   -> Validation<E, A>
@@ -96,7 +96,7 @@ invalid<E, A>
 
 NonEmptyListから、errorの順序を保ってInvalidを作ります。
 
-```text
+```seseragi
 invalidMany<E, A>
   NonEmptyList<E>
   -> Validation<E, A>
@@ -108,7 +108,7 @@ invalidMany<E, A>
 
 Invalidを全error入りLeftへ、ValidをRightへ明示変換します。
 
-```text
+```seseragi
 toEither<E, A>
   Validation<E, A>
   -> Either<NonEmptyList<E>, A>
@@ -120,7 +120,7 @@ toEither<E, A>
 
 成功したValidationを作ります。
 
-```text
+```seseragi
 valid<E, A>
   A
   -> Validation<E, A>

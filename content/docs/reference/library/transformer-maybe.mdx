@@ -25,7 +25,7 @@ import * as transformer_maybe
 
 <small className="api-kind">struct</small>
 
-```text
+```seseragi
 struct MaybeT<M<_>, A> {
   run: M<Maybe<A>>
 }
@@ -39,7 +39,7 @@ struct MaybeT<M<_>, A> {
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 fromMaybe<M<_>, A>
   Maybe<A>
   -> MaybeT<M<_>, A>
@@ -51,7 +51,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 lift<M<_>, A>
   M<A>
   -> MaybeT<M<_>, A>
@@ -63,7 +63,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 run<M<_>, A>
   MaybeT<M<_>, A>
   -> M<Maybe<A>>

@@ -34,7 +34,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 BindingTarget<_, _>
 ```
 
@@ -42,7 +42,7 @@ BindingTarget<_, _>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 CleanupMode
 ```
 
@@ -50,7 +50,7 @@ CleanupMode
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Dom
 ```
 
@@ -58,7 +58,7 @@ Dom
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 DomBinding<_>
 ```
 
@@ -66,7 +66,7 @@ DomBinding<_>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 DomContent<_>
 ```
 
@@ -74,7 +74,7 @@ DomContent<_>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 DomError
 ```
 
@@ -82,7 +82,7 @@ DomError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 DomMount<_>
 ```
 
@@ -90,7 +90,7 @@ DomMount<_>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 DomObservation<_>
 ```
 
@@ -98,7 +98,7 @@ DomObservation<_>
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct DomOptions {
   eventCapacity: Int,
   hydration: HydrationMode,
@@ -114,7 +114,7 @@ struct DomOptions {
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 DomRuntimeError<_>
 ```
 
@@ -122,7 +122,7 @@ DomRuntimeError<_>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 DomTarget
 ```
 
@@ -130,7 +130,7 @@ DomTarget
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct ElementRect {
   x: Float,
   y: Float,
@@ -156,7 +156,7 @@ struct ElementRect {
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 HydrationMode
 ```
 
@@ -166,7 +166,7 @@ HydrationMode
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ClearRenderedDom
   CleanupMode
 ```
@@ -175,7 +175,7 @@ ClearRenderedDom
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 DispatchFailure<Failure>
   Failure
   -> DomRuntimeError<Failure>
@@ -185,7 +185,7 @@ DispatchFailure<Failure>
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 DomEventQueueOverflow
   Int
   -> DomError
@@ -195,7 +195,7 @@ DomEventQueueOverflow
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 DomFailure<Failure>
   DomError
   -> DomRuntimeError<Failure>
@@ -205,7 +205,7 @@ DomFailure<Failure>
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 DomOperationFailed
   String
   -> DomError
@@ -215,7 +215,7 @@ DomOperationFailed
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 DomTargetAlreadyMounted
   DomError
 ```
@@ -224,7 +224,7 @@ DomTargetAlreadyMounted
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 DomTargetNotFound
   String
   -> DomError
@@ -234,7 +234,7 @@ DomTargetNotFound
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 DomTargetRemoved
   DomError
 ```
@@ -243,7 +243,7 @@ DomTargetRemoved
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 FreshMount
   HydrationMode
 ```
@@ -252,7 +252,7 @@ FreshMount
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HydrateOrReplace
   HydrationMode
 ```
@@ -261,7 +261,7 @@ HydrateOrReplace
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HydrateStrict
   HydrationMode
 ```
@@ -270,7 +270,7 @@ HydrateStrict
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HydrationMismatch
   {
     path: Array<Int>,
@@ -284,7 +284,7 @@ HydrationMismatch
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidSelector
   String
   -> DomError
@@ -294,7 +294,7 @@ InvalidSelector
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 PreserveRenderedDom
   CleanupMode
 ```
@@ -307,7 +307,7 @@ PreserveRenderedDom
 
 Mounts a typed state-update-view application into a DOM target.
 
-```text
+```seseragi
 app<State, Action>
   {
     target: String,
@@ -328,7 +328,7 @@ app<State, Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 ariaBooleanTarget<Action>
   ElementRef
   -> String
@@ -339,7 +339,7 @@ ariaBooleanTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 ariaBusyTarget<Action>
   ElementRef
   -> BindingTarget<Action, Bool>
@@ -349,7 +349,7 @@ ariaBusyTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 ariaExpandedTarget<Action>
   ElementRef
   -> BindingTarget<Action, Bool>
@@ -359,7 +359,7 @@ ariaExpandedTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 ariaHiddenTarget<Action>
   ElementRef
   -> BindingTarget<Action, Bool>
@@ -369,7 +369,7 @@ ariaHiddenTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 ariaLabelTarget<Action>
   ElementRef
   -> BindingTarget<Action, String>
@@ -379,7 +379,7 @@ ariaLabelTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 ariaSelectedTarget<Action>
   ElementRef
   -> BindingTarget<Action, Bool>
@@ -389,7 +389,7 @@ ariaSelectedTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 attributeTarget<Action>
   ElementRef
   -> String
@@ -403,7 +403,7 @@ attributeTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 awaitMount<Failure>
   DomMount<Failure>
   -> Effect<
@@ -417,7 +417,7 @@ awaitMount<Failure>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 awaitObservation<Failure>
   DomObservation<Failure>
   -> Effect<{}, Failure, Unit>
@@ -427,7 +427,7 @@ awaitObservation<Failure>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bind<Action, Value>
   BindingTarget<Action, Value>
   -> Signal<Value>
@@ -438,7 +438,7 @@ bind<Action, Value>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bindAttribute<Action>
   String
   -> String
@@ -450,7 +450,7 @@ bindAttribute<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bindChecked<Action>
   String
   -> Signal<Bool>
@@ -461,7 +461,7 @@ bindChecked<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bindRegion<Action>
   String
   -> Signal<DomContent<Action>>
@@ -472,7 +472,7 @@ bindRegion<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bindStyle<Action>
   String
   -> String
@@ -484,7 +484,7 @@ bindStyle<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bindText<Action>
   String
   -> Signal<String>
@@ -495,7 +495,7 @@ bindText<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bindValue<Action>
   String
   -> Signal<String>
@@ -506,7 +506,7 @@ bindValue<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 booleanAttributeTarget<Action>
   ElementRef
   -> String
@@ -519,7 +519,7 @@ booleanAttributeTarget<Action>
 
 Captures a live pointer on an explicit DOM target through Effect.
 
-```text
+```seseragi
 capturePointer
   DomTarget
   -> Int
@@ -534,7 +534,7 @@ capturePointer
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 checkedTarget<Action>
   ElementRef
   -> BindingTarget<Action, Bool>
@@ -544,7 +544,7 @@ checkedTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 classTarget<Action>
   ElementRef
   -> BindingTarget<Action, String>
@@ -554,7 +554,7 @@ classTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 content<Action>
   Html<Action>
   -> Array<DomBinding<Action>>
@@ -565,7 +565,7 @@ content<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 defaultOptions
   Unit
   -> DomOptions
@@ -575,7 +575,7 @@ defaultOptions
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 disabledTarget<Action>
   ElementRef
   -> BindingTarget<Action, Bool>
@@ -585,7 +585,7 @@ disabledTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 disconnect<Failure>
   DomObservation<Failure>
   -> Effect<{}, Never, Unit>
@@ -595,7 +595,7 @@ disconnect<Failure>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 hiddenTarget<Action>
   ElementRef
   -> BindingTarget<Action, Bool>
@@ -605,7 +605,7 @@ hiddenTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 inertTarget<Action>
   ElementRef
   -> BindingTarget<Action, Bool>
@@ -615,7 +615,7 @@ inertTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 initialHtml<Action>
   DomContent<Action>
   -> Html<Action>
@@ -627,7 +627,7 @@ initialHtml<Action>
 
 Snapshots an element bounding rectangle through the DOM capability.
 
-```text
+```seseragi
 measure
   DomTarget
   -> Effect<
@@ -641,7 +641,7 @@ measure
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 mount<R, Action, Failure>
   DomOptions
   -> DomTarget
@@ -661,7 +661,7 @@ mount<R, Action, Failure>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 mountContent<R, Action, Failure>
   DomOptions
   -> DomTarget
@@ -683,7 +683,7 @@ mountContent<R, Action, Failure>
 
 Observes element geometry with an explicit disposable resource lifecycle.
 
-```text
+```seseragi
 observeResize<R, Failure>
   DomTarget
   -> (
@@ -701,7 +701,7 @@ observeResize<R, Failure>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 query
   String
   -> Effect<
@@ -715,7 +715,7 @@ query
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 regionTarget<Action>
   ElementRef
   -> BindingTarget<
@@ -730,7 +730,7 @@ regionTarget<Action>
 
 Releases a captured pointer on an explicit DOM target through Effect.
 
-```text
+```seseragi
 releasePointer
   DomTarget
   -> Int
@@ -745,7 +745,7 @@ releasePointer
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 run<R, Action, Failure>
   DomOptions
   -> DomTarget
@@ -765,7 +765,7 @@ run<R, Action, Failure>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 runContent<R, Action, Failure>
   DomOptions
   -> DomTarget
@@ -785,7 +785,7 @@ runContent<R, Action, Failure>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 styleTarget<Action>
   ElementRef
   -> String
@@ -799,7 +799,7 @@ styleTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 textTarget<Action>
   ElementRef
   -> BindingTarget<Action, String>
@@ -809,7 +809,7 @@ textTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 titleTarget<Action>
   ElementRef
   -> BindingTarget<Action, String>
@@ -819,7 +819,7 @@ titleTarget<Action>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 unmount<Failure>
   DomMount<Failure>
   -> Effect<{}, Never, Unit>
@@ -829,7 +829,7 @@ unmount<Failure>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 valueTarget<Action>
   ElementRef
   -> BindingTarget<Action, String>

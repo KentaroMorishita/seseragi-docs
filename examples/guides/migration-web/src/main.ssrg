@@ -1,0 +1,33 @@
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+
+type Action =
+  | Increment
+  | Reset
+
+fn update action: Action
+  -> count: Int -> Int =
+  match action {
+    Increment -> count + 1
+    Reset -> 0
+  }
+
+// docs:start view
+fn view count: Int
+  -> html.Html<Action> =
+  html.button {
+    buttonType: "button",
+    onClick: Increment,
+    children: `Count: ${count}`
+  }
+// docs:end view
+
+// docs:start mount
+pub effect fn main =
+  dom.app {
+    target: "#app",
+    initial: 0,
+    update,
+    view
+  }
+// docs:end mount

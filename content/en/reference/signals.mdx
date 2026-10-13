@@ -107,7 +107,7 @@ After source becomes 3, reading doubled produces 6. The dependency passed to map
 
 set and update each perform a one-change transaction. For multiple sources, place SignalChanges created by planSet/planUpdate in an Array and pass them to transaction.
 
-```text title="Multiple-update syntax"
+```seseragi title="Multiple-update syntax"
 signals.transaction [
   signals.planSet 3 width,
   signals.planSet 4 height,

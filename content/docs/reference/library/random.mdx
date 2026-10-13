@@ -25,7 +25,7 @@ import * as random from "std/random"
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Random
 ```
 
@@ -33,7 +33,7 @@ Random
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 RandomConfigError
 ```
 
@@ -41,7 +41,7 @@ RandomConfigError
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 RandomRangeError
 ```
 
@@ -49,7 +49,7 @@ RandomRangeError
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 RandomSize
 ```
 
@@ -59,7 +59,7 @@ RandomSize
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 EmptyRandomIntRange
   {
     lower: Int,
@@ -72,7 +72,7 @@ EmptyRandomIntRange
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 InvalidProbability
   Float
   -> RandomRangeError
@@ -82,7 +82,7 @@ InvalidProbability
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 NonPositiveRandomSize
   Int
   -> RandomConfigError
@@ -92,7 +92,7 @@ NonPositiveRandomSize
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 RandomSizeTooLarge
   Int
   -> RandomConfigError
@@ -104,7 +104,7 @@ RandomSizeTooLarge
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 algorithmId
   Unit
   -> Effect<
@@ -118,7 +118,7 @@ algorithmId
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 chance
   Float
   -> Effect<
@@ -132,7 +132,7 @@ chance
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 choose<A>
   NonEmptyList<A>
   -> Effect<
@@ -146,7 +146,7 @@ choose<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 intBetween
   Int
   -> Int
@@ -161,7 +161,7 @@ intBetween
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 nextBool
   Unit
   -> Effect<
@@ -175,7 +175,7 @@ nextBool
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 nextInt
   Unit
   -> Effect<
@@ -189,7 +189,7 @@ nextInt
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 randomBytes
   RandomSize
   -> Effect<
@@ -203,7 +203,7 @@ randomBytes
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 randomSize
   Int
   -> Either<
@@ -216,7 +216,7 @@ randomSize
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 shuffle<A>
   Array<A>
   -> Effect<
@@ -230,7 +230,7 @@ shuffle<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 unitFloat
   Unit
   -> Effect<

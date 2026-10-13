@@ -51,7 +51,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 AnchorProps<_, _>
 ```
 
@@ -61,7 +61,7 @@ AnchorProps<_, _>
 
 Validated opaque custom HTML attribute name and value.
 
-```text
+```seseragi
 Attribute
 ```
 
@@ -69,7 +69,7 @@ Attribute
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 ButtonProps<_, _>
 ```
 
@@ -79,7 +79,7 @@ ButtonProps<_, _>
 
 Immutable form-control snapshot containing value and optional checked state: Just for checkbox/radio, Nothing for value controls.
 
-```text
+```seseragi
 ChangeEvent
 ```
 
@@ -87,7 +87,7 @@ ChangeEvent
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 ElementProps<_, _>
 ```
 
@@ -95,7 +95,7 @@ ElementProps<_, _>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ElementRef
 ```
 
@@ -105,7 +105,7 @@ ElementRef
 
 Explicit event outcome describing dispatch, default prevention, and propagation control.
 
-```text
+```seseragi
 EventAction<_>
 ```
 
@@ -113,7 +113,7 @@ EventAction<_>
 
 <small className="api-kind">Opaque struct</small>
 
-```text
+```seseragi
 FileChangeEvent
 ```
 
@@ -121,7 +121,7 @@ FileChangeEvent
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 FormProps<_, _>
 ```
 
@@ -129,7 +129,7 @@ FormProps<_, _>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Html<_>
 ```
 
@@ -139,7 +139,7 @@ Html<_>
 
 Describes a rejected custom HTML value or unsafe Web URL.
 
-```text
+```seseragi
 HtmlBuildError
 ```
 
@@ -147,7 +147,7 @@ HtmlBuildError
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 ImageProps<_>
 ```
 
@@ -157,7 +157,7 @@ ImageProps<_>
 
 Immutable text-input snapshot containing only the current String value.
 
-```text
+```seseragi
 InputEvent
 ```
 
@@ -165,7 +165,7 @@ InputEvent
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 InputProps<_>
 ```
 
@@ -173,7 +173,7 @@ InputProps<_>
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 IntoChildren<_, _>
 ```
 
@@ -183,7 +183,7 @@ IntoChildren<_, _>
 
 Immutable keyboard snapshot containing key identity, repeat state, and modifier keys.
 
-```text
+```seseragi
 KeyboardEvent
 ```
 
@@ -191,7 +191,7 @@ KeyboardEvent
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 LabelProps<_, _>
 ```
 
@@ -201,7 +201,7 @@ LabelProps<_, _>
 
 Immutable mouse snapshot containing button, coordinates, and modifier keys.
 
-```text
+```seseragi
 MouseEvent
 ```
 
@@ -211,7 +211,7 @@ MouseEvent
 
 Immutable pointer snapshot distinguishing mouse, touch, and pen input.
 
-```text
+```seseragi
 PointerEvent
 ```
 
@@ -221,7 +221,7 @@ PointerEvent
 
 Immutable scroll snapshot containing the current element offsets.
 
-```text
+```seseragi
 ScrollEvent
 ```
 
@@ -229,7 +229,7 @@ ScrollEvent
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Style
 ```
 
@@ -237,7 +237,7 @@ Style
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 StyleRecord<_>
 ```
 
@@ -247,7 +247,7 @@ StyleRecord<_>
 
 Validated opaque name for a custom HTML element.
 
-```text
+```seseragi
 Tag
 ```
 
@@ -255,7 +255,7 @@ Tag
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 TextareaProps<_>
 ```
 
@@ -265,7 +265,7 @@ TextareaProps<_>
 
 Validated opaque URL for security-sensitive HTML attributes.
 
-```text
+```seseragi
 WebUrl
 ```
 
@@ -275,7 +275,7 @@ WebUrl
 
 Immutable wheel snapshot containing deltas, mode, coordinates, and modifiers.
 
-```text
+```seseragi
 WheelEvent
 ```
 
@@ -287,7 +287,7 @@ WheelEvent
 
 Constructs an EventAction value requesting Action dispatch without changing browser defaults or propagation.
 
-```text
+```seseragi
 Dispatch<Action>
   Action
   -> EventAction<Action>
@@ -299,7 +299,7 @@ Dispatch<Action>
 
 Constructs an EventAction value requesting default prevention before Action dispatch.
 
-```text
+```seseragi
 DispatchPreventDefault<Action>
   Action
   -> EventAction<Action>
@@ -311,7 +311,7 @@ DispatchPreventDefault<Action>
 
 Constructs an EventAction value requesting both default prevention and propagation control before Action dispatch.
 
-```text
+```seseragi
 DispatchPreventDefaultAndStop<
   Action
 >
@@ -325,7 +325,7 @@ DispatchPreventDefaultAndStop<
 
 Constructs an EventAction value requesting propagation control before Action dispatch.
 
-```text
+```seseragi
 DispatchStopPropagation<Action>
   Action
   -> EventAction<Action>
@@ -337,7 +337,7 @@ DispatchStopPropagation<Action>
 
 An EventAction value requesting no Action dispatch and no change to browser defaults or propagation.
 
-```text
+```seseragi
 IgnoreEvent
   EventAction<Action>
 ```
@@ -348,7 +348,7 @@ IgnoreEvent
 
 Reports an invalid custom attribute spelling.
 
-```text
+```seseragi
 InvalidAttributeName
   String
   -> HtmlBuildError
@@ -360,7 +360,7 @@ InvalidAttributeName
 
 Reports a rejected custom-element name.
 
-```text
+```seseragi
 InvalidTagName
   String
   -> HtmlBuildError
@@ -372,7 +372,7 @@ InvalidTagName
 
 Reports a custom attribute that collides with typed or runtime-owned props.
 
-```text
+```seseragi
 ReservedAttributeName
   String
   -> HtmlBuildError
@@ -384,7 +384,7 @@ ReservedAttributeName
 
 Reports a URL rejected for its scheme, credentials, or control characters.
 
-```text
+```seseragi
 UnsafeWebUrlScheme
   String
   -> HtmlBuildError
@@ -401,7 +401,7 @@ Creates a hyperlink with typed navigation props.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 a<Action, C>
   {
     elementRef?: ElementRef,
@@ -499,7 +499,7 @@ Creates a self-contained article section.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 article<Action, C>
   {
     elementRef?: ElementRef,
@@ -593,7 +593,7 @@ Creates content related to the surrounding section.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 aside<Action, C>
   {
     elementRef?: ElementRef,
@@ -684,7 +684,7 @@ where
 
 Validates a custom, data, or ARIA attribute without bypassing escaping.
 
-```text
+```seseragi
 attribute
   String
   -> String
@@ -703,7 +703,7 @@ Creates an audio media element.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 audio<Action, C>
   {
     elementRef?: ElementRef,
@@ -798,7 +798,7 @@ Creates a block quotation.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 blockquote<Action, C>
   {
     elementRef?: ElementRef,
@@ -892,7 +892,7 @@ Creates the document body container.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 body<Action, C>
   {
     elementRef?: ElementRef,
@@ -986,7 +986,7 @@ Creates a void line-break element without children.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 br<Action>
   {
     elementRef?: ElementRef,
@@ -1075,7 +1075,7 @@ br<Action>
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 button<Action, C>
   {
     elementRef?: ElementRef,
@@ -1174,7 +1174,7 @@ Creates a caption for a typed data table.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 caption<Action, C>
   {
     elementRef?: ElementRef,
@@ -1263,7 +1263,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 capturePointer<Action>
   PointerEvent
   -> EventAction<Action>
@@ -1279,7 +1279,7 @@ Creates an inline code fragment.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 code<Action, C>
   {
     elementRef?: ElementRef,
@@ -1373,7 +1373,7 @@ Creates a custom element from a validated Tag.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 custom<Action, C>
   Tag
   -> {
@@ -1465,7 +1465,7 @@ where
 
 Validates a custom-element name into an opaque Tag.
 
-```text
+```seseragi
 customTag
   String
   -> Either<HtmlBuildError, Tag>
@@ -1480,7 +1480,7 @@ Creates a disclosure element with typed open state.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 details<Action, C>
   {
     elementRef?: ElementRef,
@@ -1575,7 +1575,7 @@ Creates a dialog element with typed open state.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 dialog<Action, C>
   {
     elementRef?: ElementRef,
@@ -1668,7 +1668,7 @@ where
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 div<Action, C>
   {
     elementRef?: ElementRef,
@@ -1757,7 +1757,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 elementRef
   String
   -> ElementRef
@@ -1772,7 +1772,7 @@ Creates emphasized text.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 em<Action, C>
   {
     elementRef?: ElementRef,
@@ -1866,7 +1866,7 @@ Groups related controls in a typed form.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 fieldset<Action, C>
   {
     elementRef?: ElementRef,
@@ -1960,7 +1960,7 @@ Creates footer content for a page or section.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 footer<Action, C>
   {
     elementRef?: ElementRef,
@@ -2054,7 +2054,7 @@ Constructs form Html. When onSubmit is supplied, the runtime prevents native sub
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 form<Action, C>
   {
     elementRef?: ElementRef,
@@ -2146,7 +2146,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 fragment<Action, C>
   C
   -> Html<Action>
@@ -2161,7 +2161,7 @@ where
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 h1<Action, C>
   {
     elementRef?: ElementRef,
@@ -2253,7 +2253,7 @@ where
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 h2<Action, C>
   {
     elementRef?: ElementRef,
@@ -2347,7 +2347,7 @@ Creates a typed document heading.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 h3<Action, C>
   {
     elementRef?: ElementRef,
@@ -2441,7 +2441,7 @@ Creates a typed document heading.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 h4<Action, C>
   {
     elementRef?: ElementRef,
@@ -2535,7 +2535,7 @@ Creates a typed document heading.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 h5<Action, C>
   {
     elementRef?: ElementRef,
@@ -2629,7 +2629,7 @@ Creates a typed document heading.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 h6<Action, C>
   {
     elementRef?: ElementRef,
@@ -2723,7 +2723,7 @@ Creates the metadata container for a typed document.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 head<Action, C>
   {
     elementRef?: ElementRef,
@@ -2817,7 +2817,7 @@ Creates introductory content for a page or section.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 header<Action, C>
   {
     elementRef?: ElementRef,
@@ -2911,7 +2911,7 @@ Creates a void thematic-break element without children.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 hr<Action>
   {
     elementRef?: ElementRef,
@@ -3002,7 +3002,7 @@ Creates the root html element for a typed document.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 html<Action, C>
   {
     elementRef?: ElementRef,
@@ -3096,7 +3096,7 @@ Creates a void image element with required source and alt text.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 img<Action>
   {
     elementRef?: ElementRef,
@@ -3192,7 +3192,7 @@ Constructs input Html with optional value and checked props and typed snapshot c
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 input<Action>
   {
     elementRef?: ElementRef,
@@ -3305,7 +3305,7 @@ Constructs label Html. An optional htmlFor prop associates it with a form contro
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 label<Action, C>
   {
     elementRef?: ElementRef,
@@ -3400,7 +3400,7 @@ Creates a caption for a fieldset.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 legend<Action, C>
   {
     elementRef?: ElementRef,
@@ -3494,7 +3494,7 @@ Creates a list item.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 li<Action, C>
   {
     elementRef?: ElementRef,
@@ -3588,7 +3588,7 @@ Creates a void external-resource link element without children.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 link<Action>
   {
     elementRef?: ElementRef,
@@ -3679,7 +3679,7 @@ link<Action>
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 main<Action, C>
   {
     elementRef?: ElementRef,
@@ -3773,7 +3773,7 @@ Creates a void metadata element without children.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 meta<Action>
   {
     elementRef?: ElementRef,
@@ -3868,7 +3868,7 @@ Creates a navigation section.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 nav<Action, C>
   {
     elementRef?: ElementRef,
@@ -3962,7 +3962,7 @@ Creates an ordered list.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 ol<Action, C>
   {
     elementRef?: ElementRef,
@@ -4056,7 +4056,7 @@ Creates an option for a typed selection control.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 option<Action, C>
   {
     elementRef?: ElementRef,
@@ -4151,7 +4151,7 @@ where
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 p<Action, C>
   {
     elementRef?: ElementRef,
@@ -4242,7 +4242,7 @@ where
 
 Validates a relative or allowlisted Web URL into an opaque value.
 
-```text
+```seseragi
 parseWebUrl
   String
   -> Either<HtmlBuildError, WebUrl>
@@ -4257,7 +4257,7 @@ Creates a responsive image container.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 picture<Action, C>
   {
     elementRef?: ElementRef,
@@ -4351,7 +4351,7 @@ Creates preformatted text.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 pre<Action, C>
   {
     elementRef?: ElementRef,
@@ -4440,7 +4440,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 releasePointer<Action>
   PointerEvent
   -> EventAction<Action>
@@ -4453,7 +4453,7 @@ releasePointer<Action>
 
 Renders typed HTML as a complete document string.
 
-```text
+```seseragi
 renderDocument<Action>
   Html<Action>
   -> String
@@ -4465,7 +4465,7 @@ renderDocument<Action>
 
 Renders typed HTML to an escaped fragment string.
 
-```text
+```seseragi
 renderToString<Action>
   Html<Action>
   -> String
@@ -4478,7 +4478,7 @@ renderToString<Action>
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 section<Action, C>
   {
     elementRef?: ElementRef,
@@ -4572,7 +4572,7 @@ Creates a typed selection control using the shared change snapshot.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 select<Action, C>
   {
     elementRef?: ElementRef,
@@ -4675,7 +4675,7 @@ Creates secondary or fine-print text.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 small<Action, C>
   {
     elementRef?: ElementRef,
@@ -4769,7 +4769,7 @@ Creates a void media source element without children.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 source<Action>
   {
     elementRef?: ElementRef,
@@ -4861,7 +4861,7 @@ source<Action>
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 span<Action, C>
   {
     elementRef?: ElementRef,
@@ -4955,7 +4955,7 @@ Creates strongly emphasized text.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 strong<Action, C>
   {
     elementRef?: ElementRef,
@@ -5046,7 +5046,7 @@ where
 
 Validates and converts a style record into inline Style.
 
-```text
+```seseragi
 style<R>
   R
   -> Style
@@ -5063,7 +5063,7 @@ Creates the visible summary for a disclosure element.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 summary<Action, C>
   {
     elementRef?: ElementRef,
@@ -5152,7 +5152,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 suppressCompatibilityClick<Action>
   PointerEvent
   -> EventAction<Action>
@@ -5168,7 +5168,7 @@ Creates a typed data table.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 table<Action, C>
   {
     elementRef?: ElementRef,
@@ -5262,7 +5262,7 @@ Groups body rows in a typed data table.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 tbody<Action, C>
   {
     elementRef?: ElementRef,
@@ -5356,7 +5356,7 @@ Creates a data cell with typed span props.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 td<Action, C>
   {
     elementRef?: ElementRef,
@@ -5447,7 +5447,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 text<Action>
   String
   -> Html<Action>
@@ -5462,7 +5462,7 @@ Constructs textarea Html with an optional value prop and typed snapshot callback
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 textarea<Action>
   {
     elementRef?: ElementRef,
@@ -5567,7 +5567,7 @@ Groups footer rows in a typed data table.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 tfoot<Action, C>
   {
     elementRef?: ElementRef,
@@ -5661,7 +5661,7 @@ Creates a header cell with typed span props.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 th<Action, C>
   {
     elementRef?: ElementRef,
@@ -5757,7 +5757,7 @@ Groups header rows in a typed data table.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 thead<Action, C>
   {
     elementRef?: ElementRef,
@@ -5851,7 +5851,7 @@ Creates the document title element.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 title<Action, C>
   {
     elementRef?: ElementRef,
@@ -5945,7 +5945,7 @@ Creates a row in a typed data table.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 tr<Action, C>
   {
     elementRef?: ElementRef,
@@ -6039,7 +6039,7 @@ Creates an unordered list.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 ul<Action, C>
   {
     elementRef?: ElementRef,
@@ -6133,7 +6133,7 @@ Creates a video media element.
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 video<Action, C>
   {
     elementRef?: ElementRef,

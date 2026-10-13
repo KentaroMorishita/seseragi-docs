@@ -1,0 +1,11 @@
+import * as arrays from "std/array"
+
+fn double n: Int -> Int = n * 2
+fn keep n: Int -> Bool = n > 1
+
+pub effect fn main =
+  [1, 2, 3]
+  |> arrays.filter keep
+  |> map double
+  |> show
+  |> println

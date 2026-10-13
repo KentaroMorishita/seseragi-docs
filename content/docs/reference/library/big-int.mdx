@@ -27,7 +27,7 @@ import * as big_int
 
 opaqueな任意精度signed integerです。
 
-```text
+```seseragi
 BigInt
 ```
 
@@ -37,7 +37,7 @@ BigInt
 
 Intへ正確に変換できないBigIntを表します。
 
-```text
+```seseragi
 BigIntConversionError
 ```
 
@@ -47,7 +47,7 @@ BigIntConversionError
 
 BigIntの除算または剰余で、除数0による型付き失敗を表します。
 
-```text
+```seseragi
 BigIntDivisionError
 ```
 
@@ -57,7 +57,7 @@ BigIntDivisionError
 
 値の大きさに上限を設けず、不正なBigInt textまたはradixを表します。
 
-```text
+```seseragi
 BigIntParseError
 ```
 
@@ -67,7 +67,7 @@ BigIntParseError
 
 BigIntの負のexponentを表す型付きerrorです。
 
-```text
+```seseragi
 BigIntPowerError
 ```
 
@@ -79,7 +79,7 @@ BigIntPowerError
 
 値が0のBigInt divisorを報告します。
 
-```text
+```seseragi
 BigIntDivisionByZero
   BigIntDivisionError
 ```
@@ -90,7 +90,7 @@ BigIntDivisionByZero
 
 safe Int範囲外のBigIntを報告します。
 
-```text
+```seseragi
 BigIntOutsideIntRange
   BigIntConversionError
 ```
@@ -101,7 +101,7 @@ BigIntOutsideIntRange
 
 空のBigInt入力を報告します。
 
-```text
+```seseragi
 EmptyBigInt
   BigIntParseError
 ```
@@ -112,7 +112,7 @@ EmptyBigInt
 
 最初の不正なBigInt digitをUTF-8 byte offsetで報告します。
 
-```text
+```seseragi
 InvalidBigIntDigit
   { offset: Int, radix: Int }
   -> BigIntParseError
@@ -124,7 +124,7 @@ InvalidBigIntDigit
 
 2〜36を含む範囲外のBigInt radixを報告します。
 
-```text
+```seseragi
 InvalidBigIntRadix
   Int
   -> BigIntParseError
@@ -136,7 +136,7 @@ InvalidBigIntRadix
 
 負Intのexponentを報告します。
 
-```text
+```seseragi
 NegativeBigIntExponent
   Int
   -> BigIntPowerError
@@ -150,7 +150,7 @@ NegativeBigIntExponent
 
 BigIntの正確な非負の絶対値を返します。
 
-```text
+```seseragi
 abs
   BigInt
   -> BigInt
@@ -162,7 +162,7 @@ abs
 
 二つ目の引数を一つ目の引数で割り、商を0方向へ切り捨てたBigIntを返します。除数が0ならBigIntDivisionByZeroを返します。
 
-```text
+```seseragi
 checkedDivide
   BigInt
   -> BigInt
@@ -178,7 +178,7 @@ checkedDivide
 
 非負Intのexponentで、BigIntの正確な累乗を求めます。
 
-```text
+```seseragi
 checkedPower
   Int
   -> BigInt
@@ -194,7 +194,7 @@ checkedPower
 
 商を0方向へ切り捨てたBigIntの剰余を求め、除数0は型付き失敗で返します。
 
-```text
+```seseragi
 checkedRemainder
   BigInt
   -> BigInt
@@ -210,7 +210,7 @@ checkedRemainder
 
 BigIntをcanonicalなdecimal textへ整形します。
 
-```text
+```seseragi
 format
   BigInt
   -> String
@@ -222,7 +222,7 @@ format
 
 BigIntを2〜36のradixで整形します。
 
-```text
+```seseragi
 formatRadix
   Int
   -> BigInt
@@ -238,7 +238,7 @@ formatRadix
 
 Intを正確にBigIntへ変換します。
 
-```text
+```seseragi
 fromInt
   Int
   -> BigInt
@@ -250,7 +250,7 @@ fromInt
 
 canonicalなdecimal textを正確なBigIntへparseします。
 
-```text
+```seseragi
 parse
   String
   -> Either<
@@ -265,7 +265,7 @@ parse
 
 2〜36のradixでsigned BigInt textをparseします。
 
-```text
+```seseragi
 parseRadix
   Int
   -> String
@@ -281,7 +281,7 @@ parseRadix
 
 BigIntの符号を-1、0、1で返します。
 
-```text
+```seseragi
 sign
   BigInt
   -> Int
@@ -293,7 +293,7 @@ sign
 
 BigIntをIntへ変換し、範囲外は型付き失敗で返します。
 
-```text
+```seseragi
 toInt
   BigInt
   -> Either<

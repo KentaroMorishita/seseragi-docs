@@ -33,7 +33,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 Handler<_, _>
 ```
 
@@ -41,7 +41,7 @@ Handler<_, _>
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 HttpHeader
 ```
 
@@ -49,7 +49,7 @@ HttpHeader
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 HttpServer
 ```
 
@@ -57,7 +57,7 @@ HttpServer
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 HttpServerError
 ```
 
@@ -65,7 +65,7 @@ HttpServerError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 HttpServerHandle
 ```
 
@@ -73,7 +73,7 @@ HttpServerHandle
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 HttpServerRequest
 ```
 
@@ -81,7 +81,7 @@ HttpServerRequest
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 HttpServerResponse
 ```
 
@@ -91,7 +91,7 @@ HttpServerResponse
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bytesResponse
   Int
   -> Array<HttpHeader>
@@ -103,7 +103,7 @@ bytesResponse
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 close
   HttpServerHandle
   -> Effect<
@@ -117,7 +117,7 @@ close
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 emptyResponse
   Int
   -> Array<HttpHeader>
@@ -128,7 +128,7 @@ emptyResponse
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 errorMessage
   HttpServerError
   -> String
@@ -138,7 +138,7 @@ errorMessage
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 header
   String
   -> String
@@ -149,7 +149,7 @@ header
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 jsonResponse
   Int
   -> Array<HttpHeader>
@@ -164,7 +164,7 @@ jsonResponse
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 listen<R>
   {
     hostname?: String,
@@ -193,7 +193,7 @@ listen<R>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 pureHandler
   (
     HttpServerRequest
@@ -211,7 +211,7 @@ pureHandler
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 recoverHandler<R, E>
   (E -> HttpServerResponse)
   -> (
@@ -234,7 +234,7 @@ recoverHandler<R, E>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 requestBody
   HttpServerRequest
   -> Bytes
@@ -244,7 +244,7 @@ requestBody
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 requestHeaders
   HttpServerRequest
   -> Array<HttpHeader>
@@ -254,7 +254,7 @@ requestHeaders
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 requestHeaderValues
   String
   -> HttpServerRequest
@@ -265,7 +265,7 @@ requestHeaderValues
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 requestMethod
   HttpServerRequest
   -> String
@@ -275,7 +275,7 @@ requestMethod
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 requestPath
   HttpServerRequest
   -> String
@@ -285,7 +285,7 @@ requestPath
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 requestQuery
   HttpServerRequest
   -> Maybe<String>
@@ -295,7 +295,7 @@ requestQuery
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 requestUrl
   HttpServerRequest
   -> String
@@ -308,7 +308,7 @@ requestUrl
 <details>
 <summary>Show the complete type</summary>
 
-```text
+```seseragi
 serveOnce<R>
   {
     hostname?: String,
@@ -337,7 +337,7 @@ serveOnce<R>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 streamResponse<R>
   Int
   -> Array<HttpHeader>
@@ -353,7 +353,7 @@ streamResponse<R>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 textResponse
   Int
   -> Array<HttpHeader>

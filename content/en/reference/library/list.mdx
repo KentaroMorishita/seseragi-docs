@@ -116,7 +116,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 Appends the suffix after the collection values.
 
-```text
+```seseragi
 append<A>
   List<A>
   -> List<A>
@@ -127,7 +127,7 @@ append<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 chunksOf<A>
   Int
   -> List<A>
@@ -143,7 +143,7 @@ chunksOf<A>
 
 Flattens one level of nested collections in source order.
 
-```text
+```seseragi
 concat<A>
   List<List<A>>
   -> List<A>
@@ -155,7 +155,7 @@ concat<A>
 
 Returns the elements after skipping the requested leading count.
 
-```text
+```seseragi
 drop<A>
   Int
   -> List<A>
@@ -166,7 +166,7 @@ drop<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 dropWhile<A>
   (A -> Bool)
   -> List<A>
@@ -177,7 +177,7 @@ dropWhile<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 empty<A>
   Unit
   -> List<A>
@@ -189,7 +189,7 @@ empty<A>
 
 Keeps collection elements whose predicate returns True.
 
-```text
+```seseragi
 filter<A>
   (A -> Bool)
   -> List<A>
@@ -202,7 +202,7 @@ filter<A>
 
 Transforms collection elements and drops Nothing results.
 
-```text
+```seseragi
 filterMap<A, B>
   (A -> Maybe<B>)
   -> List<A>
@@ -215,7 +215,7 @@ filterMap<A, B>
 
 Returns the first matching element, or Nothing when none matches.
 
-```text
+```seseragi
 find<A>
   (A -> Bool)
   -> List<A>
@@ -226,7 +226,7 @@ find<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 findIndex<A>
   (A -> Bool)
   -> List<A>
@@ -239,7 +239,7 @@ findIndex<A>
 
 Transforms each element to a collection and flattens the results.
 
-```text
+```seseragi
 flatMap<A, B>
   (A -> List<B>)
   -> List<A>
@@ -250,7 +250,7 @@ flatMap<A, B>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 fromIterable<C, A>
   C
   -> List<A>
@@ -264,7 +264,7 @@ where
 
 Returns the indexed element, or Nothing when the index is invalid.
 
-```text
+```seseragi
 get<A>
   Int
   -> List<A>
@@ -275,7 +275,7 @@ get<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 groupBy<A, K>
   (A -> K)
   -> List<A>
@@ -291,7 +291,7 @@ where
 
 Returns the first element, or Nothing for an empty collection.
 
-```text
+```seseragi
 head<A>
   List<A>
   -> Maybe<A>
@@ -301,7 +301,7 @@ head<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 init<A>
   List<A>
   -> Maybe<List<A>>
@@ -313,7 +313,7 @@ init<A>
 
 Returns whether the collection contains no elements.
 
-```text
+```seseragi
 isEmpty<A>
   List<A>
   -> Bool
@@ -323,7 +323,7 @@ isEmpty<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 last<A>
   List<A>
   -> Maybe<A>
@@ -335,7 +335,7 @@ last<A>
 
 Returns the number of elements in the collection.
 
-```text
+```seseragi
 length<A>
   List<A>
   -> Int
@@ -345,7 +345,7 @@ length<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 reduceRight<A, B>
   B
   -> (A -> B -> B)
@@ -359,7 +359,7 @@ reduceRight<A, B>
 
 Returns the collection elements in reverse order.
 
-```text
+```seseragi
 reverse<A>
   List<A>
   -> List<A>
@@ -369,7 +369,7 @@ reverse<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 singleton<A>
   A
   -> List<A>
@@ -379,7 +379,7 @@ singleton<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 sort<A>
   List<A>
   -> List<A>
@@ -391,7 +391,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 sortBy<A, K>
   (A -> K)
   -> List<A>
@@ -406,7 +406,7 @@ where
 
 Returns all elements after the first, or Nothing for an empty collection.
 
-```text
+```seseragi
 tail<A>
   List<A>
   -> Maybe<List<A>>
@@ -418,7 +418,7 @@ tail<A>
 
 Returns at most the requested number of leading elements.
 
-```text
+```seseragi
 take<A>
   Int
   -> List<A>
@@ -429,7 +429,7 @@ take<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 takeWhile<A>
   (A -> Bool)
   -> List<A>
@@ -442,7 +442,7 @@ takeWhile<A>
 
 Copies the List elements into an Array in source order.
 
-```text
+```seseragi
 toArray<A>
   List<A>
   -> Array<A>
@@ -452,7 +452,7 @@ toArray<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 unzip<A, B>
   List<(A, B)>
   -> (List<A>, List<B>)
@@ -462,7 +462,7 @@ unzip<A, B>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 windows<A>
   Int
   -> List<A>
@@ -476,7 +476,7 @@ windows<A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 zip<A, B>
   List<B>
   -> List<A>
@@ -487,7 +487,7 @@ zip<A, B>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 zipWith<A, B, C>
   (A -> B -> C)
   -> List<B>

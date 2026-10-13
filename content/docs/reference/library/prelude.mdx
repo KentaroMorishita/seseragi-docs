@@ -20,7 +20,7 @@ Preludeの名前はimportせずに使えます。用途ごとの操作は明示�
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Add
 ```
 
@@ -28,7 +28,7 @@ trait Add
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Applicative
 ```
 
@@ -36,7 +36,7 @@ trait Applicative
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Debug
 ```
 
@@ -44,7 +44,7 @@ trait Debug
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Div
 ```
 
@@ -54,7 +54,7 @@ trait Div
 
 型付き失敗または成功値を表します。
 
-```text
+```seseragi
 Either<E, A>
 ```
 
@@ -62,7 +62,7 @@ Either<E, A>
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Eq
 ```
 
@@ -70,7 +70,7 @@ trait Eq
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Functor
 ```
 
@@ -78,7 +78,7 @@ trait Functor
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Hash
 ```
 
@@ -86,7 +86,7 @@ trait Hash
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Iterable
 ```
 
@@ -94,7 +94,7 @@ trait Iterable
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait JsonDecode
 ```
 
@@ -102,7 +102,7 @@ trait JsonDecode
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait JsonEncode
 ```
 
@@ -112,7 +112,7 @@ trait JsonEncode
 
 optionalな値をNothingまたはJustで表します。
 
-```text
+```seseragi
 Maybe<A>
 ```
 
@@ -120,7 +120,7 @@ Maybe<A>
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Monad
 ```
 
@@ -128,7 +128,7 @@ trait Monad
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Monoid
 ```
 
@@ -136,7 +136,7 @@ trait Monoid
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Mul
 ```
 
@@ -144,7 +144,7 @@ trait Mul
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait One
 ```
 
@@ -152,7 +152,7 @@ trait One
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Ord
 ```
 
@@ -162,7 +162,7 @@ trait Ord
 
 全順序の比較結果をLess、Equal、Greaterで表します。
 
-```text
+```seseragi
 Ordering
 ```
 
@@ -170,7 +170,7 @@ Ordering
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Pow
 ```
 
@@ -178,7 +178,7 @@ trait Pow
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Reducible
 ```
 
@@ -186,7 +186,7 @@ trait Reducible
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Rem
 ```
 
@@ -194,7 +194,7 @@ trait Rem
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Semigroup
 ```
 
@@ -202,7 +202,7 @@ trait Semigroup
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Show
 ```
 
@@ -210,7 +210,7 @@ trait Show
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Sub
 ```
 
@@ -220,7 +220,7 @@ trait Sub
 
 environmentと回復可能なfailureを持たないEffectの透明aliasです。
 
-```text
+```seseragi
 alias Task<A> = Effect<{}, Never, A>
 ```
 
@@ -228,7 +228,7 @@ alias Task<A> = Effect<{}, Never, A>
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Traversable
 ```
 
@@ -236,7 +236,7 @@ trait Traversable
 
 <small className="api-kind">型クラス</small>
 
-```text
+```seseragi
 trait Zero
 ```
 
@@ -248,7 +248,7 @@ trait Zero
 
 等しいことを表すOrderingを作ります。
 
-```text
+```seseragi
 Equal
   Ordering
 ```
@@ -259,7 +259,7 @@ Equal
 
 大きいことを表すOrderingを作ります。
 
-```text
+```seseragi
 Greater
   Ordering
 ```
@@ -270,7 +270,7 @@ Greater
 
 値があるMaybeを作ります。
 
-```text
+```seseragi
 Just
   A
   -> Maybe<A>
@@ -282,7 +282,7 @@ Just
 
 Eitherの失敗側を作ります。
 
-```text
+```seseragi
 Left
   E
   -> Either<E, A>
@@ -294,7 +294,7 @@ Left
 
 小さいことを表すOrderingを作ります。
 
-```text
+```seseragi
 Less
   Ordering
 ```
@@ -305,7 +305,7 @@ Less
 
 値がないMaybeを作ります。
 
-```text
+```seseragi
 Nothing
   Maybe<A>
 ```
@@ -316,7 +316,7 @@ Nothing
 
 nominal wrapperで乗算を選びます。MonoidにはOneと同種Mulの証拠が必要です。
 
-```text
+```seseragi
 Product
   A
   -> Product<A>
@@ -328,7 +328,7 @@ Product
 
 Eitherの成功側を作ります。
 
-```text
+```seseragi
 Right
   A
   -> Either<E, A>
@@ -340,7 +340,7 @@ Right
 
 nominal wrapperで加算を選びます。MonoidにはZeroと同種Addの証拠が必要です。
 
-```text
+```seseragi
 Sum
   A
   -> Sum<A>
@@ -354,7 +354,7 @@ Sum
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 - via Sub.sub
 ```
 
@@ -364,7 +364,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 persistent Listのconsです。優先順位4・右結合で、head、tailを一度ずつ評価し、tailをO(1)で共有します。(:)はcurriedな関数です。
 
-```text
+```seseragi
 A : List<A> -> List<A>
 ```
 
@@ -374,7 +374,7 @@ A : List<A> -> List<A>
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 != via Eq.eq
 ```
 
@@ -384,7 +384,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 Maybe専用fallbackです。優先順位0・右結合で、左辺を一度評価し、Nothingのときだけfallbackを評価します。構文専用で、operator sectionやoverloadはありません。
 
-```text
+```seseragi
 Maybe<A> ?? A -> A
 ```
 
@@ -394,7 +394,7 @@ Maybe<A> ?? A -> A
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 * via Mul.mul
 ```
 
@@ -404,7 +404,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 ** via Pow.pow
 ```
 
@@ -414,7 +414,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 / via Div.div
 ```
 
@@ -424,7 +424,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 % via Rem.rem
 ```
 
@@ -434,7 +434,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 + via Add.add
 ```
 
@@ -444,7 +444,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 < via Ord.compare
 ```
 
@@ -454,7 +454,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 標準trait methodを表すoperatorの表記です。
 
-```text
+```seseragi
 <*> via Applicative.apply
 ```
 
@@ -464,7 +464,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 <= via Ord.compare
 ```
 
@@ -474,7 +474,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 標準trait methodを表すoperatorの表記です。
 
-```text
+```seseragi
 <$> via Functor.map
 ```
 
@@ -484,7 +484,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 == via Eq.eq
 ```
 
@@ -494,7 +494,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 > via Ord.compare
 ```
 
@@ -504,7 +504,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 operandの型で選択された標準trait instanceへdispatchします。
 
-```text
+```seseragi
 >= via Ord.compare
 ```
 
@@ -514,7 +514,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 標準trait methodを表すoperatorの表記です。
 
-```text
+```seseragi
 >>= via Monad.flatMap
 ```
 
@@ -524,7 +524,7 @@ operandの型で選択された標準trait instanceへdispatchします。
 
 選択された算術traitのinstanceを適用します。
 
-```text
+```seseragi
 add<L, R, O>
   L
   -> R
@@ -539,7 +539,7 @@ where
 
 条件が拒否した最初の要素でFalseを返します。
 
-```text
+```seseragi
 all<C, A>
   (A -> Bool)
   -> C
@@ -554,7 +554,7 @@ where
 
 条件が受理した最初の要素でTrueを返します。
 
-```text
+```seseragi
 any<C, A>
   (A -> Bool)
   -> C
@@ -569,7 +569,7 @@ where
 
 選ばれたSemigroupのinstanceで二つの値を結合します。結合律を満たす操作で、数値のwrapperなどにも使います。
 
-```text
+```seseragi
 append<A>
   A
   -> A
@@ -584,7 +584,7 @@ where
 
 Applicativeの中にある関数を適用します。
 
-```text
+```seseragi
 apply<F<_>, A, B>
   F<(A -> B)>
   -> F<A>
@@ -599,7 +599,7 @@ where
 
 Monoid instanceを使って、Reducibleなcollectionを結合します。
 
-```text
+```seseragi
 combine<C, A>
   C
   -> A
@@ -614,7 +614,7 @@ where
 
 選択された全順序で二つの値を比較します。
 
-```text
+```seseragi
 compare<A>
   A
   -> A
@@ -627,7 +627,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 debug<A>
   A
   -> String
@@ -639,7 +639,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 decodeJson<A>
   Json
   -> Either<DecodeError, A>
@@ -653,7 +653,7 @@ where
 
 選択された算術traitのinstanceを適用します。
 
-```text
+```seseragi
 div<L, R, O>
   L
   -> R
@@ -668,7 +668,7 @@ where
 
 Monoidの単位元を返します。
 
-```text
+```seseragi
 empty<A>
   Unit
   -> A
@@ -680,7 +680,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 encodeJson<A>
   A
   -> Json
@@ -694,7 +694,7 @@ where
 
 選択されたEq instanceで二つの値が等しいか調べます。
 
-```text
+```seseragi
 eq<A>
   A
   -> A
@@ -709,7 +709,7 @@ where
 
 Monadの値と、その値に依存して次の計算を選ぶ関数を合成します。
 
-```text
+```seseragi
 flatMap<M<_>, A, B>
   (A -> M<B>)
   -> M<A>
@@ -724,7 +724,7 @@ where
 
 Iterable instanceが返す各値について、一つのEffectを実行します。
 
-```text
+```seseragi
 forEach<C, R, E, A>
   (A -> Effect<R, E, Unit>)
   -> C
@@ -739,7 +739,7 @@ where
 
 選択されたHash instanceが定義するhashを計算します。
 
-```text
+```seseragi
 hash<A>
   A
   -> Int
@@ -753,7 +753,7 @@ where
 
 collectionを走査するIteratorを作ります。
 
-```text
+```seseragi
 iterate<C, A>
   C
   -> Iterator<A>
@@ -767,7 +767,7 @@ where
 
 ReducibleなString collectionをseparatorで連結します。
 
-```text
+```seseragi
 join<C>
   String
   -> C
@@ -782,7 +782,7 @@ where
 
 Functorの形を保ったまま内部の値を変換します。
 
-```text
+```seseragi
 map<F<_>, A, B>
   (A -> B)
   -> F<A>
@@ -797,7 +797,7 @@ where
 
 選択された算術traitのinstanceを適用します。
 
-```text
+```seseragi
 mul<L, R, O>
   L
   -> R
@@ -812,7 +812,7 @@ where
 
 Iteratorの次の値と、残りのIteratorを読みます。
 
-```text
+```seseragi
 next<A>
   Iterator<A>
   -> Maybe<(A, Iterator<A>)>
@@ -824,7 +824,7 @@ next<A>
 
 選択された型の数値1を返します。
 
-```text
+```seseragi
 one<A>
   Unit
   -> A
@@ -838,7 +838,7 @@ where
 
 選択された算術traitのinstanceを適用します。
 
-```text
+```seseragi
 pow<L, R, O>
   L
   -> R
@@ -853,7 +853,7 @@ where
 
 Consoleでtextを出力し、改行は追加しません。
 
-```text
+```seseragi
 print
   String
   -> Effect<
@@ -869,7 +869,7 @@ print
 
 Consoleでtextの後に改行を出力します。
 
-```text
+```seseragi
 println
   String
   -> Effect<
@@ -885,7 +885,7 @@ println
 
 Show instanceで値を文字列化し、Consoleで出力します。
 
-```text
+```seseragi
 printValue<A>
   A
   -> Effect<
@@ -903,7 +903,7 @@ where
 
 Reducibleなcollectionの全要素を、1から掛け合わせます。
 
-```text
+```seseragi
 product<C, A>
   C
   -> A
@@ -919,7 +919,7 @@ where
 
 値をApplicativeへliftします。
 
-```text
+```seseragi
 pure<F<_>, A>
   A
   -> F<A>
@@ -933,7 +933,7 @@ where
 
 Stdinを通して一行をMaybeとして読みます。
 
-```text
+```seseragi
 readLine
   Unit
   -> Effect<
@@ -949,7 +949,7 @@ readLine
 
 Reducibleなcollectionを一つのaccumulator値へfoldします。
 
-```text
+```seseragi
 reduce<C, A, B>
   B
   -> (B -> A -> B)
@@ -965,7 +965,7 @@ where
 
 選択された算術traitのinstanceを適用します。
 
-```text
+```seseragi
 rem<L, R, O>
   L
   -> R
@@ -978,7 +978,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 show<A>
   A
   -> String
@@ -992,7 +992,7 @@ where
 
 選択された算術traitのinstanceを適用します。
 
-```text
+```seseragi
 sub<L, R, O>
   L
   -> R
@@ -1007,7 +1007,7 @@ where
 
 Reducibleなcollectionの全要素を、0から足し合わせます。
 
-```text
+```seseragi
 sum<C, A>
   C
   -> A
@@ -1023,7 +1023,7 @@ where
 
 Functorの形を保ち、ApplicativeなEffectで走査します。
 
-```text
+```seseragi
 traverse<F<_>, G<_>, A, B>
   (A -> G<B>)
   -> F<A>
@@ -1039,7 +1039,7 @@ where
 
 初期状態とstep関数から、遅延評価するIteratorを作ります。
 
-```text
+```seseragi
 unfold<S, A>
   (S -> Maybe<(A, S)>)
   -> S
@@ -1052,7 +1052,7 @@ unfold<S, A>
 
 選択された型の数値0を返します。
 
-```text
+```seseragi
 zero<A>
   Unit
   -> A

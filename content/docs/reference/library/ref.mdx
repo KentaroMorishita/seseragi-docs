@@ -24,7 +24,7 @@ import * as ref from "std/ref"
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Ref<_>
 ```
 
@@ -36,7 +36,7 @@ Ref<_>
 
 実行時にRefの現在値をatomicに読み取るEffectを返します。
 
-```text
+```seseragi
 get<A>
   Ref<A>
   -> Effect<{}, Never, A>
@@ -48,7 +48,7 @@ get<A>
 
 実行するたびに初期値を持つ新しいRefを作るEffectを返します。作られたRefは後続のEffectへ渡せます。
 
-```text
+```seseragi
 make<A>
   A
   -> Effect<{}, Never, Ref<A>>
@@ -60,7 +60,7 @@ make<A>
 
 一つのatomic callbackで、結果を返すと同時にRefを更新します。
 
-```text
+```seseragi
 modify<A, B>
   (A -> (B, A))
   -> Ref<A>
@@ -73,7 +73,7 @@ modify<A, B>
 
 Refの現在値をatomicに置き換えます。
 
-```text
+```seseragi
 set<A>
   A
   -> Ref<A>
@@ -86,7 +86,7 @@ set<A>
 
 一つのpureなatomic callbackでRefを更新します。
 
-```text
+```seseragi
 update<A>
   (A -> A)
   -> Ref<A>

@@ -25,7 +25,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Multipart<_, _>
 ```
 
@@ -33,7 +33,7 @@ Multipart<_, _>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 MultipartBuildError
 ```
 
@@ -43,7 +43,7 @@ MultipartBuildError
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidMultipartFieldName
   String
   -> MultipartBuildError
@@ -53,7 +53,7 @@ InvalidMultipartFieldName
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidMultipartFileName
   String
   -> MultipartBuildError
@@ -63,7 +63,7 @@ InvalidMultipartFileName
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidMultipartMimeType
   String
   -> MultipartBuildError
@@ -75,7 +75,7 @@ InvalidMultipartMimeType
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 appendBody<R, E>
   String
   -> Maybe<String>
@@ -92,7 +92,7 @@ appendBody<R, E>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 appendBytes<R, E>
   String
   -> Maybe<String>
@@ -109,7 +109,7 @@ appendBytes<R, E>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 appendText<R, E>
   String
   -> String
@@ -124,7 +124,7 @@ appendText<R, E>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 body<R, E>
   Multipart<R, E>
   -> Body<R, E>
@@ -134,7 +134,7 @@ body<R, E>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 contentType<R, E>
   Multipart<R, E>
   -> String
@@ -144,7 +144,7 @@ contentType<R, E>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 empty<R, E>
   Unit
   -> Multipart<R, E>

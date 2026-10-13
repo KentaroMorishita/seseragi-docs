@@ -63,7 +63,7 @@ Reading: 23
 
 Integers have many possible values. After listing a specific value, handle the rest with another branch. This fragment distinguishes zero from other integers:
 
-```text
+```seseragi
 match number {
   0 -> "zero"
   _ -> "nonzero"
@@ -76,7 +76,7 @@ match number {
 
 Attach a `Bool` condition with `when` to check it after the pattern matches. This fragment handles positive integers in the first branch:
 
-```text
+```seseragi
 match number {
   n when n > 0 -> "positive"
   _ -> "zero or negative"

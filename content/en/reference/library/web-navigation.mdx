@@ -26,7 +26,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Location
 ```
 
@@ -34,7 +34,7 @@ Location
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Navigation
 ```
 
@@ -42,7 +42,7 @@ Navigation
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 NavigationError
 ```
 
@@ -50,7 +50,7 @@ NavigationError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Query
 ```
 
@@ -58,7 +58,7 @@ Query
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Url
 ```
 
@@ -66,7 +66,7 @@ Url
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 UrlBuildError
 ```
 
@@ -76,7 +76,7 @@ UrlBuildError
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 CrossOriginNavigation
   {
     expected: String,
@@ -89,7 +89,7 @@ CrossOriginNavigation
 
 <small className="api-kind">Value</small>
 
-```text
+```seseragi
 Query
 ```
 
@@ -97,7 +97,7 @@ Query
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidPercentEncoding
   { offset: Int }
   -> UrlBuildError
@@ -107,7 +107,7 @@ InvalidPercentEncoding
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidUrl
   { offset: Int }
   -> UrlBuildError
@@ -117,7 +117,7 @@ InvalidUrl
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 NavigationSecurityFailure
   String
   -> NavigationError
@@ -127,7 +127,7 @@ NavigationSecurityFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 NavigationUnavailable
   String
   -> NavigationError
@@ -137,7 +137,7 @@ NavigationUnavailable
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 UnsupportedUrlScheme
   String
   -> UrlBuildError
@@ -147,7 +147,7 @@ UnsupportedUrlScheme
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 UrlContainsUserInfo
   UrlBuildError
 ```
@@ -158,7 +158,7 @@ UrlContainsUserInfo
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 appendQuery
   String
   -> String
@@ -170,7 +170,7 @@ appendQuery
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 back
   Unit
   -> Effect<
@@ -184,7 +184,7 @@ back
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 current
   Unit
   -> Effect<
@@ -198,7 +198,7 @@ current
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 errorMessage
   NavigationError
   -> String
@@ -208,7 +208,7 @@ errorMessage
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 forward
   Unit
   -> Effect<
@@ -222,7 +222,7 @@ forward
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 locationSignal
   Unit
   -> Effect<
@@ -236,7 +236,7 @@ locationSignal
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 locationUrl
   Location
   -> Url
@@ -246,7 +246,7 @@ locationUrl
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 parseQuery
   String
   -> Either<UrlBuildError, Query>
@@ -256,7 +256,7 @@ parseQuery
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 parseUrl
   String
   -> Either<UrlBuildError, Url>
@@ -266,7 +266,7 @@ parseUrl
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 pathSegments
   Url
   -> Array<String>
@@ -276,7 +276,7 @@ pathSegments
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 push
   Url
   -> Effect<
@@ -290,7 +290,7 @@ push
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 queryEntries
   Query
   -> Array<(String, String)>
@@ -300,7 +300,7 @@ queryEntries
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 queryValues
   String
   -> Query
@@ -311,7 +311,7 @@ queryValues
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 removeQuery
   String
   -> Query
@@ -322,7 +322,7 @@ removeQuery
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 renderQuery
   Query
   -> String
@@ -332,7 +332,7 @@ renderQuery
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 renderUrl
   Url
   -> String
@@ -342,7 +342,7 @@ renderUrl
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 replace
   Url
   -> Effect<
@@ -356,7 +356,7 @@ replace
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 resolveUrl
   String
   -> Url
@@ -367,7 +367,7 @@ resolveUrl
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 setQuery
   String
   -> String
@@ -379,7 +379,7 @@ setQuery
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 toWebUrl
   Url
   -> WebUrl
@@ -389,7 +389,7 @@ toWebUrl
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 urlFragment
   Url
   -> Maybe<String>
@@ -399,7 +399,7 @@ urlFragment
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 urlOrigin
   Url
   -> String
@@ -409,7 +409,7 @@ urlOrigin
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 urlQuery
   Url
   -> Query
@@ -419,7 +419,7 @@ urlQuery
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 withFragment
   String
   -> Url
@@ -430,7 +430,7 @@ withFragment
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 withoutFragment
   Url
   -> Url
@@ -440,7 +440,7 @@ withoutFragment
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 withPathSegments
   Array<String>
   -> Url
@@ -451,7 +451,7 @@ withPathSegments
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 withQuery
   Query
   -> Url

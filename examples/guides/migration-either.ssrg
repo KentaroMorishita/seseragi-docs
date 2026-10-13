@@ -1,0 +1,28 @@
+// docs:start validate
+fn validate text: String
+  -> Either<String, String> =
+  if text == "" then
+    Left "Enter a name"
+  else
+    Right text
+// docs:end validate
+
+// docs:start report
+fn report r: Either<String, String>
+  -> String =
+  match r {
+    Right name -> `Hello, ${name}`
+    Left error -> error
+  }
+// docs:end report
+
+pub effect fn main = do {
+  // docs:start cases
+  validate "Ada"
+  |> report
+  |> println
+  validate ""
+  |> report
+  |> println
+  // docs:end cases
+}

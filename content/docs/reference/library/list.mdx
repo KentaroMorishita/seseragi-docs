@@ -116,7 +116,7 @@ take 2は先頭の二要素を持つListを返します。出力も、Listリテ
 
 collectionの値の後ろへsuffixを連結します。
 
-```text
+```seseragi
 append<A>
   List<A>
   -> List<A>
@@ -127,7 +127,7 @@ append<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 chunksOf<A>
   Int
   -> List<A>
@@ -143,7 +143,7 @@ chunksOf<A>
 
 入れ子collectionを一段だけsource順に平坦化します。
 
-```text
+```seseragi
 concat<A>
   List<List<A>>
   -> List<A>
@@ -155,7 +155,7 @@ concat<A>
 
 指定数の先頭要素を飛ばした残りを返します。
 
-```text
+```seseragi
 drop<A>
   Int
   -> List<A>
@@ -166,7 +166,7 @@ drop<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 dropWhile<A>
   (A -> Bool)
   -> List<A>
@@ -177,7 +177,7 @@ dropWhile<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 empty<A>
   Unit
   -> List<A>
@@ -189,7 +189,7 @@ empty<A>
 
 条件がTrueになるcollection要素を残します。
 
-```text
+```seseragi
 filter<A>
   (A -> Bool)
   -> List<A>
@@ -202,7 +202,7 @@ filter<A>
 
 collection要素を変換し、Nothingの結果を除外します。
 
-```text
+```seseragi
 filterMap<A, B>
   (A -> Maybe<B>)
   -> List<A>
@@ -215,7 +215,7 @@ filterMap<A, B>
 
 最初に一致した要素を返し、一致がなければNothingを返します。
 
-```text
+```seseragi
 find<A>
   (A -> Bool)
   -> List<A>
@@ -226,7 +226,7 @@ find<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 findIndex<A>
   (A -> Bool)
   -> List<A>
@@ -239,7 +239,7 @@ findIndex<A>
 
 各要素をcollectionへ変換し、結果を平坦化します。
 
-```text
+```seseragi
 flatMap<A, B>
   (A -> List<B>)
   -> List<A>
@@ -250,7 +250,7 @@ flatMap<A, B>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 fromIterable<C, A>
   C
   -> List<A>
@@ -264,7 +264,7 @@ where
 
 指定indexの要素を返し、不正なindexならNothingを返します。
 
-```text
+```seseragi
 get<A>
   Int
   -> List<A>
@@ -275,7 +275,7 @@ get<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 groupBy<A, K>
   (A -> K)
   -> List<A>
@@ -291,7 +291,7 @@ where
 
 最初の要素を返し、空collectionならNothingを返します。
 
-```text
+```seseragi
 head<A>
   List<A>
   -> Maybe<A>
@@ -301,7 +301,7 @@ head<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 init<A>
   List<A>
   -> Maybe<List<A>>
@@ -313,7 +313,7 @@ init<A>
 
 collectionに要素がないかを返します。
 
-```text
+```seseragi
 isEmpty<A>
   List<A>
   -> Bool
@@ -323,7 +323,7 @@ isEmpty<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 last<A>
   List<A>
   -> Maybe<A>
@@ -335,7 +335,7 @@ last<A>
 
 collectionの要素数を返します。
 
-```text
+```seseragi
 length<A>
   List<A>
   -> Int
@@ -345,7 +345,7 @@ length<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 reduceRight<A, B>
   B
   -> (A -> B -> B)
@@ -359,7 +359,7 @@ reduceRight<A, B>
 
 collection要素を逆順で返します。
 
-```text
+```seseragi
 reverse<A>
   List<A>
   -> List<A>
@@ -369,7 +369,7 @@ reverse<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 singleton<A>
   A
   -> List<A>
@@ -379,7 +379,7 @@ singleton<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 sort<A>
   List<A>
   -> List<A>
@@ -391,7 +391,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 sortBy<A, K>
   (A -> K)
   -> List<A>
@@ -406,7 +406,7 @@ where
 
 最初の要素を除いた残りを返し、空collectionならNothingを返します。
 
-```text
+```seseragi
 tail<A>
   List<A>
   -> Maybe<List<A>>
@@ -418,7 +418,7 @@ tail<A>
 
 指定した数を上限として先頭要素を返します。
 
-```text
+```seseragi
 take<A>
   Int
   -> List<A>
@@ -429,7 +429,7 @@ take<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 takeWhile<A>
   (A -> Bool)
   -> List<A>
@@ -442,7 +442,7 @@ takeWhile<A>
 
 Listの要素をsource順にArrayへcopyします。
 
-```text
+```seseragi
 toArray<A>
   List<A>
   -> Array<A>
@@ -452,7 +452,7 @@ toArray<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 unzip<A, B>
   List<(A, B)>
   -> (List<A>, List<B>)
@@ -462,7 +462,7 @@ unzip<A, B>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 windows<A>
   Int
   -> List<A>
@@ -476,7 +476,7 @@ windows<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 zip<A, B>
   List<B>
   -> List<A>
@@ -487,7 +487,7 @@ zip<A, B>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 zipWith<A, B, C>
   (A -> B -> C)
   -> List<B>

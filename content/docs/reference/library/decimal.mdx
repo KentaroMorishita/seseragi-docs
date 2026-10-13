@@ -27,7 +27,7 @@ import * as decimal
 
 opaqueな有限の任意精度Decimalです。
 
-```text
+```seseragi
 Decimal
 ```
 
@@ -37,7 +37,7 @@ Decimal
 
 検査付きDecimal除算の失敗を表します。
 
-```text
+```seseragi
 DecimalArithmeticError
 ```
 
@@ -47,7 +47,7 @@ DecimalArithmeticError
 
 Decimal操作の正のprecisionと丸め方針を明示します。
 
-```text
+```seseragi
 DecimalContext
 ```
 
@@ -57,7 +57,7 @@ DecimalContext
 
 不正な明示DecimalContextを表します。
 
-```text
+```seseragi
 DecimalContextError
 ```
 
@@ -67,7 +67,7 @@ DecimalContextError
 
 明示的なInt/Float変換の失敗を表します。
 
-```text
+```seseragi
 DecimalConversionError
 ```
 
@@ -77,7 +77,7 @@ DecimalConversionError
 
 不正なDecimal textをUTF-8 byte offsetとともに表します。
 
-```text
+```seseragi
 DecimalParseError
 ```
 
@@ -89,7 +89,7 @@ DecimalParseError
 
 値が0のDecimal divisorを報告します。
 
-```text
+```seseragi
 DecimalDivisionByZero
   DecimalArithmeticError
 ```
@@ -100,7 +100,7 @@ DecimalDivisionByZero
 
 0ではない小数部を持つDecimalを報告します。
 
-```text
+```seseragi
 DecimalNotIntegral
   DecimalConversionError
 ```
@@ -111,7 +111,7 @@ DecimalNotIntegral
 
 finite binary64範囲外のDecimalを報告します。
 
-```text
+```seseragi
 DecimalOutsideFloatRange
   DecimalConversionError
 ```
@@ -122,7 +122,7 @@ DecimalOutsideFloatRange
 
 safe Int範囲外の整数値Decimalを報告します。
 
-```text
+```seseragi
 DecimalOutsideIntRange
   DecimalConversionError
 ```
@@ -133,7 +133,7 @@ DecimalOutsideIntRange
 
 明示Float変換の境界でNaNまたはinfinityを報告します。
 
-```text
+```seseragi
 FloatNotFinite
   DecimalConversionError
 ```
@@ -144,7 +144,7 @@ FloatNotFinite
 
 Decimalのparseが最初に不正になるbyte位置を報告します。
 
-```text
+```seseragi
 InvalidDecimal
   { offset: Int }
   -> DecimalParseError
@@ -156,7 +156,7 @@ InvalidDecimal
 
 0または負のDecimal precisionを報告します。
 
-```text
+```seseragi
 NonPositiveDecimalPrecision
   Int
   -> DecimalContextError
@@ -168,7 +168,7 @@ NonPositiveDecimalPrecision
 
 有限decimal展開で表せない正確な商を報告します。
 
-```text
+```seseragi
 NonTerminatingDecimal
   DecimalArithmeticError
 ```
@@ -181,7 +181,7 @@ NonTerminatingDecimal
 
 正のprecisionを検査し、DecimalContextを作ります。
 
-```text
+```seseragi
 context
   Int
   -> RoundingMode
@@ -197,7 +197,7 @@ context
 
 明示した有効桁数と丸め規則でDecimalを除算します。
 
-```text
+```seseragi
 divide
   DecimalContext
   -> Decimal
@@ -214,7 +214,7 @@ divide
 
 正確な結果が有限decimal展開を持つ場合だけDecimalを除算します。
 
-```text
+```seseragi
 divideExact
   Decimal
   -> Decimal
@@ -230,7 +230,7 @@ divideExact
 
 明示したDecimalContextで、有限binary64の正確な値を変換します。
 
-```text
+```seseragi
 fromFloat
   DecimalContext
   -> Float
@@ -246,7 +246,7 @@ fromFloat
 
 Intを正確にDecimalへ変換します。
 
-```text
+```seseragi
 fromInt
   Int
   -> Decimal
@@ -258,7 +258,7 @@ fromInt
 
 binary floating pointを使わず、正確なDecimal textをparseします。
 
-```text
+```seseragi
 parse
   String
   -> Either<
@@ -273,7 +273,7 @@ parse
 
 contextの有効桁数precisionを返します。
 
-```text
+```seseragi
 precision
   DecimalContext
   -> Int
@@ -285,7 +285,7 @@ precision
 
 明示したdecimal scaleと丸めmodeでDecimalを丸めます。
 
-```text
+```seseragi
 quantize
   Int
   -> RoundingMode
@@ -299,7 +299,7 @@ quantize
 
 contextの丸めmodeを返します。
 
-```text
+```seseragi
 rounding
   DecimalContext
   -> RoundingMode
@@ -311,7 +311,7 @@ rounding
 
 Decimalを、最も近いfinite binary64へ明示的に丸めます。
 
-```text
+```seseragi
 toFloat
   Decimal
   -> Either<
@@ -326,7 +326,7 @@ toFloat
 
 範囲内の整数値Decimalを、丸めずIntへ変換します。
 
-```text
+```seseragi
 toIntExact
   Decimal
   -> Either<

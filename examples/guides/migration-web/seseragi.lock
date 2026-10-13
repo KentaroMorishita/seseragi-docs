@@ -1,0 +1,16 @@
+schema = 1
+language = "0.1.0"
+standard_library = "0.1.0"
+unicode = "17.0.0"
+timezone_database = "2025b"
+root = "docs/migration-counter@0.1.0#workspace:."
+
+[[packages]]
+id = "docs/migration-counter@0.1.0#workspace:."
+name = "docs/migration-counter"
+version = "0.1.0"
+source_kind = "workspace"
+source = "."
+manifest_digest = "sha256:be140ea5e1bd82054703da9e92324c5efadde3dfb2a4400ac2b6afd2a219eef2"
+content_digest = "sha256:8e42e2d3dc7d41e341e6a9f24949b928be19b44bb3a1ab2f2618219218ac0213"
+dependencies = []

@@ -1,0 +1,5 @@
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+pub effect fn main =
+  printValue (add 20 22)

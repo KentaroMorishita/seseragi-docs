@@ -24,7 +24,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Path
 ```
 
@@ -32,7 +32,7 @@ Path
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 PathError
 ```
 
@@ -42,7 +42,7 @@ PathError
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 AbsoluteChildPath
   PathError
 ```
@@ -51,7 +51,7 @@ AbsoluteChildPath
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 EmptyPath
   PathError
 ```
@@ -60,7 +60,7 @@ EmptyPath
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidDriveRoot
   PathError
 ```
@@ -69,7 +69,7 @@ InvalidDriveRoot
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidPathSegment
   String
   -> PathError
@@ -79,7 +79,7 @@ InvalidPathSegment
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidUncRoot
   PathError
 ```
@@ -88,7 +88,7 @@ InvalidUncRoot
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 PathContainsBackslash
   { offset: Int }
   -> PathError
@@ -98,7 +98,7 @@ PathContainsBackslash
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 PathContainsNul
   { offset: Int }
   -> PathError
@@ -110,7 +110,7 @@ PathContainsNul
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 child
   String
   -> Path
@@ -121,7 +121,7 @@ child
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 current
   Unit
   -> Path
@@ -131,7 +131,7 @@ current
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 extension
   Path
   -> Maybe<String>
@@ -141,7 +141,7 @@ extension
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 fileName
   Path
   -> Maybe<String>
@@ -151,7 +151,7 @@ fileName
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 isAbsolute
   Path
   -> Bool
@@ -161,7 +161,7 @@ isAbsolute
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 join
   Path
   -> Path
@@ -172,7 +172,7 @@ join
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 normalize
   Path
   -> Path
@@ -182,7 +182,7 @@ normalize
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 parent
   Path
   -> Maybe<Path>
@@ -192,7 +192,7 @@ parent
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 parse
   String
   -> Either<PathError, Path>
@@ -202,7 +202,7 @@ parse
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 render
   Path
   -> String

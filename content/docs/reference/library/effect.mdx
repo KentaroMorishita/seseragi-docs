@@ -32,7 +32,7 @@ import * as effect from "std/effect"
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Fiber<_, _>
 ```
 
@@ -40,7 +40,7 @@ Fiber<_, _>
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 FiberExit<_, _>
 ```
 
@@ -50,7 +50,7 @@ FiberExit<_, _>
 
 Effectの逐次走査を正常な成功として続けるContinue、または止めるBreakです。
 
-```text
+```seseragi
 LoopControl
 ```
 
@@ -58,7 +58,7 @@ LoopControl
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Parallelism
 ```
 
@@ -66,7 +66,7 @@ Parallelism
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 ParallelismError
 ```
 
@@ -74,7 +74,7 @@ ParallelismError
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Schedule<_>
 ```
 
@@ -82,7 +82,7 @@ Schedule<_>
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 ScheduleDecision<_>
 ```
 
@@ -90,7 +90,7 @@ ScheduleDecision<_>
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 ScheduleError
 ```
 
@@ -100,7 +100,7 @@ ScheduleError
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 Break
   LoopControl
 ```
@@ -109,7 +109,7 @@ Break
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 Continue
   LoopControl
 ```
@@ -118,7 +118,7 @@ Continue
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 FiberCancelled
   FiberExit<E, A>
 ```
@@ -127,7 +127,7 @@ FiberCancelled
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 FiberFailed<E, A>
   E
   -> FiberExit<E, A>
@@ -137,7 +137,7 @@ FiberFailed<E, A>
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 FiberSucceeded<E, A>
   A
   -> FiberExit<E, A>
@@ -147,7 +147,7 @@ FiberSucceeded<E, A>
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 NegativeRecurrences
   Int
   -> ScheduleError
@@ -157,7 +157,7 @@ NegativeRecurrences
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 NonPositiveParallelism
   Int
   -> ParallelismError
@@ -167,7 +167,7 @@ NonPositiveParallelism
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 ScheduleContinue<A>
   Duration
   -> ScheduleDecision<A>
@@ -177,7 +177,7 @@ ScheduleContinue<A>
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 ScheduleStop
   ScheduleDecision<A>
 ```
@@ -188,7 +188,7 @@ ScheduleStop
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 acquireRelease<R, E, A>
   Effect<R, E, A>
   -> (A -> Effect<R, Never, Unit>)
@@ -201,7 +201,7 @@ acquireRelease<R, E, A>
 
 defectとcancellationを保ったまま、typed failureをEitherへ移します。
 
-```text
+```seseragi
 attempt<R, E, A>
   Effect<R, E, A>
   -> Effect<R, Never, Either<E, A>>
@@ -211,7 +211,7 @@ attempt<R, E, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 await<E, A>
   Fiber<E, A>
   -> Effect<
@@ -227,7 +227,7 @@ await<E, A>
 
 coldなEffectの構築を、その実行ごとに遅延します。
 
-```text
+```seseragi
 defer<R, E, A>
   (Unit -> Effect<R, E, A>)
   -> Effect<R, E, A>
@@ -239,7 +239,7 @@ defer<R, E, A>
 
 型付きerrorで失敗するEffectを作ります。
 
-```text
+```seseragi
 fail<E>
   E
   -> Effect<{}, E, Never>
@@ -249,7 +249,7 @@ fail<E>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 forEachParallel<C, R, E, A>
   Parallelism
   -> (A -> Effect<R, E, Unit>)
@@ -265,7 +265,7 @@ where
 
 Iterable順にcoldなActionを逐次実行し、Breakで正常終了します。次の要素は取得しません。
 
-```text
+```seseragi
 forEachUntil<C, R, E, A>
   (A -> Effect<R, E, LoopControl>)
   -> C
@@ -278,7 +278,7 @@ where
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 fork<R, E, A>
   Effect<R, E, A>
   -> Effect<R, Never, Fiber<E, A>>
@@ -290,7 +290,7 @@ fork<R, E, A>
 
 外部操作を実行せず、EitherをEffectへliftします。
 
-```text
+```seseragi
 fromEither<E, A>
   Either<E, A>
   -> Effect<{}, E, A>
@@ -302,7 +302,7 @@ fromEither<E, A>
 
 明示した欠如errorを使い、MaybeをEffectへliftします。
 
-```text
+```seseragi
 fromMaybe<E, A>
   E
   -> Maybe<A>
@@ -313,7 +313,7 @@ fromMaybe<E, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 interrupt<E, A>
   Fiber<E, A>
   -> Effect<{}, Never, Unit>
@@ -323,7 +323,7 @@ interrupt<E, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 join<E, A>
   Fiber<E, A>
   -> Effect<{}, E, A>
@@ -335,7 +335,7 @@ join<E, A>
 
 Effectの成功値を保ったままfailureを変換します。
 
-```text
+```seseragi
 mapError<R, E, F, A>
   (E -> F)
   -> Effect<R, E, A>
@@ -346,7 +346,7 @@ mapError<R, E, F, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 parallel<R, E, A>
   Array<Effect<R, E, A>>
   -> Effect<R, E, Array<A>>
@@ -356,7 +356,7 @@ parallel<R, E, A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 parallelism
   Int
   -> Either<
@@ -369,7 +369,7 @@ parallelism
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 poll<E, A>
   Fiber<E, A>
   -> Effect<
@@ -385,7 +385,7 @@ poll<E, A>
 
 指定した環境で元のEffectを実行する新しいEffectを返します。この関数の呼び出しだけでは元のEffectを実行しません。
 
-```text
+```seseragi
 provide<R, E, A>
   R
   -> Effect<R, E, A>
@@ -398,7 +398,7 @@ provide<R, E, A>
 
 外側のenvironmentを、Effectが要求するenvironmentへ射影します。
 
-```text
+```seseragi
 provideSome<R0, R, E, A>
   (R0 -> R)
   -> Effect<R, E, A>
@@ -409,7 +409,7 @@ provideSome<R0, R, E, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 race<R, E, A>
   Effect<R, E, A>
   -> Effect<R, E, A>
@@ -422,7 +422,7 @@ race<R, E, A>
 
 defectやcancellationを捕捉せず、Effectのtyped failureから回復します。
 
-```text
+```seseragi
 recover<R, E, F, A>
   (E -> Effect<R, F, A>)
   -> Effect<R, E, A>
@@ -435,7 +435,7 @@ recover<R, E, F, A>
 
 delayなしで、再実行回数に上限のあるScheduleを作ります。
 
-```text
+```seseragi
 recurs<A>
   Int
   -> Either<
@@ -450,7 +450,7 @@ recurs<A>
 
 ScheduleとClockに従い、成功した計算を繰り返します。
 
-```text
+```seseragi
 repeat<R, E, A>
   Schedule<A>
   -> Effect<R, E, A>
@@ -469,7 +469,7 @@ repeat<R, E, A>
 
 ScheduleとClockに従い、typed failureをretryします。
 
-```text
+```seseragi
 retry<R, E, A>
   Schedule<E>
   -> Effect<R, E, A>
@@ -486,7 +486,7 @@ retry<R, E, A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 schedule<A>
   (Int -> A -> ScheduleDecision<A>)
   -> Schedule<A>
@@ -496,7 +496,7 @@ schedule<A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 scoped<R, E, A>
   Effect<R, E, A>
   -> Effect<R, E, A>
@@ -508,7 +508,7 @@ scoped<R, E, A>
 
 実行environmentから一つの値を選びます。
 
-```text
+```seseragi
 service<R, S>
   (R -> S)
   -> Effect<R, Never, S>
@@ -520,7 +520,7 @@ service<R, S>
 
 一定のdelayと再実行回数の上限を持つScheduleを作ります。
 
-```text
+```seseragi
 spaced<A>
   Int
   -> Duration
@@ -536,7 +536,7 @@ spaced<A>
 
 値を返して成功するEffectを作ります。
 
-```text
+```seseragi
 succeed<A>
   A
   -> Effect<{}, Never, A>
@@ -548,7 +548,7 @@ succeed<A>
 
 Clockを使うtimeoutを設定し、期限切れをMaybeで返します。
 
-```text
+```seseragi
 timeout<R, E, A>
   Duration
   -> Effect<R, E, A>
@@ -567,7 +567,7 @@ timeout<R, E, A>
 
 Clockを使うtimeoutを設定し、期限切れを明示した型付き失敗で返します。
 
-```text
+```seseragi
 timeoutFail<R, E, A>
   E
   -> Duration
@@ -585,7 +585,7 @@ timeoutFail<R, E, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 traverseParallel<C, R, E, A, B>
   Parallelism
   -> (A -> Effect<R, E, B>)
@@ -599,7 +599,7 @@ where
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 unboundedParallelism
   Unit
   -> Parallelism
@@ -611,7 +611,7 @@ unboundedParallelism
 
 条件がTrueの間だけ続けるScheduleを作ります。
 
-```text
+```seseragi
 whileInput<A>
   (A -> Bool)
   -> Schedule<A>
@@ -621,7 +621,7 @@ whileInput<A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 yieldNow
   Unit
   -> Effect<{}, Never, Unit>

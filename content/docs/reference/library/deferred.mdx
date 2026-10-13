@@ -25,7 +25,7 @@ import * as deferred
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Deferred<_, _>
 ```
 
@@ -35,7 +35,7 @@ Deferred<_, _>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 await<E, A>
   Deferred<E, A>
   -> Effect<{}, E, A>
@@ -45,7 +45,7 @@ await<E, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 complete<E, A>
   Either<E, A>
   -> Deferred<E, A>
@@ -56,7 +56,7 @@ complete<E, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 fail<E, A>
   E
   -> Deferred<E, A>
@@ -67,7 +67,7 @@ fail<E, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 make<E, A>
   Unit
   -> Effect<
@@ -81,7 +81,7 @@ make<E, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 poll<E, A>
   Deferred<E, A>
   -> Effect<
@@ -95,7 +95,7 @@ poll<E, A>
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 succeed<E, A>
   A
   -> Deferred<E, A>

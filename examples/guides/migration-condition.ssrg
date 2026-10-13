@@ -1,0 +1,10 @@
+fn result score: Int -> String =
+  if score >= 70 then
+    "pass"
+  else
+    "retry"
+
+pub effect fn main = do {
+  println (result 82)
+  println (result 65)
+}

@@ -25,7 +25,7 @@ import * as non_empty_list
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 NonEmptyList<_>
 ```
 
@@ -35,7 +35,7 @@ NonEmptyList<_>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 cons<A>
   A
   -> List<A>
@@ -46,7 +46,7 @@ cons<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 fromList<A>
   List<A>
   -> Maybe<NonEmptyList<A>>
@@ -58,7 +58,7 @@ fromList<A>
 
 NonEmptyListの先頭の値を返します。結果の型はAです。
 
-```text
+```seseragi
 head<A>
   NonEmptyList<A>
   -> A
@@ -68,7 +68,7 @@ head<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 reduce1<A>
   (A -> A -> A)
   -> NonEmptyList<A>
@@ -79,7 +79,7 @@ reduce1<A>
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 singleton<A>
   A
   -> NonEmptyList<A>
@@ -91,7 +91,7 @@ singleton<A>
 
 先頭を除いた残りをListとして返します。要素が一つなら空のListを返します。
 
-```text
+```seseragi
 tail<A>
   NonEmptyList<A>
   -> List<A>
@@ -103,7 +103,7 @@ tail<A>
 
 先頭と残りの順序を保ち、NonEmptyListを通常のListへ変換します。
 
-```text
+```seseragi
 toList<A>
   NonEmptyList<A>
   -> List<A>

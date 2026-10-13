@@ -100,7 +100,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Map<_, _>
 ```
 
@@ -110,7 +110,7 @@ Map<_, _>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 containsKey<K, V>
   K
   -> Map<K, V>
@@ -124,7 +124,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 empty<K, V>
   Unit
   -> Map<K, V>
@@ -134,7 +134,7 @@ empty<K, V>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 entries<K, V>
   Map<K, V>
   -> Array<(K, V)>
@@ -146,7 +146,7 @@ entries<K, V>
 
 Keeps collection elements whose predicate returns True.
 
-```text
+```seseragi
 filter<K, V>
   (K -> V -> Bool)
   -> Map<K, V>
@@ -157,7 +157,7 @@ filter<K, V>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 fromEntries<C, K, V>
   C
   -> Map<K, V>
@@ -173,7 +173,7 @@ where
 
 Looks up a key using its Eq and Hash instances, returning Nothing when the key is absent.
 
-```text
+```seseragi
 get<K, V>
   K
   -> Map<K, V>
@@ -187,7 +187,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 insert<K, V>
   K
   -> V
@@ -204,7 +204,7 @@ where
 
 Returns whether the collection contains no elements.
 
-```text
+```seseragi
 isEmpty<K, V>
   Map<K, V>
   -> Bool
@@ -214,7 +214,7 @@ isEmpty<K, V>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 keys<K, V>
   Map<K, V>
   -> Array<K>
@@ -224,7 +224,7 @@ keys<K, V>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 mapKeysWith<K1, K2, V>
   (V -> V -> V)
   -> (K1 -> K2)
@@ -239,7 +239,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 mapValues<K, A, B>
   (A -> B)
   -> Map<K, A>
@@ -250,7 +250,7 @@ mapValues<K, A, B>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 mergeWith<K, V>
   (V -> V -> V)
   -> Map<K, V>
@@ -265,7 +265,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 remove<K, V>
   K
   -> Map<K, V>
@@ -279,7 +279,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 singleton<K, V>
   K
   -> V
@@ -293,7 +293,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 size<K, V>
   Map<K, V>
   -> Int
@@ -303,7 +303,7 @@ size<K, V>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 upsert<K, V>
   K
   -> (Maybe<V> -> V)
@@ -318,7 +318,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 values<K, V>
   Map<K, V>
   -> Array<V>

@@ -32,7 +32,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct DirectoryEntry {
   name: String,
   path: Path,
@@ -48,7 +48,7 @@ struct DirectoryEntry {
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct FileMetadata {
   fileType: FileType,
   sizeBytes: Int,
@@ -66,7 +66,7 @@ struct FileMetadata {
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 FileSystem
 ```
 
@@ -74,7 +74,7 @@ FileSystem
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct FileSystemError {
   operation: FileSystemOperation,
   path: Path,
@@ -92,7 +92,7 @@ struct FileSystemError {
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 FileSystemErrorKind
 ```
 
@@ -100,7 +100,7 @@ FileSystemErrorKind
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 FileSystemOperation
 ```
 
@@ -108,7 +108,7 @@ FileSystemOperation
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 FileTextError
 ```
 
@@ -116,7 +116,7 @@ FileTextError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 FileType
 ```
 
@@ -124,7 +124,7 @@ FileType
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 WriteMode
 ```
 
@@ -134,7 +134,7 @@ WriteMode
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Append
   WriteMode
 ```
@@ -143,7 +143,7 @@ Append
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 CanonicalizePath
   FileSystemOperation
 ```
@@ -152,7 +152,7 @@ CanonicalizePath
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 CreateDirectory
   FileSystemOperation
 ```
@@ -161,7 +161,7 @@ CreateDirectory
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 CreateNew
   WriteMode
 ```
@@ -170,7 +170,7 @@ CreateNew
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 CreateTemporary
   FileSystemOperation
 ```
@@ -179,7 +179,7 @@ CreateTemporary
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 CrossDeviceMove
   FileSystemErrorKind
 ```
@@ -188,7 +188,7 @@ CrossDeviceMove
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Directory
   FileType
 ```
@@ -197,7 +197,7 @@ Directory
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 DirectoryNotEmpty
   FileSystemErrorKind
 ```
@@ -206,7 +206,7 @@ DirectoryNotEmpty
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 FileAccessFailure
   FileSystemError
   -> FileTextError
@@ -216,7 +216,7 @@ FileAccessFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 FileAlreadyExists
   FileSystemErrorKind
 ```
@@ -225,7 +225,7 @@ FileAlreadyExists
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 FileNotFound
   FileSystemErrorKind
 ```
@@ -234,7 +234,7 @@ FileNotFound
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 FileSystemUnavailable
   FileSystemErrorKind
 ```
@@ -243,7 +243,7 @@ FileSystemUnavailable
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 FileUtf8Failure
   Utf8DecodeError
   -> FileTextError
@@ -253,7 +253,7 @@ FileUtf8Failure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 IsADirectory
   FileSystemErrorKind
 ```
@@ -262,7 +262,7 @@ IsADirectory
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 MovePath
   FileSystemOperation
 ```
@@ -271,7 +271,7 @@ MovePath
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 NotADirectory
   FileSystemErrorKind
 ```
@@ -280,7 +280,7 @@ NotADirectory
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 OpenDirectory
   FileSystemOperation
 ```
@@ -289,7 +289,7 @@ OpenDirectory
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 OtherFileSystemError
   String
   -> FileSystemErrorKind
@@ -299,7 +299,7 @@ OtherFileSystemError
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 OtherFileType
   FileType
 ```
@@ -308,7 +308,7 @@ OtherFileType
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 PathNotSupported
   FileSystemErrorKind
 ```
@@ -317,7 +317,7 @@ PathNotSupported
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 PermissionDenied
   FileSystemErrorKind
 ```
@@ -326,7 +326,7 @@ PermissionDenied
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ReadFile
   FileSystemOperation
 ```
@@ -335,7 +335,7 @@ ReadFile
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ReadMetadata
   FileSystemOperation
 ```
@@ -344,7 +344,7 @@ ReadMetadata
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 RegularFile
   FileType
 ```
@@ -353,7 +353,7 @@ RegularFile
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 RemovePath
   FileSystemOperation
 ```
@@ -362,7 +362,7 @@ RemovePath
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Replace
   WriteMode
 ```
@@ -371,7 +371,7 @@ Replace
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 SymbolicLink
   FileType
 ```
@@ -380,7 +380,7 @@ SymbolicLink
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 SymbolicLinkLoop
   FileSystemErrorKind
 ```
@@ -389,7 +389,7 @@ SymbolicLinkLoop
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 WriteFile
   FileSystemOperation
 ```
@@ -400,7 +400,7 @@ WriteFile
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 canonicalize
   Path
   -> Effect<
@@ -414,7 +414,7 @@ canonicalize
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 createDirectories
   Path
   -> Effect<
@@ -428,7 +428,7 @@ createDirectories
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 createDirectory
   Path
   -> Effect<
@@ -442,7 +442,7 @@ createDirectory
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 exists
   Path
   -> Effect<
@@ -456,7 +456,7 @@ exists
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 list
   Path
   -> Stream<
@@ -470,7 +470,7 @@ list
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 metadata
   Path
   -> Effect<
@@ -484,7 +484,7 @@ metadata
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 move
   Path
   -> Path
@@ -499,7 +499,7 @@ move
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 readBytes
   Path
   -> Effect<
@@ -513,7 +513,7 @@ readBytes
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 readChunks
   BufferCapacity
   -> Path
@@ -528,7 +528,7 @@ readChunks
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 readTextUtf8
   Path
   -> Effect<
@@ -542,7 +542,7 @@ readTextUtf8
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 removeDirectory
   Path
   -> Effect<
@@ -556,7 +556,7 @@ removeDirectory
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 removeFile
   Path
   -> Effect<
@@ -570,7 +570,7 @@ removeFile
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 symlinkMetadata
   Path
   -> Effect<
@@ -584,7 +584,7 @@ symlinkMetadata
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 withTemporaryDirectory<R, E, A>
   String
   -> (Path -> Effect<R, E, A>)
@@ -601,7 +601,7 @@ withTemporaryDirectory<R, E, A>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 withTemporaryFile<R, E, A>
   String
   -> (Path -> Effect<R, E, A>)
@@ -618,7 +618,7 @@ withTemporaryFile<R, E, A>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 writeAtomic
   Bytes
   -> Path
@@ -633,7 +633,7 @@ writeAtomic
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 writeBytes
   WriteMode
   -> Bytes
@@ -649,7 +649,7 @@ writeBytes
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 writeChunks<R, E>
   WriteMode
   -> Stream<R, E, Bytes>
@@ -667,7 +667,7 @@ writeChunks<R, E>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 writeTextUtf8
   WriteMode
   -> String

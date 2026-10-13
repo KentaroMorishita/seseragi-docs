@@ -29,7 +29,7 @@ Hello, Seseragi
 
 `println message`では、名前が指す文字列を渡しています。`message`の型は右辺から`String`と推論されるので、ここでは注釈を省けます。型を明示する場合の束縛は、次の断片の形です。
 
-```text
+```seseragi
 let message: String = "Hello"
 ```
 
@@ -81,7 +81,7 @@ Hello, Aki
 
 ブロックを使うと、途中の値に名前を付けたうえで、一つの結果を返せます。次の断片では、右辺のブロックが`"Hello, Aki"`を返し、その結果を`message`へ束縛します。
 
-```text
+```seseragi
 let message = {
   let name = "Aki"
   `Hello, ${name}`

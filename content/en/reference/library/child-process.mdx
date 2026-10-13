@@ -26,7 +26,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct CapturedProcess {
   status: ChildExitStatus,
   stdout: Bytes,
@@ -42,7 +42,7 @@ struct CapturedProcess {
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 CaptureLimit
 ```
 
@@ -50,7 +50,7 @@ CaptureLimit
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ChildEvent
 ```
 
@@ -58,7 +58,7 @@ ChildEvent
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ChildExitStatus
 ```
 
@@ -66,7 +66,7 @@ ChildExitStatus
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ChildInput
 ```
 
@@ -74,7 +74,7 @@ ChildInput
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ChildOutputChannel
 ```
 
@@ -82,7 +82,7 @@ ChildOutputChannel
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ChildProcessConfigError
 ```
 
@@ -90,7 +90,7 @@ ChildProcessConfigError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ChildProcessError
 ```
 
@@ -98,7 +98,7 @@ ChildProcessError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ChildProcesses
 ```
 
@@ -106,7 +106,7 @@ ChildProcesses
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Command
 ```
 
@@ -114,7 +114,7 @@ Command
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Executable
 ```
 
@@ -124,7 +124,7 @@ Executable
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ArgumentContainsNul
   { index: Int, offset: Int }
   -> ChildProcessConfigError
@@ -134,7 +134,7 @@ ArgumentContainsNul
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildExited
   Int
   -> ChildExitStatus
@@ -144,7 +144,7 @@ ChildExited
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildExitedWith
   ChildExitStatus
   -> ChildEvent
@@ -154,7 +154,7 @@ ChildExitedWith
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildHostTerminated
   String
   -> ChildExitStatus
@@ -164,7 +164,7 @@ ChildHostTerminated
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildInputAfterClose
   ChildProcessError
 ```
@@ -173,7 +173,7 @@ ChildInputAfterClose
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildInputFailed
   String
   -> ChildProcessError
@@ -183,7 +183,7 @@ ChildInputFailed
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildOutputLimitExceeded
   {
     channel: ChildOutputChannel,
@@ -196,7 +196,7 @@ ChildOutputLimitExceeded
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildOutputReadFailed
   {
     channel: ChildOutputChannel,
@@ -209,7 +209,7 @@ ChildOutputReadFailed
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildSignaled
   ProcessSignal
   -> ChildExitStatus
@@ -219,7 +219,7 @@ ChildSignaled
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildSpawnFailed
   {
     executable: Executable,
@@ -232,7 +232,7 @@ ChildSpawnFailed
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildStderr
   ChildOutputChannel
 ```
@@ -241,7 +241,7 @@ ChildStderr
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildStderrChunk
   Bytes
   -> ChildEvent
@@ -251,7 +251,7 @@ ChildStderrChunk
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildStdout
   ChildOutputChannel
 ```
@@ -260,7 +260,7 @@ ChildStdout
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildStdoutChunk
   Bytes
   -> ChildEvent
@@ -270,7 +270,7 @@ ChildStdoutChunk
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildTerminationFailed
   String
   -> ChildProcessError
@@ -280,7 +280,7 @@ ChildTerminationFailed
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ChildWaitFailed
   String
   -> ChildProcessError
@@ -290,7 +290,7 @@ ChildWaitFailed
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 CloseChildStdin
   ChildInput
 ```
@@ -299,7 +299,7 @@ CloseChildStdin
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 EmptyExecutableName
   ChildProcessConfigError
 ```
@@ -308,7 +308,7 @@ EmptyExecutableName
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 EnvironmentNameContainsNul
   String
   -> ChildProcessConfigError
@@ -318,7 +318,7 @@ EnvironmentNameContainsNul
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 EnvironmentValueContainsNul
   String
   -> ChildProcessConfigError
@@ -328,7 +328,7 @@ EnvironmentValueContainsNul
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ExecutableNameContainsSeparator
   String
   -> ChildProcessConfigError
@@ -338,7 +338,7 @@ ExecutableNameContainsSeparator
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ExecutablePath
   Path
   -> Executable
@@ -348,7 +348,7 @@ ExecutablePath
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidCaptureLimit
   Int
   -> ChildProcessConfigError
@@ -358,7 +358,7 @@ InvalidCaptureLimit
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 KillChild
   ChildInput
 ```
@@ -367,7 +367,7 @@ KillChild
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 SearchPath
   String
   -> Executable
@@ -377,7 +377,7 @@ SearchPath
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 SignalChild
   ProcessSignal
   -> ChildInput
@@ -387,7 +387,7 @@ SignalChild
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 UnsupportedChildSignal
   ProcessSignal
   -> ChildProcessError
@@ -397,7 +397,7 @@ UnsupportedChildSignal
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 WriteChildStdin
   Bytes
   -> ChildInput
@@ -409,7 +409,7 @@ WriteChildStdin
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 addArgument
   String
   -> Command
@@ -423,7 +423,7 @@ addArgument
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 addArguments
   Array<String>
   -> Command
@@ -437,7 +437,7 @@ addArguments
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 captureLimit
   Int
   -> Either<
@@ -450,7 +450,7 @@ captureLimit
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 clearEnvironment
   Command
   -> Command
@@ -460,7 +460,7 @@ clearEnvironment
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 command
   Executable
   -> Either<
@@ -473,7 +473,7 @@ command
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 defaultCaptureLimit
   Unit
   -> CaptureLimit
@@ -483,7 +483,7 @@ defaultCaptureLimit
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 inDirectory
   Path
   -> Command
@@ -494,7 +494,7 @@ inDirectory
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 outputBuffer
   BufferCapacity
   -> Command
@@ -505,7 +505,7 @@ outputBuffer
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 runCaptured
   CaptureLimit
   -> Bytes
@@ -524,7 +524,7 @@ runCaptured
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 runInherited
   Command
   -> Effect<
@@ -541,7 +541,7 @@ runInherited
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 runStreaming<R, E>
   Stream<R, E, ChildInput>
   -> Command
@@ -559,7 +559,7 @@ runStreaming<R, E>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 setEnvironment
   String
   -> String
@@ -574,7 +574,7 @@ setEnvironment
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 terminationGrace
   Duration
   -> Command
@@ -585,7 +585,7 @@ terminationGrace
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 unsetEnvironment
   String
   -> Command

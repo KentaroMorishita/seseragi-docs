@@ -27,7 +27,7 @@ import * as bytes_base64
 
 厳密なRFC 4648 Base64復号の失敗を表します。
 
-```text
+```seseragi
 Base64DecodeError
 ```
 
@@ -39,7 +39,7 @@ Base64DecodeError
 
 最初の不正なBase64 digitのUTF-8 byte offsetを報告します。
 
-```text
+```seseragi
 InvalidBase64Digit
   { offset: Int }
   -> Base64DecodeError
@@ -51,7 +51,7 @@ InvalidBase64Digit
 
 UTF-8 byte数で測った、不正なBase64入力長を報告します。
 
-```text
+```seseragi
 InvalidBase64Length
   Int
   -> Base64DecodeError
@@ -63,7 +63,7 @@ InvalidBase64Length
 
 不正なBase64 paddingのUTF-8 byte offsetを報告します。
 
-```text
+```seseragi
 InvalidBase64Padding
   { offset: Int }
   -> Base64DecodeError
@@ -75,7 +75,7 @@ InvalidBase64Padding
 
 最後のBase64 sextetで、未使用bitが0ではないことを報告します。
 
-```text
+```seseragi
 NonCanonicalBase64Bits
   { offset: Int }
   -> Base64DecodeError
@@ -89,7 +89,7 @@ NonCanonicalBase64Bits
 
 canonicalなpadding付きRFC 4648 Base64 textを厳密に復号します。
 
-```text
+```seseragi
 decode
   String
   -> Either<
@@ -104,7 +104,7 @@ decode
 
 canonicalなpaddingなしURL-safe Base64 textを厳密に復号します。
 
-```text
+```seseragi
 decodeUrl
   String
   -> Either<
@@ -119,7 +119,7 @@ decodeUrl
 
 Bytesをcanonicalなpadding付きRFC 4648 Base64 textへencodeします。
 
-```text
+```seseragi
 encode
   Bytes
   -> String
@@ -131,7 +131,7 @@ encode
 
 BytesをcanonicalなpaddingなしURL-safe Base64 textへencodeします。
 
-```text
+```seseragi
 encodeUrl
   Bytes
   -> String

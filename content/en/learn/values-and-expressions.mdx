@@ -29,7 +29,7 @@ Hello, Seseragi
 
 `println message` receives the string referred to by the name. The right-hand side determines that `message` is a `String`, so an annotation is optional here. This fragment shows an explicit annotation:
 
-```text
+```seseragi
 let message: String = "Hello"
 ```
 
@@ -81,7 +81,7 @@ Hello, Aki
 
 A block lets you name intermediate values and return one result. In this fragment, the right-hand block returns `"Hello, Aki"`, which is then bound to `message`:
 
-```text
+```seseragi
 let message = {
   let name = "Aki"
   `Hello, ${name}`

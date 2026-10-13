@@ -25,7 +25,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Blob
 ```
 
@@ -33,7 +33,7 @@ Blob
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 BlobBuildError
 ```
 
@@ -41,7 +41,7 @@ BlobBuildError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 BlobReadError
 ```
 
@@ -49,7 +49,7 @@ BlobReadError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 File
 ```
 
@@ -59,7 +59,7 @@ File
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 BlobReadFailure
   String
   -> BlobReadError
@@ -69,7 +69,7 @@ BlobReadFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 BlobReadLimitExceeded
   {
     limitBytes: Int,
@@ -82,7 +82,7 @@ BlobReadLimitExceeded
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidBlobMimeType
   String
   -> BlobBuildError
@@ -94,7 +94,7 @@ InvalidBlobMimeType
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 asBlob
   File
   -> Blob
@@ -104,7 +104,7 @@ asBlob
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 body
   Blob
   -> Body<{}, BlobReadError>
@@ -114,7 +114,7 @@ body
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 fromBytes
   Maybe<String>
   -> Bytes
@@ -125,7 +125,7 @@ fromBytes
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 lastModifiedMillis
   File
   -> Int
@@ -135,7 +135,7 @@ lastModifiedMillis
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 mimeType
   Blob
   -> Maybe<String>
@@ -145,7 +145,7 @@ mimeType
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 name
   File
   -> String
@@ -155,7 +155,7 @@ name
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 readBytes
   Int
   -> Blob
@@ -170,7 +170,7 @@ readBytes
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 readChunks
   Blob
   -> Stream<
@@ -184,7 +184,7 @@ readChunks
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 sizeBytes
   Blob
   -> Int

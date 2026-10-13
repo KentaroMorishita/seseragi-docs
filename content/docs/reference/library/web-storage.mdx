@@ -26,7 +26,7 @@ import * as web_storage
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Storage
 ```
 
@@ -34,7 +34,7 @@ Storage
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 StorageArea
 ```
 
@@ -42,7 +42,7 @@ StorageArea
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 StorageError
 ```
 
@@ -52,7 +52,7 @@ StorageError
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 Local
   StorageArea
 ```
@@ -61,7 +61,7 @@ Local
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 Session
   StorageArea
 ```
@@ -70,7 +70,7 @@ Session
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 StorageQuotaExceeded
   {
     area: StorageArea,
@@ -84,7 +84,7 @@ StorageQuotaExceeded
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 StorageSecurityFailure
   {
     area: StorageArea,
@@ -97,7 +97,7 @@ StorageSecurityFailure
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 StorageUnavailable
   {
     area: StorageArea,
@@ -112,7 +112,7 @@ StorageUnavailable
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 clear
   StorageArea
   -> Effect<
@@ -126,7 +126,7 @@ clear
 
 <small className="api-kind">関数</small>
 
-```text
+```seseragi
 errorMessage
   StorageError
   -> String
@@ -138,7 +138,7 @@ errorMessage
 
 指定したstorage領域のキーを読むEffectを返します。キーがなければNothingを返し、読み取りが失敗すればStorageErrorで失敗します。
 
-```text
+```seseragi
 get
   StorageArea
   -> String
@@ -153,7 +153,7 @@ get
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 keys
   StorageArea
   -> Effect<
@@ -167,7 +167,7 @@ keys
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 remove
   StorageArea
   -> String
@@ -182,7 +182,7 @@ remove
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 set
   StorageArea
   -> String

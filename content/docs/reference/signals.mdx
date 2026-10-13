@@ -107,7 +107,7 @@ sourceを3へ変えた後にdoubledを読むため、出力は6です。mapの�
 
 `set`と`update`は一件のtransactionです。複数sourceをまとめる場合は、`planSet`・`planUpdate`で作った`SignalChange`をArrayへ並べ、`transaction`へ渡します。
 
-```text title="複数更新の構文"
+```seseragi title="複数更新の構文"
 signals.transaction [
   signals.planSet 3 width,
   signals.planSet 4 height,

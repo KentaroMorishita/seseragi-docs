@@ -24,7 +24,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Queue<_>
 ```
 
@@ -32,7 +32,7 @@ Queue<_>
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 QueueCreateError
 ```
 
@@ -42,7 +42,7 @@ QueueCreateError
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 NonPositiveCapacity
   Int
   -> QueueCreateError
@@ -52,7 +52,7 @@ NonPositiveCapacity
 
 <small className="api-kind">Constructor / Opaque type</small>
 
-```text
+```seseragi
 QueueClosed
 ```
 
@@ -62,7 +62,7 @@ QueueClosed
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 bounded<A>
   Int
   -> Effect<
@@ -76,7 +76,7 @@ bounded<A>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 close<A>
   Queue<A>
   -> Effect<{}, Never, Unit>
@@ -86,7 +86,7 @@ close<A>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 offer<A>
   A
   -> Queue<A>
@@ -97,7 +97,7 @@ offer<A>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 size<A>
   Queue<A>
   -> Effect<{}, Never, Int>
@@ -109,7 +109,7 @@ size<A>
 
 Returns an Effect that removes one queue value, waits when empty, and fails with QueueClosed when the queue is closed and drained.
 
-```text
+```seseragi
 take<A>
   Queue<A>
   -> Effect<{}, QueueClosed, A>
@@ -119,7 +119,7 @@ take<A>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 tryOffer<A>
   A
   -> Queue<A>
@@ -134,7 +134,7 @@ tryOffer<A>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 tryTake<A>
   Queue<A>
   -> Effect<
@@ -148,7 +148,7 @@ tryTake<A>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 unbounded<A>
   Unit
   -> Effect<{}, Never, Queue<A>>

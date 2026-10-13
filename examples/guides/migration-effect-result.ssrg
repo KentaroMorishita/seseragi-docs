@@ -1,0 +1,12 @@
+import * as effects from "std/effect"
+
+effect fn produce n: Int = do {
+  println "ran"
+  effects.succeed n
+}
+
+pub effect fn main = do {
+  let job = produce 42
+  answer <- job
+  println `${answer}, ${answer}`
+}

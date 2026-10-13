@@ -26,7 +26,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Entropy
 ```
 
@@ -34,7 +34,7 @@ Entropy
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 EntropyConfigError
 ```
 
@@ -42,7 +42,7 @@ EntropyConfigError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 EntropyError
 ```
 
@@ -50,7 +50,7 @@ EntropyError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 EntropySize
 ```
 
@@ -60,7 +60,7 @@ EntropySize
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 EntropyReadFailure
   EntropyError
 ```
@@ -69,7 +69,7 @@ EntropyReadFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 EntropySizeTooLarge
   Int
   -> EntropyConfigError
@@ -79,7 +79,7 @@ EntropySizeTooLarge
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 EntropyUnavailable
   EntropyError
 ```
@@ -88,7 +88,7 @@ EntropyUnavailable
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 NonPositiveEntropySize
   Int
   -> EntropyConfigError
@@ -100,7 +100,7 @@ NonPositiveEntropySize
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 entropySize
   Int
   -> Either<
@@ -113,7 +113,7 @@ entropySize
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 secureBytes
   EntropySize
   -> Effect<

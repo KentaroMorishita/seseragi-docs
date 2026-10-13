@@ -31,7 +31,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Test
 ```
 
@@ -39,7 +39,7 @@ Test
 
 <small className="api-kind">Type alias</small>
 
-```text
+```seseragi
 TestEnvironment
 ```
 
@@ -47,7 +47,7 @@ TestEnvironment
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 TestFailure
 ```
 
@@ -57,7 +57,7 @@ TestFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 AssertionFailed
   {
     message: String,
@@ -71,7 +71,7 @@ AssertionFailed
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ExpectedTypedFailure
   TestFailure
 ```
@@ -80,7 +80,7 @@ ExpectedTypedFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ExplicitTestFailure
   String
   -> TestFailure
@@ -90,7 +90,7 @@ ExplicitTestFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 TypedFailureDidNotMatch
   String
   -> TestFailure
@@ -102,7 +102,7 @@ TypedFailureDidNotMatch
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 equal<A>
   A
   -> A
@@ -116,7 +116,7 @@ where
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 expectFailure<R, E, A>
   (E -> Bool)
   -> Effect<R, E, A>
@@ -129,7 +129,7 @@ where
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 fail
   String
   -> Effect<{}, TestFailure, Unit>
@@ -139,7 +139,7 @@ fail
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 isFalse
   Bool
   -> Effect<{}, TestFailure, Unit>
@@ -149,7 +149,7 @@ isFalse
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 isTrue
   Bool
   -> Effect<{}, TestFailure, Unit>
@@ -159,7 +159,7 @@ isTrue
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 notEqual<A>
   A
   -> A
@@ -173,7 +173,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 skip
   String
   -> Test
@@ -184,7 +184,7 @@ skip
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 suite
   String
   -> Array<Test>
@@ -195,7 +195,7 @@ suite
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 test
   String
   -> Effect<
@@ -215,7 +215,7 @@ test
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 timeout
   Duration
   -> Test

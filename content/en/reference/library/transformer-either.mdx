@@ -25,7 +25,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct EitherT<E, M<_>, A> {
   run: M<Either<E, A>>
 }
@@ -39,7 +39,7 @@ struct EitherT<E, M<_>, A> {
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 fromEither<E, M<_>, A>
   Either<E, A>
   -> EitherT<E, M<_>, A>
@@ -51,7 +51,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 lift<E, M<_>, A>
   M<A>
   -> EitherT<E, M<_>, A>
@@ -63,7 +63,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 run<E, M<_>, A>
   EitherT<E, M<_>, A>
   -> M<Either<E, A>>

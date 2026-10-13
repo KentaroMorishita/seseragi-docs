@@ -96,7 +96,7 @@ Invalid hex
 
 不正なhex text入力を、そのUTF-8 byte位置とともに表します。
 
-```text
+```seseragi
 HexDecodeError
 ```
 
@@ -108,7 +108,7 @@ HexDecodeError
 
 最初のhex以外のdigitのUTF-8 byte offsetを報告します。
 
-```text
+```seseragi
 InvalidHexDigit
   { offset: Int }
   -> HexDecodeError
@@ -120,7 +120,7 @@ InvalidHexDigit
 
 UTF-8 byte数で測った、奇数長のhex入力を報告します。
 
-```text
+```seseragi
 OddHexLength
   Int
   -> HexDecodeError
@@ -134,7 +134,7 @@ OddHexLength
 
 ASCIIのhex textを復号し、最初の失敗を型付きerrorで返します。
 
-```text
+```seseragi
 decode
   String
   -> Either<HexDecodeError, Bytes>
@@ -146,7 +146,7 @@ decode
 
 Bytesをcanonicalなlowercase hex textへencodeします。
 
-```text
+```seseragi
 encode
   Bytes
   -> String

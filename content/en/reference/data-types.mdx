@@ -79,7 +79,7 @@ The outputs are 0 and 12. The Rect payload is destructured as a tuple inside its
 
 Constructing a struct requires every field. A same-named variable may use field shorthand. An update places exactly one spread of the same struct type first, followed by replacement fields.
 
-```text title="Construction syntax"
+```seseragi title="Construction syntax"
 Ticket {
   id,
   title: "Read the docs",
@@ -120,7 +120,7 @@ draft remains Aki; edited is Mio. The spread constructs a new Person instead of 
 
 Records are unnamed structural types. Multiple spreads are applied in source order, with later spreads and explicit fields replacing earlier values. Changing a field type creates a new record type. Duplicate explicitly written field names are errors.
 
-```text title="Record syntax"
+```seseragi title="Record syntax"
 { name: "Aki", age: 30 }
 { ...profile, age: profile.age + 1 }
 { name, }
@@ -244,7 +244,7 @@ There are no one-element tuples. Collection elements share one type. Empty colle
 
 These fragments illustrate comprehension syntax:
 
-```text title="Comprehension syntax"
+```seseragi title="Comprehension syntax"
 [n * n | n <- 1..=6, n % 2 == 0]
 `[name | Just name <- optionalNames]
 ```

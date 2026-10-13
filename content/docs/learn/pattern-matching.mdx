@@ -63,7 +63,7 @@ Reading: 23
 
 整数には多くの値があるため、個別の値を列挙した後に残りを扱う分岐を置けます。次の断片は0と、それ以外の整数を区別します。
 
-```text
+```seseragi
 match number {
   0 -> "zero"
   _ -> "nonzero"
@@ -76,7 +76,7 @@ match number {
 
 パターンへ`when`でBoolの条件を付けると、パターンが一致した後にその条件を調べます。次の断片では、正の整数を最初の分岐で扱います。
 
-```text
+```seseragi
 match number {
   n when n > 0 -> "positive"
   _ -> "zero or negative"

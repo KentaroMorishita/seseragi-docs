@@ -25,7 +25,7 @@ import * as semaphore
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Permit
 ```
 
@@ -33,7 +33,7 @@ Permit
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 Semaphore
 ```
 
@@ -41,7 +41,7 @@ Semaphore
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 SemaphoreCreateError
 ```
 
@@ -51,7 +51,7 @@ SemaphoreCreateError
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 NonPositivePermits
   Int
   -> SemaphoreCreateError
@@ -63,7 +63,7 @@ NonPositivePermits
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 acquire
   Semaphore
   -> Effect<{}, Never, Permit>
@@ -73,7 +73,7 @@ acquire
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 available
   Semaphore
   -> Effect<{}, Never, Int>
@@ -83,7 +83,7 @@ available
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 make
   Int
   -> Effect<
@@ -97,7 +97,7 @@ make
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 release
   Permit
   -> Effect<{}, Never, Unit>
@@ -107,7 +107,7 @@ release
 
 <small className="api-kind">Effectを返す関数</small>
 
-```text
+```seseragi
 withPermit<R, E, A>
   Semaphore
   -> Effect<R, E, A>

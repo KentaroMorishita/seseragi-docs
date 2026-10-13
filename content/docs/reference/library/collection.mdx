@@ -27,7 +27,7 @@ import * as collection
 
 pureなreduce制御です。Nextは継続、Doneは停止です。
 
-```text
+```seseragi
 ReduceStep<_>
 ```
 
@@ -35,7 +35,7 @@ ReduceStep<_>
 
 <small className="api-kind">内部表現を隠した型</small>
 
-```text
+```seseragi
 SizeError
 ```
 
@@ -47,7 +47,7 @@ SizeError
 
 この結果でreduceUntilを終えることを表すReduceStepの値を作ります。
 
-```text
+```seseragi
 Done<A>
   A
   -> ReduceStep<A>
@@ -59,7 +59,7 @@ Done<A>
 
 次のaccumulatorでreduceUntilを続けることを表すReduceStepの値を作ります。
 
-```text
+```seseragi
 Next<A>
   A
   -> ReduceStep<A>
@@ -69,7 +69,7 @@ Next<A>
 
 <small className="api-kind">コンストラクタ</small>
 
-```text
+```seseragi
 NonPositiveSize
   Int
   -> SizeError
@@ -83,7 +83,7 @@ NonPositiveSize
 
 Iterableをsource順にDoneまでfoldし、残りの要素は取得しません。
 
-```text
+```seseragi
 reduceUntil<C, A, B>
   B
   -> (B -> A -> ReduceStep<B>)

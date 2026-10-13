@@ -9,7 +9,7 @@ description: "宣言、適用、部分適用、lambda、local関数、再帰とm
 
 parameter名と型を`->`でつなぎ、最後に戻り型を書きます。通常の`fn`ではparameter型と戻り型が必須です。
 
-```text title="宣言の構文"
+```seseragi title="宣言の構文"
 fn add x: Int -> y: Int -> Int =
   x + y
 ```
@@ -81,7 +81,7 @@ Seseragiはstrict evaluationです。引数を左から右へ一度ずつ評価�
 
 lambdaは`\x -> x + 1`、複数parameterなら`\x y -> x + y`と書きます。parameter型は文脈から決まる場合に省略できます。決まらない場合は`\x: Int -> x + 1`のように注釈します。
 
-```text title="高階関数の構文"
+```seseragi title="高階関数の構文"
 map (\value: Int -> value + 1) [1, 2]
 ```
 
@@ -128,7 +128,7 @@ pub effect fn main =
 
 ブロックは最後の式を返します。`let`は再代入できず、その後からブロック末尾まで見えます。localな`fn`は、自身のbodyと宣言後のitemから参照できます。宣言前のbindingをcaptureできますが、後続bindingはcaptureできません。
 
-```text title="local関数の構文"
+```seseragi title="local関数の構文"
 fn twice value: Int -> Int = {
   fn double x: Int -> Int = x + x
   double value

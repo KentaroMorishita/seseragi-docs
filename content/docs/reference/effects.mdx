@@ -103,14 +103,14 @@ mappedを出力した後にcalculationを実行し、42を出力します。`let
 
 compact formはparameterの後へ直接`=`を書きます。`R`・`E`・`A`をbodyから推論し、公開interfaceには正規Effect型を保存します。
 
-```text title="compact form"
+```seseragi title="compact form"
 effect fn greet name: String =
   println $ `Hello, ${name}`
 ```
 
 contract formはsuccess型から書き、environmentとfailureをsourceへ固定します。
 
-```text title="contract form"
+```seseragi title="contract form"
 effect fn greet name: String -> Unit
 with Console
 fails ConsoleError =

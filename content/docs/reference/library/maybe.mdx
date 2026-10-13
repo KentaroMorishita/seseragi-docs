@@ -151,7 +151,7 @@ Nothing
 
 NothingならfallbackのMaybeを選び、既存のJustは保持します。
 
-```text
+```seseragi
 orElse<A>
   Maybe<A>
   -> Maybe<A>
@@ -164,7 +164,7 @@ orElse<A>
 
 identityでwrapped値を走査し、sourceの形と順序を保ちます。
 
-```text
+```seseragi
 sequence<F<_>, A>
   F<Maybe<A>>
   -> Maybe<F<A>>
@@ -178,7 +178,7 @@ where
 
 sourceのTraversableと、このmoduleのApplicativeを使います。別の走査実装は作りません。
 
-```text
+```seseragi
 traverse<F<_>, A, B>
   (A -> Maybe<B>)
   -> F<A>
@@ -193,7 +193,7 @@ where
 
 Nothingならfallback、Justならpayloadを返します。引数はstrictに評価します。
 
-```text
+```seseragi
 withDefault<A>
   A
   -> Maybe<A>

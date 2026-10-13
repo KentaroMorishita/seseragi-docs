@@ -20,7 +20,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Add
 ```
 
@@ -28,7 +28,7 @@ trait Add
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Applicative
 ```
 
@@ -36,7 +36,7 @@ trait Applicative
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Debug
 ```
 
@@ -44,7 +44,7 @@ trait Debug
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Div
 ```
 
@@ -54,7 +54,7 @@ trait Div
 
 Represents either a typed failure or a success value.
 
-```text
+```seseragi
 Either<E, A>
 ```
 
@@ -62,7 +62,7 @@ Either<E, A>
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Eq
 ```
 
@@ -70,7 +70,7 @@ trait Eq
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Functor
 ```
 
@@ -78,7 +78,7 @@ trait Functor
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Hash
 ```
 
@@ -86,7 +86,7 @@ trait Hash
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Iterable
 ```
 
@@ -94,7 +94,7 @@ trait Iterable
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait JsonDecode
 ```
 
@@ -102,7 +102,7 @@ trait JsonDecode
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait JsonEncode
 ```
 
@@ -112,7 +112,7 @@ trait JsonEncode
 
 Represents an optional value as Nothing or Just.
 
-```text
+```seseragi
 Maybe<A>
 ```
 
@@ -120,7 +120,7 @@ Maybe<A>
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Monad
 ```
 
@@ -128,7 +128,7 @@ trait Monad
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Monoid
 ```
 
@@ -136,7 +136,7 @@ trait Monoid
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Mul
 ```
 
@@ -144,7 +144,7 @@ trait Mul
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait One
 ```
 
@@ -152,7 +152,7 @@ trait One
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Ord
 ```
 
@@ -162,7 +162,7 @@ trait Ord
 
 Represents a total comparison result as Less, Equal, or Greater.
 
-```text
+```seseragi
 Ordering
 ```
 
@@ -170,7 +170,7 @@ Ordering
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Pow
 ```
 
@@ -178,7 +178,7 @@ trait Pow
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Reducible
 ```
 
@@ -186,7 +186,7 @@ trait Reducible
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Rem
 ```
 
@@ -194,7 +194,7 @@ trait Rem
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Semigroup
 ```
 
@@ -202,7 +202,7 @@ trait Semigroup
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Show
 ```
 
@@ -210,7 +210,7 @@ trait Show
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Sub
 ```
 
@@ -220,7 +220,7 @@ trait Sub
 
 Transparent alias for an Effect with no environment and no recoverable failure.
 
-```text
+```seseragi
 alias Task<A> = Effect<{}, Never, A>
 ```
 
@@ -228,7 +228,7 @@ alias Task<A> = Effect<{}, Never, A>
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Traversable
 ```
 
@@ -236,7 +236,7 @@ trait Traversable
 
 <small className="api-kind">Type class</small>
 
-```text
+```seseragi
 trait Zero
 ```
 
@@ -248,7 +248,7 @@ trait Zero
 
 Constructs the equal Ordering result.
 
-```text
+```seseragi
 Equal
   Ordering
 ```
@@ -259,7 +259,7 @@ Equal
 
 Constructs the greater-than Ordering result.
 
-```text
+```seseragi
 Greater
   Ordering
 ```
@@ -270,7 +270,7 @@ Greater
 
 Constructs a present Maybe value.
 
-```text
+```seseragi
 Just
   A
   -> Maybe<A>
@@ -282,7 +282,7 @@ Just
 
 Constructs the failure side of Either.
 
-```text
+```seseragi
 Left
   E
   -> Either<E, A>
@@ -294,7 +294,7 @@ Left
 
 Constructs the less-than Ordering result.
 
-```text
+```seseragi
 Less
   Ordering
 ```
@@ -305,7 +305,7 @@ Less
 
 Constructs an empty Maybe value.
 
-```text
+```seseragi
 Nothing
   Maybe<A>
 ```
@@ -316,7 +316,7 @@ Nothing
 
 Selects multiplication through a nominal wrapper; Monoid requires One and homogeneous Mul evidence.
 
-```text
+```seseragi
 Product
   A
   -> Product<A>
@@ -328,7 +328,7 @@ Product
 
 Constructs the success side of Either.
 
-```text
+```seseragi
 Right
   A
   -> Either<E, A>
@@ -340,7 +340,7 @@ Right
 
 Selects addition through a nominal wrapper; Monoid requires Zero and homogeneous Add evidence.
 
-```text
+```seseragi
 Sum
   A
   -> Sum<A>
@@ -354,7 +354,7 @@ Sum
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 - via Sub.sub
 ```
 
@@ -364,7 +364,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Persistent List cons. Precedence 4, right associative; evaluates head then tail once and shares the tail in O(1). The operator section (:) is a curried function.
 
-```text
+```seseragi
 A : List<A> -> List<A>
 ```
 
@@ -374,7 +374,7 @@ A : List<A> -> List<A>
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 != via Eq.eq
 ```
 
@@ -384,7 +384,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Maybe fallback. Precedence 0, right-associative. Evaluates the left once; evaluates the fallback only for Nothing. Syntax only: no operator section or overload.
 
-```text
+```seseragi
 Maybe<A> ?? A -> A
 ```
 
@@ -394,7 +394,7 @@ Maybe<A> ?? A -> A
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 * via Mul.mul
 ```
 
@@ -404,7 +404,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 ** via Pow.pow
 ```
 
@@ -414,7 +414,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 / via Div.div
 ```
 
@@ -424,7 +424,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 % via Rem.rem
 ```
 
@@ -434,7 +434,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 + via Add.add
 ```
 
@@ -444,7 +444,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 < via Ord.compare
 ```
 
@@ -454,7 +454,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Operator spelling for a standard trait method.
 
-```text
+```seseragi
 <*> via Applicative.apply
 ```
 
@@ -464,7 +464,7 @@ Operator spelling for a standard trait method.
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 <= via Ord.compare
 ```
 
@@ -474,7 +474,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Operator spelling for a standard trait method.
 
-```text
+```seseragi
 <$> via Functor.map
 ```
 
@@ -484,7 +484,7 @@ Operator spelling for a standard trait method.
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 == via Eq.eq
 ```
 
@@ -494,7 +494,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 > via Ord.compare
 ```
 
@@ -504,7 +504,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Dispatches through the standard trait instance selected by the operand types.
 
-```text
+```seseragi
 >= via Ord.compare
 ```
 
@@ -514,7 +514,7 @@ Dispatches through the standard trait instance selected by the operand types.
 
 Operator spelling for a standard trait method.
 
-```text
+```seseragi
 >>= via Monad.flatMap
 ```
 
@@ -524,7 +524,7 @@ Operator spelling for a standard trait method.
 
 Applies the selected arithmetic trait instance.
 
-```text
+```seseragi
 add<L, R, O>
   L
   -> R
@@ -539,7 +539,7 @@ where
 
 Returns false at the first element rejected by the predicate.
 
-```text
+```seseragi
 all<C, A>
   (A -> Bool)
   -> C
@@ -554,7 +554,7 @@ where
 
 Returns true at the first element accepted by the predicate.
 
-```text
+```seseragi
 any<C, A>
   (A -> Bool)
   -> C
@@ -569,7 +569,7 @@ where
 
 Combines two values through their associative Semigroup operation, including instances such as numeric wrappers.
 
-```text
+```seseragi
 append<A>
   A
   -> A
@@ -584,7 +584,7 @@ where
 
 Applies a function inside an Applicative context.
 
-```text
+```seseragi
 apply<F<_>, A, B>
   F<(A -> B)>
   -> F<A>
@@ -599,7 +599,7 @@ where
 
 Combines a reducible collection using its Monoid instance.
 
-```text
+```seseragi
 combine<C, A>
   C
   -> A
@@ -614,7 +614,7 @@ where
 
 Compares two values with the selected total ordering.
 
-```text
+```seseragi
 compare<A>
   A
   -> A
@@ -627,7 +627,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 debug<A>
   A
   -> String
@@ -639,7 +639,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 decodeJson<A>
   Json
   -> Either<DecodeError, A>
@@ -653,7 +653,7 @@ where
 
 Applies the selected arithmetic trait instance.
 
-```text
+```seseragi
 div<L, R, O>
   L
   -> R
@@ -668,7 +668,7 @@ where
 
 Returns the identity value for a Monoid.
 
-```text
+```seseragi
 empty<A>
   Unit
   -> A
@@ -680,7 +680,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 encodeJson<A>
   A
   -> Json
@@ -694,7 +694,7 @@ where
 
 Tests two values with the selected Eq instance.
 
-```text
+```seseragi
 eq<A>
   A
   -> A
@@ -709,7 +709,7 @@ where
 
 Sequences a Monad with a value-dependent next computation.
 
-```text
+```seseragi
 flatMap<M<_>, A, B>
   (A -> M<B>)
   -> M<A>
@@ -724,7 +724,7 @@ where
 
 Runs one Effect for every value exposed by an Iterable instance.
 
-```text
+```seseragi
 forEach<C, R, E, A>
   (A -> Effect<R, E, Unit>)
   -> C
@@ -739,7 +739,7 @@ where
 
 Computes the hash defined by the selected Hash instance.
 
-```text
+```seseragi
 hash<A>
   A
   -> Int
@@ -753,7 +753,7 @@ where
 
 Creates an Iterator over a collection.
 
-```text
+```seseragi
 iterate<C, A>
   C
   -> Iterator<A>
@@ -767,7 +767,7 @@ where
 
 Joins a reducible collection of strings with a separator.
 
-```text
+```seseragi
 join<C>
   String
   -> C
@@ -782,7 +782,7 @@ where
 
 Transforms the value inside a Functor without changing its shape.
 
-```text
+```seseragi
 map<F<_>, A, B>
   (A -> B)
   -> F<A>
@@ -797,7 +797,7 @@ where
 
 Applies the selected arithmetic trait instance.
 
-```text
+```seseragi
 mul<L, R, O>
   L
   -> R
@@ -812,7 +812,7 @@ where
 
 Reads the next Iterator value and its remaining Iterator.
 
-```text
+```seseragi
 next<A>
   Iterator<A>
   -> Maybe<(A, Iterator<A>)>
@@ -824,7 +824,7 @@ next<A>
 
 Returns the numeric one for the selected type.
 
-```text
+```seseragi
 one<A>
   Unit
   -> A
@@ -838,7 +838,7 @@ where
 
 Applies the selected arithmetic trait instance.
 
-```text
+```seseragi
 pow<L, R, O>
   L
   -> R
@@ -853,7 +853,7 @@ where
 
 Writes text through Console without adding a newline.
 
-```text
+```seseragi
 print
   String
   -> Effect<
@@ -869,7 +869,7 @@ print
 
 Writes text followed by a newline through Console.
 
-```text
+```seseragi
 println
   String
   -> Effect<
@@ -885,7 +885,7 @@ println
 
 Renders a value through its Show instance and writes it through Console.
 
-```text
+```seseragi
 printValue<A>
   A
   -> Effect<
@@ -903,7 +903,7 @@ where
 
 Multiplies every element of a reducible collection from one.
 
-```text
+```seseragi
 product<C, A>
   C
   -> A
@@ -919,7 +919,7 @@ where
 
 Lifts a value into an Applicative context.
 
-```text
+```seseragi
 pure<F<_>, A>
   A
   -> F<A>
@@ -933,7 +933,7 @@ where
 
 Reads one optional line through Stdin.
 
-```text
+```seseragi
 readLine
   Unit
   -> Effect<
@@ -949,7 +949,7 @@ readLine
 
 Folds a reducible collection into one accumulated value.
 
-```text
+```seseragi
 reduce<C, A, B>
   B
   -> (B -> A -> B)
@@ -965,7 +965,7 @@ where
 
 Applies the selected arithmetic trait instance.
 
-```text
+```seseragi
 rem<L, R, O>
   L
   -> R
@@ -978,7 +978,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 show<A>
   A
   -> String
@@ -992,7 +992,7 @@ where
 
 Applies the selected arithmetic trait instance.
 
-```text
+```seseragi
 sub<L, R, O>
   L
   -> R
@@ -1007,7 +1007,7 @@ where
 
 Adds every element of a reducible collection from zero.
 
-```text
+```seseragi
 sum<C, A>
   C
   -> A
@@ -1023,7 +1023,7 @@ where
 
 Traverses a Functor with an Applicative effect while preserving its shape.
 
-```text
+```seseragi
 traverse<F<_>, G<_>, A, B>
   (A -> G<B>)
   -> F<A>
@@ -1039,7 +1039,7 @@ where
 
 Builds a lazy Iterator from an initial state and step function.
 
-```text
+```seseragi
 unfold<S, A>
   (S -> Maybe<(A, S)>)
   -> S
@@ -1052,7 +1052,7 @@ unfold<S, A>
 
 Returns the numeric zero for the selected type.
 
-```text
+```seseragi
 zero<A>
   Unit
   -> A

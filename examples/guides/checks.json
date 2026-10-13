@@ -7,7 +7,7 @@
   {
     "file": "examples/guides/migration-grouping.ssrg",
     "mode": "run",
-    "stdout": "42"
+    "stdout": "41, 42\n"
   },
   {
     "file": "examples/guides/migration-partial.ssrg",
@@ -116,5 +116,173 @@
     "file": "examples/guides/testing-validation",
     "mode": "test",
     "stdout": "PASS names::name::valid\nPASS names::name::trimmed\nPASS names::name::blank\nPASS names::name::spaces\n4 passed; 0 failed; 0 skipped\n"
+  },
+  {
+    "file": "examples/guides/migration-numeric.ssrg",
+    "mode": "run",
+    "stdout": "2, 2.5\n"
+  },
+  {
+    "file": "examples/guides/migration-lambda.ssrg",
+    "mode": "run",
+    "stdout": "[2, 4, 6]\n"
+  },
+  {
+    "file": "examples/guides/migration-steps.ssrg",
+    "mode": "run",
+    "stdout": "[4, 6]\n"
+  },
+  {
+    "file": "examples/guides/migration-condition.ssrg",
+    "mode": "run",
+    "stdout": "pass\nretry\n"
+  },
+  {
+    "file": "examples/guides/migration-immutable.ssrg",
+    "mode": "run",
+    "stdout": "1, 2\n"
+  },
+  {
+    "file": "examples/guides/migration-alias.ssrg",
+    "mode": "run",
+    "stdout": "3"
+  },
+  {
+    "file": "examples/guides/migration-maybe.ssrg",
+    "mode": "run",
+    "stdout": "[Ada]\n[Guest]\n[]\n"
+  },
+  {
+    "file": "examples/guides/migration-maybe-map.ssrg",
+    "mode": "run",
+    "stdout": "Just 42\nNothing\n"
+  },
+  {
+    "file": "examples/guides/migration-either.ssrg",
+    "mode": "run",
+    "stdout": "Hello, Ada\nEnter a name\n"
+  },
+  {
+    "file": "examples/guides/migration-effect.ssrg",
+    "mode": "run",
+    "stdout": "constructed\nran\nran\n"
+  },
+  {
+    "file": "examples/guides/migration-props.ssrg",
+    "mode": "run",
+    "stdout": "<span>Ready</span>\n"
+  },
+  {
+    "file": "examples/guides/migration-update.ssrg",
+    "mode": "run",
+    "stdout": "1\n0\n"
+  },
+  {
+    "file": "examples/guides/migration-arguments.ssrg",
+    "mode": "run",
+    "stdout": "42"
+  },
+  {
+    "file": "examples/guides/migration-typescript/call.ts",
+    "mode": "typescript",
+    "stdout": "42\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/numeric.ts",
+    "mode": "typescript",
+    "stdout": "2.5, 2.5\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/grouping.ts",
+    "mode": "typescript",
+    "stdout": "41, 42\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/arguments.ts",
+    "mode": "typescript",
+    "stdout": "42\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/partial.ts",
+    "mode": "typescript",
+    "stdout": "42\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/lambda.ts",
+    "mode": "typescript",
+    "stdout": "[ 2, 4, 6 ]\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/pipeline.ts",
+    "mode": "typescript",
+    "stdout": "[ 2, 4, 6 ]\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/steps.ts",
+    "mode": "typescript",
+    "stdout": "[ 4, 6 ]\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/condition.ts",
+    "mode": "typescript",
+    "stdout": "pass\nretry\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/record.ts",
+    "mode": "typescript",
+    "stdout": "3\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/immutable.ts",
+    "mode": "typescript",
+    "stdout": "1, 2\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/alias.ts",
+    "mode": "typescript",
+    "stdout": "3\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/data.ts",
+    "mode": "typescript",
+    "stdout": "Kyoto\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/maybe.ts",
+    "mode": "typescript",
+    "stdout": "[Ada]\n[Guest]\n[]\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/maybe-map.ts",
+    "mode": "typescript",
+    "stdout": "42\nundefined\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/either.ts",
+    "mode": "typescript",
+    "stdout": "Hello, Ada\nEnter a name\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/effect.ts",
+    "mode": "typescript",
+    "stdout": "ran\nconstructed\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/update.ts",
+    "mode": "typescript",
+    "stdout": "1\n0\n"
+  },
+  {
+    "file": "examples/guides/migration-typescript/react.tsx",
+    "mode": "typecheck"
+  },
+  {
+    "file": "examples/guides/migration-web",
+    "mode": "build"
+  },
+  {
+    "file": "examples/guides/migration-effect-result.ssrg",
+    "mode": "run",
+    "stdout": "ran\n42, 42\n"
   }
 ]

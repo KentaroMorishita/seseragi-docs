@@ -33,7 +33,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Body<_, _>
 ```
 
@@ -43,7 +43,7 @@ Body<_, _>
 
 Immutable ordered HTTP header collection.
 
-```text
+```seseragi
 Headers
 ```
 
@@ -53,7 +53,7 @@ Headers
 
 Positive response body byte limit.
 
-```text
+```seseragi
 HttpBodyLimit
 ```
 
@@ -63,7 +63,7 @@ HttpBodyLimit
 
 Typed validation failure while building an HTTP value.
 
-```text
+```seseragi
 HttpBuildError
 ```
 
@@ -71,7 +71,7 @@ HttpBuildError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 HttpClient
 ```
 
@@ -81,7 +81,7 @@ HttpClient
 
 Typed HTTP transport, protocol, or body failure.
 
-```text
+```seseragi
 HttpError
 ```
 
@@ -89,7 +89,7 @@ HttpError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 HttpEvent
 ```
 
@@ -99,7 +99,7 @@ HttpEvent
 
 Normalized absolute HTTP or HTTPS URL.
 
-```text
+```seseragi
 HttpUrl
 ```
 
@@ -107,7 +107,7 @@ HttpUrl
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 HttpVersion
 ```
 
@@ -117,7 +117,7 @@ HttpVersion
 
 Opaque validated HTTP request method.
 
-```text
+```seseragi
 Method
 ```
 
@@ -127,7 +127,7 @@ Method
 
 Immutable HTTP request head without a body.
 
-```text
+```seseragi
 Request
 ```
 
@@ -137,7 +137,7 @@ Request
 
 Small HTTP response with an immutable Bytes body.
 
-```text
+```seseragi
 Response
 ```
 
@@ -145,7 +145,7 @@ Response
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct ResponseHead {
   version: HttpVersion,
   status: Status,
@@ -163,7 +163,7 @@ struct ResponseHead {
 
 Opaque validated HTTP response status.
 
-```text
+```seseragi
 Status
 ```
 
@@ -175,7 +175,7 @@ Status
 
 The standard CONNECT Method value.
 
-```text
+```seseragi
 Method
 ```
 
@@ -185,7 +185,7 @@ Method
 
 The standard DELETE Method value.
 
-```text
+```seseragi
 Method
 ```
 
@@ -195,7 +195,7 @@ Method
 
 The empty immutable Headers value.
 
-```text
+```seseragi
 Headers
 ```
 
@@ -205,7 +205,7 @@ Headers
 
 The standard GET Method value.
 
-```text
+```seseragi
 Method
 ```
 
@@ -215,7 +215,7 @@ Method
 
 The standard HEAD Method value.
 
-```text
+```seseragi
 Method
 ```
 
@@ -223,7 +223,7 @@ Method
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Http1_0
   HttpVersion
 ```
@@ -232,7 +232,7 @@ Http1_0
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Http1_1
   HttpVersion
 ```
@@ -241,7 +241,7 @@ Http1_1
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Http2
   HttpVersion
 ```
@@ -250,7 +250,7 @@ Http2
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Http3
   HttpVersion
 ```
@@ -259,7 +259,7 @@ Http3
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpClientUnavailable
   HttpError
 ```
@@ -268,7 +268,7 @@ HttpClientUnavailable
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpConnectionFailure
   String
   -> HttpError
@@ -278,7 +278,7 @@ HttpConnectionFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpDnsFailure
   String
   -> HttpError
@@ -288,7 +288,7 @@ HttpDnsFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpProtocolFailure
   String
   -> HttpError
@@ -298,7 +298,7 @@ HttpProtocolFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpRequestBodyFailure
   String
   -> HttpError
@@ -308,7 +308,7 @@ HttpRequestBodyFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpRequestLengthMismatch
   { declared: Int, actual: Int }
   -> HttpError
@@ -318,7 +318,7 @@ HttpRequestLengthMismatch
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpResponseBodyLimitExceeded
   { limitBytes: Int }
   -> HttpError
@@ -328,7 +328,7 @@ HttpResponseBodyLimitExceeded
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpTlsFailure
   String
   -> HttpError
@@ -338,7 +338,7 @@ HttpTlsFailure
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpUrlContainsFragment
   HttpBuildError
 ```
@@ -347,7 +347,7 @@ HttpUrlContainsFragment
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpUrlContainsUserInfo
   HttpBuildError
 ```
@@ -356,7 +356,7 @@ HttpUrlContainsUserInfo
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 HttpVersionUnknown
   HttpVersion
 ```
@@ -365,7 +365,7 @@ HttpVersionUnknown
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InformationalResponse
   ResponseHead
   -> HttpEvent
@@ -375,7 +375,7 @@ InformationalResponse
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidHeaderName
   String
   -> HttpBuildError
@@ -385,7 +385,7 @@ InvalidHeaderName
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidHeaderValue
   { name: String, offset: Int }
   -> HttpBuildError
@@ -395,7 +395,7 @@ InvalidHeaderValue
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidHttpBodyLimit
   Int
   -> HttpBuildError
@@ -405,7 +405,7 @@ InvalidHttpBodyLimit
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidHttpMethod
   String
   -> HttpBuildError
@@ -415,7 +415,7 @@ InvalidHttpMethod
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidHttpStatus
   Int
   -> HttpBuildError
@@ -425,7 +425,7 @@ InvalidHttpStatus
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidHttpUrl
   { offset: Int }
   -> HttpBuildError
@@ -435,7 +435,7 @@ InvalidHttpUrl
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ManagedHttpHeader
   String
   -> HttpBuildError
@@ -447,7 +447,7 @@ ManagedHttpHeader
 
 The standard OPTIONS Method value.
 
-```text
+```seseragi
 Method
 ```
 
@@ -457,7 +457,7 @@ Method
 
 The standard PATCH Method value.
 
-```text
+```seseragi
 Method
 ```
 
@@ -467,7 +467,7 @@ Method
 
 The standard POST Method value.
 
-```text
+```seseragi
 Method
 ```
 
@@ -477,7 +477,7 @@ Method
 
 The standard PUT Method value.
 
-```text
+```seseragi
 Method
 ```
 
@@ -485,7 +485,7 @@ Method
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ResponseBodyChunk
   Bytes
   -> HttpEvent
@@ -495,7 +495,7 @@ ResponseBodyChunk
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ResponseStarted
   ResponseHead
   -> HttpEvent
@@ -505,7 +505,7 @@ ResponseStarted
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 ResponseTrailers
   Headers
   -> HttpEvent
@@ -517,7 +517,7 @@ ResponseTrailers
 
 The standard TRACE Method value.
 
-```text
+```seseragi
 Method
 ```
 
@@ -525,7 +525,7 @@ Method
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 UnsupportedHttpScheme
   String
   -> HttpBuildError
@@ -539,7 +539,7 @@ UnsupportedHttpScheme
 
 Validates and appends one HTTP header field.
 
-```text
+```seseragi
 appendHeader
   String
   -> String
@@ -551,7 +551,7 @@ appendHeader
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bodyLimit
   Int
   -> Either<
@@ -564,7 +564,7 @@ bodyLimit
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bytesBody<R, E>
   Bytes
   -> Body<R, E>
@@ -576,7 +576,7 @@ bytesBody<R, E>
 
 Validates an uppercase custom HTTP method token.
 
-```text
+```seseragi
 customMethod
   String
   -> Either<HttpBuildError, Method>
@@ -586,7 +586,7 @@ customMethod
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 defaultBodyLimit
   Unit
   -> HttpBodyLimit
@@ -596,7 +596,7 @@ defaultBodyLimit
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 emptyBody<R, E>
   Unit
   -> Body<R, E>
@@ -608,7 +608,7 @@ emptyBody<R, E>
 
 Reads the message carried by an HTTP client failure.
 
-```text
+```seseragi
 errorMessage
   HttpError
   -> String
@@ -618,7 +618,7 @@ errorMessage
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 exchange<R, E>
   Body<R, E>
   -> Request
@@ -635,7 +635,7 @@ exchange<R, E>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 headerEntries
   Headers
   -> Array<(String, String)>
@@ -645,7 +645,7 @@ headerEntries
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 headerValues
   String
   -> Headers
@@ -656,7 +656,7 @@ headerValues
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 isClientError
   Status
   -> Bool
@@ -666,7 +666,7 @@ isClientError
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 isInformational
   Status
   -> Bool
@@ -676,7 +676,7 @@ isInformational
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 isRedirection
   Status
   -> Bool
@@ -686,7 +686,7 @@ isRedirection
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 isServerError
   Status
   -> Bool
@@ -696,7 +696,7 @@ isServerError
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 isSuccess
   Status
   -> Bool
@@ -708,7 +708,7 @@ isSuccess
 
 Reads the text of a validated HTTP Method.
 
-```text
+```seseragi
 methodText
   Method
   -> String
@@ -720,7 +720,7 @@ methodText
 
 Parses and normalizes an absolute HTTP or HTTPS URL.
 
-```text
+```seseragi
 parseUrl
   String
   -> Either<HttpBuildError, HttpUrl>
@@ -732,7 +732,7 @@ parseUrl
 
 Removes every case-insensitive occurrence of a header.
 
-```text
+```seseragi
 removeHeader
   String
   -> Headers
@@ -745,7 +745,7 @@ removeHeader
 
 Renders a normalized HttpUrl.
 
-```text
+```seseragi
 renderUrl
   HttpUrl
   -> String
@@ -757,7 +757,7 @@ renderUrl
 
 Builds an immutable request head from Method and HttpUrl.
 
-```text
+```seseragi
 request
   Method
   -> HttpUrl
@@ -770,7 +770,7 @@ request
 
 Copies the immutable Bytes body of a small response.
 
-```text
+```seseragi
 responseBody
   Response
   -> Bytes
@@ -782,7 +782,7 @@ responseBody
 
 Returns the immutable Headers held by the Response without constructing a copy.
 
-```text
+```seseragi
 responseHeaders
   Response
   -> Headers
@@ -794,7 +794,7 @@ responseHeaders
 
 Reads the validated status of a small response.
 
-```text
+```seseragi
 responseStatus
   Response
   -> Status
@@ -806,7 +806,7 @@ responseStatus
 
 Sends an explicit Bytes body through HttpClient.
 
-```text
+```seseragi
 sendBytes
   HttpBodyLimit
   -> Bytes
@@ -824,7 +824,7 @@ sendBytes
 
 Sends an explicit empty body through HttpClient.
 
-```text
+```seseragi
 sendEmpty
   HttpBodyLimit
   -> Request
@@ -841,7 +841,7 @@ sendEmpty
 
 Replaces a header field at its first ordered position.
 
-```text
+```seseragi
 setHeader
   String
   -> String
@@ -855,7 +855,7 @@ setHeader
 
 Validates an HTTP status code from 100 through 999.
 
-```text
+```seseragi
 status
   Int
   -> Either<HttpBuildError, Status>
@@ -867,7 +867,7 @@ status
 
 Reads the Int code of a validated HTTP Status.
 
-```text
+```seseragi
 statusCode
   Status
   -> Int
@@ -877,7 +877,7 @@ statusCode
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 streamBody<R, E>
   Stream<R, E, Bytes>
   -> Body<R, E>
@@ -887,7 +887,7 @@ streamBody<R, E>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 withoutRequestHeader
   String
   -> Request
@@ -898,7 +898,7 @@ withoutRequestHeader
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 withRequestHeader
   String
   -> String

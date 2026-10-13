@@ -25,7 +25,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Struct</small>
 
-```text
+```seseragi
 struct StateT<S, M<_>, A> {
   run: S -> M<(A, S)>
 }
@@ -41,7 +41,7 @@ struct StateT<S, M<_>, A> {
 
 Constructs a StateT computation that returns the current state and passes it on unchanged.
 
-```text
+```seseragi
 get<S, M<_>>
   Unit
   -> StateT<S, M<_>, S>
@@ -53,7 +53,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 lift<S, M<_>, A>
   M<A>
   -> StateT<S, M<_>, A>
@@ -65,7 +65,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 modify<S, M<_>>
   (S -> S)
   -> StateT<S, M<_>, Unit>
@@ -77,7 +77,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 put<S, M<_>>
   S
   -> StateT<S, M<_>, Unit>
@@ -89,7 +89,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 run<S, M<_>, A>
   S
   -> StateT<S, M<_>, A>

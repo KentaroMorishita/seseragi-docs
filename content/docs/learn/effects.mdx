@@ -65,7 +65,7 @@ Effectはcoldな計算です。作っただけでは外部処理は始まらず�
 
 `Effect<R, E, A>`の`R`は必要な環境、`E`は回復可能な失敗、`A`は成功時の結果です。例の`greet`は、Consoleを必要とし、ConsoleErrorで失敗しうる、Unitを返す計算です。
 
-```text
+```seseragi
 Effect<
   { console: Console },
   ConsoleError,

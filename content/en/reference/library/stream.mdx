@@ -31,7 +31,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 BufferCapacity
 ```
 
@@ -39,7 +39,7 @@ BufferCapacity
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 BufferCapacityError
 ```
 
@@ -47,7 +47,7 @@ BufferCapacityError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Stream<_, _, _>
 ```
 
@@ -57,7 +57,7 @@ Stream<_, _, _>
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 NonPositiveBufferCapacity
   Int
   -> BufferCapacityError
@@ -69,7 +69,7 @@ NonPositiveBufferCapacity
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 buffer<R, E, A>
   BufferCapacity
   -> Stream<R, E, A>
@@ -80,7 +80,7 @@ buffer<R, E, A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 bufferCapacity
   Int
   -> Either<
@@ -95,7 +95,7 @@ bufferCapacity
 
 Returns a stream that consumes the second argument to completion before opening the first. In a pipeline, pass the suffix stream first.
 
-```text
+```seseragi
 concat<R, E, A>
   Stream<R, E, A>
   -> Stream<R, E, A>
@@ -108,7 +108,7 @@ concat<R, E, A>
 
 Returns the elements after skipping the requested leading count.
 
-```text
+```seseragi
 drop<R, E, A>
   Int
   -> Stream<R, E, A>
@@ -119,7 +119,7 @@ drop<R, E, A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 empty
   Stream<R, E, A>
 ```
@@ -130,7 +130,7 @@ empty
 
 Keeps collection elements whose predicate returns True.
 
-```text
+```seseragi
 filter<R, E, A>
   (A -> Bool)
   -> Stream<R, E, A>
@@ -143,7 +143,7 @@ filter<R, E, A>
 
 Transforms collection elements and drops Nothing results.
 
-```text
+```seseragi
 filterMap<R, E, A, B>
   (A -> Maybe<B>)
   -> Stream<R, E, A>
@@ -156,7 +156,7 @@ filterMap<R, E, A, B>
 
 Transforms each element to a collection and flattens the results.
 
-```text
+```seseragi
 flatMap<R, E, A, B>
   (A -> Stream<R, E, B>)
   -> Stream<R, E, A>
@@ -167,7 +167,7 @@ flatMap<R, E, A, B>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 fromArray<R, E, A>
   Array<A>
   -> Stream<R, E, A>
@@ -177,7 +177,7 @@ fromArray<R, E, A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 fromEffect<R, E, A>
   Effect<R, E, A>
   -> Stream<R, E, A>
@@ -187,7 +187,7 @@ fromEffect<R, E, A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 fromIterable<C, R, E, A>
   C
   -> Stream<R, E, A>
@@ -199,7 +199,7 @@ where
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 map<R, E, A, B>
   (A -> B)
   -> Stream<R, E, A>
@@ -210,7 +210,7 @@ map<R, E, A, B>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 mapError<R, E, F, A>
   (E -> F)
   -> Stream<R, E, A>
@@ -221,7 +221,7 @@ mapError<R, E, F, A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 merge<R, E, A>
   Stream<R, E, A>
   -> Stream<R, E, A>
@@ -232,7 +232,7 @@ merge<R, E, A>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 runCollect<R, E, A>
   Stream<R, E, A>
   -> Effect<R, E, Array<A>>
@@ -242,7 +242,7 @@ runCollect<R, E, A>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 runFold<R, E, A, B>
   B
   -> (B -> A -> B)
@@ -254,7 +254,7 @@ runFold<R, E, A, B>
 
 <small className="api-kind">Function returning Effect</small>
 
-```text
+```seseragi
 runForEach<R, E, A>
   (A -> Effect<R, E, Unit>)
   -> Stream<R, E, A>
@@ -265,7 +265,7 @@ runForEach<R, E, A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 singleton<R, E, A>
   A
   -> Stream<R, E, A>
@@ -277,7 +277,7 @@ singleton<R, E, A>
 
 Returns at most the requested number of leading elements.
 
-```text
+```seseragi
 take<R, E, A>
   Int
   -> Stream<R, E, A>
@@ -288,7 +288,7 @@ take<R, E, A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 unfold<S, R, E, A>
   (S -> Maybe<(A, S)>)
   -> S
@@ -299,7 +299,7 @@ unfold<S, R, E, A>
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 zip<R, E, A, B>
   Stream<R, E, B>
   -> Stream<R, E, A>

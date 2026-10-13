@@ -11,7 +11,7 @@ export function examplesDigest(root) {
       if (["node_modules", "dist", ".seseragi"].includes(entry.name)) continue;
       const path = `${directory}/${entry.name}`;
       if (entry.isDirectory()) walk(path);
-      else if (/\.(ssrg|ts|js|json|toml|lock)$/.test(entry.name)) files.push(path);
+      else if (/\.(ssrg|tsx?|js|json|toml|lock)$/.test(entry.name)) files.push(path);
     }
   };
   walk("examples");

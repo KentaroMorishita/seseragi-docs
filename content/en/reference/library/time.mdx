@@ -32,7 +32,7 @@ The signatures below show types in argument order, then the result. See [how to 
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 DateTimeError
 ```
 
@@ -40,7 +40,7 @@ DateTimeError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Duration
 ```
 
@@ -48,7 +48,7 @@ Duration
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 DurationError
 ```
 
@@ -56,7 +56,7 @@ DurationError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 Instant
 ```
 
@@ -64,7 +64,7 @@ Instant
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 LocalDate
 ```
 
@@ -72,7 +72,7 @@ LocalDate
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 LocalDateTime
 ```
 
@@ -80,7 +80,7 @@ LocalDateTime
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 LocalResolution
 ```
 
@@ -88,7 +88,7 @@ LocalResolution
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 LocalTime
 ```
 
@@ -96,7 +96,7 @@ LocalTime
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 OffsetDateTime
 ```
 
@@ -104,7 +104,7 @@ OffsetDateTime
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 TimeZone
 ```
 
@@ -112,7 +112,7 @@ TimeZone
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 TimeZoneError
 ```
 
@@ -120,7 +120,7 @@ TimeZoneError
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 TimeZones
 ```
 
@@ -128,7 +128,7 @@ TimeZones
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 UtcOffset
 ```
 
@@ -136,7 +136,7 @@ UtcOffset
 
 <small className="api-kind">Opaque type</small>
 
-```text
+```seseragi
 ZonedDateTime
 ```
 
@@ -146,7 +146,7 @@ ZonedDateTime
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Ambiguous
   {
     earlier: ZonedDateTime,
@@ -159,7 +159,7 @@ Ambiguous
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 DurationOutsideRange
   DurationError
 ```
@@ -168,7 +168,7 @@ DurationOutsideRange
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Gap
   {
     transition: Instant,
@@ -182,7 +182,7 @@ Gap
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidDate
   {
     year: Int,
@@ -196,7 +196,7 @@ InvalidDate
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidDateTimeText
   { offset: Int }
   -> DateTimeError
@@ -206,7 +206,7 @@ InvalidDateTimeText
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidTime
   {
     hour: Int,
@@ -221,7 +221,7 @@ InvalidTime
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 InvalidUtcOffsetSeconds
   Int
   -> DateTimeError
@@ -231,7 +231,7 @@ InvalidUtcOffsetSeconds
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 NegativeDuration
   Int
   -> DurationError
@@ -241,7 +241,7 @@ NegativeDuration
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 TimeZoneDatabaseUnavailable
   String
   -> TimeZoneError
@@ -251,7 +251,7 @@ TimeZoneDatabaseUnavailable
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 TimeZoneDatabaseVersionMismatch
   {
     required: String,
@@ -264,7 +264,7 @@ TimeZoneDatabaseVersionMismatch
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 Unique
   ZonedDateTime
   -> LocalResolution
@@ -274,7 +274,7 @@ Unique
 
 <small className="api-kind">Constructor</small>
 
-```text
+```seseragi
 UnknownTimeZone
   String
   -> TimeZoneError
@@ -288,7 +288,7 @@ UnknownTimeZone
 
 Adds two Duration values with range validation.
 
-```text
+```seseragi
 addDuration
   Duration
   -> Duration
@@ -299,7 +299,7 @@ addDuration
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 atOffset
   UtcOffset
   -> Instant
@@ -310,7 +310,7 @@ atOffset
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 atTimeZone
   Instant
   -> TimeZone
@@ -321,7 +321,7 @@ atTimeZone
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 databaseVersion
   Unit
   -> Effect<
@@ -335,7 +335,7 @@ databaseVersion
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 formatLocalDate
   LocalDate
   -> String
@@ -345,7 +345,7 @@ formatLocalDate
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 formatLocalDateTime
   LocalDateTime
   -> String
@@ -355,7 +355,7 @@ formatLocalDateTime
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 formatLocalTime
   LocalTime
   -> String
@@ -365,7 +365,7 @@ formatLocalTime
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 formatOffsetDateTime
   OffsetDateTime
   -> String
@@ -377,7 +377,7 @@ formatOffsetDateTime
 
 Converts exact hours into Duration.
 
-```text
+```seseragi
 hours
   Int
   -> Either<DurationError, Duration>
@@ -387,7 +387,7 @@ hours
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 loadTimeZone
   String
   -> Effect<
@@ -401,7 +401,7 @@ loadTimeZone
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 localDate
   Int
   -> Int
@@ -416,7 +416,7 @@ localDate
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 localDateTime
   LocalDate
   -> LocalTime
@@ -427,7 +427,7 @@ localDateTime
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 localTime
   Int
   -> Int
@@ -445,7 +445,7 @@ localTime
 
 Converts exact milliseconds into Duration.
 
-```text
+```seseragi
 milliseconds
   Int
   -> Either<DurationError, Duration>
@@ -457,7 +457,7 @@ milliseconds
 
 Converts exact minutes into Duration.
 
-```text
+```seseragi
 minutes
   Int
   -> Either<DurationError, Duration>
@@ -469,7 +469,7 @@ minutes
 
 Validates an Int as a nanosecond Duration.
 
-```text
+```seseragi
 nanoseconds
   Int
   -> Either<DurationError, Duration>
@@ -479,7 +479,7 @@ nanoseconds
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 offsetInstant
   OffsetDateTime
   -> Instant
@@ -489,7 +489,7 @@ offsetInstant
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 offsetLocalDateTime
   OffsetDateTime
   -> LocalDateTime
@@ -499,7 +499,7 @@ offsetLocalDateTime
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 parseLocalDate
   String
   -> Either<
@@ -512,7 +512,7 @@ parseLocalDate
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 parseLocalDateTime
   String
   -> Either<
@@ -525,7 +525,7 @@ parseLocalDateTime
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 parseLocalTime
   String
   -> Either<
@@ -538,7 +538,7 @@ parseLocalTime
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 parseOffsetDateTime
   String
   -> Either<
@@ -551,7 +551,7 @@ parseOffsetDateTime
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 resolveLocal
   LocalDateTime
   -> TimeZone
@@ -564,7 +564,7 @@ resolveLocal
 
 Converts exact seconds into Duration.
 
-```text
+```seseragi
 seconds
   Int
   -> Either<DurationError, Duration>
@@ -574,7 +574,7 @@ seconds
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 timeZoneId
   TimeZone
   -> String
@@ -584,7 +584,7 @@ timeZoneId
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 timeZoneVersion
   TimeZone
   -> String
@@ -596,7 +596,7 @@ timeZoneVersion
 
 Returns a Duration's integer nanosecond count.
 
-```text
+```seseragi
 toNanoseconds
   Duration
   -> Int
@@ -606,7 +606,7 @@ toNanoseconds
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 utcOffset
   Int
   -> Either<
@@ -621,7 +621,7 @@ utcOffset
 
 Returns the exact zero-nanosecond Duration.
 
-```text
+```seseragi
 zeroDuration
   Unit
   -> Duration
@@ -631,7 +631,7 @@ zeroDuration
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 zonedInstant
   ZonedDateTime
   -> Instant
@@ -641,7 +641,7 @@ zonedInstant
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 zonedLocalDateTime
   ZonedDateTime
   -> LocalDateTime
@@ -651,7 +651,7 @@ zonedLocalDateTime
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 zonedOffset
   ZonedDateTime
   -> UtcOffset
@@ -661,7 +661,7 @@ zonedOffset
 
 <small className="api-kind">Function</small>
 
-```text
+```seseragi
 zonedTimeZone
   ZonedDateTime
   -> TimeZone

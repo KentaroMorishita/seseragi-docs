@@ -9,7 +9,7 @@ description: "Describe possible states as cases and attach the data each case ne
 
 A `type` declaration lists cases separated by `|`. A type that chooses one of several cases is an algebraic data type, or ADT. This syntax example declares a type with two cases:
 
-```text title="Type declaration syntax"
+```seseragi title="Type declaration syntax"
 type Light =
   | Red
   | Green
@@ -23,7 +23,7 @@ A struct in the previous chapter holds several fields together; this type select
 
 `Red` and `Green` have no additional data, so the case name alone is a value. With the declaration above, you can write these bindings inside a block such as `main`. This is a syntax example:
 
-```text title="Value binding syntax"
+```seseragi title="Value binding syntax"
 let red: Light = Red
 let green: Light = Green
 ```
@@ -34,7 +34,7 @@ The values belong to different cases, but both have type `Light`. These fragment
 
 Next, define a measurement result. An unmeasured state holds no extra data; a measured state holds one integer.
 
-```text title="Type declaration with payloads"
+```seseragi title="Type declaration with payloads"
 type Reading =
   | NoReading
   | Measured Int
@@ -42,7 +42,7 @@ type Reading =
 
 `NoReading` is already a value of `Reading`. `Measured` is a constructor that accepts one integer; supplying the data completes a value of `Reading`. Data attached to a case is called its payload.
 
-```text title="Value binding syntax"
+```seseragi title="Value binding syntax"
 let absent: Reading = NoReading
 let measured: Reading = Measured 23
 ```
