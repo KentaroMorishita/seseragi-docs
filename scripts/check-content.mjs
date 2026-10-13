@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { resolve, dirname, relative } from "node:path";
 import { structure } from "fumadocs-core/mdx-plugins";
 import { readExample } from "./example-source.mjs";
-import { checkVersionSource, resolveDocsVersion, versionComponent } from "../src/lib/docs-version.mjs";
+import { checkVersionSource } from "../src/lib/docs-version.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const errors = [];
@@ -37,12 +37,10 @@ for (const [directory, base] of [["content/docs", "/docs"], ["content/en", "/en/
     const body = bodyOf(source);
     if (!/^---\r?\n/.test(source) || !/^title: .+/m.test(source) || !/^description: .+/m.test(source)) errors.push(`${name}: missing title/description`);
     if (pages.has(route)) errors.push(`Duplicate route ${route}`);
-    const headings = new Set(structure(resolveDocsVersion(body, catalog.languageVersion)).headings.map((heading) => heading.id));
+    const headings = new Set(structure(body).headings.map((heading) => heading.id));
     pages.set(route, { file, body, headings, en: base.startsWith("/en") });
     paths.set(file, route);
-    if (!name.startsWith("reference/library/")) {
-      for (const error of checkVersionSource(source)) errors.push(`${route}: ${error}`);
-    }
+    for (const error of checkVersionSource(source)) errors.push(`${route}: ${error}`);
     if (/<!--\s*example:/.test(body)) errors.push(`${route}: use MDX JSX comments for example markers`);
     for (const match of body.matchAll(/\{\/\*\s*example:\s*(examples\/[^\s*]+)\s*\*\/\}\s*\n\s*```([^\s`]+)[^\n]*\n([\s\S]*?)\n```/g)) {
       try {
@@ -71,7 +69,6 @@ const known = new Set(["/", "/en", ...pages.keys()]);
 for (const [route, page] of pages) {
   const counterpart = page.en ? route.replace(/^\/en/, "") : `/en${route}`;
   if (!pages.has(counterpart)) errors.push(`${route}: missing translation ${counterpart}`);
-  else if (page.body.split(versionComponent).length !== pages.get(counterpart).body.split(versionComponent).length) errors.push(`${route}: translation version references differ`);
   const links = [
     ...Array.from(page.body.matchAll(/\]\(([^\s)]+)(?:\s+[^)]*)?\)/g), (match) => match[1]),
     ...Array.from(page.body.matchAll(/\bhref=["']([^"']+)["']/g), (match) => match[1]),

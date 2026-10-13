@@ -113,7 +113,7 @@ let twice = times 2
 |> println
 ```
 
-<LanguageVersion />には、`(+) 20 22`のような直接適用を`SES-T0101`で拒否するcompiler制約があります。operatorを関数値にすること自体の禁止ではありません。上のbindingを介する形を使ってください。
+現在のcompilerには、`(+) 20 22`のような直接適用を`SES-T0101`で拒否するcompiler制約があります。operatorを関数値にすること自体の禁止ではありません。上のbindingを介する形を使ってください。
 
 {/* example: examples/reference/invalid/direct-operator.ssrg#invalid */}
 

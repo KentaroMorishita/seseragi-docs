@@ -90,7 +90,7 @@ fn idle -> Unit = { () }
 
 ### ifの結果型が違う場合
 
-これは意図的なエラー例です。Stringを返すbranchとIntを返すbranchは揃わず、<LanguageVersion />は`SES-T0101`で拒否します。
+これは意図的なエラー例です。Stringを返すbranchとIntを返すbranchは揃わず、compilerは`SES-T0101`で拒否します。
 
 {/* example: examples/reference/invalid/if-results.ssrg#invalid */}
 

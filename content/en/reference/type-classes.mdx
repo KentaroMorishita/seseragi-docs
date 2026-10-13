@@ -221,4 +221,4 @@ choices ()
 
 The output is [11, 21, 12, 22]: the first Array forms the outer combinations and the second the inner combinations.
 
-Version <LanguageVersion /> has a compiler restriction on placing another monad’s do directly in a pure let inside an Effect function’s do. Put it in a separate pure function, as above, and use its result. The language specification does not limit do to Effect.
+The current compiler has a compiler restriction on placing another monad’s do directly in a pure let inside an Effect function’s do. Put it in a separate pure function, as above, and use its result. The language specification does not limit do to Effect.

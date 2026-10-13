@@ -1,6 +1,6 @@
 # 公式ドキュメントの構成
 
-対象版は`src/data/standard-library.json`の`languageVersion`で管理する。日本語を標準とし、同じ章・例・条件を英語でも提供する。
+対象版は`src/data/standard-library.json`の`languageVersion`で管理し、ページ上部の共通表示にだけ出す。本文・APIの表・検索内容に版番号を繰り返さない。日本語を標準とし、同じ章・例・条件を英語でも提供する。
 
 ## 読者と入口
 

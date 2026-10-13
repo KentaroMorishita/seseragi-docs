@@ -67,7 +67,7 @@ signatureだけの断片、期待する診断、ブラウザ用ビルドを、�
 
 ## 対応版の更新
 
-サイトが対象とする版は`src/data/standard-library.json`の`languageVersion`、出典は`languageCommit`に集約しています。見出しと手書き本文の`<LanguageVersion />`、検索、生成したAPIページはこの値を使います。本文へ現在の版番号を直接書くと検査で拒否します。ビルド時に最新リリースを取得する方式ではなく、検証した版を公開します。
+サイトが対象とする版は`src/data/standard-library.json`の`languageVersion`、出典は`languageCommit`に集約しています。版番号は各ページ上部の共通表示だけに出し、本文・APIの表・検索内容には入れません。本文へ番号や版表示用コンポーネントを入れると、手書き・生成ページのどちらも検査で拒否します。サンプルコードのpackage versionと、過去の検証記録は別の意味を持つため保持します。ビルド時に最新リリースを取得する方式ではなく、検証した版を公開します。
 
 言語を更新するときは、正式リリースのCLIと同じtagを用意し、まずcatalogを同期します。`sync:library`は指定したcheckoutを変更せず、そのtagのファイルを読みます。
 

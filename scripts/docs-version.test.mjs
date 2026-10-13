@@ -3,33 +3,32 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import { structure } from "fumadocs-core/mdx-plugins";
-import { checkVersionSource, resolveDocsVersion } from "../src/lib/docs-version.mjs";
+import { checkVersionSource } from "../src/lib/docs-version.mjs";
 import { checkReleaseIdentity, checkReleaseRecord } from "./release-record.mjs";
 import { examplesDigest } from "./release-inputs.mjs";
 
-test("Japanese, English, bold text, and search follow the supplied version", () => {
-  for (const version of ["0.61.26", "1.2.3"]) {
-    const source = "本文は **<LanguageVersion />** を対象にします。\n\nChecked with <LanguageVersion />.";
-    const resolved = resolveDocsVersion(source, version);
-    assert.equal(resolved, `本文は **${version}** を対象にします。\n\nChecked with ${version}.`);
-    const indexed = JSON.stringify(structure(resolved));
-    assert.ok(indexed.includes(version));
-    assert.ok(!indexed.includes("LanguageVersion"));
+test("shared version components are rejected in Japanese and English prose", () => {
+  for (const source of [
+    "本文は<LanguageVersion />を対象にします。",
+    "Checked with <LanguageVersion />.",
+    "Seseragi <strong><LanguageVersion /></strong>",
+    "本文は **<LanguageVersion />** を対象にします。",
+  ]) {
+    assert.ok(checkVersionSource(source).length > 0, source);
   }
 });
 
 test("static release numbers are rejected, including inline code and fence titles", () => {
-  for (const source of ["配布版0.61.25で確認。", "Version0.61.25", "Compiler **1.2.3**.", "Use `v1.2.3`.", '```seseragi title="Rejected by 1.2.3"\nfn answer -> Int = 42\n```']) {
+  for (const source of ["配布版0.61.25で確認。", "Version0.61.25", "Compiler **1.2.3**.", "Use `v1.2.3`.", "| Language version | 1.2.3 |", '```seseragi title="Rejected by 1.2.3"\nfn answer -> Int = 42\n```']) {
     assert.ok(checkVersionSource(source).length > 0, source);
   }
 });
 
 test("package examples and addresses are independent of the compiler release", () => {
-  const source = '本文は<LanguageVersion />。\n\nURL: `http://127.0.0.1:3000/`\n\n```toml\nversion = "0.1.0"\nlanguage = ">=0.1.0 <0.2.0"\n```';
+  const source = 'URL: `http://127.0.0.1:3000/`\n\n```toml\nversion = "0.1.0"\nlanguage = ">=0.1.0 <0.2.0"\n```';
   assert.deepEqual(checkVersionSource(source), []);
   assert.deepEqual(checkVersionSource("~~~toml\nversion = '0.1.0'\n~~~"), []);
-  assert.deepEqual(checkVersionSource("Check `seseragi --help` in <LanguageVersion />, then `seseragi --version`."), []);
+  assert.deepEqual(checkVersionSource("Check `seseragi --help`, then `seseragi --version`."), []);
 });
 
 test("placeholders cannot silently leak as code or unsupported MDX", () => {

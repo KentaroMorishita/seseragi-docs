@@ -32,8 +32,9 @@ try {
     return url.pathname;
   });
   assert(paths.length >= 200, "Incomplete official docs sitemap");
-  for (let i = 0; i < paths.length; i += 12) {
-    const results = await Promise.all(paths.slice(i, i + 12).map(async (path) => {
+  const httpBatchSize = base === canonicalOrigin ? 3 : 12;
+  for (let i = 0; i < paths.length; i += httpBatchSize) {
+    const results = await Promise.all(paths.slice(i, i + httpBatchSize).map(async (path) => {
       const response = await context.request.get(base + path);
       assert(response.status() === 200, `HTTP ${response.status()} ${path}`);
       const html = await response.text();
@@ -54,19 +55,23 @@ try {
   console.log(`HTTP: ${paths.length} routes, language metadata, sitemap, robots, and 404 passed.`);
 
   for (const prefix of ["", "/en"]) {
-    for (const path of ["", "/learn", "/reference", "/reference/cli", "/reference/project-configuration", "/reference/syntax", "/reference/functions", "/reference/type-classes"]) {
+    for (const path of ["", "/learn", "/guides/typescript-to-seseragi", "/reference", "/reference/cli", "/reference/project-configuration", "/reference/syntax", "/reference/functions", "/reference/type-classes", "/reference/library", "/reference/library/array", "/reference/library/prelude"]) {
       await page.goto(`${base}${prefix}/docs${path}`); await ready(page);
       assert((await page.locator(".article-header .eyebrow").innerText()).includes(languageVersion), `Wrong release heading ${prefix}${path}`);
-      const prose = await page.locator("div.prose.flex-1").innerText();
-      assert(prose.includes(languageVersion), `Wrong release in prose ${prefix}${path}`);
+      const prose = await page.locator("div.prose.flex-1").evaluate((node) => {
+        const body = node.cloneNode(true);
+        body.querySelectorAll("pre").forEach((block) => block.remove());
+        return body.textContent;
+      });
+      assert(!prose.includes(languageVersion), `Release number leaked into prose ${prefix}${path}`);
       assert(!prose.includes("LanguageVersion"), `Unresolved release component ${prefix}${path}`);
     }
     const index = await context.request.get(`${base}/api/search${prefix ? "-en" : ""}`);
     assert(index.status() === 200, `Missing ${prefix || "ja"} search index`);
     const data = await index.text();
-    assert(data.includes(languageVersion) && !data.includes("LanguageVersion"), `Search uses an unresolved or missing release ${prefix || "ja"}`);
+    assert(!data.includes(languageVersion) && !data.includes("LanguageVersion"), `Release number leaked into search ${prefix || "ja"}`);
   }
-  console.log(`Version: headings, authored prose, and search in both locales use ${languageVersion}.`);
+  console.log(`Version: common headers use ${languageVersion}; article bodies and search in both locales omit release numbers.`);
 
   if (base === canonicalOrigin) {
     for (const path of ["/", "/?ref=migration", "/docs/learn/arrays-and-lists?ref=migration", "/en/docs/reference/library/maybe?ref=migration"]) {
@@ -156,7 +161,10 @@ try {
   const mobilePaths = quick ? representative : paths;
   for (const [index, path] of mobilePaths.entries()) {
     await phone.goto(base + path); await ready(phone);
-    const result = await phone.evaluate(() => {
+    const result = await phone.evaluate((version) => {
+      const body = document.querySelector("div.prose.flex-1")?.cloneNode(true);
+      body?.querySelectorAll("pre").forEach((block) => block.remove());
+      const releaseInBody = body?.textContent.includes(version) ?? false;
       const tight = [...document.querySelectorAll("h1,h2,h3,h4,h5,h6,.brand")].filter((node) => parseFloat(getComputedStyle(node).letterSpacing) < 0).map((node) => node.textContent);
       document.querySelectorAll("details").forEach((node) => { node.open = true; });
       const clipped = [...document.querySelectorAll("pre")].map((pre) => {
@@ -172,8 +180,9 @@ try {
         const codeBox = pre.getBoundingClientRect(), buttonBox = button.getBoundingClientRect();
         return buttonBox.bottom > codeBox.top && buttonBox.top < codeBox.bottom;
       }).map((pre) => pre.textContent);
-      return { overflow: document.documentElement.scrollWidth > innerWidth, clipped, tight, covered };
-    });
+      return { overflow: document.documentElement.scrollWidth > innerWidth, clipped, tight, covered, releaseInBody };
+    }, languageVersion);
+    assert(!result.releaseInBody, `Release number leaked into article body ${path}`);
     if (result.overflow || result.clipped.length || result.tight.length || result.covered.length) overflows.push({ path, ...result });
     if (representative.includes(path)) await phone.screenshot({ path: resolve(output, `mobile${path.replaceAll("/", "-")}.png`), fullPage: true });
     if (index % 40 === 39) console.log(`Mobile: ${index + 1}/${mobilePaths.length} pages checked.`);
