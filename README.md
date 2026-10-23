@@ -6,7 +6,7 @@ Seseragiの公式ドキュメントサイト。日本語を標準に、英語で
 
 ## ローカル開発
 
-Node.js24.14以上、Bun1.3.11を使います。
+Node.js24.22.1、Bun1.4.4を使います。
 
 ```sh
 bun install --frozen-lockfile

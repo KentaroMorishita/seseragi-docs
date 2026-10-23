@@ -8,7 +8,7 @@
 - Keep Learn (guided explanations) and Reference (lookup) separate. Validate the information architecture and visible design before expanding content broadly.
 - Author Japanese prose in `content/docs`. Use concrete examples that compile with the canonical Seseragi CLI. Record the tested compiler version.
 - The syntax grammar and brand assets are copied from the language repository; record provenance when updating them.
-- Use Node 24.14+ and Bun 1.3.11. Run `bun run check` and `bun run build` for site changes. Verify navigation, search, mobile layout, and hydration in a browser when UI changes.
+- Use Node 24.22.1 and Bun 1.4.4. Run `bun run check` and `bun run build` for site changes. Verify navigation, search, mobile layout, and hydration in a browser when UI changes.
 - Preserve unrelated work. Never commit `.env*`, `.vercel`, generated `dist`, browser state, or tokens.
 - This is the official documentation site. Maintain a complete learning path, task guides, exact language reference, and compiler-derived library reference. Do not publish placeholder pages. Automated checks and agent reviews are not real-reader acceptance.
 - Every page needs a full Japanese and English counterpart at the same relative path. Keep chapter order explicit in `meta.json`; keep explanations, task instructions, and exact contracts in their owning section.
