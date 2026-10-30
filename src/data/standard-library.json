@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "languageVersion": "0.61.26",
-  "languageCommit": "7f271f690349c831f3eadf71e5bfc98a9b94b819",
-  "catalogArtifactVersion": "0.61.26",
+  "languageVersion": "0.61.125",
+  "languageCommit": "274e539ec4e206a629ce0928a8ab09012d349579",
+  "catalogArtifactVersion": "0.61.125",
   "sourceHashes": {
-    "registry": "03d84c1d4d89cd646fa3e77e92562f8e695c2b8f1373ed2135e988befa39d989",
-    "wasm": "3120478f2d941ccc77dced40d1a1a4f1e2fa89ab431b1830466c81d075083fb0"
+    "registry": "548a97e1763957e647c2fa4e769d027a76a72f4d797a167cba1c0ed4d8571655",
+    "wasm": "6d131637c1234c213a46a493df19d0866ebe2b750a7e1721caa9a2352d3e715a"
   },
   "modules": [
     {
@@ -3251,6 +3251,17 @@
       "constraints": []
     },
     {
+      "identity": "std/effect::die",
+      "name": "die",
+      "module": "std/effect",
+      "category": "Effect",
+      "kind": "effect-function",
+      "signature": "die arg1: String -> Effect<{}, Never, Never>",
+      "description": "Builds or transforms a cold standard Effect value.",
+      "typeParameters": [],
+      "constraints": []
+    },
+    {
       "identity": "std/effect::fail",
       "name": "fail",
       "module": "std/effect",
@@ -5416,7 +5427,7 @@
       "name": "DecodeError",
       "module": "std/json",
       "category": "JSON",
-      "kind": "opaque-struct",
+      "kind": "struct",
       "signature": "DecodeError",
       "description": "Reports the root-to-leaf path and kind of a decode failure.",
       "typeParameters": [],

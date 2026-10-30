@@ -400,5 +400,23 @@
       }
     ],
     "source": "crates/seseragi-project/src/standard/transformer.rs:18; docs/spec/09-standard-library.md:351"
+  },
+  "std/json::DecodeError": {
+    "declaration": "struct DecodeError",
+    "fields": [
+      {
+        "name": "path",
+        "type": "Array<JsonPathSegment>",
+        "ja": "ルートから失敗した位置までのパス。",
+        "en": "Path from the root to the value that failed to decode."
+      },
+      {
+        "name": "kind",
+        "type": "DecodeErrorKind",
+        "ja": "失敗の種類。",
+        "en": "Kind of the decode failure."
+      }
+    ],
+    "source": "crates/seseragi-project/src/standard.rs:5562; docs/spec/10-library-surface.md:1425; runtime/ts/src/json.ts:36"
   }
 }

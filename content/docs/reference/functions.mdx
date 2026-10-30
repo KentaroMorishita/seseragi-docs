@@ -100,29 +100,17 @@ lambdaを直接渡す場合も、名前付き関数を渡す場合も、必要�
 |> println
 ```
 
-operator valueは、型を指定したbindingへ保存してから使えます。この断片も`[2, 4, 6]`を出力します。
+演算子を括弧で囲むと関数値になり、ふつうの関数と同じように部分適用できます。`(*) 2`は「2を掛ける関数」です。この断片も`[2, 4, 6]`を出力します。
 
 {/* example: examples/reference/function-values.ssrg#operator */}
 
 ```seseragi title="mainのdo内: operator value"
-let times: Int -> Int -> Int = (*)
-let twice = times 2
 [1, 2, 3]
-|> map twice
+|> map ((*) 2)
 |> show
 |> println
 ```
 
-現在のcompilerには、`(+) 20 22`のような直接適用を`SES-T0101`で拒否するcompiler制約があります。operatorを関数値にすること自体の禁止ではありません。上のbindingを介する形を使ってください。
-
-{/* example: examples/reference/invalid/direct-operator.ssrg#invalid */}
-
-```seseragi title="対象版で拒否される形"
-fn answer -> Int = (+) 20 22
-
-pub effect fn main =
-  println "ready"
-```
 
 ## ブロックとlocal関数
 

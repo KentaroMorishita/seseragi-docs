@@ -232,6 +232,16 @@ defer<R, E, A>
   -> Effect<R, E, A>
 ```
 
+### `die`
+
+<small className="api-kind">Function returning Effect</small>
+
+```seseragi
+die
+  String
+  -> Effect<{}, Never, Never>
+```
+
 ### `fail`
 
 <small className="api-kind">Function returning Effect / Function</small>
