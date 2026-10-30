@@ -134,13 +134,19 @@ The signatures below show types in argument order, then the result. See [how to 
 
 ### `DecodeError`
 
-<small className="api-kind">Opaque struct</small>
+<small className="api-kind">Struct</small>
 
 Reports the root-to-leaf path and kind of a decode failure.
 
 ```seseragi
-DecodeError
+struct DecodeError {
+  path: Array<JsonPathSegment>,
+  kind: DecodeErrorKind
+}
 ```
+
+- `path`: Path from the root to the value that failed to decode.
+- `kind`: Kind of the decode failure.
 
 ### `DecodeErrorKind`
 

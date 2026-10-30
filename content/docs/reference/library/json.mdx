@@ -134,13 +134,19 @@ Not an Int
 
 ### `DecodeError`
 
-<small className="api-kind">内部表現を隠したstruct</small>
+<small className="api-kind">struct</small>
 
 decode失敗のrootからleafまでのpathと失敗種別を報告します。
 
 ```seseragi
-DecodeError
+struct DecodeError {
+  path: Array<JsonPathSegment>,
+  kind: DecodeErrorKind
+}
 ```
+
+- `path`: ルートから失敗した位置までのパス。
+- `kind`: 失敗の種類。
 
 ### `DecodeErrorKind`
 

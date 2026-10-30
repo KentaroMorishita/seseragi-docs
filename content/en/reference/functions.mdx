@@ -100,29 +100,17 @@ A lambda and a named function satisfy the same required function type. This main
 |> println
 ```
 
-An operator value can be stored in a typed binding before use. This fragment also prints [2, 4, 6].
+Wrapping an operator in parentheses makes it a function value that can be partially applied like any other function. `(*) 2` is the function that multiplies by 2. This fragment also prints `[2, 4, 6]`.
 
 {/* example: examples/reference/function-values.ssrg#operator */}
 
 ```seseragi title="Main do block: operator value"
-let times: Int -> Int -> Int = (*)
-let twice = times 2
 [1, 2, 3]
-|> map twice
+|> map ((*) 2)
 |> show
 |> println
 ```
 
-The current compiler rejects direct application such as (+) 20 22 with SES-T0101. This is a current compiler restriction, not a language-wide ban on operator values. Use the working binding form above.
-
-{/* example: examples/reference/invalid/direct-operator.ssrg#invalid */}
-
-```seseragi title="Form rejected by this release"
-fn answer -> Int = (+) 20 22
-
-pub effect fn main =
-  println "ready"
-```
 
 ## Blocks and local functions
 

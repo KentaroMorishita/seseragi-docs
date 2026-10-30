@@ -30,10 +30,8 @@ pub effect fn main = do {
   |> println
   // docs:end lambda
   // docs:start operator
-  let times: Int -> Int -> Int = (*)
-  let twice = times 2
   [1, 2, 3]
-  |> map twice
+  |> map ((*) 2)
   |> show
   |> println
   // docs:end operator
