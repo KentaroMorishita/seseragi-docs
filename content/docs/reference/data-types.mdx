@@ -3,11 +3,11 @@ title: "データ型"
 description: "ADT、struct、record、newtype、tuple、collectionの宣言と値の規則を確認する。"
 ---
 
-データは生成後に変更できません。更新は新しい値を作ります。状態の種類を分けるならADT、固定フィールドに名前を付けるならstruct、必要なフィールドだけで互換性を決めるならレコード、同じ表現の意味を区別するならnewtypeを使います。
+データは、作ったあとに書き換えられません。「更新」は、新しい値を作ることです。いくつかの状態のどれかを表すならADT、決まったフィールドに名前を付けてまとめるならstruct、必要なフィールドさえあれば受け取りたいならレコード、同じ中身でも意味の違う値を区別するならnewtypeを使います。
 
 ## ADTとコンストラクター
 
-ADTは有限個のvariantを持つnominal型です。ペイロードなしのコンストラクターは値、ペイロードありのコンストラクターは関数です。複数ペイロードはタプル一つへまとめます。
+ADTは、決まった数のケースのどれか一つを取る型で、名前で区別されます。データを持たないコンストラクターはそれだけで値、データ（ペイロード）を持つコンストラクターは関数です。ペイロードに複数の値を持たせるときは、一つのタプルにまとめます。
 
 次の例は`Read the docs`を出力します。`TicketId`、`Ticket`、`Status`は、それぞれ異なる役割を持つ型です。
 
@@ -41,7 +41,7 @@ pub effect fn main =
   |> println
 ```
 
-`Closed (TicketId 1)`も`Status`ですが、`Int`や`Ticket`とは互換ではありません。generic ADTではコンストラクターが全型パラメーターを量化し、ペイロード・期待型・明示型引数から決めます。[パターン](/docs/reference/patterns)ではペイロードを取り出す規則を説明しています。
+`Closed (TicketId 1)`も`Status`ですが、`Int`や`Ticket`として使うことはできません。型パラメーターを持つADTでは、コンストラクターの型パラメーターは、ペイロード・期待される型・明示した型引数から決まります。ペイロードの取り出し方は[パターン](/docs/reference/patterns)にあります。
 
 ### ペイロードなしとタプルペイロード
 
@@ -53,7 +53,7 @@ type Shape =
   | Rect (Int, Int)
 ```
 
-`Point`は値です。`Rect`はタプルを一つ受け取るコンストラクターなので、二つの数値は`Rect (3, 4)`へまとめます。
+`Point`はそれだけで値です。`Rect`はタプルを一つ受け取るコンストラクターなので、二つの数値は`Rect (3, 4)`のようにまとめて渡します。
 
 {/* example: examples/reference/adt-variants.ssrg#payload */}
 
@@ -73,7 +73,7 @@ println $ show $ area Point
 println $ show $ area $ Rect (3, 4)
 ```
 
-出力は0と12です。Rectのペイロードはコンストラクターのパターンの中でタプルとして分解しています。
+出力は0と12です。`Rect`のペイロードは、パターンの中でタプルとして分解しています。
 
 ## structと更新
 
@@ -92,7 +92,7 @@ Ticket {
 
 spread式を最初に一度評価し、明示フィールドをソース順に一度ずつ評価します。直接書いたフィールドの重複、複数spread、先頭以外のspreadはエラーです。generic structの更新は型引数を変えられません。
 
-通常の公開structはフィールドも公開します。表現を隠す`opaque`の規則は[モジュール](/docs/reference/modules)を参照してください。
+`pub`を付けたstructは、フィールドも公開されます。中身を隠す`opaque`については[モジュール](/docs/reference/modules)にあります。
 
 ### 更新後も元の値は残る
 
@@ -114,11 +114,11 @@ println draft.name
 println edited.name
 ```
 
-`draft`はAki、`edited`はMioです。spreadは既存値を書き換えず、新しいPersonを作ります。
+`draft`はAki、`edited`はMioです。スプレッドは元の値を書き換えず、新しい`Person`を作ります。
 
 ## レコードと省略可能なフィールド
 
-レコードは名前を持たないstructural型です。複数spreadをソース順に適用でき、後のspread・明示フィールドが前の値を置き換えます。フィールド型の変更は新しいレコード型を作ります。直接指定したフィールド名の重複はエラーです。
+レコードは名前を持たない型で、形で型が決まります。スプレッドは複数書け、書いた順に適用されます。後ろのスプレッドやフィールドが、前の値を上書きします。フィールドの型を変えると、別のレコード型になります。同じフィールド名を二回直接書くとエラーです。
 
 ```seseragi title="recordの構文"
 { name: "Aki", age: 30 }
@@ -126,9 +126,9 @@ println edited.name
 { name, }
 ```
 
-一つだけのshorthandは`{ name, }`と書きます。commaのない`{ name }`はブロック、`{}`は空のレコードです。
+`{ name: name }`の省略形`{ name }`をフィールド一つだけで書くときは、`{ name, }`とカンマを付けます。カンマのない`{ name }`はブロックになります。`{}`は空のレコードです。
 
-`{ id?: String, children: String }`では`id`を省略できます。省略したフィールドをランタイムで`Nothing`へ埋めることはありません。フィールド accessはpresentなら`Just value`、absentなら`Nothing`です。spreadはこのpresenceも保持します。
+`{ id?: String, children: String }`では、`id`を省略できます。省略したフィールドに`Nothing`が自動で入るわけではなく、フィールドそのものがない状態になります。`id`を読むと、あれば`Just 値`、なければ`Nothing`です。スプレッドでコピーしても、フィールドがあるかないかはそのまま引き継がれます。
 
 ### フィールドの不在とNothing
 
@@ -141,7 +141,7 @@ alias Required = {
 }
 ```
 
-次はmain内の断片です。省略可能なフィールドの不在を読むとNothingになり、presentなフィールドはJustで返します。
+省略したフィールドを読むと`Nothing`、あるフィールドを読むと`Just`で返ります。
 
 {/* example: examples/reference/optional-presence.ssrg#optional */}
 
@@ -154,7 +154,7 @@ println $ show absent.id
 println $ show present.id
 ```
 
-出力は`Nothing`、`Just intro`です。対してRequiredはidというフィールドを必要とし、その値としてNothingを明示できます。
+出力は`Nothing`、`Just intro`です。一方、`Required`では`id`フィールドを省略できず、値として`Nothing`を明示的に書きます。
 
 {/* example: examples/reference/optional-presence.ssrg#required */}
 
@@ -165,15 +165,15 @@ let required: Required = {
 println $ show required.id
 ```
 
-最後の出力はNothingです。どちらもフィールド accessはMaybeになりますが、値の構築時にフィールドを省略できる条件が違います。
+最後の出力は`Nothing`です。どちらも読んだ結果は`Maybe`になりますが、値を作るときにフィールドを省略できるかどうかが違います。
 
 ## newtypeとalias
 
-`newtype UserId = Int`は`Int`と区別される型を作ります。`UserId 42`で包み、コンストラクターのパターンで取り出します。暗黙のwrap/unwrap、フィールド access、レコード spreadはありません。
+`newtype UserId = Int`は、`Int`とは区別される新しい型を作ります。`UserId 42`のように包んで作り、パターンで取り出します。自動で包んだり取り出したりはされず、フィールドの読み取りやスプレッドもできません。
 
-`alias UserId = Int`は別名だけを作り、`Int`と区別しません。aliasはgenericにもできますが、直接・間接の循環はエラーです。newtypeも循環定義はできません。
+`alias UserId = Int`は名前を付けるだけで、`Int`とまったく同じ型です。`alias`にも型パラメーターを付けられますが、自分自身を（間接的にでも）参照する定義はエラーです。newtypeも同じです。
 
-### 別名とwrapperを使う
+### aliasとnewtypeを使う
 
 {/* example: examples/reference/alias-newtype.ssrg#declarations */}
 
@@ -191,7 +191,7 @@ count + 1
 |> println
 ```
 
-CountはIntと同じ型なので、通常の加算が使えます。この断片は42を出力します。
+`Count`は`Int`と同じ型なので、普通に足し算できます。この例は42を出力します。
 
 {/* example: examples/reference/alias-newtype.ssrg#wrap-unwrap */}
 
@@ -203,11 +203,11 @@ raw
 |> println
 ```
 
-UserIdはコンストラクターで包み、コンストラクターのパターンで取り出します。コンストラクターが一つなので、このlet patternは必ず一致します。出力は42です。
+`UserId`はコンストラクターで包み、パターンで取り出します。コンストラクターが一つしかないので、この`let`のパターンは必ず一致します。出力は42です。
 
 ### Intをnewtypeとして渡す場合
 
-次のプログラムは意図的なエラー例です。`unwrap 42`はUserIdを必要とする場所へIntを渡し、`SES-T0101`になります。
+次のプログラムは、わざとエラーにした例です。`unwrap 42`は、`UserId`が必要な場所に`Int`を渡しているので`SES-T0101`になります。
 
 {/* example: examples/reference/invalid/newtype-coercion.ssrg#invalid */}
 
@@ -231,24 +231,24 @@ pub effect fn main =
 | --- | --- |
 | `("answer", 42)` | `(String, Int)`、固定長タプル |
 | `[1, 2, 3]` | `Array<Int>`、不変の連続列 |
-| `` `[1, 2, 3] `` | `List<Int>`、persistentな連結列 |
-| `` 1 : `[2, 3] `` | Listの先頭へのcons、右結合 |
+| `` `[1, 2, 3] `` | `List<Int>`、先頭への追加が速い連結リスト |
+| `` 1 : `[2, 3] `` | Listの先頭に要素を追加する。右結合 |
 | `1..4` | 終端を含まない`Range<Int>` |
 | `1..=4` | 終端を含む`Range<Int>` |
 
-一要素タプルはありません。コレクション要素は同じ型です。空コレクションは要素型を期待型や注釈から決めます。ArrayとListは暗黙変換しません。
+要素が一つのタプルはありません。コレクションの要素はすべて同じ型です。空のコレクションの要素の型は、期待される型や型の注釈から決まります。ArrayとListは自動では変換されません。
 
-`array[index]`は`Maybe<A>`を返します。indexは`Int`で、負数や範囲外は`Nothing`です。Listに添字構文はありません。範囲のstepは1で、始点が終点より大きい場合は空です。
+`array[index]`は`Maybe<A>`を返します。添字は`Int`で、負の数や範囲外なら`Nothing`です。Listには添字の構文はありません。範囲は1ずつ増え、始まりが終わりより大きい場合は空になります。
 
-## comprehension
+## 内包表記
 
-次は構文を示す断片です。
+書き方は次のとおりです。
 
 ```seseragi title="comprehensionの構文"
 [n * n | n <- 1..=6, n % 2 == 0]
 `[name | Just name <- optionalNames]
 ```
 
-generatorとBool ガードを左から右に処理します。複数generatorでは左側が外側の走査です。ソースには`Iterable` instanceが必要で、結果のArray/Listとは独立です。generatorのpatternが合わない要素は除外します。comprehensionはpureなので、Effectをソースにして実行することはできません。
+`|`の右側の、値を取り出す`<-`（ジェネレーター）と`Bool`の条件は、左から順に処理されます。ジェネレーターが複数あるときは、左側が外側のループになります。`<-`の右側には`Iterable`を実装した型なら何でも置け、結果がArrayかListかとは関係ありません。`<-`の左側のパターンに一致しない要素は、取り除かれます（上の例では`Nothing`が除かれます）。内包表記は値を計算するだけなので、Effectを`<-`の右側に置いて実行することはできません。
 
-コレクションの詳しいAPIと走査コストは[標準ライブラリ](/docs/reference/library)と[性能](/docs/reference/performance)を参照してください。
+コレクションの関数と処理のコストは、[標準ライブラリ](/docs/reference/library)と[性能](/docs/reference/performance)にあります。
