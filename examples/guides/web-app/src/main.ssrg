@@ -1,20 +1,12 @@
 import * as dom from "std/web/dom"
 import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal } from "std/signal"
 
-type Action =
-  | Increment
-  | Reset
+alias View = html.Html<Task<Unit>>
 
-alias View = html.Html<Action>
-
-fn update action: Action -> n: Int
-  -> Int =
-  match action {
-    Increment -> n + 1
-    Reset -> 0
-  }
-
-fn view count: Int -> View =
+fn view count: MutableSignal<Int>
+  -> current: Int -> View =
   html.main {
     style: html.style {
       margin: "32px auto",
@@ -24,25 +16,34 @@ fn view count: Int -> View =
     children: [
       html.h1 { children: "Counter" },
       html.p {
-        children: `Count: ${count}`
+        children: `Count: ${current}`
       },
       html.button {
         buttonType: "button",
-        onClick: Increment,
+        onClick:
+          signals.update (\n: Int -> n + 1) count,
         children: "Add one"
       },
       html.button {
         buttonType: "button",
-        onClick: Reset,
+        onClick: signals.set 0 count,
         children: "Reset"
       }
     ]
   }
 
-pub effect fn main =
-  dom.app {
-    target: "#app",
-    initial: 0,
-    update,
-    view
-  }
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+pub effect fn main = do {
+  count <- signals.make 0
+  target <-
+    dom.query "#app"
+    |> mapError (\error: dom.DomError -> show error)
+  let options = dom.defaultOptions ()
+  (
+    dom.run options target perform $
+      signals.map (view count) count
+  )
+  |> mapError (\error: dom.DomRuntimeError<Never> -> show error)
+}
