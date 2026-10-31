@@ -3,30 +3,30 @@ title: "性能"
 description: "collectionの計算量、再帰、closure、Effect、release profileと計測の境界を確認する。"
 ---
 
-性能は、意味論上の保証、消去できる抽象、バックエンドの最適化品質に分けて考えます。仕様上消せる構造があることは、すべてのプログラムで自動fusionや最速のJavaScriptが得られるという保証ではありません。
+性能については、「言語として保証していること」「理論上は実行時に消せる仕組み」「コンパイラーが実際にどこまで最適化するか」を分けて考えます。理論上消せる仕組みがあるからといって、どのプログラムでも最速のJavaScriptになるとは限りません。
 
-## ソースから見えるコスト
+## コードから分かるコスト
 
-| 操作・構造 | 予想すべき仕事 |
+| 書き方 | 実行時にかかる仕事 |
 | --- | --- |
-| alias、型引数、パイプライン、`$` | それ自体のランタイムのオブジェクトは不要 |
-| ラムダ、部分適用 | 必要なcaptureを保持するclosureになりうる |
-| trait constraint | 型検査で選択。generic境界では辞書が残りうる |
-| map/filter/reduce、Show、JSON、SSR | 入力・出力・短絡位置に応じた走査 |
-| Effect、Stream、Signal、DOM mount | queue、scheduling、購読、cleanup |
-| foreign変換 | 安全性のための検査とスナップショット copy |
+| alias、型引数、パイプライン、`$` | それ自体には実行時のコストはない |
+| ラムダ、部分適用 | 外の変数を覚えるクロージャが作られることがある |
+| traitの制約 | 型チェックで選ばれる。ジェネリックな関数ではinstanceの受け渡しが残ることがある |
+| map/filter/reduce、Show、JSON、SSR | 入力の大きさや途中で止まる位置に応じた走査 |
+| Effect、Stream、Signal、画面の表示 | 実行の順番待ち、購読、後始末 |
+| TypeScriptとの値の受け渡し | 安全のための検査とコピー |
 
-関数値のidentityやホスト objectのlayoutは観測できません。バックエンドは値・評価順・failure・キャンセル・リソース・外部ABIを変えない限り、representationを変えられます。
+関数が同じものかどうかや、値が実行時にどんなオブジェクトになっているかは、プログラムからは分かりません。そのため、コンパイラーは結果・評価の順番・失敗・キャンセル・リソース・外とのやり取りを変えない範囲で、値の表し方を自由に変えられます。
 
 ## ArrayとList
 
-Arrayは不変の連続列、Listはpersistent linked listです。Listへのconsとtail取得は定数時間です。Array patternのrestは残りのArrayを作るため、`[head, ...tail]`で繰り返し再帰すると合計で二乗時間になります。
+Arrayは要素が一続きに並んだ列、Listは要素をつないだリストで、どちらも書き換えられません。Listの先頭に要素を足すことと、先頭以外を取り出すことは、長さに関係なく一瞬でできます。Arrayのパターンの`...rest`は残りのArrayをコピーするので、`[head, ...tail]`で再帰を繰り返すと、全体で要素数の二乗に比例する時間がかかります。
 
-大きなArrayを走査するなら、`reduce`や`reduceUntil`などのコレクション APIを使います。途中終了operationは停止した位置より後のコールバックを評価しません。Array/List間の変換やforeign スナップショットのcopyもコストとして数えてください。
+大きなArrayを最後まで処理するときは、`reduce`や`reduceUntil`などのコレクションの関数を使います。途中で止まる関数は、止まった位置より後ろの要素には関数を呼びません。ArrayとListの変換や、TypeScriptとの間の値のコピーにも、コストがかかることを忘れないでください。
 
 map/filterの結果はstrictです。中間コレクションを観測せず、コールバックの回数・順序・defectが同じ場合にfusionできる余地はありますが、現在のバックエンドがすべてのパイプラインをfusionする保証はありません。
 
-## 再帰とstack
+## 再帰とスタック
 
 pureな名前付き関数への、全引数を与えた直接self tail callは一定のホスト stackで実行します。次は再帰の結果へ後処理を残さず、引数を更新して次へ進む例です。
 
@@ -48,32 +48,32 @@ pub effect fn main =
 
 development/releaseの両方で5050を出力することを確認しています。tail位置は最終式やif/matchの最終分岐を含みます。相互再帰、部分適用したself call、ラムダ内からの呼び出し、`1 + recursiveCall`のようなnon-tail callには同じ保証がありません。
 
-Effectの末尾再帰は、pure関数の同期loopへ置き換えるものではありません。Effect continuationで処理を続けます。長い標準bind列や逐次走査も、入力件数に比例してホスト stackを増やさない契約を持ちます。
+Effectの末尾再帰は、普通の関数のようにループに置き換えられるわけではなく、Effectの仕組みの中で続きを実行します。それでも、長い`do`や、要素を一つずつ順に処理するEffectで、スタックが入力の長さに比例して増えることはありません。
 
 ## Effect、Signal、DOM
 
-コンパイラーは順次Effectを勝手に並列化せず、リソースの獲得・解放やキャンセル checkpointを越えて仕事を動かしません。購読やlistenerはGCに任せずscopeで解除します。
+コンパイラーは、順に実行するEffectを勝手に並列にしたり、リソースの取得・解放やキャンセルの確認をまたいで処理を動かしたりはしません。購読やイベントリスナーは、ガベージコレクションに任せず、スコープが終わるときに解除します。
 
-Signalは一トランザクションで影響するderived ノードを高々一度再計算し、安定してから通知します。DOMは静的な部分、reactive leaf、structural regionを明示できます。更新する必要のないwhole ツリーを毎回作る方式だけに依存しません。
+Signalは、一回の書き換えで影響を受ける計算を、それぞれ多くても一回だけやり直し、すべて終わってから通知します。画面は、変わらない部分・値だけが変わる部分・構造が変わる部分を分けて書けるので、変わらない部分まで毎回作り直すことはありません。
 
-ただし「DOM編集回数が常に最小」「すべてのclosureが消える」「すべてのgenericがspecializeされる」といった最適化は保証しません。必要なinput保持や購読の寿命を、allocationの数字だけで短縮してはいけません。
+ただし、「画面の更新回数がいつも最小」「クロージャがすべて消える」「ジェネリックな関数がすべて型ごとに特殊化される」といった最適化は保証していません。メモリの割り当て回数を減らすために、必要な値や購読を早く手放してはいけません。
 
-## release artifact
+## releaseビルドの成果物
 
 ```bash
 seseragi build . --profile release
 seseragi build . --source-map emit
 ```
 
-プロファイルで言語の意味は変わりません。現在のfirst-party process releaseはランタイムを含む`entry.js`を、Webは`assets/app.js`を生成します。foreign ホストを持つprocessはstaged経路が残るため、すべてのbuildが単一ファイルになるわけではありません。
+developmentかreleaseかで、プログラムの動きは変わりません。今のreleaseビルドでは、CLIアプリはランタイムを含む`entry.js`を、Webアプリは`assets/app.js`を作ります。ただし、TypeScriptのbindingを使うCLIアプリは複数のファイルになるので、いつも一つのファイルになるわけではありません。
 
-`artifact-manifest.json`は実際のentry、コンパイラー/runtime/bundler バージョン、ファイル size/digest、ソース-map policy、実施したbundleやretention解析を記録します。未実施のsize/解析は`null`で、成功した0 byteと区別します。
+`artifact-manifest.json`には、実際の入口のファイル、コンパイラー・ランタイム・バンドラーのバージョン、各ファイルの大きさとハッシュ、ソースマップの設定、行ったバンドルや解析の結果が記録されます。行っていない計測や解析は`null`になり、「0バイトだった」とは区別されます。
 
-現在のreleaseではfirst-party bundleのminifyと到達解析を行います。未使用宣言のコンパイラー inventoryと、最終bundleに残ったcodeは別です。provider bootstrapやtimezone databaseなど、現在必要なランタイム costを「ツリー shaking済み」として隠さないでください。
+今のreleaseビルドでは、コードの圧縮（minify）と、使われていないコードの除去を行います。ただし、コンパイラーが「使われていない」と判断した宣言の一覧と、最終的なファイルに残ったコードは別物です。Providerの起動処理やタイムゾーンのデータのように、今は削れないコストもあります。
 
 ## 計測と比較
 
-`std/benchmark`でcaseを定義し、`seseragi benchmark`でwarmup・sample・baselineを管理します。入力size、コンパイラー/runtime/host バージョン、プロファイル、seedを揃え、同じ意味を保ったまま時間・allocation・throughputを比較します。
+`std/benchmark`でベンチマークを書き、`seseragi benchmark`でウォームアップ・計測回数・比較の基準を管理します。比べるときは、入力の大きさ、コンパイラー・ランタイム・実行環境のバージョン、プロファイル、乱数のシードをそろえ、プログラムの動きを変えないまま、時間・メモリの割り当て・処理量を比べます。
 
 ```bash
 seseragi benchmark . --target node \
@@ -83,4 +83,4 @@ seseragi benchmark . --target node \
 
 benchmark bodyは実行するたびに新しく計算し、必要なら`blackBox`で入力・結果を観測可能な境界へ渡します。一度計算した結果の取得時間だけを測る構成にはしないでください。baselineの比較だけで、typed failureやリソース cleanupが保たれたことまでは証明できません。
 
-APIごとの詳しい計算量は[標準ライブラリ](/docs/reference/library)、caseの作り方は[テスト](/docs/guides/testing)を参照してください。
+関数ごとの計算量は[標準ライブラリ](/docs/reference/library)、ベンチマークやテストの書き方は[テスト](/docs/guides/testing)にあります。

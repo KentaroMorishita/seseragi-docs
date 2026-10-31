@@ -3,7 +3,7 @@ title: "TypeScript連携"
 description: "foreignのcalling convention、pure/task、境界型、変換、loadとbinding生成を確認する。"
 ---
 
-TypeScript連携は、ホストモジュールをSeseragiの型付き境界へ接続します。TypeScriptのunion、null、mutable object、例外を、そのまま内部の意味へ持ち込みません。
+TypeScript連携では、TypeScriptのモジュールを、型の付いた入口を通してSeseragiから使えるようにします。TypeScriptのユニオン型・`null`・書き換えられるオブジェクト・例外が、そのままSeseragiの中に入り込むことはありません。
 
 ## foreignと引数
 
@@ -23,7 +23,7 @@ pub effect fn main =
   |> println
 ```
 
-接続するホストファイルは次の内容です。パッケージの`[foreign.typescript]`にはホストマニフェストとlockfileを指定します。
+つなぐTypeScriptのファイルは次のとおりです。パッケージの`seseragi.toml`の`[foreign.typescript]`には、TypeScript側の`package.json`とロックファイルを指定します。
 
 ```javascript title="host/math.mjs"
 export function add(x, y) {
@@ -31,7 +31,7 @@ export function add(x, y) {
 }
 ```
 
-出力は42です。Seseragi側ではcurryされ、全引数が揃うとホストの`add(20, 22)`を一度呼びます。部分適用だけならホストを呼びません。export名が違う場合は`= "host_name"`でexactなproperty keyを指定します。
+出力は42です。Seseragiからは引数を一つずつ受け取る関数に見え、引数がすべてそろったときに、TypeScriptの`add(20, 22)`が一回呼ばれます。引数を一部だけ渡した段階では呼ばれません。TypeScript側のexport名が違う場合は、`= "host_name"`で正確な名前を指定します。
 
 ## pureとtask
 
@@ -44,36 +44,36 @@ pure バインディングのauthorは、同期的・決定的・非throw・外�
 
 taskはEffectを実行するまでホスト関数を呼びません。同期throwとPromiseLikeのrejectionを`Js.Error`へ変換します。load、lookup、同期throw、rejectionのphaseを保持するので、原因を一つのStringへ潰しません。
 
-## モジュール loadとclass
+## モジュールの読み込みとクラス
 
 resolved ホスト identityにpure memberが一つでもあるとpure-loadです。モジュールとtransitive ホスト依存関係の初期化にもpure保証が必要です。opaque typeとtask memberだけならtask-loadで、最初の実行までloadを遅延します。並行した初回callはloadを共有し、loadの成功・失敗をmemoizeします。
 
-ホスト namespaceはforeign block内の`namespace`で明示します。`= "metrics.count"`をobject pathとして解釈しません。メソッドは明示receiver、コンストラクターはホストのnew、propertyはホスト property readとして宣言します。通常のnamespace functionへ暗黙の`this`は渡しません。
+TypeScriptの名前空間は、`foreign`の中の`namespace`で明示します。`= "metrics.count"`と書いても、`metrics`オブジェクトの`count`という意味にはなりません。メソッドは呼び出す対象を最初の引数として、コンストラクターは`new`として、プロパティは読み取りとして、それぞれ宣言します。普通の関数に`this`が暗黙に渡されることはありません。
 
-## 境界型とスナップショット
+## 境界の型と値のコピー
 
 | 境界型 | 扱う値 |
 | --- | --- |
-| `Js.Unknown`、`Js.Object` | 検査前の値。フィールドを直接操作しない |
+| `Js.Unknown`、`Js.Object` | まだ検査していない値。フィールドを直接は触らない |
 | `Js.NullOr<A>` | `A`またはnull |
 | `Js.UndefinedOr<A>` | `A`またはundefined |
 | `Js.Nullable<A>` | nullとundefinedの両方を含むalias |
-| `Js.Number`、`Js.String` | 検査前のホスト primitive |
-| `Js.MutableArray<A>` | ホストと共有する可変array |
-| `Js.Callback<Args, Result>` | lifetimeを明示するコールバック ABI |
+| `Js.Number`、`Js.String` | まだ検査していないTypeScriptの数値・文字列 |
+| `Js.MutableArray<A>` | TypeScriptと共有する、書き換えられる配列 |
+| `Js.Callback<Args, Result>` | いつまで使えるかを明示したコールバック |
 
-通常型へ暗黙変換しません。nullable値はadapterでMaybeへ変換します。Intはfinite・整数・safe integerを検査し、negative zeroを0へ正規化します。String/Charはunpaired surrogateを拒否し、Charは一スカラー値を要求します。
+これらの型が、Seseragiの普通の型に自動で変換されることはありません。`null`になりうる値は、自分で書く変換関数で`Maybe`にします。`Int`として受け取るときは、有限で、整数で、安全な範囲に収まっているかを確かめ、`-0`は0にします。`String`と`Char`は、壊れたサロゲートペアを含む値を受け付けず、`Char`は一文字であることを確かめます。
 
-Array、タプル、レコードは検査・スナップショット変換し、mutable objectを不変レコードとして参照共有しません。Bytesは両方向にcopyします。List、struct、ADTはforeignへ暗黙変換しません。optional レコードフィールドのabsentとpresentも保持します。
+Array・タプル・レコードは、検査してからコピーして受け取ります。書き換えられるオブジェクトを、不変のレコードとして共有することはしません。`Bytes`はどちら向きでもコピーします。List・struct・ADTは、TypeScriptの値に自動では変換されません。レコードの省略可能なフィールドは、あるかないかがそのまま保たれます。
 
-## optional、overload、コールバック
+## 省略可能な引数、オーバーロード、コールバック
 
 raw optional パラメーターは`Js.UndefinedOr<A>`で宣言します。undefinedを一個渡すことと、引数を省略することは別です。本当に省略が必要ならarityごとにバインディングを分けます。末尾のrestは`...parts: Array<A>`として一つだけ宣言できます。
 
 overloadは採用するsignatureごとに別local名を与え、ランタイムで自動dispatchしません。同期pure コールバックはadapterにできますが、保持・非同期呼び出し・Effect実行を伴うコールバックは、解除とキャンセルを持つ明示adapterが必要です。
 
-## d.ts生成と手書きadapter
+## .d.tsからの生成と手書きのラッパー
 
-`seseragi dts convert`は設定済みentryからforeign バインディング、metadata、conversion reportを生成します。未変換項目を`Any`へ弱めずreportへ残します。numberは既定でFloat、通常の関数はpurityを推測せずtask、optionalは境界型へ変換します。
+`seseragi dts convert`は、設定した`.d.ts`から、binding・付随情報・変換の結果のレポートを作ります。変換できなかった項目は、何でもありの型で済ませず、レポートに残します。`number`は`Float`に、普通の関数は純粋かどうか分からないので`task`に、省略可能なものは境界の型に変換されます。
 
-生成先はgenerated ルートです。手編集せず、`gen/`から手書きadapterへimportします。raw型を直接アプリのAPIへre-exportするより、Maybe・Either・アプリのADTへ変換する境界を置いてください。具体的な設定と手順は[TypeScript バインディングを作る](/docs/guides/typescript-bindings)を参照してください。
+生成したファイルは生成用のディレクトリに置かれます。手で書き換えず、`gen/`から手書きのラッパーにimportして使います。境界の型をそのままアプリに公開するのではなく、`Maybe`・`Either`・アプリのADTに変換するラッパーを用意してください。具体的な手順は[TypeScriptとの接続](/docs/guides/typescript-bindings)にあります。
