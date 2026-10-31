@@ -3,13 +3,11 @@ title: Packages and deployment
 description: Separate public APIs from entry points and distribute process or Web artifacts.
 ---
 
-Extract shipping calculations into a small library and use it from another application. `seseragi.toml` defines public modules and dependency entry points. Then distinguish distribution of process applications from static Web applications.
-
-`import` and `pub` use the syntax from [Modules](/en/docs/learn/modules). See [Use Seseragi locally](/en/docs/learn/local-development) for CLI and Bun setup.
+Pull a shipping calculation out into a small library and use it from another app. Which modules to publish and which packages to depend on are decided in `seseragi.toml`. The second half covers distributing CLI apps and Web apps.
 
 ## Create two packages
 
-Create this structure. `shipping/` is a library and `app/` is executable:
+Create the following files. `shipping/` is the library, and `app/` is the app that uses it:
 
 ```text
 shop/
@@ -23,7 +21,7 @@ shop/
       main.ssrg
 ```
 
-No shared manifest is needed in the parent directory. Each `seseragi.toml` establishes its own package root.
+No shared configuration file is needed in the parent directory. Each directory with a `seseragi.toml` is one package.
 
 ## Define the library entry
 
@@ -43,7 +41,7 @@ pub fn fee subtotal: Int -> Int =
   if subtotal >= 3000 then 0 else 400
 ```
 
-`pub` exposes the function, and `[exports]` defines module entry points available outside the package. An external package cannot import an internal module by path if the export map does not expose it.
+`pub` exports the function, and `[exports]` decides which modules other packages can use. A module not listed in `[exports]` cannot be imported from another package, even by path: the same idea as `exports` in an npm `package.json`.
 
 ## Use a path dependency
 
@@ -72,11 +70,11 @@ pub effect fn main =
   |> println
 ```
 
-`shipping` is the import name in source. The manifest specifies the real package name `docs/shipping` and the relative path `../shipping`. Imports do not address another package's `src/` directly.
+`shipping` is the name used in imports in the source. The real package name `docs/shipping` and the relative path to it, `../shipping`, are written out. Imports never point directly into another package's `src/`.
 
 ## Lock and run
 
-Execute these commands in `shop/`:
+Run the following in `shop/`:
 
 ```sh
 seseragi lock update app
@@ -87,9 +85,9 @@ seseragi run app
 400
 ```
 
-`app/seseragi.lock` fixes exact dependency identities and content, toolchain data, and required Provider selections. After changing a manifest or dependency source, review the intended changes and explicitly update the lock.
+`app/seseragi.lock` records the contents of dependency packages and information about the tools used. After changing `seseragi.toml` or a dependency's source, check the changes and update the lockfile.
 
-Normal `run` and `build` commands do not update it automatically. A stale lock stops with `SES-K0102`. Version the manifest and lock together.
+`run` and `build` never update the lockfile automatically; a stale one stops them with `SES-K0102`. Keep both `seseragi.toml` and `seseragi.lock` in version control.
 
 ## Run a process artifact
 
@@ -99,9 +97,9 @@ seseragi build . --profile release
 bun dist/entry.js
 ```
 
-The built program also prints 400. The release artifact bundles generated JavaScript and its runtime into `entry.js`. This process application runs through Bun. `seseragi build` does not produce a standalone native executable for an OS.
+The built program prints 400 too. Building bundles the generated JavaScript and the runtime into a single `entry.js`, which you run with Bun. It does not produce a standalone executable for your OS.
 
-A process application using services such as an HTTP server is also a different deployment target from a static Web site. Consult [Runtime Providers](/en/docs/reference/runtime-providers) for required services.
+Apps such as HTTP servers are distributed the same way as this CLI app, not as a static site. [Runtime Providers](/en/docs/reference/runtime-providers) lists the features an app can use.
 
 ## Serve a Web artifact
 
@@ -112,24 +110,24 @@ seseragi lock update
 seseragi build . --profile release
 ```
 
-Its `dist/` contains `index.html` and browser JavaScript and CSS. Serve that directory through static hosting. Visitors do not need the Seseragi CLI or compiler repository.
+`dist/` contains `index.html` and the browser JavaScript and CSS. Put that directory on any static host and it is published. Showing the published page does not need Seseragi.
 
-With Vercel CLI installed and authenticated, publish the built directory:
+For example, with the Vercel CLI installed and logged in, publish the built directory:
 
 ```sh
 vercel deploy dist --prod
 ```
 
-Choose a static-site project configured to serve the uploaded files without an additional build. `--prod` publishes to production domains. See the [official Vercel CLI documentation](https://vercel.com/docs/cli/deploy) for the command and deployment configuration.
+Configure Vercel not to run an additional build. `--prod` publishes to the production domain. See the [official Vercel CLI documentation](https://vercel.com/docs/cli/deploy) for details.
 
 ## Add HTML and public files
 
-Configure `index` and `public` in `[web]` for a custom title or favicon. Put exactly one `<!-- seseragi:head -->` in the HTML `head` and one `<!-- seseragi:entry -->` in its `body`. Include the DOM target `<div id="app"></div>`.
+To set your own page title or favicon, point `index` and `public` under `[web]` at your HTML file and static files directory. Put one `<!-- seseragi:head -->` in the HTML `head` and one `<!-- seseragi:entry -->` in the `body`, and include `<div id="app"></div>` where the view goes.
 
-Update the lock before a normal build when these inputs change. Edit the source inputs rather than generated `dist/` files. [Project configuration](/en/docs/reference/project-configuration) describes paths and document contracts.
+When you add or change static files, update the lockfile before building as well. Never edit the generated `dist/` by hand. The detailed rules are in [Project configuration](/en/docs/reference/project-configuration).
 
 ## Check the publication boundary
 
 Path dependencies support local development. They cannot remain in a manifest published to a registry. The current CLI has no package `publish` command; this guide covers local package separation and distribution of application artifacts.
 
-Use [Testing](/en/docs/guides/testing) to verify imports through a changed public entry. To expose generated bindings, publish a handwritten adapter as described in [TypeScript bindings](/en/docs/guides/typescript-bindings).
+After changing which modules are published, [Testing](/en/docs/guides/testing) lets you check that imports from outside still work. To publish TypeScript bindings, publish the handwritten wrapper introduced in [TypeScript bindings](/en/docs/guides/typescript-bindings).

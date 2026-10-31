@@ -3,13 +3,11 @@ title: パッケージと配布
 description: 公開APIと実行入口を分け、processとwebの成果物を配布する。
 ---
 
-送料の計算を小さなライブラリへ分け、別のアプリから使います。ファイルを増やすだけでなく、公開するモジュールと依存の入口を`seseragi.toml`で決めます。後半ではprocessアプリとWebアプリの配布の違いを扱います。
-
-`import`と`pub`は[モジュール](/docs/learn/modules)の構文です。CLIとBunの準備は[ローカルで使う](/docs/learn/local-development)を参照してください。
+送料の計算を小さなライブラリとして切り出し、別のアプリから使います。どのモジュールを公開し、どのパッケージに依存するかは、`seseragi.toml`で決めます。後半では、CLIアプリとWebアプリの配布の仕方を扱います。
 
 ## 二つのパッケージを作る
 
-次の構成を作ってください。`shipping/`はライブラリ、`app/`は実行するアプリです。
+次のファイルを作ってください。`shipping/`がライブラリ、`app/`がそれを使うアプリです。
 
 ```text
 shop/
@@ -23,7 +21,7 @@ shop/
       main.ssrg
 ```
 
-ディレクトリの親に共通のmanifestは必要ありません。それぞれの`seseragi.toml`がパッケージのルートです。
+親のディレクトリに共通の設定ファイルは要りません。`seseragi.toml`があるディレクトリが、それぞれ一つのパッケージになります。
 
 ## ライブラリの公開入口を決める
 
@@ -43,7 +41,7 @@ pub fn fee subtotal: Int -> Int =
   if subtotal >= 3000 then 0 else 400
 ```
 
-`pub`が関数を公開し、`[exports]`が外部から使えるモジュールの入口を決めます。公開mapにない内部モジュールは、外部のパッケージからパスを指定してもimportできません。
+`pub`で関数を公開し、`[exports]`でほかのパッケージから使えるモジュールを決めます。`[exports]`に書いていないモジュールは、パスを指定してもほかのパッケージからはimportできません。npmの`package.json`の`exports`と同じ考え方です。
 
 ## アプリからpath依存を使う
 
@@ -72,11 +70,11 @@ pub effect fn main =
   |> println
 ```
 
-`shipping`はソースで使うimportの名前です。実際のパッケージ名`docs/shipping`と、manifestから見た相対パス`../shipping`を明示しています。importで別パッケージの`src/`を直接指定しません。
+`shipping`は、ソースのimportで使う名前です。実際のパッケージ名`docs/shipping`と、そこへの相対パス`../shipping`を書いています。importで別のパッケージの`src/`を直接指定することはしません。
 
 ## ロックして実行する
 
-`shop/`で実行してください。
+`shop/`で実行します。
 
 ```sh
 seseragi lock update app
@@ -87,9 +85,9 @@ seseragi run app
 400
 ```
 
-`app/seseragi.lock`は依存の正確なidentityと内容、ツールチェーンのデータ、必要なProviderの選択を固定します。manifestや依存のソースを変えた場合は、意図した変更を確認してロックを明示的に更新します。
+`app/seseragi.lock`には、依存パッケージの中身や、使うツールの情報が記録されます。`seseragi.toml`や依存パッケージのソースを変えたら、変更を確かめてからロックファイルを更新します。
 
-通常の`run`や`build`が自動でロックを更新することはありません。古いロックでは`SES-K0102`で止まります。manifestとロックを一緒にバージョン管理してください。
+`run`や`build`がロックファイルを自動で更新することはなく、古いままだと`SES-K0102`で止まります。`seseragi.toml`と`seseragi.lock`は、どちらもGitなどで管理してください。
 
 ## processの成果物を動かす
 
@@ -99,9 +97,9 @@ seseragi build . --profile release
 bun dist/entry.js
 ```
 
-ビルド後の実行も400を出力します。releaseの成果物では、生成されたJavaScriptとランタイムが`entry.js`へまとめられます。このprocessアプリはBunで実行します。`seseragi build`がOS向けの単独ネイティブ実行ファイルを作る手順ではありません。
+ビルドしたものを実行しても400が表示されます。ビルドすると、生成されたJavaScriptとランタイムが`entry.js`一つにまとめられ、それをBunで実行します。OS向けの実行ファイルが一つできるわけではありません。
 
-HTTPサーバーなどprocessのサービスを使うアプリも、静的Webサイトとは別の配布対象になります。必要なサービスは[Runtime Providers](/docs/reference/runtime-providers)で確認できます。
+HTTPサーバーのようなアプリも、静的サイトではなく、このCLIアプリと同じ形で配布します。アプリが使える機能は[ランタイムProvider](/docs/reference/runtime-providers)で確かめられます。
 
 ## Webの成果物を配信する
 
@@ -112,24 +110,24 @@ seseragi lock update
 seseragi build . --profile release
 ```
 
-`dist/`に`index.html`とブラウザー向けのJavaScript、CSSが生成されます。このディレクトリを静的ホスティングへ配信できます。公開されたページの表示にSeseragi CLIやコンパイラーのリポジトリは必要ありません。
+`dist/`に`index.html`と、ブラウザー向けのJavaScript・CSSができます。このディレクトリを静的ホスティングに置くだけで公開できます。公開したページを表示するのに、Seseragiは要りません。
 
-Vercel CLIを導入してログイン済みなら、ビルド済みのディレクトリを指定して公開できます。
+たとえばVercel CLIを入れてログインしていれば、ビルドしたディレクトリを指定して公開できます。
 
 ```sh
 vercel deploy dist --prod
 ```
 
-静的サイト用のプロジェクトを選び、追加のビルドを行わない設定で配信します。`--prod`は本番ドメインへの公開を指定します。コマンドと公開設定は[Vercel CLIの公式ドキュメント](https://vercel.com/docs/cli/deploy)で確認できます。
+Vercel側では追加のビルドを行わない設定にします。`--prod`を付けると本番のドメインに公開されます。詳しくは[Vercel CLIの公式ドキュメント](https://vercel.com/docs/cli/deploy)を見てください。
 
 ## HTMLと公開ファイルを加える
 
-独自のtitleやfaviconは、`[web]`の`index`と`public`で指定できます。HTMLの`head`に`<!-- seseragi:head -->`、`body`に`<!-- seseragi:entry -->`を一つずつ置き、DOMの接続先`<div id="app"></div>`を用意します。
+ページのタイトルやfaviconを自分で決めたいときは、`[web]`の`index`と`public`で、自分のHTMLと静的ファイルのディレクトリを指定します。HTMLの`head`に`<!-- seseragi:head -->`を、`body`に`<!-- seseragi:entry -->`を一つずつ書き、画面を表示する`<div id="app"></div>`も用意します。
 
-静的ファイルを追加したり変えたりした場合も、通常ビルドの前にロックを更新します。生成された`dist/`を手で編集する運用にはしません。設定とパスの契約は[Project configuration](/docs/reference/project-configuration)にあります。
+静的ファイルを足したり変えたりしたときも、ビルドの前にロックファイルを更新します。できあがった`dist/`を手で書き換えることはしません。設定の細かい決まりは[プロジェクト設定](/docs/reference/project-configuration)にあります。
 
 ## 公開する範囲を確認する
 
 path依存はローカル開発用です。レジストリーへ公開するmanifestへpath依存を残すことはできません。現在のCLIにはパッケージの`publish`コマンドがないため、このガイドはローカルのパッケージ分割とアプリ成果物の配布を扱っています。
 
-公開入口を変更したら、[テスト](/docs/guides/testing)で外部からのimportが通るか確認できます。生成bindingを公開したい場合は、[TypeScriptとの接続](/docs/guides/typescript-bindings)の手書きadapterを公開入口に置きます。
+公開するモジュールを変えたら、[テスト](/docs/guides/testing)で、外からのimportがちゃんと通るか確かめられます。TypeScriptのbindingを公開したい場合は、[TypeScriptとの接続](/docs/guides/typescript-bindings)で紹介した手書きのラッパーを公開します。

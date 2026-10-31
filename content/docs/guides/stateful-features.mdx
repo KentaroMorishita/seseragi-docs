@@ -3,9 +3,9 @@ title: 状態を持つ機能を組み合わせる
 description: privateなSignalを作り、読み取り専用の画面を親へ返す。
 ---
 
-「Today」と「Tomorrow」のカウンターを並べ、互いの数を変えずに操作します。カウンターのモジュールが状態を作り、親へ`Signal<Html<Task<Unit>>>`を返します。親は子の状態を直接変更しません。
+「Today」と「Tomorrow」の二つのカウンターを並べ、片方を押してももう片方は変わらないようにします。カウンターのモジュールが自分の状態を持ち、親には画面（`Signal<Html<Task<Unit>>>`）だけを返します。親は子の状態に触れません。
 
-[Effect](/docs/learn/effects)、[Signal](/docs/learn/signals)、[ジェネリクス](/docs/learn/generics)、[モジュール](/docs/learn/modules)を使います。`Task<Unit>`は`Effect<{}, Never, Unit>`の別名で、追加サービスを要求せず、型付きの失敗を返さない計算です。子はこのTaskをイベントのActionとして渡し、親のDOMランタイムが実行します。
+「学ぶ」の[Effect](/docs/learn/effects)、[Signal](/docs/learn/signals)、[モジュール](/docs/learn/modules)の内容を使います。`Task<Unit>`は`Effect<{}, Never, Unit>`の別名で、何も必要とせず失敗もしないEffectです。ボタンは、このTaskをクリック時のActionとして持ちます。
 
 ## プロジェクトを準備する
 
@@ -14,7 +14,7 @@ seseragi new web two-counters
 cd two-counters
 ```
 
-`src/counter.ssrg`を追加し、`src/main.ssrg`を置き換えます。生成された`app.ssrg`は使いません。二つのファイルは同じパッケージの`src/`へ置いてください。
+`seseragi new web`で作ったプロジェクトに`src/counter.ssrg`を追加し、`src/main.ssrg`を置き換えます。最初からある`app.ssrg`は使いません。
 
 ## 子が状態を作る
 
@@ -62,9 +62,9 @@ pub effect fn create title: String
 }
 ```
 
-`create`はEffectです。実行時に`signals.make`で状態を一度作り、その状態から画面を導くSignalを返します。`view`の評価では新しい状態を作りません。
+`create`はEffectで、実行すると`signals.make`で状態を一つ作り、その状態から作った画面のSignalを返します。
 
-`MutableSignal`はモジュール内部に留めます。親へ返すのは読み取り専用の`Signal`です。ボタンには状態を更新する`Task<Unit>`をActionとして渡しているため、親へ子のActionの一覧を公開する必要はありません。
+書き換えられる`MutableSignal`はモジュールの中に閉じ込め、親には読み取り専用の`Signal`だけを返します。ボタンには「状態を更新するTask」をActionとして渡しているので、子がどんなActionを持つかを親が知る必要はありません。
 
 ## 親が画面を組み合わせる
 
@@ -118,9 +118,9 @@ pub effect fn main = do {
 }
 ```
 
-`create "Today"`と`create "Tomorrow"`は別々に実行され、それぞれに独立した状態を作ります。`signals.combine`は二つの画面の最新値を`layout`へ渡し、一つの画面のSignalにします。
+`create "Today"`と`create "Tomorrow"`はそれぞれ実行され、別々の状態を作ります。`signals.combine`で二つの画面を`layout`に渡し、一つの画面にまとめます。
 
-`perform`は子が用意した`Task<Unit>`をそのまま返すdispatchです。`dom.run`がクリック時にそのEffectを実行します。子の更新分岐を親でも書き直す構成にはしていません。
+`perform`は、子が用意したTaskをそのまま返すだけの関数です。クリックされると、`dom.run`がそのTaskを実行します。
 
 ## ブラウザーで独立性を確かめる
 
@@ -129,17 +129,17 @@ seseragi lock update
 seseragi dev --open
 ```
 
-最初は両方0です。「Today」の「Add one」を二回押すとTodayだけが2になります。「Tomorrow」を一回押すとTomorrowは1になり、Todayの2は残ります。
+最初はどちらも0です。「Today」の「Add one」を二回押すとTodayだけが2になり、「Tomorrow」を一回押すとTomorrowが1になります。Todayは2のままです。
 
-`create`を`view`の中で呼んで状態を作り直す必要はありません。HTMLの`key`もSignalの状態を生成する指示ではありません。状態の独立性は`create`を実行した単位で決まります。
+状態がいくつできるかは、`create`を何回実行したかで決まります。画面を描き直すたびに状態が作り直されることはなく、HTMLの`key`で状態が決まるわけでもありません。
 
 ## Signalの作り方だけを確かめる
 
-HTMLやDOMを外し、状態の独立性だけを確認する二つのプログラムです。それぞれ別のファイルへ保存してください。
+画面を使わずに、状態が独立していることだけを確かめる二つのプログラムです。それぞれ別のファイルに保存してください。
 
 ### 別々にmakeを実行する
 
-`signal-independence.ssrg`では`signals.make`を二回実行します。片方への更新は、もう片方の値を変えません。
+`signal-independence.ssrg`では`signals.make`を二回実行します。片方を更新しても、もう片方は変わりません。
 
 {/* example: examples/guides/signal-independence.ssrg#independent */}
 ```seseragi title="signal-independence.ssrg"
@@ -169,11 +169,11 @@ Today: 2
 Tomorrow: 1
 ```
 
-`signals.read`はその時点の値をEffectとして読みます。二つの状態の現在値を確かめるCLIの例です。
+`signals.read`で、その時点の値を読み取っています。
 
 ### 同じSignalに別の名前を付ける
 
-`signal-shared.ssrg`では`make`の実行は一回です。`same`は`source`と同じSignalを参照します。
+`signal-shared.ssrg`では`make`は一回だけです。`same`は`source`と同じSignalを指しています。
 
 {/* example: examples/guides/signal-shared.ssrg#shared */}
 ```seseragi title="signal-shared.ssrg"
@@ -199,16 +199,16 @@ Source: 2
 Same: 2
 ```
 
-`let same = source`で状態をコピーしたり、独立したカウンターを作ったりはしません。独立した状態が必要なら`make`を別々に実行し、共有したい状態なら同じSignalを渡します。
+`let same = source`は名前を増やすだけで、状態をコピーするわけではありません。別々の状態が欲しければ`make`をそれぞれ実行し、同じ状態を共有したければ同じSignalを渡します。
 
 ## 共有状態の所有者を選ぶ
 
-二つのカウンターが同じ合計を編集する要件なら、共通の親が状態を作り、子へ現在値や許可する更新Effectを渡します。子へアプリ全体の`MutableSignal`を渡すと、子が変更できる範囲も広がります。
+二つのカウンターで同じ値を操作したいなら、共通の親が状態を作り、子には今の値と、許可する更新のTaskだけを渡します。子にアプリ全体の`MutableSignal`を渡すと、子がどこまでも書き換えられるようになってしまいます。
 
-この例の状態はカウンターごとに閉じています。アプリ全体の状態はroot featureへ置き、モジュールのimport時に作るグローバルな状態へ移しません。
+アプリ全体で使う状態は一番上の親で作ります。モジュールのトップレベルにグローバルな状態を置くことはしません。
 
 ## 終了とリソースの扱いを分ける
 
-`dom.run`はDOMの購読とイベントリスナーを所有し、終了時に解除します。この例のクリックEffectは追加のサービスを要求せず、失敗型は`Never`です。DOMランタイム自身の失敗は`mapError`で`String`へ変換しています。
+`dom.run`は、画面の更新に使う購読とイベントリスナーを自分で管理し、終了するときに解除します。`dom.run`自身の失敗は、`mapError`で`String`に変換しています。
 
-独自の購読、タイマー、接続などを持つ子の寿命は、明示的なEffectのスコープや`DomMount`へ結びつけます。見えなくなったHTMLの`key`だけでリソースが解放されるとは扱いません。詳しい契約は[Signal Reference](/docs/reference/signals)と[Web UI Reference](/docs/reference/web-ui)にあります。
+子が自分で購読やタイマー、通信などを持つ場合は、その後始末をEffectのスコープや`DomMount`に結び付けます。画面から消えただけで自動的に片付くわけではありません。細かい決まりは[Signalリファレンス](/docs/reference/signals)と[Web UIリファレンス](/docs/reference/web-ui)にあります。

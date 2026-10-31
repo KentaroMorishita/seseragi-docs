@@ -3,13 +3,11 @@ title: Write tests
 description: Verify a public API with std/test and preserve meaningful boundary cases.
 ---
 
-Test a shipping rule: a subtotal of at least 3000 has no fee; a smaller subtotal has a fee of 400. Fix cases immediately below, at, and above the boundary to detect changes to the condition.
-
-The code uses [Functions and pipelines](/en/docs/learn/functions-and-pipelines), [Modules](/en/docs/learn/modules), and [Effects](/en/docs/learn/effects). This guide sets up the test files and runner commands below.
+Test a function that returns a shipping fee of 0 for a subtotal of 3000 or more and 400 otherwise. Testing just below the boundary, exactly at it, and just above it means you notice right away if the condition is ever written wrong.
 
 ## Create a package for tests
 
-Create this structure in `shipping/`. You need the CLI and Bun. Put normal functions in `src/` and tests in `tests/`.
+Create the following files in `shipping/`. Functions go in `src/` and tests in `tests/`.
 
 ```text
 shipping/
@@ -34,7 +32,7 @@ target = "node"
 jobs = 1
 ```
 
-`"." = "shipping"` in `[exports]` defines the public entry. `target = "node"` in `[test]` selects the current test runner target; it is separate from an application's `run.target`.
+`"." = "shipping"` under `[exports]` publishes the `shipping` module as the package's entry. `target = "node"` under `[test]` sets where tests run, separately from the `target` under `[run]` for running an app.
 
 ## Write the public function
 
@@ -44,7 +42,7 @@ pub fn fee subtotal: Int -> Int =
   if subtotal >= 3000 then 0 else 400
 ```
 
-Both `pub` on the function and the export map for its module are needed. The test imports `fee` through the package's public entry.
+Tests import `fee` the same way code outside the package would, so both `pub` on the function and the module's entry in `[exports]` are needed.
 
 ## Create a test tree
 
@@ -64,13 +62,13 @@ pub let tests: test.Test =
   ]
 ```
 
-`test.equal` takes the expected value first, followed by the actual value. The runner discovers `pub let tests: test.Test`. This binding publishes a test definition as required by the runner's contract.
+`test.equal` takes the expected value first, then the actual value. The test runner looks for a value named `pub let tests: test.Test` and runs it.
 
-`test.suite` and `test.test` construct ordinary values. Their body Effects run only when the runner executes those cases.
+`test.suite` and `test.test` only build an ordinary value describing the tests. A test's body runs only when the runner runs that test.
 
 ## Run the tests
 
-Execute these commands in `shipping/`:
+Run the following in `shipping/`:
 
 ```sh
 seseragi lock update
@@ -84,9 +82,9 @@ PASS shipping::fee::above threshold
 3 passed; 0 failed; 0 skipped
 ```
 
-After changing the condition to `subtotal > 3000` and saving it, run `seseragi lock update` again, then `seseragi test`. The `at threshold` case fails, with 2 passed and 1 failed. Restore `>=`, update the lock, and rerun the tests.
+Try changing the condition to `subtotal > 3000`. After saving, run `seseragi lock update`, then `seseragi test`. `at threshold` fails, with 2 passed and 1 failed. Then change it back to `>=`, update the lockfile again, and rerun the tests.
 
-Normal source changes alter content covered by the lock. Testing before updating it stops with `SES-K0102`. A test failure exits with code 1; stale locks and configuration, compile, or discovery problems exit with 2.
+Changing the source makes it disagree with the lockfile, so without updating it the run stops with `SES-K0102`. The exit code is 1 for failed tests, and 2 for problems such as a stale lockfile or a compile error.
 
 ## Run a subset
 
@@ -96,13 +94,13 @@ seseragi test --exact \
   shipping::fee::at\ threshold
 ```
 
-`--filter` matches a case-sensitive substring of the full name, not a regular expression. `--exact` selects a full case name. An empty selection exits with code 2 rather than succeeding.
+`--filter` takes text contained in a test's name (case-sensitive, not a regular expression). `--exact` takes a test's full name. Either way, if no test matches, the run exits with code 2.
 
-`--jobs` selects concurrency. Each case uses an independent environment and resource scope, while reporting remains in definition order.
+`--jobs` sets how many tests run at once. Results are still reported in the order the tests are defined.
 
 ## Test success and typed failure separately
 
-Use a separate package to divide name input into four cases. It follows the same rule as the [isolated form validation](/en/docs/guides/forms): trim surrounding whitespace and reject an empty name.
+Next, tests that check for failure. In a separate package, test the rule from [Forms](/en/docs/guides/forms), "strip surrounding spaces and reject the name if nothing is left", with four inputs.
 
 ### Prepare the names package
 
@@ -111,7 +109,7 @@ mkdir -p names/src names/tests
 cd names
 ```
 
-Save this as `seseragi.toml`.
+`seseragi.toml` is:
 
 {/* example: examples/guides/testing-validation/seseragi.toml */}
 ```toml title="seseragi.toml"
@@ -128,7 +126,7 @@ target = "node"
 jobs = 1
 ```
 
-Put the pure validator in `src/names.ssrg`.
+Write the validation function in `src/names.ssrg`.
 
 {/* example: examples/guides/testing-validation/src/names.ssrg#validator */}
 ```seseragi title="src/names.ssrg"
@@ -147,7 +145,7 @@ pub fn name input: String -> Name = {
 
 ### Specify expected values and failure reasons
 
-Save these two blocks in order as `tests/names.ssrg`. `accepted` fixes the expected value's type as `Either<String, String>`; `missing` checks the accepted failure reason.
+Write these two blocks in order in `tests/names.ssrg`. `accepted` builds the expected success value, and `missing` checks whether a failure has the expected reason.
 
 {/* example: examples/guides/testing-validation/tests/names.ssrg#helpers */}
 ```seseragi title="tests/names.ssrg"
@@ -164,7 +162,7 @@ fn missing error: String -> Bool =
   error == "missing name"
 ```
 
-Use `test.equal` for accepted input. For empty input, `test.expectFailure` checks both that a typed failure occurs and that its reason matches.
+Valid input uses `test.equal`. Empty input uses `test.expectFailure`, which checks both that it fails and why.
 
 {/* example: examples/guides/testing-validation/tests/names.ssrg#cases */}
 ```seseragi title="tests/names.ssrg"
@@ -200,23 +198,21 @@ PASS names::name::spaces
 4 passed; 0 failed; 0 skipped
 ```
 
-`blank` and `spaces` pass by verifying that validation fails. `effects.fromEither` moves the validator's `Either` into an Effect.
+`blank` and `spaces` pass because validation correctly fails. The validation result, an `Either`, is turned into an Effect with `effects.fromEither` before being passed in.
 
 ### Read failing tests
 
-Change only the expected value in `valid` to `accepted "Eve"`, update the lock, and run `seseragi test --filter valid`. The report distinguishes the expected `Right "Eve"` from the actual `Right "Ada"`. Restore the expected value before trying each of these changes separately.
+Change the expected value in `valid` to `accepted "Eve"`, update the lockfile, and run `seseragi test --filter valid`. The report shows that the expected `Right "Eve"` differs from the actual `Right "Ada"`. Change it back, then try the next two changes one at a time.
 
 | Change | Problem reported by `blank` |
 | --- | --- |
 | Return `Right "default"` for empty input | `expected a typed failure` |
 | Make `missing` require another reason | `typed failure did not match` |
 
-After each lock update, run `seseragi test --filter blank`. The first case succeeds when a failure was expected; the second fails with a different reason. Both test runs exit with code 1. Restore each change, update the lock, and check that all four cases pass again.
+For each, update the lockfile and run `seseragi test --filter blank`. The first is "expected to fail but succeeded", the second "failed for a different reason"; both make the test fail with exit code 1. After reverting, update the lockfile and check that all four pass.
 
-`expectFailure` verifies typed failures. It does not turn defects or cancellation into successful checks for an expected input error.
+`expectFailure` catches only failures expressed in types. It never treats a defect caused by a bug, or cancellation, as the expected failure.
 
 ## Choose what to verify
 
-These tests verify the fee rule, not browser input or interaction. Check input, focus, and event behavior in a browser as well. Pure update functions can be tested directly with the same `test.equal`.
-
-[State and Actions](/en/docs/guides/state-and-actions) demonstrates an update function separated from its UI. See [CLI Reference](/en/docs/reference/cli) for timeout, filtering, and exit-code options.
+These tests check how functions behave, not how the screen behaves. Check input fields and clicks in a browser. A function like a view's `update`, though, can be tested directly with the same `test.equal` ([State and Actions](/en/docs/guides/state-and-actions)). Details on the runner's timeouts, filters, and exit codes are in the [CLI reference](/en/docs/reference/cli).
