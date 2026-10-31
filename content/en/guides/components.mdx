@@ -3,19 +3,19 @@ title: Build components
 description: Reuse a pure function that turns props into HTML in a browser view and SSR.
 ---
 
-Turn a delivery card into a function that accepts a title and detail. A component is an ordinary `fn`. Separating HTML construction from DOM effects makes the function usable both in a browser view and when rendering to a string.
+Pull a delivery-status card out into a function that takes a title and a description and returns HTML. A Seseragi component is just an ordinary `fn`, with no special machinery. Because building HTML is separate from displaying it in the browser, the same function works in the browser and for producing an HTML string.
 
-Props use [Records](/en/docs/learn/records-and-structs), and the Action type uses [Generics](/en/docs/learn/generics). The Web integration builds on `view` from [Build a Web application](/en/docs/guides/web-app).
+Props use [records](/en/docs/learn/records-and-structs), and the Action type uses [generics](/en/docs/learn/generics).
 
 ## Define props
 
-The card requires `title` and `detail` strings. `CardProps` is a record alias describing that structure.
+The card needs two strings, `title` and `detail`. They become a record type, `CardProps`.
 
-Pass the values needed to create the view through props. Avoid reading or changing shared state each time the function is evaluated. If the view needs state, pass the current value from its owner.
+Pass props only the values needed to build the view. A component does not read or write state itself; if it needs state, the parent that owns the state passes in the current value.
 
 ## Write the complete card
 
-Save this as `components.ssrg`.
+Save the following as `components.ssrg`.
 
 {/* example: examples/guides/components.ssrg */}
 ```seseragi title="components.ssrg"
@@ -49,9 +49,9 @@ pub effect fn main =
   |> println
 ```
 
-`Action` in `card<Action>` represents the event type its HTML can dispatch. This card has no events, so it can fit the Action type of its surrounding view. `html.h2<Action, String>` explicitly supplies the Action and children types.
+The `Action` in `card<Action>` is the type of events this HTML sends. The card sends none, so making it a type parameter lets it fit into a view of any Action type. `html.h2<Action, String>` spells out the Action type and the child type.
 
-A `String` can be a text child. Convert numbers with `show`. To combine text and HTML in a children array, wrap the text with `html.text` rather than mixing strings with HTML values.
+A string can be a child as is. Convert numbers with `show`. To mix strings and HTML in a children array, wrap the strings with `html.text`.
 
 ## Render HTML
 
@@ -59,7 +59,7 @@ A `String` can be a text child. Convert numbers with `show`. To combine text and
 seseragi run components.ssrg
 ```
 
-The program prints one line of HTML containing an `h2` and `p` inside a `section`. With line breaks for readability, its structure is:
+It prints one line of HTML with an `h2` and a `p` inside a `section`. With line breaks added for readability:
 
 ```html
 <section class="card">
@@ -68,11 +68,11 @@ The program prints one line of HTML containing an `h2` and `p` inside a `section
 </section>
 ```
 
-`renderToString` is pure and does not create DOM nodes. `println` performs the Effect of writing the resulting string to Console.
+`renderToString` only builds an HTML string; `println` is what displays it.
 
 ## Compare different props
 
-Check props with a badge that displays one string. Save the following two blocks in order as `component-props.ssrg`.
+Try an even smaller badge that displays a single piece of text. Write the following two blocks in order in `component-props.ssrg`.
 
 {/* example: examples/guides/component-props.ssrg#badge */}
 ```seseragi title="component-props.ssrg"
@@ -88,7 +88,7 @@ fn badge props: BadgeProps
   }
 ```
 
-The badge emits no events, so its Action type is `Never`. The same `label` yields the same HTML; calls do not share state.
+The badge sends no events, so its Action type is `Never`. The same `label` always gives the same HTML.
 
 {/* example: examples/guides/component-props.ssrg#labels */}
 ```seseragi title="component-props.ssrg"
@@ -109,7 +109,7 @@ pub effect fn main = do {
 seseragi run component-props.ssrg
 ```
 
-The first two lines are HTML displaying `Ready` and `Waiting` in the same kind of `span`. The third renders `"<script>"` as text too. Adding line breaks for readability gives this structure:
+The first two lines are HTML showing `Ready` and `Waiting` in a `span`. The third passes `"<script>"`, which is displayed as plain text, not a tag. With line breaks for readability:
 
 ```html
 <span class="badge">
@@ -117,22 +117,20 @@ The first two lines are HTML displaying `Ready` and `Waiting` in the same kind o
 </span>
 ```
 
-This small example also checks that the prop string is not interpreted as HTML source. It verifies serialized SSR output, without mounting a DOM or testing clicks.
+This example also confirms that prop strings are never interpreted as HTML.
 
 ## Call it from a Web view
 
-Use `card { title: "Delivery", detail: "Sent to Kyoto" }` as a child in the `view` from [Build a Web application](/en/docs/guides/web-app). The card does not own a DOM target or event listener.
+You can place `card { title: "Delivery", detail: "Sent to Kyoto" }` as a child in the `view` from [Build a Web application](/en/docs/guides/web-app).
 
-For a reusable button with an event, include its click Action in props. The parent supplies the Action; the component places it on the HTML event instead of modifying the parent's state directly.
+For a component that sends events, such as a button, take the Action to send on click as a prop too. The component never changes the parent's state directly; it only sends the Action the parent gave it, much like passing a callback prop in React.
 
 ## Preserve safe rendering
 
-The title and detail strings are escaped as text. This function does not concatenate them into raw HTML source. Passing `"<script>"` produces HTML displaying that text.
+The `title` and `detail` strings are escaped automatically. Passing `"<script>"` just displays those characters; it never runs as a script.
 
-Links and images use a validated `WebUrl`. Handle a failure from `parseWebUrl` as a typed result rather than treating an arbitrary string as a URL. See [Web UI Reference](/en/docs/reference/web-ui) for props and rendering contracts.
+URLs for links and images take a validated `WebUrl` type. Validate strings with `parseWebUrl`, and handle failure through the type as well. The detailed rules for props and rendering are in the [Web UI reference](/en/docs/reference/web-ui).
 
 ## Separate stateful parts
 
-Passing current values into pure components works when several components display the same state. If each feature needs independent state, give it a separate Effect entry that creates its Signal.
-
-[Stateful features](/en/docs/guides/stateful-features) composes two counters under one parent while preserving their independent values.
+Passing the current value into components suits showing the same state in several places. When each part needs its own state, use the approach in [Stateful features](/en/docs/guides/stateful-features), which places two counters side by side, each working independently.

@@ -3,9 +3,9 @@ title: Build a form
 description: Connect input values, Actions, and validation results in a greeting form.
 ---
 
-Build a form that greets an entered name when “Greet” is submitted. Empty input displays “Enter your name”. Store the input and its result in one `Model`, and update them with a pure function.
+Build a form that shows a greeting when you type a name and press “Greet”. Submitting it empty shows “Enter your name”. The text being typed and the validation result are grouped into one `Model`, updated by `update`.
 
-State, Actions, and `view` have the same roles as in [Build a Web application](/en/docs/guides/web-app). The `Model` declaration and updates use [Records and structs](/en/docs/learn/records-and-structs).
+State, Actions, and `view` divide the work the same way as in [Build a Web application](/en/docs/guides/web-app).
 
 ## Prepare a project
 
@@ -14,7 +14,7 @@ seseragi new web greeting-form
 cd greeting-form
 ```
 
-Replace `src/main.ssrg` with the example below. Its entry point does not use the generated `app.ssrg`. Install the CLI and Bun through [Local development](/en/docs/learn/local-development).
+In a project created with `seseragi new web`, replace `src/main.ssrg` with the code below. The generated `app.ssrg` is not used.
 
 ## Write the complete form
 
@@ -109,13 +109,13 @@ pub effect fn main =
   }
 ```
 
-`draft` holds the text being edited. `message` holds the submission result. `Edited` changes the draft and clears the previous message. `Submitted` validates the current draft.
+`draft` is the text being typed, and `message` is the result to show after submitting. `Edited` clears the previous message when the input changes, and `Submitted` validates the current input.
 
 ## Turn an input event into an Action
 
-`html.InputEvent.value` captures the input text when the event occurs. `edited` creates an `Edited` Action from that text. It does not store the browser's mutable `Event` or `target` in application state.
+The `value` of `html.InputEvent` holds the typed text. `edited` turns that text into an `Edited` Action. The browser's `Event` object itself never goes into the state.
 
-`value: model.draft` supplies the current value, and `onInput: edited` maps changes back into Actions. Matching `htmlFor: "name"` on the label and `id: "name"` on the input connects the label to its field.
+`value: model.draft` shows the current value in the field, and `onInput: edited` sends an Action on every keystroke: the same shape as a controlled component in React. Matching `htmlFor: "name"` on the label with `id: "name"` on the field makes clicking the label select the field.
 
 ## Submit and validate
 
@@ -124,17 +124,17 @@ seseragi lock update
 seseragi dev --open
 ```
 
-Enter `Ada` and submit to display “Hello, Ada”. Submitting an empty string displays “Enter your name”. A form with `onSubmit` synchronously prevents the browser's default submission and dispatches the Action. Pressing Enter in the input also submits the form.
+Type `Ada` and press “Greet” to see “Hello, Ada”. Submitting it empty shows “Enter your name”. A form with `onSubmit` automatically stops the page reload and sends the Action (no `preventDefault` needed). Pressing Enter in the field submits too.
 
-This example accepts whitespace-only names. Add string normalization before validation if your requirement rejects them. It does not send data to a server or persist it.
+This example accepts input made only of spaces as a name. To strip spaces, tidy the input before validating, as in the next section.
 
 ## Check name validation in isolation
 
-Try a different input policy: remove surrounding whitespace and reject a name that becomes empty. Save the following three blocks in order as `form-validation.ssrg` to run without a UI. This program is independent of the Web form's `src/main.ssrg` above.
+Here, try the rule “strip surrounding spaces, and reject the name if nothing is left” without a screen. Write the following three blocks in order in `form-validation.ssrg`. It is a separate program from the Web form above.
 
 ### Return an accepted name or a failure
 
-[Either](/en/docs/learn/maybe-and-either) puts an accepted name in `Right` and a correction message in `Left`. `name` does not access the DOM and returns the same result for the same string.
+Using [Either](/en/docs/learn/maybe-and-either), an accepted name goes in `Right` and a hint on how to fix the input goes in `Left`.
 
 {/* example: examples/guides/form-validation.ssrg#validation */}
 ```seseragi title="form-validation.ssrg"
@@ -162,7 +162,7 @@ fn greeting result: Name -> String =
   }
 ```
 
-`greeting` uses an accepted name or returns the correction message. It also computes a string without writing output.
+`greeting` returns a greeting with the name on success, and the hint as is on failure.
 
 ### Compare valid, empty, and whitespace-only input
 
@@ -191,16 +191,14 @@ Enter your name
 Enter your name
 ```
 
-`" Ada "` loses its surrounding whitespace. Both `""` and `"   "` become the same input problem. To adopt this policy in the Web form, validate `name model.draft` in `Submitted` and use its result to produce the next `message`. Decide separately whether to normalize the editable `draft` or only normalize when submitting.
+`" Ada "` has its spaces removed and becomes `Ada`; `""` and `"   "` are both rejected. To use this check in the Web form, call `name model.draft` in `Submitted` and build `message` from the result.
 
 ## Return validation to the interface
 
-`Submitted` returns an input problem in the next model's `message` rather than failing the DOM runtime. A paragraph with `role: "status"` displays the result.
+A failed validation does not stop the app. `Submitted` puts the problem in `message` and returns it as the next state, and a paragraph with `role: "status"` displays it.
 
-If you add external persistence, distinguish input validation from failure of its Effect. Invalid input requires correction; a failed external operation may require a retry. [Handle failures](/en/docs/guides/error-handling) introduces typed failures.
+If you add something like saving to a server, keep validation failures separate from saving failures. The user fixes the input for one and retries for the other, so the hints differ. [Handle failures](/en/docs/guides/error-handling) covers how to handle failures.
 
 ## Divide the interface into parts
 
-Repeated label and field layouts can become functions accepting props and returning HTML. If you render two independently stateful forms, give each a separate owner that creates its Signal.
-
-[Components](/en/docs/guides/components) and [Stateful features](/en/docs/guides/stateful-features) explain these two boundaries. [Web UI Reference](/en/docs/reference/web-ui) describes input, change, and keyboard event contracts.
+Repeated parts, such as a label paired with a field, can become functions that take props and return HTML ([Components](/en/docs/guides/components)). To place two forms with separate state side by side, use the approach in [Stateful features](/en/docs/guides/stateful-features). The detailed rules for input and keyboard events are in the [Web UI reference](/en/docs/reference/web-ui).

@@ -3,9 +3,9 @@ title: フォームを作る
 description: 入力値、Action、検証結果をつないで、名前を受け取るフォームを作る。
 ---
 
-名前を入力し、「Greet」を押すと挨拶を表示するフォームを作ります。空のまま送信した場合は「Enter your name」を表示します。入力値と検証結果を同じ`Model`へ置き、純粋な更新関数で扱います。
+名前を入力して「Greet」を押すと挨拶が表示されるフォームを作ります。空のまま送ると「Enter your name」と表示します。入力中の文字列と検証の結果を一つの`Model`にまとめ、`update`で更新します。
 
-状態・Action・`view`の分担は[Webアプリを作る](/docs/guides/web-app)と同じです。`Model`の宣言と更新には[レコードとstruct](/docs/learn/records-and-structs)の構文を使います。
+状態・Action・`view`の役割分担は、[Webアプリを作る](/docs/guides/web-app)と同じです。
 
 ## プロジェクトを準備する
 
@@ -14,7 +14,7 @@ seseragi new web greeting-form
 cd greeting-form
 ```
 
-`src/main.ssrg`を次のコードへ置き換えます。生成された`app.ssrg`はこの入口で使いません。CLIとBunの導入は[ローカルで使う](/docs/learn/local-development)から確認できます。
+`seseragi new web`で作ったプロジェクトの`src/main.ssrg`を、次のコードに置き換えます。最初からある`app.ssrg`は使いません。
 
 ## フォーム全体を書く
 
@@ -109,13 +109,13 @@ pub effect fn main =
   }
 ```
 
-`draft`は編集中の文字列です。`message`は送信後の結果です。`Edited`で入力を更新すると前回のメッセージを消し、`Submitted`で現在の入力を検証します。
+`draft`は入力中の文字列、`message`は送信したあとに表示する結果です。`Edited`で入力が変わると前回のメッセージを消し、`Submitted`で今の入力を検証します。
 
 ## 入力イベントをActionへ変える
 
-`html.InputEvent`の`value`はイベント発生時の入力値です。`edited`はその文字列から`Edited`を作ります。ブラウザーの可変な`Event`や`target`を画面の状態へ保存しません。
+`html.InputEvent`の`value`には、入力された文字列が入っています。`edited`は、その文字列から`Edited`のActionを作ります。ブラウザーの`Event`オブジェクトそのものを状態に入れることはありません。
 
-`value: model.draft`と`onInput: edited`で、現在の入力値と入力後のActionを接続しています。ラベルの`htmlFor: "name"`と入力の`id: "name"`を揃え、ラベルから入力を選べるようにしています。
+`value: model.draft`で入力欄に今の値を表示し、`onInput: edited`で入力のたびにActionを送ります。Reactの「制御されたコンポーネント」と同じ形です。ラベルの`htmlFor: "name"`と入力欄の`id: "name"`を揃えて、ラベルをクリックすると入力欄が選ばれるようにしています。
 
 ## 送信して検証する
 
@@ -124,17 +124,17 @@ seseragi lock update
 seseragi dev --open
 ```
 
-名前を`Ada`と入力して「Greet」を押すと「Hello, Ada」と表示されます。空文字列で送信すると「Enter your name」です。`onSubmit`があるフォームは、ブラウザーの既定の送信動作を防いでActionを送ります。入力中にEnterを押した場合もフォームの送信として扱われます。
+`Ada`と入力して「Greet」を押すと、「Hello, Ada」と表示されます。空のまま送ると「Enter your name」です。`onSubmit`を指定したフォームは、ページの再読み込みを自動で止めてActionを送ります（`preventDefault`は要りません）。入力欄でEnterを押しても送信されます。
 
-この例では、空白だけの文字列も名前として扱います。要件として空白を除きたい場合は、検証前に文字列の正規化を加えてください。サーバーへの送信や保存は行いません。
+この例では、空白だけの入力も名前として受け付けます。空白を取り除きたい場合は、次の節のように検証の前に整えます。
 
 ## 名前の検証を小さく試す
 
-ここでは「前後の空白を除き、空になった名前を拒否する」という別の入力規則を試します。以下の三つのコードを順に`form-validation.ssrg`へ保存すると、画面を使わずに実行できます。先のWebフォームの`src/main.ssrg`とは独立したプログラムです。
+ここでは「前後の空白を取り除き、空になったら受け付けない」という検証を、画面なしで試します。次の三つのコードを順に`form-validation.ssrg`に書いてください。前のWebフォームとは別のプログラムです。
 
 ### 成功した名前と失敗を返す
 
-[Either](/docs/learn/maybe-and-either)の`Right`に受け入れた名前を、`Left`に直し方を入れます。`name`はDOMに触れず、同じ文字列から同じ結果を返します。
+[Either](/docs/learn/maybe-and-either)を使い、受け付けた名前は`Right`に、直し方の案内は`Left`に入れます。
 
 {/* example: examples/guides/form-validation.ssrg#validation */}
 ```seseragi title="form-validation.ssrg"
@@ -162,7 +162,7 @@ fn greeting result: Name -> String =
   }
 ```
 
-`greeting`は成功した名前を使い、失敗時は案内をそのまま返します。ここでも出力は行わず、文字列を計算します。
+`greeting`は、成功なら名前を使った挨拶を、失敗なら案内をそのまま返します。
 
 ### 正常・空・空白だけを比べる
 
@@ -191,16 +191,14 @@ Enter your name
 Enter your name
 ```
 
-`" Ada "`から受け入れる名前は`Ada`です。`""`と`"   "`は同じ入力の問題になります。この規則をWebフォームへ採用する場合は、`Submitted`で`name model.draft`を検証し、その結果から次の`message`を作ります。編集中の`draft`を正規化するか、送信時だけ正規化するかは別に決めます。
+`" Ada "`は空白が取り除かれて`Ada`になり、`""`と`"   "`はどちらも受け付けられません。この検証をWebフォームで使うなら、`Submitted`で`name model.draft`を呼び、その結果から`message`を作ります。
 
 ## 検証結果を画面へ戻す
 
-`Submitted`は失敗でDOMランタイムを終了させず、入力の問題を`message`として次の状態へ返します。`role: "status"`を付けた段落が、その結果を表示します。
+検証に失敗しても、アプリが止まるわけではありません。`Submitted`は、入力の問題を`message`に入れて次の状態として返します。`role: "status"`を付けた段落に、その結果が表示されます。
 
-外部への保存を足す場合は、入力の検証と保存Effectの失敗を分けます。利用者が直せる入力と通信の失敗では、再入力と再試行の案内が異なるためです。[失敗を扱う](/docs/guides/error-handling)で型付き失敗を学べます。
+サーバーへの保存などを足す場合は、入力の検証の失敗と、保存の失敗を分けておきます。入力の失敗なら入力し直し、通信の失敗ならやり直し、と利用者への案内が違うからです。失敗の扱い方は[失敗を扱う](/docs/guides/error-handling)で学べます。
 
 ## 画面を部品へ分ける
 
-繰り返すラベルや入力の並びは、propsを受け取ってHTMLを返す関数へ分けられます。状態を別々に持つフォームを二つ並べる場合は、それぞれのSignalを作る所有者も分けます。
-
-[コンポーネント](/docs/guides/components)と[状態を持つ機能](/docs/guides/stateful-features)で、この二つの分け方を扱います。[Web UI Reference](/docs/reference/web-ui)では入力・変更・キーボードイベントの契約を調べられます。
+ラベルと入力欄の組のように繰り返す部分は、propsを受け取ってHTMLを返す関数に分けられます（[コンポーネント](/docs/guides/components)）。別々の状態を持つフォームを二つ並べたい場合は、[状態を持つ機能](/docs/guides/stateful-features)の作り方を使います。入力やキーボードのイベントの細かい決まりは[Web UIリファレンス](/docs/reference/web-ui)にあります。

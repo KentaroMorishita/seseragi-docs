@@ -3,9 +3,9 @@ title: Build a Web application
 description: Build an interactive counter using a pure update function and HTML.
 ---
 
-Build a counter whose “Add one” button increments its value and whose “Reset” button returns it to 0. State is an `Int`, operations are `Action` values, and a view turns the state into HTML. `dom.app` connects the program to the DOM.
+Build a counter that goes up with “Add one” and back to 0 with “Reset”. The state is an `Int`, button presses are an `Action` type, and the screen is HTML built from the state. `dom.app` takes care of displaying it in the browser.
 
-The code uses [Functions and pipelines](/en/docs/learn/functions-and-pipelines), [Algebraic data types](/en/docs/learn/algebraic-data-types), and [Pattern matching](/en/docs/learn/pattern-matching) for its Action model. This guide introduces the HTML and event connection.
+The Action type uses what you learned in [Algebraic data types](/en/docs/learn/algebraic-data-types) and [Pattern matching](/en/docs/learn/pattern-matching).
 
 ## Create a project
 
@@ -14,9 +14,9 @@ seseragi new web counter
 cd counter
 ```
 
-Replace `src/main.ssrg` with the code below. The generated `src/app.ssrg` is not imported by this entry point and does not participate in this example.
+Replace `src/main.ssrg` with the code below. The generated `src/app.ssrg` is not used in this guide.
 
-Keep `entry = "main"` and `target = "web"` in `[run]` of `seseragi.toml`. Follow [Local development](/en/docs/learn/local-development) to install the CLI and Bun.
+Leave `seseragi.toml` as it is. To set up the CLI and Bun, see [Local development](/en/docs/learn/local-development).
 
 ## Write the complete counter
 
@@ -72,42 +72,42 @@ pub effect fn main =
   }
 ```
 
-`Increment` and `Reset` express an operation's intent. `update` returns the next count from the current count and Action without touching the DOM. `view` is also pure: it returns `Html<Action>` for the current count.
+`Increment` and `Reset` describe what the user did. `update` only returns the next count from the current count and an Action; it never touches the screen. `view` likewise only builds the screen (`Html<Action>`) from the current count.
 
-`onClick: Increment` supplies the Action to dispatch when clicked. It does not perform a DOM operation or run an event Effect while creating the tree.
+`onClick: Increment` names the Action to send when clicked, not code to run on click.
 
 ## Operate the development server
 
-Update the lock after changing the entry, then start development:
+Update the lockfile, then start the development server:
 
 ```sh
 seseragi lock update
 seseragi dev --open
 ```
 
-The default URL is `http://127.0.0.1:3000/`. The initial text is “Count: 0”. Click “Add one” twice for “Count: 2”, then “Reset” for “Count: 0”.
+Open `http://127.0.0.1:3000/` and you see “Count: 0”. Click “Add one” twice for “Count: 2”, and “Reset” to go back to “Count: 0”.
 
-Saving causes a rebuild and page reload, so the counter starts from 0 again. This program does not persist state.
+Saving a source file reloads the page, so the counter goes back to 0.
 
 ## Understand state and DOM ownership
 
-`dom.app` creates one `MutableSignal` from the initial value and maps `view` over it. It applies `update` for each Action and publishes the resulting view to the DOM. It is an ordinary standard-library function that manages Signal creation, target lookup, subscriptions, and dispatch.
+`dom.app` creates a Signal holding the initial value and builds the screen with `view`. Each time an event happens, it computes the next state with `update` and applies only what changed to the screen. There is nothing magic about it: it is an ordinary standard-library function that bundles creating the Signal, finding where to display, and wiring up events.
 
-Events are processed in their observed order. Ending the DOM runtime releases its listeners and subscriptions. See [Web UI Reference](/en/docs/reference/web-ui) for the lifecycle contract.
+Events are processed in the order they happen. The detailed rules are in the [Web UI reference](/en/docs/reference/web-ui).
 
 ## Style and build
 
-Pass a style built with `html.style` to the `style` prop. This example uses `maxWidth`, `margin`, and `padding` to limit width, center the content, and add padding. The prop for CSS class names is `class`.
+`style` takes a style built with `html.style`. This example uses `maxWidth`, `margin`, and `padding` to limit the width, center the content, and add space inside. For CSS class names, use `class`.
 
-Stop the development server with `Ctrl-C`. Update the lock for the edited source and build:
+Stop the development server with `Ctrl-C`, update the lockfile, and build:
 
 ```sh
 seseragi lock update
 seseragi build .
 ```
 
-The `dist/` directory contains `index.html`, JavaScript, CSS, and other assets. Serve it over HTTP or static hosting rather than opening its HTML directly through `file://`.
+`dist/` now contains `index.html`, JavaScript, CSS, and so on. Serve them from an HTTP server or static hosting instead of opening the HTML file directly.
 
 ## Add another capability
 
-Use [State and Actions](/en/docs/guides/state-and-actions) to verify update rules independently. Continue with [Forms](/en/docs/guides/forms) for text input, or [Stateful features](/en/docs/guides/stateful-features) to compose independent counters.
+[State and Actions](/en/docs/guides/state-and-actions) checks `update` without a screen, and [Forms](/en/docs/guides/forms) handles text input. To place several counters side by side, use the approach in [Stateful features](/en/docs/guides/stateful-features).

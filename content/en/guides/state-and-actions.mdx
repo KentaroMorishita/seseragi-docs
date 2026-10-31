@@ -3,19 +3,17 @@ title: State and Actions
 description: Keep update rules pure so you can verify them independently of views and effects.
 ---
 
-Verify a counter's increment and reset rules without rendering a screen. A pure `update` makes it possible to establish how each operation changes state before building the UI.
-
-This task isolates the counter update rules from [Build a Web application](/en/docs/guides/web-app). Action cases and `match` use [Algebraic data types](/en/docs/learn/algebraic-data-types) and [Pattern matching](/en/docs/learn/pattern-matching).
+Check the “increment” and “reset” of the counter from [Build a Web application](/en/docs/guides/web-app) without a screen. Gathering “how each operation changes the state” into one function, `update`, lets you verify behavior before building the screen.
 
 ## Separate state from an operation
 
-State in this example is an `Int` representing the current count. `Action` has `Increment` and `Reset` cases specifying the operation to apply. `update action state` returns a new state.
+The state is an `Int` holding the current count, and operations are an `Action` with two cases, `Increment` and `Reset`. `update action state` returns the new state from an operation and the current state.
 
-An operation and its result are different values. Receiving `Reset` produces the state `0`; the state is not an Action named `Reset`.
+Keep operations and state as separate types. The state after a `Reset` is `0`, not `Reset`.
 
 ## Save the complete update example
 
-Save this as `state.ssrg`.
+Save the following as `state.ssrg`.
 
 {/* example: examples/guides/state.ssrg */}
 ```seseragi title="state.ssrg"
@@ -43,7 +41,7 @@ pub effect fn main = do {
 }
 ```
 
-`update Increment` is a function waiting for its state argument. `0 |> update Increment` computes the same result as `update Increment 0`.
+`update Increment` is a function waiting for a state (partial application). So `0 |> update Increment` means the same as `update Increment 0`, and you can chain operations in a pipeline.
 
 ## Execute a sequence of operations
 
@@ -56,17 +54,15 @@ seseragi run state.ssrg
 0
 ```
 
-The first pipeline applies `Increment` twice to 0. The second applies `Reset` to 5. All calculations apart from `println` are pure and produce the same results for the same inputs.
+The first pipeline applies `Increment` to 0 twice, giving 2; the second applies `Reset` to 5, giving 0. Apart from `println`, everything just computes values, so the result is the same every time.
 
 ## Group several values into state
 
-A form can hold an editing string and a displayed message alongside its current value. `Model` is a named struct. Construct a new struct value to update it, such as `Model { ...model, draft: value }`.
-
-You cannot assign to a field of a struct bound by `let`. [Forms](/en/docs/guides/forms) supplies a concrete struct-based example.
+In a form, you often want the state to hold the text being typed and a message as well as a number. Group them into a struct. To update it, create a new value such as `Model { ...model, draft: value }`; fields cannot be assigned. [Forms](/en/docs/guides/forms) has a larger example.
 
 ### Change one field at a time
 
-This independent example keeps a count and an input string. Save the following three blocks in order as `state-fields.ssrg`.
+This example holds a count and the text being typed. Write the following three blocks in order in `state-fields.ssrg`.
 
 {/* example: examples/guides/state-fields.ssrg#model */}
 ```seseragi title="state-fields.ssrg"
@@ -80,7 +76,7 @@ type Action =
   | ResetCount
 ```
 
-`Edited` carries a string; `ResetCount` sets only the count to zero. Each branch inherits unchanged fields from `...model`.
+`Edited` carries the typed text, and `ResetCount` sets only the count to 0. Fields that do not change are carried over with `...model`.
 
 {/* example: examples/guides/state-fields.ssrg#update */}
 ```seseragi title="state-fields.ssrg"
@@ -132,16 +128,16 @@ Count: 0
 Ada
 ```
 
-The edited `draft` is `Ada`, while the original `initial.draft` stays empty. Editing preserves the count of 2; resetting preserves the input `Ada`. `edited` and `reset` bind separate computed values rather than reassigning a mutable variable.
+After editing, `draft` is `Ada`, while the original `initial.draft` stays empty. `Edited` keeps the count of 2, and `ResetCount` keeps the text `Ada`.
 
 ## Place effects at an execution boundary
 
-A pure `update` cannot read input or perform network operations. For `dom.app`, it must return the next state from an Action and the current state.
+`update` only computes values, so it cannot do things like network requests.
 
-When external operations become necessary, separate Effect dispatch from state transition. [Stateful features](/en/docs/guides/stateful-features) demonstrates updating a `MutableSignal` with `signals.update`. If you turn external results back into Actions, represent both success and failure cases in the Action type.
+When you need such work, separate the part that runs Effects from the part that updates state. [Stateful features](/en/docs/guides/stateful-features) shows updating a Signal directly. If you send the result of a request back to `update` as an Action, give the Action cases for both success and failure.
 
 ## Test the update rules
 
-Preserve rules such as `update Increment 0` returning 1 and `update Reset 5` returning 0 in tests, instead of checking them only by clicking buttons.
+Instead of clicking buttons every time, write tests such as “`update Increment 0` is 1” and “`update Reset 5` is 0”. [Testing](/en/docs/guides/testing) shows how.
 
-[Testing](/en/docs/guides/testing) explains the `std/test` runner. Adding an Action case also causes the compiler to check `match` exhaustiveness. See [Pattern Reference](/en/docs/reference/patterns) for its exact contract.
+When you add a case to Action, the compiler also checks that the `match` in `update` handles it. The detailed rules for patterns are in the [patterns reference](/en/docs/reference/patterns).
