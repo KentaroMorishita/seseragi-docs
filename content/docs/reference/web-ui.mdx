@@ -3,11 +3,11 @@ title: "Web UI"
 description: "pureなHtml、props、Action、SSR、DOM resource、Signal bindingと状態所有を確認する。"
 ---
 
-Web UIでは、pure関数で不変のHtml ツリーを作り、DOMへの接続をEffectへ置きます。componentは普通の関数です。class、hook、JSX専用構文、関数の呼び出し順から生まれるhidden stateはありません。
+Web UIでは、普通の関数で変わらないHTMLのツリーを作り、それをブラウザーのページに表示する部分だけをEffectで書きます。コンポーネントは普通の関数です。クラス、フック、JSXのような専用の構文、関数を呼ぶ順番に結び付いた隠れた状態はありません。
 
 ## Htmlとchildren
 
-`std/web/html`は全ターゲットで使えるpureなHtmlとSSRを提供します。`Html<Action>`は、イベントからActionを作る可能性のあるツリーです。DOM ノードや購読を内部へ保持しません。
+`std/web/html`は、どのターゲットでも使えるHTMLの値と、それを文字列にする機能（SSR）を提供します。`Html<Action>`は、イベントが起きたら`Action`を送るかもしれないHTMLのツリーです。ブラウザーの要素や購読を中に持つことはありません。
 
 childrenへ渡せるのは`Unit`、`String`、同じAction型の`Html`、そのArray/Listです。Stringはtext ノードへなり、数値は`show`や`html.text`で明示変換します。ArrayにStringとHtmlを混在させるarbitrary unionはありません。
 
@@ -27,48 +27,48 @@ pub effect fn main =
   |> println
 ```
 
-出力は`<h1>Seseragi &amp; you</h1>`です。ツリー構築時はStringを保持し、SSRのsinkで一度エスケープしています。
+出力は`<h1>Seseragi &amp; you</h1>`です。ツリーを作るときは文字列のまま持ち、HTMLの文字列にするときに一度だけエスケープしています。
 
 ## propsと安全な構築
 
 propsはstructural レコードです。共通の`class`、`id`、`title`、`style`、イベントなどは省略可能なフィールドで、tagが要求するフィールドは必須です。子を持つtagでは`children`が必要です。void elementにはchildrenを指定できません。
 
-`className`ではなく`class`を使います。`style`は型付きpropertyから構築し、URLを必要とするpropsには検査済みの`WebUrl`を渡します。raw HTML Stringをuncheckedに挿入する標準APIはありません。
+Reactの`className`ではなく`class`を使います。`style`は型の付いたプロパティから作り、URLが必要なpropsには検証済みの`WebUrl`を渡します。HTMLの文字列をそのまま埋め込む標準の関数はありません。
 
-`renderToString`はfragment、`renderDocument`はdoctypeを含むdocumentを作ります。イベントやkeyはHTML attributeに出さず、SSRはActionを実行しません。HtmlにEq/Ord/Hash/Show instanceはありません。
+`renderToString`はHTMLの一部を、`renderDocument`は`<!doctype>`から始まる文書全体を作ります。イベントや`key`はHTMLの属性としては出力されず、文字列にするときにActionが実行されることもありません。`Html`には`Eq`・`Ord`・`Hash`・`Show`のinstanceはありません。
 
-## Actionと入力スナップショット
+## Actionと入力イベント
 
-イベント propsは操作の意図を表すActionを作ります。`onClick`はAction値、入力イベントは不変スナップショットからActionを返すmapperです。ホストのEventやmutable ターゲットをアプリへ渡しません。
+イベントのpropsは、ユーザーが何をしたかを表すActionを作ります。`onClick`にはActionの値を、入力イベントには「イベントの情報からActionを作る関数」を渡します。ブラウザーの`Event`オブジェクトや、書き換わる要素がアプリに渡ることはありません。
 
-`InputEvent.value`はStringです。`ChangeEvent`は`value`と`checked: Maybe<Bool>`を持ち、checkbox/radioだけcheckedが`Just`になります。文字入力などは`Nothing`です。ファイル inputの`onFileChange`はopaque FileのArrayを渡します。
+`InputEvent.value`は`String`です。`ChangeEvent`は`value`と`checked: Maybe<Bool>`を持ち、`checked`はチェックボックスとラジオボタンのときだけ`Just`、文字の入力欄などでは`Nothing`です。ファイル選択の`onFileChange`には、ファイルのArrayが渡されます。
 
-ActionはADTでも、子featureが返した`Task<Unit>`でも構成できます。fallibleな操作をそのまま無視せず、dispatchのerror型へ写すか、feature内でrecoverしてください。
+Actionは、ADTでも、子の部品が用意した`Task<Unit>`でも構いません。失敗しうる処理の失敗を黙って捨てず、Actionを処理する側の失敗の型に変換するか、部品の中で`recover`してください。
 
-## DOMへの接続とlifetime
+## ページへの表示と後始末
 
-`std/web/dom`はDom サービスを要求するブラウザー専用モジュールです。processでHtmlをSSRできることと、DOMを操作できることは別です。
+`std/web/dom`は`Dom`サービスを必要とする、ブラウザー専用のモジュールです。CLIでHTMLを文字列にできても、ページを操作できるわけではありません。
 
-`query`で対象を取得し、`mount`/`mountContent`でmanaged subtreeへ接続します。取得したDomMountを`awaitMount`で待ち、`unmount`で明示解除できます。`run`などの高水準operationも同じリソース規則を使います。
+`query`で表示先の要素を取得し、`mount`や`mountContent`で表示します。返ってきた`DomMount`は、`awaitMount`で終わるまで待ったり、`unmount`で取り外したりできます。`run`などのまとめて行う関数も、同じ決まりで後始末をします。
 
 listener、購読、イベント queue、dispatch Fiberはmountのscopeへ属します。scope終了・failure・キャンセルで受付を止め、解除します。Actionはbounded FIFOで逐次dispatchし、queue overflowを黙ってdropしません。
 
 hydration modeはFreshMount、厳密な一致を要求するHydrateStrict、不一致で作り直すHydrateOrReplaceです。cleanupでDOMを残す設定でも、listenerを残すことはありません。
 
-## Signal バインディングの更新単位
+## Signalによる画面の更新
 
 | 更新単位 | 所有する範囲 |
 | --- | --- |
-| 静的な Html | mount後の値更新を購読しない部分 |
-| leaf バインディング | text、attribute、value、checked、styleなど一つのsink |
-| structural region | 対象Elementのchildrenと、その内側のリソース |
+| 変わらないHTML | 表示したあと、値の変化を見張らない部分 |
+| 値の更新 | 文字、属性、`value`、`checked`、`style`など一か所 |
+| 構造の更新 | ある要素の子要素全体と、その中のリソース |
 
 canonicalな`DomContent`はpureなinitial Htmlとバインディング planを組にします。型付き`BindingTarget<Action, Value>`と`Signal<Value>`を`bind`で接続し、sinkの値型を検査します。`ElementRef`はツリーとplanが共有するlogical identityで、ホスト Nodeやglobal IDではありません。
 
-トランザクションの安定した公開値だけを反映します。leaf更新はElement identity、focus、selection、listenerを置き換えません。region更新はregion外へ影響せず、旧購読を解除して新しいcontentを接続します。keyはregion内のdirect sibling identityで、component stateを作る鍵ではありません。
+画面に反映されるのは、Signalの書き換えが全部終わったあとの値だけです。値の更新では要素そのものは作り直されず、フォーカスや選択範囲、イベントリスナーもそのまま残ります。構造の更新はその要素の中だけに影響し、古い購読を解除してから新しい中身を表示します。`key`は兄弟要素どうしを区別するためのもので、コンポーネントの状態を作るものではありません。
 
 ## 状態の所有
 
 local stateはfeature コンストラクター、shared stateは最も近い共通親、app-wide stateはルート featureが所有します。作成はEffectで一度行い、子へread-only Signalや許可した操作を渡します。モジュール import時のglobal singletonやcomponent呼び出し順へstateを依存させません。
 
-実際に組む手順は[Webアプリ](/docs/guides/web-app)、[状態とAction](/docs/guides/state-and-actions)、[フォーム](/docs/guides/forms)、[stateful feature](/docs/guides/stateful-features)を参照してください。関数ごとの署名は[標準ライブラリ](/docs/reference/library)で確認できます。
+実際の作り方は、ガイドの[Webアプリを作る](/docs/guides/web-app)、[状態とAction](/docs/guides/state-and-actions)、[フォーム](/docs/guides/forms)、[状態を持つ機能](/docs/guides/stateful-features)を見てください。関数ごとの型は[標準ライブラリ](/docs/reference/library)にあります。
