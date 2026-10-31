@@ -3,7 +3,7 @@ title: "Pattern matching"
 description: "Branch on values and extract the parts you need."
 ---
 
-`match` is an expression that selects a result based on an input value. Start with the two values of `Bool`, then extract data from the cases introduced in [Algebraic data types](/en/docs/learn/algebraic-data-types).
+`match` is an expression that chooses a result based on the shape of a value. It resembles TypeScript's `switch`, but it returns a value and it can take data out of a case. Start with `Bool`, then extract data from the [algebraic data types](/en/docs/learn/algebraic-data-types) of the previous chapter.
 
 ## Branch on two values
 
@@ -27,13 +27,13 @@ pub effect fn main =
 enabled
 ```
 
-`match enabled` evaluates `enabled` once and tries branch patterns from top to bottom. The first matching branch supplies the result of the whole `match` expression. Here, the patterns are `True` and `False`.
+`match` tries the patterns to the left of each `->` from top to bottom, and the right side of the first matching branch becomes the result.
 
-Every branch must return the same type. Both return a `String` here. Handling both values means the function returns a result for any `Bool` input.
+Every branch must return the same type; here both return a `String`. Because both `True` and `False` are handled, any `Bool` gives a result.
 
 ## Name data inside a case
 
-The next example uses `Reading` from the previous chapter. `NoReading` holds no data, and `Measured` holds one integer. While distinguishing a case, a `match` pattern can give that integer a name.
+This uses `Reading` from the previous chapter: `NoReading` carries no data, and `Measured` carries one integer. A `match` can tell the cases apart and, at the same time, take that integer out under a name.
 
 {/* example: examples/learn/pattern-payloads.ssrg */}
 ```seseragi title="pattern-payloads.ssrg"
@@ -57,11 +57,13 @@ pub effect fn main =
 Reading: 23
 ```
 
-`Measured n` matches a value of the `Measured` case and binds its payload to `n`. That name is available only within its branch. Constructing a value with `Measured 23` in `main` and decomposing one with `Measured n` in a pattern serve different purposes.
+`Measured n` matches when the value is `Measured` and takes the integer out as `n`. `n` is available only inside that branch. `Measured 23` in `main` builds a value, while `Measured n` in a branch takes one apart: the same shape, opposite roles.
+
+In TypeScript, you check `reading.kind === "measured"` yourself and then read `reading.value`. With `match`, checking the case and taking out the data are one step, so you cannot read the data and forget the check.
 
 ## Handle remaining values with _
 
-Integers have many possible values. After listing a specific value, handle the rest with another branch. This fragment distinguishes zero from other integers:
+A type like `Int` has too many values to list. Write the specific values you care about, then a branch for "everything else":
 
 ```seseragi
 match number {
@@ -70,11 +72,13 @@ match number {
 }
 ```
 
-`_` matches any value without naming it. A pattern containing only an ordinary name also matches anything, binding the value to that name. A lowercase name does not test equality with an outer variable. Use a literal pattern or a guard, introduced next, to compare specific values.
+`_` matches any value. Writing a name such as `n` instead also matches any value, and gives it that name.
+
+Note that a name never compares against an outer variable with the same name. To compare with a specific value, write a literal such as `0`, or use a guard, introduced next.
 
 ## Add a condition with a guard
 
-Attach a `Bool` condition with `when` to check it after the pattern matches. This fragment handles positive integers in the first branch:
+You can add a condition after a pattern with `when`. This is called a guard. The branch is chosen only when the pattern matches and the condition is also `True`.
 
 ```seseragi
 match number {
@@ -83,9 +87,9 @@ match number {
 }
 ```
 
-`n` binds the input integer. A `True` condition selects the first branch; a `False` condition proceeds to the next branch. Guards do not establish exhaustiveness, so another branch must handle inputs for which the condition fails.
+If the condition is `False`, the next branch is tried. The compiler does not look inside guard conditions, so always write a branch for the values the condition rejects.
 
-Turn the guard into a function that distinguishes positive, zero, and negative integers. Place this declaration at module scope:
+Here is a function that tells positive, zero, and negative apart:
 
 {/* example: examples/learn/focused/pattern-guard.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -97,7 +101,6 @@ fn sign number: Int -> String =
   }
 ```
 
-These bindings belong inside `main`:
 
 {/* example: examples/learn/focused/pattern-guard.ssrg#inputs */}
 ```seseragi title="Bindings in main"
@@ -106,11 +109,11 @@ let zero = sign 0
 let positive = sign 1
 ```
 
-They produce `negative`, `zero`, and `positive`, respectively. −1 matches neither the first condition nor zero, so it reaches the last branch.
+The results are `negative`, `zero`, and `positive`. −1 matches neither the first condition nor `0`, so it reaches the last branch.
 
 ### Match fields of a record
 
-A pattern can inspect a record's shape. This declaration accepts a record containing `online` and `name`:
+Records can be patterns too. This function takes a record with `online` and `name`:
 
 {/* example: examples/learn/focused/pattern-record.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -124,7 +127,7 @@ fn caption value: {
   }
 ```
 
-It extracts the name only when `online` is True, and returns `offline` otherwise. After defining `let user = { online: True, name: "Aki" }` in `main`, use this expression:
+It takes out the name only when `online` is `True`, and returns `offline` otherwise. Define `let user = { online: True, name: "Aki" }` in `main`, then call it:
 
 {/* example: examples/learn/focused/pattern-record.ssrg#use */}
 ```seseragi title="Expression in main"
@@ -133,11 +136,11 @@ user
 |> println
 ```
 
-The output is `Aki`. Changing `online` to False produces `offline`. A pattern can check the required fields and place a condition on one of their values.
+This prints `Aki`. With `online` set to `False`, it prints `offline`. One pattern can both check a field's value and take another field out.
 
-## Combine tuple decomposition and a condition
+## Combine tuples and guards
 
-Combine these patterns and guards to classify coordinates. A tuple groups values into one ordered value. `(3, 0)` is a tuple of two integers, and `describe` receives that tuple as one argument.
+Now combine patterns and guards to find where a point lies. A tuple groups values in order into one value. `(3, 0)` is a tuple of two integers, and `describe` takes it as one argument.
 
 {/* example: examples/learn/pattern-tuples.ssrg */}
 ```seseragi title="pattern-tuples.ssrg"
@@ -161,23 +164,23 @@ pub effect fn main =
 east
 ```
 
-`(0, 0)` matches when both values are zero. `(x, 0)` binds the first integer to `x` and checks that the second is zero. After the guarded branch, `(_, 0)` handles nonpositive points on the horizontal axis.
+`(0, 0)` matches when both are zero. `(x, 0)` matches when the second is zero and names the first `x`. The guard narrows it to `x > 0`, so the next branch, `(_, 0)`, receives points on the horizontal axis left of zero.
 
-The parentheses in `(3, 0)` construct a tuple. Distinguish them from the spaces that supply arguments to a function.
+The parentheses in `(3, 0)` create a tuple; they are not call parentheses.
 
 ## Exhaustiveness and decomposition that cannot fail
 
-A `match` needs branches for every possible input. Handle both `True` and `False` for `Bool`, or every case for an ADT. A pattern for remaining inputs can follow branches that handle specific conditions.
+A `match` must be written so that every possible value lands in some branch: both `True` and `False` for `Bool`, every case for an ADT. If a case is missing, the compiler tells you before the program runs. When you later add a case to an ADT, it finds every `match` that forgot to handle it.
 
-Unreachable branches are also errors. Moving the final `_` to the beginning of the coordinate example makes every following branch unreachable.
+A branch that can never be chosen is also an error. Moving the final `_` to the top of the coordinate example makes every branch below it unreachable, so it fails.
 
-`let (x, y) = point` always extracts both parts of this tuple type. In contrast, `let (0, y) = point` fails to match when the first integer is not zero. Ordinary `let` does not accept patterns that can fail. To extract only `Measured n` from `Reading`, use a `match` that also handles `NoReading`.
+`let` also accepts patterns, but only ones that always match. `let (x, y) = point` always works on a tuple. `let (0, y) = point` fails when the first value is not zero, so it is not allowed. To take only `Measured n` out of a `Reading`, use a `match` that also handles `NoReading`.
 
 ## Change the branches
 
-Change `True` in the first program's `main` to `False`: it prints `disabled`. Then remove the `False` branch to see the exhaustiveness diagnostic. In the `Reading` example, change `main` to `NoReading` and check that it prints `No reading`.
+In the `Bool` example, change `True` in `main` to `False`: it prints `disabled`. Then delete the `False` branch to see the error about an unhandled case. In the `Reading` example, change the value in `main` to `NoReading` and check that it prints `No reading`.
 
-In the coordinate example, change only the input to compare results:
+In the coordinate example, try different inputs:
 
 | Input | Output |
 | --- | --- |
@@ -186,4 +189,4 @@ In the coordinate example, change only the input to compare results:
 | `(0, 4)` | `vertical axis` |
 | `(2, 3)` | `off the axes` |
 
-Next, [Arrays and lists](/en/docs/learn/arrays-and-lists) covers collection transformations and patterns. See the [patterns reference](/en/docs/reference/patterns) for the full set of patterns.
+Next, [Arrays and lists](/en/docs/learn/arrays-and-lists) covers processing many values at once and the patterns for it. The [patterns reference](/en/docs/reference/patterns) lists every pattern.

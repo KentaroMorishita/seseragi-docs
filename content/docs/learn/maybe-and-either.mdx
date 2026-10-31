@@ -3,17 +3,19 @@ title: "MaybeとEither"
 description: "値がない場合と、失敗した理由を残す場合を型で区別する。"
 ---
 
-検索した値がないことと、入力が不正なことは別の結果です。値の欠如が正常なら`Maybe`、失敗理由を残したいなら`Either`を使います。まず欠如と失敗を別々に扱い、その後で候補のポート番号を取得して検査する例へ進みます。
+TypeScriptでは、値がないことを`undefined`や`null`で、失敗を例外で表すことがよくあります。どちらも型には現れにくく、チェックを忘れても気づけません。
+
+Seseragiでは、この二つを型で表します。「探したけど見つからなかった」のように値がないこと自体が普通の結果なら`Maybe`、「入力が正しくなかった」のように失敗の理由を伝えたいなら`Either`を使います。この章では二つを順に試してから、ポート番号を検査する例で組み合わせます。
 
 ## Maybeで存在と欠如を表す
 
-`Maybe<A>`には、値を持つ`Just A`と、持たない`Nothing`があります。`Just 21`は整数が存在する値です。欠如だけでは中身の型が分からない場合は、`let absent: Maybe<Int> = Nothing`のように注釈します。
+`Maybe<A>`は、値がある`Just 値`か、値がない`Nothing`のどちらかです。`Just 21`は整数がある状態を表します。`Nothing`だけでは中身の型が分からないので、必要なら`let absent: Maybe<Int> = Nothing`のように型を書きます。
 
-`maybeValue ?? fallback`は、Justなら中の値を、Nothingなら右側の既定値を返します。既定値はNothingのときだけ評価されます。`??`はMaybe専用で、Eitherから成功値を取り出す演算子ではありません。
+`maybeValue ?? fallback`は、`Just`なら中の値を、`Nothing`なら右側の代わりの値を返します。右側が計算されるのは`Nothing`のときだけです。`??`は`Maybe`専用で、`Either`には使えません。
 
-### 存在する値だけを変える
+### 値があるときだけ変換する
 
-次は`main`内の束縛です。Arrayに使った`map`を、Maybeの中の値にも使えます。
+Arrayで使った`map`は、`Maybe`にも使えます。
 
 {/* example: examples/learn/focused/maybe-map.ssrg#present */}
 ```seseragi title="main内の束縛"
@@ -22,7 +24,7 @@ let present =
   |> map (\n -> n * 2)
 ```
 
-`present`は`Just 42`です。値がない場合も同じ操作を適用してみます。
+`present`は`Just 42`です。値がない場合も試してみます。
 
 {/* example: examples/learn/focused/maybe-map.ssrg#absent */}
 ```seseragi title="main内の束縛"
@@ -31,18 +33,16 @@ let absent: Maybe<Int> =
   |> map (\n: Int -> n * 2)
 ```
 
-`absent`はNothingのままです。Nothingにラムダを適用して、架空の整数を作ることはありません。
+`absent`は`Nothing`のままです。`Nothing`には中身がないので、ラムダは呼ばれません。「値があるかどうか」を毎回確かめなくても、ある場合の処理だけを書けます。
 
 ## Eitherで失敗理由を残す
 
-`Either<E, A>`は、失敗を表す`Left E`か、成功を表す`Right A`です。文字列の失敗理由と整数の成功値を扱う型へ、次の別名を付けます。これはモジュールに置く宣言で、新しいnominal型を作りません。
+`Either<E, A>`は、失敗を表す`Left エラー`か、成功を表す`Right 値`のどちらかです。ここでは、失敗の理由が文字列、成功の値が整数の`Either`に、`Result`という別名を付けます。`alias`は名前を付けるだけで、新しい型は作りません。
 
 {/* example: examples/learn/focused/either-do.ssrg#result-type */}
 ```seseragi title="型の別名"
 alias Result = Either<String, Int>
 ```
-
-次は`main`内の束縛です。
 
 {/* example: examples/learn/focused/either-map.ssrg#success */}
 ```seseragi title="main内の束縛"
@@ -51,7 +51,7 @@ let success: Result =
   |> map (\n -> n * 2)
 ```
 
-`success`は`Right 42`です。失敗についてもmapを試します。
+`success`は`Right 42`です。失敗の場合も試します。
 
 {/* example: examples/learn/focused/either-map.ssrg#failure */}
 ```seseragi title="main内の束縛"
@@ -61,11 +61,11 @@ let failure =
   |> map (\n -> n * 2)
 ```
 
-`failure`は`Left "invalid"`のままです。Leftは成功値を持たないので、ここでは先にResultの注釈で中身の型を決めています。MaybeのNothingと同じように、mapは失敗側へ変換関数を適用しません。失敗理由の文字列も保持します。
+`failure`は`Left "invalid"`のままです。`Maybe`の`Nothing`と同じく、`Left`のときはラムダが呼ばれず、失敗の理由もそのまま残ります。（`Left`だけでは成功の型が分からないので、`input`には`Result`と型を書いています。）
 
-## 中身を変換し、次の計算へ進む
+## 失敗するかもしれない処理をつなぐ
 
-変換する関数もMaybeを返す場合を考えます。次の関数は、正の整数なら残し、それ以外なら欠如を返します。モジュールに置く宣言です。
+変換する関数そのものも`Maybe`を返す場合を考えます。次の関数は、正の整数ならそのまま返し、それ以外なら`Nothing`を返します。
 
 {/* example: examples/learn/focused/maybe-flatmap.ssrg#declaration */}
 ```seseragi title="関数の宣言"
@@ -73,7 +73,7 @@ fn positive n: Int -> Maybe<Int> =
   if n > 0 then Just n else Nothing
 ```
 
-この関数をmapへ渡すと、Maybeの中へもう一つMaybeを入れます。次は`main`内の束縛です。
+この関数を`map`に渡すと、`Maybe`の中にもう一つ`Maybe`が入ってしまいます。
 
 {/* example: examples/learn/focused/maybe-flatmap.ssrg#nested */}
 ```seseragi title="main内の束縛"
@@ -82,7 +82,7 @@ let nested =
   |> map positive
 ```
 
-`nested`の型は`Maybe<Maybe<Int>>`です。showの結果は`Just Just 2`で、二つのJustに包まれています。次の計算もMaybeを返すなら、flatMapでつなげられます。
+`nested`の型は`Maybe<Maybe<Int>>`で、表示すると`Just Just 2`です。次の処理も`Maybe`を返すときは、`map`の代わりに`flatMap`を使います。
 
 {/* example: examples/learn/focused/maybe-flatmap.ssrg#chained */}
 ```seseragi title="main内の束縛"
@@ -91,7 +91,7 @@ let chained =
   |> flatMap positive
 ```
 
-`chained`は`Just 2`で、型は`Maybe<Int>`です。次の計算が欠如を返す場合も試します。
+`chained`は`Just 2`で、型は`Maybe<Int>`です。`positive`が`Nothing`を返す場合も試します。
 
 {/* example: examples/learn/focused/maybe-flatmap.ssrg#rejected */}
 ```seseragi title="main内の束縛"
@@ -100,11 +100,11 @@ let rejected =
   |> flatMap positive
 ```
 
-`rejected`はNothingです。最初の値がNothingなら、次の関数は呼びません。`>>=`も、成功値から次の計算へ進む同じ合成を表せます。
+`rejected`は`Nothing`です。また、最初の値が`Nothing`なら、`positive`は呼ばれません。`flatMap`の代わりに`>>=`演算子でも同じことを書けます。
 
-### doで依存を順に書く
+### doで順番に書く
 
-Eitherを返す検査を二つ組み合わせます。先ほどのResultを使い、モジュールに次の関数を宣言します。
+`flatMap`を何段も重ねると読みにくくなります。そこで使うのが`do`記法です。`Either`を返す検査を二つ組み合わせてみます。
 
 {/* example: examples/learn/focused/either-do.ssrg#validation */}
 ```seseragi title="関数の宣言"
@@ -115,7 +115,7 @@ fn requirePositive n: Int -> Result =
     Left "must be positive"
 ```
 
-両方の成功値が必要な足し算は、次のように書けます。これも通常の純粋な関数です。
+二つの値がどちらも正のときだけ足し算をする関数は、`do`を使って次のように書けます。
 
 {/* example: examples/learn/focused/either-do.ssrg#combination */}
 ```seseragi title="関数の宣言"
@@ -132,11 +132,13 @@ fn addChecked x: Int -> y: Int
 | `addChecked 2 3` | `Right 5` |
 | `addChecked (-1) 3` | `Left "must be positive"` |
 
-`left <- ...`と`right <- ...`は、Rightの成功値を取り出します。最初がLeftなら、その理由を保って次の検査へ進みません。最後の`Right (left + right)`が全体の成功結果です。`do`はEffect専用ではなく、ここでは同期のEitherを合成しています。
+`left <- requirePositive x`は、結果が`Right`なら中の値を`left`として取り出し、次の行に進みます。`Left`なら、そこで止まり、その`Left`が関数全体の結果になります。TypeScriptで、失敗したら早めに`return`する書き方に近いものです。最後の`Right (left + right)`が、すべて成功したときの結果です。
 
-## 候補の取得と検査を組み合わせる
+`do`は、あとで学ぶEffect専用の書き方ではありません。ここでは、`Maybe`や`Either`のような普通の値をつなぐのに使っています。
 
-`Either<E, A>`は、失敗を表す`Left E`か、成功を表す`Right A`です。この例では`PortError`が失敗の型、`Int`が成功の型になります。`PortResult`は、この`Either<PortError, Int>`に付けた型の別名です。
+## MaybeとEitherを組み合わせる
+
+設定からポート番号を取り出して、正しい範囲か検査する例です。設定に値がないことは`Maybe`で、範囲外の値は`Either`で扱います。失敗の型には、文字列ではなく自分で定義した`PortError`を使っています。
 
 {/* example: examples/learn/maybe-and-either.ssrg */}
 ```seseragi title="maybe-and-either.ssrg"
@@ -174,24 +176,20 @@ pub effect fn main = do {
 Port: 8080
 ```
 
-候補がなければ3000を使い、その値を`validPort`へ渡します。1から65535なら`Right n`、それ以外なら`Left (OutOfRange n)`を返します。失敗した入力もpayloadへ残しているので、表示に使えます。
+`ports[0] ?? 3000`で、値がなければ3000を使います。その値を`validPort`に渡し、1から65535の範囲なら`Right n`、範囲外なら`Left (OutOfRange n)`を返します。失敗した値を`OutOfRange`に持たせているので、エラーメッセージに使えます。
 
+`explain`は`match`で二つの場合を分け、`Right port`なら成功の値を、`Left (OutOfRange n)`なら失敗した値を取り出して、表示用の文字列を返します。
 
+`Left`を返しても、例外のように処理が飛ぶことはありません。`Either`はただの値なので、`match`で調べたり、別の関数に渡したりできます。
 
-## パターンで結果を扱う
+## MaybeとEitherの使い分け
 
-`explain`は`Right port`から成功値を取り出し、`Left (OutOfRange n)`から失敗した整数を取り出します。両方の分岐で表示用の`String`を返します。
+`Maybe`は、値がない理由を持ちません。なぜ失敗したのかを伝えたいときや、失敗の種類が複数あるときは、ADTを失敗の型にした`Either`を使います。
 
-`Left`を作った時点では例外を投げません。Eitherはすでに計算された通常の値で、`match`や関数へ渡せます。画面への出力は、この例でも最後の`println`が返すEffectで行います。
-
-## 同期の結果と外部処理を区別する
-
-このポート検査は、入力から結果を返す純粋な同期計算です。ネットワークへ接続する処理そのものはEitherに隠さず、Effectとして表します。
-
-`Maybe`は欠如の理由を持ちません。入力を拒否した理由や複数の失敗ケースを表示する必要があるなら、ADTを失敗型に持つEitherが適しています。失敗の理由を捨てて`Nothing`へ変換するかどうかは、利用する側の方針として決めます。
+この章のポートの検査は、値を受け取って結果を返すだけの計算です。実際にネットワークへ接続するような処理は、`Either`ではなく[Effect](/docs/learn/effects)で表します。
 
 ## 欠如と失敗をそれぞれ試す
 
-`ports`を型注釈付きの空配列`let ports: Array<Int> = []`へ変えると、出力は`Port: 3000`です。`[-1]`へ変えると、候補は存在しますが検査に失敗して`Invalid port: -1`です。値がないことと、ある値が不正なことの違いを確認してください。
+`ports`を空のArray`let ports: Array<Int> = []`にすると、`Port: 3000`と表示されます。`[-1]`にすると、値はあるものの検査に失敗し、`Invalid port: -1`と表示されます。「値がない」と「値が正しくない」が、別々に扱われていることを確かめてください。
 
-次は[ジェネリクス](/docs/learn/generics)で、`Maybe<A>`のように型引数を持つデータ型と関数を自分で定義します。外部処理の失敗は[Effect](/docs/learn/effects)と[エラー処理](/docs/guides/error-handling)で扱います。
+次の[ジェネリクス](/docs/learn/generics)では、`Maybe<A>`のように型を引数に取るデータ型や関数を、自分で定義します。外部とのやり取りでの失敗は、[Effect](/docs/learn/effects)と[エラー処理](/docs/guides/error-handling)で扱います。
