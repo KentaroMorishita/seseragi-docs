@@ -11,9 +11,9 @@ pub effect fn main = do {
   let right = Point { x: 1, y: 3 }
   // docs:end values
   // docs:start comparison
-  println (show (left == right))
+  println $ show $ left == right
   // docs:end comparison
   // docs:start display
-  println (show left)
+  println $ show left
   // docs:end display
 }

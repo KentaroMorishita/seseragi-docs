@@ -1,0 +1,73 @@
+---
+title: "関数適用演算子"
+description: "`$`で括弧を減らし、関数のほうから読み進める。"
+---
+
+関数の結果を別の関数に渡していくと、`println (show (double 21))`のように括弧が重なります（`show`は値を表示用の文字列にする関数で、[パイプライン](/docs/learn/pipelines)の章で紹介しています）。閉じ括弧の数を数えないと、どこまでが引数か分かりません。`$`を使うと、この括弧を書かずに済みます。
+
+## 右側全体を一つの引数にする
+
+`f $ x`は`f (x)`と同じ意味です。`$`の右側全体が、左の関数の一つの引数になります。
+
+{/* example: examples/learn/focused/application-operator-basic.ssrg#basic */}
+```seseragi title="main内の束縛"
+let applied = double $ add 20 1
+```
+
+`add`と`double`は[関数](/docs/learn/functions)の章で作った、足し算と2倍の関数です。`double (add 20 1)`と同じなので、`applied`は42です。`$`は呼び出しを遅らせたり、引数をまとめて渡したりはしません。括弧の代わりに、ここから行末までが一つの引数だと示すだけです。
+
+## 重なった括弧を外す
+
+次のプログラムは、`$`の使い方を四つ並べています。`main`の`do { ... }`は、中に書いた処理を上から順に実行する書き方です（詳しくは[Effect](/docs/learn/effects)）。
+
+{/* example: examples/learn/application-operator.ssrg */}
+```seseragi title="application-operator.ssrg"
+fn double x: Int -> Int = x * 2
+
+pub effect fn main = do {
+  let ready = True
+  println $ show $ double 21
+  println $ show $ double $ 20 + 1
+  println $ if ready then "ready" else "waiting"
+  println $
+    match ready {
+      True -> "yes"
+      False -> "no"
+    }
+}
+```
+
+```text title="実行結果"
+42
+42
+ready
+yes
+```
+
+一つ目の`println $ show $ double 21`は、`println (show (double 21))`と同じです。`$`は右から順にまとまるので、一番右の`double 21`が最初に計算され、その結果が`show`へ、さらに`println`へ渡ります。
+
+二つ目の`double $ 20 + 1`では、先に`20 + 1`が計算されます。`$`はほかのどの演算子よりもあとに働くので、右側の計算は括弧なしで書けます。
+
+三つ目のように、`$`の右には[`if`](/docs/learn/values-and-expressions)をそのまま置けます。[`match`](/docs/learn/pattern-matching)、[`do`](/docs/learn/effects)、[ラムダ](/docs/learn/functions)も同じです。
+
+四つ目の`match`は、値の形に応じて結果を選ぶ式です（詳しくは[パターンマッチ](/docs/learn/pattern-matching)）。このように、行末の`$`のあとで改行して、次の行から引数を書くこともできます。長い`match`や、テスト・画面の組み立てのように引数が何行にもなるときに使います。
+
+## `|>`と使い分ける
+
+同じ処理を、括弧・`$`・`|>`の三通りで書くと次のようになります。
+
+```seseragi title="同じ意味の三つの式"
+println (show (double 21))
+println $ show $ double 21
+double 21
+|> show
+|> println
+```
+
+`$`は「何をするか」を左から読みます。表示する、文字列にする、2倍にする、の順です。`|>`は「何から始めるか」を左から読みます。21を2倍にして、文字列にして、表示する、の順です。
+
+値を何段階も加工するなら`|>`、最後に一つの関数へ渡すときや、引数が`if`や`match`になるときは`$`が読みやすくなります。どちらも括弧で書いた式と意味は同じなので、読みやすいほうを選んでください。
+
+`(+)`のような演算子と違い、`$`と`|>`は`($)`と書いて関数として渡すことはできません。
+
+次は[レコードとstruct](/docs/learn/records-and-structs)で、複数の値をまとめたデータを作ります。演算子の優先順位の一覧は[構文リファレンス](/docs/reference/syntax)にあります。

@@ -1,0 +1,73 @@
+---
+title: "The application operator"
+description: "Remove parentheses with `$` and read from the function side."
+---
+
+When you keep passing one function's result to another, parentheses pile up, as in `println (show (double 21))`. (`show` turns a value into a display string; it is introduced in [Pipelines](/en/docs/learn/pipelines).) You have to count the closing parentheses to see where each argument ends. `$` lets you leave those parentheses out.
+
+## Make everything on the right one argument
+
+`f $ x` means the same as `f (x)`. Everything to the right of `$` becomes one argument of the function on the left.
+
+{/* example: examples/learn/focused/application-operator-basic.ssrg#basic */}
+```seseragi title="Binding in main"
+let applied = double $ add 20 1
+```
+
+`add` and `double` are the addition and doubling functions from [Functions](/en/docs/learn/functions). This is the same as `double (add 20 1)`, so `applied` is 42. `$` does not delay the call or pass several arguments at once. It only marks that everything from here to the end of the line is one argument, in place of parentheses.
+
+## Remove nested parentheses
+
+The next program shows four ways to use `$`. The `do { ... }` in `main` runs the steps inside it from top to bottom (see [Effects](/en/docs/learn/effects)).
+
+{/* example: examples/learn/application-operator.ssrg */}
+```seseragi title="application-operator.ssrg"
+fn double x: Int -> Int = x * 2
+
+pub effect fn main = do {
+  let ready = True
+  println $ show $ double 21
+  println $ show $ double $ 20 + 1
+  println $ if ready then "ready" else "waiting"
+  println $
+    match ready {
+      True -> "yes"
+      False -> "no"
+    }
+}
+```
+
+```text title="Output"
+42
+42
+ready
+yes
+```
+
+The first `println $ show $ double 21` is the same as `println (show (double 21))`. `$` groups from the right, so the rightmost `double 21` is computed first, then its result goes to `show`, and then to `println`.
+
+In the second, `double $ 20 + 1`, `20 + 1` is computed first. `$` applies after every other operator, so the calculation on its right needs no parentheses.
+
+As the third shows, an [`if`](/en/docs/learn/values-and-expressions) can follow `$` directly. So can [`match`](/en/docs/learn/pattern-matching), [`do`](/en/docs/learn/effects), and [lambdas](/en/docs/learn/functions).
+
+The fourth uses `match`, an expression that picks a result based on the shape of a value (see [Pattern matching](/en/docs/learn/pattern-matching)). You can break the line after a `$` at the end of a line and write the argument on the following lines. This is useful for a long `match`, or when an argument spans several lines, as in tests and screen layouts.
+
+## Choose between `$` and `|>`
+
+Here is the same step written with parentheses, `$`, and `|>`:
+
+```seseragi title="Three expressions with the same meaning"
+println (show (double 21))
+println $ show $ double 21
+double 21
+|> show
+|> println
+```
+
+`$` reads "what to do" from left to right: print, turn into a string, double. `|>` reads "where to start" from left to right: double 21, turn it into a string, print it.
+
+Use `|>` when a value goes through several steps. Use `$` when you pass something to one final function, or when the argument is an `if` or a `match`. Both mean the same as the parenthesized form, so pick the one that reads better.
+
+Unlike operators such as `(+)`, `$` and `|>` cannot be written as `($)` and passed around as functions.
+
+Next, [Records and structs](/en/docs/learn/records-and-structs) groups several values into one piece of data. The full operator precedence table is in the [syntax reference](/en/docs/reference/syntax).

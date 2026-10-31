@@ -1,0 +1,15 @@
+fn double x: Int -> Int = x * 2
+
+pub effect fn main = do {
+  // docs:start single
+  let piped =
+    21
+    |> double
+  // docs:end single
+  // docs:start precedence
+  let summed =
+    20 + 1
+    |> double
+  // docs:end precedence
+  println `${piped}/${summed}`
+}

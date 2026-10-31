@@ -7,7 +7,7 @@ This reference covers 1,452 public names across 63 standard library interfaces, 
 
 ## Read the types
 
-Function arguments are curried. Types are listed in argument order, followed by the result. Most collection operations take their subject last, so you can use a [vertical pipeline](/en/docs/learn/functions-and-pipelines). A `where` clause lists the required [type classes](/en/docs/reference/type-classes). These signatures are type notation, not executable declarations.
+Function arguments are curried. Types are listed in argument order, followed by the result. Most collection operations take their subject last, so you can use a [vertical pipeline](/en/docs/learn/pipelines). A `where` clause lists the required [type classes](/en/docs/reference/type-classes). These signatures are type notation, not executable declarations.
 
 `Effect<R, E, A>` describes requirements, typed failure, and success. An imported module does not execute an Effect or supply its provider. See [Effect](/en/docs/reference/effects) and [runtime providers](/en/docs/reference/runtime-providers). Opaque types hide their representation; do not assume every error type has a `Show` instance.
 

@@ -1,0 +1,10 @@
+fn add x: Int -> y: Int -> Int = x + y
+
+fn double x: Int -> Int = x * 2
+
+pub effect fn main = do {
+  // docs:start basic
+  let applied = double $ add 20 1
+  // docs:end basic
+  applied |> show |> println
+}

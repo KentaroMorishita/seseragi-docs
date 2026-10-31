@@ -19,7 +19,7 @@ Try the [Playground](https://seseragi.vercel.app/) without installing anything, 
 | --- | --- | --- |
 | Values and expressions | Pass a computed result to the next expression | [Values and expressions](/en/docs/learn/values-and-expressions) |
 | Types and patterns | Model data shapes and handle each state | [Algebraic data types](/en/docs/learn/algebraic-data-types), [Pattern matching](/en/docs/learn/pattern-matching) |
-| Function composition | Connect small transformations with partial application and pipelines | [Functions and pipelines](/en/docs/learn/functions-and-pipelines) |
+| Function composition | Connect small transformations with partial application and pipelines | [Pipelines](/en/docs/learn/pipelines) |
 | Effect | Build operations while preserving requirements, failure, and success in their types | [Effect](/en/docs/learn/effects) |
 
 Both `if` and `match` return values. Operations such as output are represented as Effect values. An `effect fn` declaration builds a computation and expands to an Effect result type. Creating an Effect value is distinct from producing output by executing it.
@@ -35,7 +35,7 @@ fn add x: Int -> y: Int -> Int =
 
 Call it with `add 2 3`. Place `2` and `3` after the function name, separated by spaces. The result is `5`. The corresponding TypeScript call is `add(2, 3)`.
 
-Passing only `2`, as in `add 2`, produces a function accepting the other integer. [Functions and pipelines](/en/docs/learn/functions-and-pipelines) introduces partial application and then parentheses for grouping expressions. A `let` definition names a value; it is not a variable you can reassign.
+Passing only `2`, as in `add 2`, produces a function accepting the other integer. [Functions](/en/docs/learn/functions) introduces partial application and then parentheses for grouping expressions. A `let` definition names a value; it is not a variable you can reassign.
 
 Model absence with `Maybe`, success and failure with `Either`, and states carrying different data with algebraic data types. Web state lives in Signals; events become Actions that produce the next state.
 

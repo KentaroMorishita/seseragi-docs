@@ -5,13 +5,9 @@ fn same<A> left: A -> right: A
 // docs:end declaration
 
 pub effect fn main = do {
-  // docs:start numbers
-  println (show (same 42 42))
-  // docs:end numbers
-  // docs:start strings
-  println (show (same "Aki" "Aki"))
-  // docs:end strings
-  // docs:start arrays
-  println (show (same [1, 2] [2, 1]))
-  // docs:end arrays
+  // docs:start calls
+  println $ show $ same 42 42
+  println $ show $ same "Aki" "Aki"
+  println $ show $ same [1, 2] [2, 1]
+  // docs:end calls
 }

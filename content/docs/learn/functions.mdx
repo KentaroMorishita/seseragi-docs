@@ -1,9 +1,9 @@
 ---
-title: "関数とパイプライン"
-description: "空白による関数適用、部分適用、ラムダを使って計算を組み合わせる。"
+title: "関数"
+description: "関数を宣言して呼び出し、部分適用とラムダで新しい関数を作る。"
 ---
 
-この章では、二つの整数を足す関数を作って呼び出すところから始めます。そのあと、引数を一部だけ渡す方法と、`|>`で関数をつなぐパイプラインを学びます。
+この章では、二つの整数を足す関数を作って呼び出すところから始めます。そのあと、引数を一部だけ渡す部分適用と、名前を付けずに関数を作るラムダを学びます。関数をつなぐ`|>`と、括弧を減らす`$`は、次の二つの章で扱います。
 
 ## 関数を宣言して呼び出す
 
@@ -66,34 +66,6 @@ ready ()
 
 `let increment = add 1`は「1を足す関数」です。`increment 20`を呼ぶと、`add 1 20`と同じ21になります。このように引数を一部だけ渡して新しい関数を作ることを、部分適用と呼びます。
 
-## 処理の順に縦へつなぐ
-
-{/* example: examples/learn/functions-and-pipelines.ssrg */}
-```seseragi title="functions-and-pipelines.ssrg"
-fn add x: Int -> y: Int -> Int =
-  x + y
-
-fn double x: Int -> Int =
-  x * 2
-
-pub effect fn main = {
-  let increment = add 1
-  20
-  |> increment
-  |> double
-  |> show
-  |> println
-}
-```
-
-```text title="実行結果"
-42
-```
-
-`20`を`increment`に渡して21、それを`double`に渡して42になります。`println`は文字列しか受け取らないので、その前に`show`で整数を文字列に変えています。上から下へ、処理の順番どおりに読めます。
-
-`value |> f`は、`f value`と書くのとまったく同じです。`|>`に特別な働きはなく、左の値を右の関数に渡すだけです。`20 |> add 1`なら、`add 1`という関数に20を渡します。部分適用と組み合わせると、引数の多い関数もパイプラインに置けます。
-
 ## 式を一つの引数として渡す
 
 引数に計算式を渡すときは、その式を括弧で囲みます。次の例は、先ほどの`add`を使います。
@@ -105,14 +77,14 @@ let grouped = add (20 + 1) 22
 
 `20 + 1`が一つ目の引数になるので、`add`は21と22を受け取り、`grouped`は43です。この括弧は式をひとまとめにしているだけで、`add(20, 22)`のような呼び出しの括弧ではありません。
 
-関数の結果を別の関数に渡すときも、同じように括弧で囲みます。
+関数の結果を別の関数に渡すときも、同じように括弧で囲みます。ここでは、数を2倍にする`fn double n: Int -> Int = n * 2`も宣言してあるものとします。
 
 {/* example: examples/learn/focused/function-grouping.ssrg#nested */}
 ```seseragi title="main内の束縛"
 let nested = double (add 20 1)
 ```
 
-`add 20 1`の結果の21が`double`に渡り、`nested`は42です。`add 20 1 |> double`と書いても同じ意味になります。
+`add 20 1`の結果の21が`double`に渡り、`nested`は42です。括弧が重なってきたら、[パイプライン](/docs/learn/pipelines)の`|>`や[関数適用演算子](/docs/learn/application-operator)の`$`で書き直せます。
 
 ## 名前を付けずに関数を作る
 
@@ -162,8 +134,6 @@ welcome "Aki"
 
 この章の`add`や`double`は、値を返すだけの関数です。一方`println`は「出力する」という処理を返すので、それを使う`main`は`effect fn`にしています。この違いは[Effect](/docs/learn/effects)の章で詳しく扱います。
 
-## 組み合わせを変える
+## 次に学ぶこと
 
-パイプラインの例で`let increment = add 1`を`add 2`に変えると、結果は44になります。`add 1`に戻して`increment`と`double`の行を入れ替えると、今度は41です。関数を並べる順番で結果が変わることを確かめてください。
-
-次は[レコードとstruct](/docs/learn/records-and-structs)で、複数の値をまとめたデータを作ります。関数の書き方の細かい決まりは[関数リファレンス](/docs/reference/functions)にあります。
+次は[パイプライン](/docs/learn/pipelines)で、この章の関数を処理の順に縦へつなぎます。関数の書き方の細かい決まりは[関数リファレンス](/docs/reference/functions)にあります。
