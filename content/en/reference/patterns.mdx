@@ -143,7 +143,7 @@ pub effect fn main = do {
 
 Record patterns ignore unspecified fields. Struct patterns also ignore unspecified fields, while respecting nominal identity and visibility. There is no spread inside a pattern.
 
-Use `{ id? }` or `{ id?: pattern }` for an optional field. `id?` binds presence as `Maybe<A>`; `id?: Just value` matches only when present. Querying a required field always produces `Just`. A regular `{ id }` pattern cannot extract an optional field.
+Use `{ id? }` or `{ id?: pattern }` for an optional field (the current compiler does not support these yet and reports `SES-T0101`; until then, read the field and `match` on the resulting `Maybe`). `id?` binds presence as `Maybe<A>`; `id?: Just value` matches only when present. Querying a required field always produces `Just`. A regular `{ id }` pattern cannot extract an optional field.
 
 ## Scope and cost
 
