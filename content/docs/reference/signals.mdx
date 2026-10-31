@@ -3,20 +3,20 @@ title: "Signal"
 description: "読み取り権限、現在値、derived graph、transaction、購読とlifetimeを確認する。"
 ---
 
-Signalは時間とともに変わる値を、明示的な依存関係グラフで表します。値を保持しているだけで、pure関数の結果が勝手に変わることはありません。現在値のreadとソースの更新はEffectです。
+Signalは、時間とともに変わる値を表します。どのSignalがどのSignalから計算されるかは、コードで明示します。Signalを持っているだけで、普通の関数の結果が勝手に変わることはありません。今の値を読むことと、値を書き換えることは、どちらもEffectです。
 
 ## SignalとMutableSignal
 
 | 型・操作 | 意味 |
 | --- | --- |
 | `Signal<A>` | 読み取り専用のSignal |
-| `MutableSignal<A>` | 更新できるソース。Signalとしても渡せる |
+| `MutableSignal<A>` | 書き換えられるSignal。`Signal`としても渡せる |
 | `signals.make initial` | `Task<MutableSignal<A>>`を作る |
 | `*source` | `signals.read source`、型は`Task<A>` |
 | `source := value` | `signals.set value source`、型は`Task<Unit>` |
-| `signals.update f source` | 現在値へpure関数を適用するatomic更新 |
+| `signals.update f source` | 今の値に関数を適用して書き換える。間に別の更新は入らない |
 
-書き込み権限を落として`MutableSignal<A>`を`Signal<A>`へ渡せます。逆変換はできません。`:=`は普通の`let`やstruct フィールドへの代入には使えません。
+`MutableSignal<A>`は、書き換えできない`Signal<A>`として渡せます。逆はできません。`:=`は、普通の`let`やstructのフィールドへの代入には使えません。
 
 {/* example: examples/reference/signals.ssrg */}
 
@@ -39,7 +39,7 @@ pub effect fn main = do {
 }
 ```
 
-出力は6です。`*doubled`は値を返すpure dereferenceではなく、実行時点のスナップショットを読むTaskです。`count`の作成・変更・readを`do`で順に実行しています。
+出力は6です。`*doubled`は値そのものではなく、実行した時点の値を読み取るTaskです。`count`を作る・書き換える・読む、を`do`で順に実行しています。
 
 ### 現在値へ関数を適用する
 
@@ -49,7 +49,7 @@ pub effect fn main = do {
 fn increment n: Int -> Int = n + 1
 ```
 
-次はsignalsをstd/signalのaliasとするmain内の断片です。readはTask、updateもTaskなので、doで実行します。
+読み取りも`update`もTaskなので、`do`の中で実行します（`signals`は`std/signal`の別名）。
 
 {/* example: examples/reference/signal-snapshots.ssrg#read-update */}
 
@@ -62,9 +62,9 @@ after <- *source
 println `${before}: ${after}`
 ```
 
-出力は`1: 2`です。updateは実行時点の現在値へincrementを一度適用します。
+出力は`1: 2`です。`update`は、実行した時点の値に`increment`を一回適用します。
 
-### 読んだスナップショットは不変値
+### 読み取った値は変わらない
 
 {/* example: examples/reference/signal-snapshots.ssrg#snapshot */}
 
@@ -75,15 +75,15 @@ current <- *source
 println `${saved}: ${current}`
 ```
 
-直前のソースを使うと、出力は`2: 10`です。保存したIntが後のSignal更新へ追従することはありません。
+前の例の`source`を使うと、出力は`2: 10`です。一度読み取った`Int`は、あとでSignalを書き換えても変わりません。
 
 ## 派生グラフ
 
-`map`は一つのソース、`combine`は二つのソースから派生Signalを作ります。構築に使う関数はpureです。関数内のreadを追跡する暗黙依存関係 trackingはありません。
+`map`は一つのSignalから、`combine`は二つのSignalから、新しいSignalを計算します。計算に使う関数は値を計算するだけのものにします。関数の中で読んだSignalを自動で追跡する仕組みはありません。
 
-`constant`はソースを持たず、`distinct`は`Eq`を使って直前の公開値と等しい更新を止めます。ソースへ同じ値をsetしただけでは、既定で通知を止めません。
+`constant`は変わらない値のSignalです。`distinct`は、`Eq`で比べて直前と同じ値なら通知しません。`distinct`を使わない場合、同じ値をセットしても通知されます。
 
-SignalはFunctorとApplicativeを持ちますが、Monadは持ちません。動的な依存関係切り替えは`switchMap`で明示します。切り替え時は古いinnerを解除し、新しいinnerの安定した現在値を公開します。
+SignalはFunctorとApplicativeを実装していますが、Monadは実装していません。値によって依存先のSignalを切り替えたいときは、`switchMap`で明示します。切り替えると、古いSignalとのつながりは解除され、新しいSignalの値が使われます。
 
 ### 依存関係を明示して更新を読む
 
@@ -101,11 +101,11 @@ value
 |> println
 ```
 
-ソースを3へ変えた後にdoubledを読むため、出力は6です。mapの関数へ渡す依存関係はソースそのもので、先にreadしたIntではありません。
+`source`を3にしてから`doubled`を読むので、出力は6です。`map`が依存しているのはSignalそのもので、先に読み取った`Int`ではありません。
 
 ## トランザクション
 
-`set`と`update`は一件のトランザクションです。複数ソースをまとめる場合は、`planSet`・`planUpdate`で作った`SignalChange`をArrayへ並べ、`transaction`へ渡します。
+`set`と`update`は、それぞれ一回で一つの書き換えです。複数のSignalを同時に書き換えたいときは、`planSet`・`planUpdate`で書き換えの予定を作ってArrayに並べ、`transaction`に渡します。
 
 ```seseragi title="複数更新の構文"
 signals.transaction [
@@ -116,9 +116,9 @@ signals.transaction [
 
 changeをArray順に適用し、同じソースの後続`planUpdate`はstaging済みの値を受け取ります。commit前のdefectやキャンセルでは一件も公開しません。成功後に一度commitし、影響するderived ノードを依存関係順に高々一度再計算してから購読者へ通知します。途中の不整合な組み合わせは見えません。
 
-トランザクションがatomicにするのはSignal更新です。任意のI/OやEffect全体をトランザクションへ入れる仕組みではありません。
+`transaction`がまとめて反映するのはSignalの書き換えだけです。ファイルの書き込みなど、ほかのEffectまでまとめるものではありません。
 
-### 二つのソースをまとめてcommitする
+### 二つのSignalをまとめて書き換える
 
 {/* example: examples/reference/signal-transaction.ssrg#area */}
 
@@ -139,7 +139,7 @@ before <- *combined
 println $ show before
 ```
 
-最初の出力は8です。続いて、同じmain内で二つの変更をトランザクションへ渡します。
+最初の出力は8です。続けて、二つの書き換えを`transaction`に渡します。
 
 {/* example: examples/reference/signal-transaction.ssrg#transaction */}
 
@@ -152,20 +152,20 @@ after <- *combined
 println $ show after
 ```
 
-次の出力は15です。readはcommit後の幅3と高さ5から求めた値を返します。I/O全体をatomicにする例ではありません。
+次の出力は15です。書き換えたあとの幅3と高さ5から計算した値が読み取られます。
 
-## スナップショットの範囲
+## 複数のSignalを同じ瞬間の値で読む
 
 readはその実行時点で公開済みの値を返します。複数の`*source`を同じdoに置いても、途中で別トランザクションがcommitすると後のreadは新しい値を読みます。
 
-複数ソースを同じ公開時点の組として読みたい場合は、`combine`でタプルやレコードを返す派生Signalを作り、そのSignalを一度readします。得た不変値は後の更新で変わりませんが、その後の非同期処理を排他制御するものではありません。
+複数のSignalを、同じ瞬間の値の組として読みたいときは、`combine`でタプルやレコードを返すSignalを作り、それを一回だけ読みます。読み取った値はあとで変わりませんが、そのあとの処理の間にほかの書き換えが入ることまでは防げません。
 
 ## 購読と解除
 
-`subscribe observer source`の成功時は、現在値でobserverを一度呼びます。その後の通知も順番に処理し、同じobserverの実行を重ねません。observerがソースを更新した場合は、現在トランザクションの後へ新しいトランザクションをqueueします。
+`subscribe observer source`で購読を始めると、まず今の値で`observer`が一回呼ばれます。そのあとも、通知は順番に一つずつ処理され、同じ`observer`が同時に二回動くことはありません。`observer`の中でSignalを書き換えた場合、その書き換えは今の更新が終わってから行われます。
 
 observerのEffectはfailure型が`Never`でなければなりません。回復可能な失敗を内部で処理するか、failure channelを持つStream consumerへ変換します。
 
-成功した購読は`Subscription`を返します。`unsubscribe`は何度呼んでも安全です。購読リソースはscope終了・failure・キャンセルで解除します。派生Signalの構築やreadだけで購読を始めることはありません。
+購読に成功すると`Subscription`が返ります。`unsubscribe`は何回呼んでも問題ありません。購読は、スコープの終了・失敗・キャンセルのときにも解除されます。計算したSignalを作ったり、一回読んだりするだけでは、購読は始まりません。
 
-Webの状態所有とDOMの更新単位は[Web UI](/docs/reference/web-ui)、小さな例で順に学ぶなら[Signal](/docs/learn/signals)を参照してください。
+Webでの状態の持ち方と画面の更新は[Web UI](/docs/reference/web-ui)、Signalを小さな例で順に学ぶなら[Signal](/docs/learn/signals)を見てください。
