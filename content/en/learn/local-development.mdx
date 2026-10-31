@@ -3,7 +3,7 @@ title: Local development
 description: Install the CLI, run a source file, and start developing and building a Web app.
 ---
 
-To use Seseragi locally, install the CLI and Bun. To try it in your browser, use the [Playground](https://seseragi.vercel.app/).
+To use Seseragi on your machine, you need two things: the CLI and Bun. If you only want to try it, the [Playground](https://seseragi.vercel.app/) runs in your browser with nothing to install.
 
 ## Install the CLI and Bun
 
@@ -11,7 +11,7 @@ To use Seseragi locally, install the CLI and Bun. To try it in your browser, use
 
 Install Bun using its [official instructions](https://bun.sh/docs/installation). You do not need Rust when using the prebuilt CLI.
 
-Check both commands in your terminal:
+Run both commands in your terminal. If each prints a version, you are ready:
 
 ```sh
 seseragi --version
@@ -34,20 +34,20 @@ Hello, Seseragi!
 
 ## Edit in VS Code
 
-Download the VSIX for your operating system and CPU from the same release as the CLI. In VS Code, run “Extensions: Install from VSIX...” and select the file.
+The same download page has a VSIX file for the VS Code extension. Download the one for your operating system and CPU, run “Extensions: Install from VSIX...” from the VS Code command palette, and select the file.
 
-The VSIX includes the matching LSP. You do not need to install a separate language server.
+The VSIX includes the LSP, so there is nothing else to install.
 
 ## Create a Web app
 
-Create a new project in a location where the `hello-web` directory does not already exist:
+Create a new Web app project. Run this where no `hello-web` directory exists yet:
 
 ```sh
 seseragi new web hello-web
 cd hello-web
 ```
 
-This generates `seseragi.toml`, `seseragi.lock`, `src/app.ssrg`, and `src/main.ssrg`. The app's state and view live in `app.ssrg`; `main.ssrg` connects it to the browser DOM.
+This generates `seseragi.toml`, `seseragi.lock`, `src/app.ssrg`, and `src/main.ssrg`. The app's state and view live in `app.ssrg`; `main.ssrg` displays them on the browser page.
 
 ## Develop in the browser
 
@@ -57,7 +57,7 @@ Start the development server from the project directory:
 seseragi dev --open
 ```
 
-It normally opens `http://127.0.0.1:3000/`. Saving a source file rebuilds the app and reloads the browser.
+Your browser opens `http://127.0.0.1:3000/`. Every time you save a source file, the app is rebuilt and the browser reloads.
 
 ## Build for publishing
 
@@ -67,14 +67,14 @@ Stop the development server with `Ctrl-C`, then build from the same directory:
 seseragi build .
 ```
 
-The `dist/` directory contains the generated HTML, JavaScript, CSS, and other static files. Publish its contents through static hosting.
+The `dist/` directory now contains HTML, JavaScript, CSS, and other static files. To publish the app, serve its contents from any static host.
 
 ## After changing dependencies
 
-Update the lockfile after changing dependencies, project configuration, or code exported by a package. If a command stops with `SES-K0102`, inspect the change and update explicitly:
+`seseragi.lock` pins the packages and settings your project uses. Update it after changing dependencies or `seseragi.toml`, or the code a dependency package exports:
 
 ```sh
 seseragi lock update
 ```
 
-`run`, `dev`, and `build` stop with `SES-K0102` when the lockfile is missing or does not match the configuration. They do not update it automatically.
+If the lockfile is missing or out of date, `run`, `dev`, and `build` stop with `SES-K0102`. The lockfile is never updated automatically, so unintended changes cannot slip in. When you see the error, check what changed before updating.

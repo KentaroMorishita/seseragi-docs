@@ -3,7 +3,7 @@ title: 最初のプログラム
 description: 文字列を一行出力し、実行と編集の流れを確かめる。
 ---
 
-まず、`Hello, Seseragi!`を表示するプログラムを実行します。表示できたら文字列を変えて、もう一度実行してみましょう。
+まずは`Hello, Seseragi!`と表示するプログラムを動かしてみましょう。表示できたら、文字列を変えてもう一度実行します。
 
 ## 一行を表示する
 
@@ -14,13 +14,13 @@ pub effect fn main =
   println "Hello, Seseragi!"
 ```
 
-`main`がプログラムの入口です。`pub`で入口を公開し、出力を行うため`effect fn`で宣言します。
+`main`は、プログラムを実行したときに最初に呼ばれる関数です。`pub`はこの関数を外から呼べるように公開する印、`effect fn`は画面への出力のような副作用を行う関数の印です。
 
-`println`は文字列を一行表示する関数です。関数名の後へ、空白で区切って`"Hello, Seseragi!"`を渡します。ダブルクォートは文字列の始まりと終わりを表します。
+`println`は、文字列を一行表示する関数です。Seseragiでは、関数に引数を渡すときに括弧を使わず、関数名の後ろに空白を空けて引数を書きます。
 
 ## ブラウザで実行する
 
-[Playground](https://seseragi.vercel.app/)を開き、上のコードを貼り付けて実行してください。インストールは不要です。
+[Playground](https://seseragi.vercel.app/)を開き、上のコードを貼り付けて実行してください。インストールは要りません。
 
 実行すると、次の一行が表示されます。
 
@@ -30,9 +30,9 @@ Hello, Seseragi!
 
 ## 手元で実行する
 
-CLIを使う場合は、上のコードを`hello.ssrg`に保存します。まだ導入していなければ、[ローカルで使う](/docs/learn/local-development)の手順を先に確認してください。
+CLIを使う場合は、上のコードを`hello.ssrg`という名前で保存します。CLIをまだ入れていなければ、先に[ローカルで使う](/docs/learn/local-development)の手順で用意してください。
 
-ファイルを保存した場所で、次のコマンドを実行します。
+保存したディレクトリで、次のコマンドを実行します。
 
 ```sh
 seseragi run hello.ssrg
@@ -42,10 +42,10 @@ seseragi run hello.ssrg
 
 ## 表示する文字列を変える
 
-`"Hello, Seseragi!"`を`"Hello, Kyoto!"`に変え、もう一度実行してください。表示も`Hello, Kyoto!`へ変わります。
+`"Hello, Seseragi!"`を`"Hello, Kyoto!"`に書き換えて、もう一度実行してください。表示も`Hello, Kyoto!`に変わります。
 
-文字列の内容を自分の名前や好きなメッセージに変えても構いません。両端のダブルクォートは残してください。
+自分の名前や好きなメッセージにしても構いません。文字列の両端のダブルクォートは消さないでください。
 
 ## 次に読む
 
-[ローカルで使う](/docs/learn/local-development)で、CLIの導入とファイルの実行、Webアプリの作成手順を確認できます。続いて[値と式](/docs/learn/values-and-expressions)で、計算の結果を扱う書き方を学びます。
+[ローカルで使う](/docs/learn/local-development)では、CLIの入れ方と、Webアプリの作り方を紹介します。そのあと[値と式](/docs/learn/values-and-expressions)で、値に名前を付けたり、条件で値を選んだりする書き方を学びます。

@@ -3,11 +3,11 @@ title: "関数とパイプライン"
 description: "空白による関数適用、部分適用、ラムダを使って計算を組み合わせる。"
 ---
 
-まず、二つの整数を足す関数を宣言し、呼び出してみます。その後で一部の引数を渡す方法を学び、複数の関数をパイプラインで組み合わせます。
+この章では、二つの整数を足す関数を作って呼び出すところから始めます。そのあと、引数を一部だけ渡す方法と、`|>`で関数をつなぐパイプラインを学びます。
 
 ## 関数を宣言して呼び出す
 
-関数は`fn 名前 引数: 型 -> 結果の型 = 本体`で宣言します。二つの引数を受け取る場合は、次のように`->`でつなぎます。この断片は宣言の形を示しています。
+関数は`fn 名前 引数: 型 -> 結果の型 = 本体`の形で宣言します。引数が二つあるときは、次のように`->`で並べます。
 
 ```seseragi
 fn add x: Int -> y: Int -> Int =
@@ -20,9 +20,9 @@ fn add x: Int -> y: Int -> Int =
 add 20 22
 ```
 
-関数名の後ろに、二つの引数を空白で並べています。この式の結果は42です。
+関数名の後ろに、引数を空白で区切って並べます。TypeScriptの`add(20, 22)`にあたり、結果は42です。
 
-この宣言と呼び出しを、一つの実行できるプログラムにします。
+宣言と呼び出しを合わせて、実行できるプログラムにしてみます。
 
 {/* example: examples/learn/function-application.ssrg */}
 ```seseragi title="function-application.ssrg"
@@ -39,18 +39,18 @@ pub effect fn main = {
 answer: 42
 ```
 
-`add`は計算の結果を返す通常の関数です。`main`はその結果を`answer`へ束縛し、前の章で学んだ文字列テンプレートを使って表示します。
+`add`は計算結果を返すだけの普通の関数です。`main`ではその結果に`answer`という名前を付け、前の章の文字列テンプレートで表示しています。
 
 ### 引数のない宣言を呼び出す
 
-名前付き引数を省いた関数でも、呼び出すときは`Unit`の値`()`を渡します。次はモジュールに置く宣言です。
+引数のない関数を呼び出すときは、`Unit`型の値`()`を渡します。次は、引数のない関数の宣言です。
 
 {/* example: examples/learn/focused/function-unit.ssrg#declaration */}
 ```seseragi title="関数の宣言"
 fn ready -> String = "ready"
 ```
 
-`main`内では、次の式で`ready`を呼び出して文字列を表示できます。
+`main`の中で、次のように呼び出して表示できます。
 
 {/* example: examples/learn/focused/function-unit.ssrg#use */}
 ```seseragi title="main内の式"
@@ -58,13 +58,13 @@ ready ()
 |> println
 ```
 
-結果は`ready`です。`ready ()`の`()`は一つの引数となるUnit値であり、引数一覧を括弧で囲む呼び出し構文ではありません。`ready`だけなら、呼び出す前の関数です。
+`ready`と表示されます。`ready ()`の`()`は、TypeScriptの「空の引数リスト」ではなく、`()`という一つの値を引数として渡しています。`()`を付けずに`ready`とだけ書くと、呼び出す前の関数そのものを指します。
 
 ## 一部の引数を渡す
 
-`add`の型は`Int -> Int -> Int`です。右に結合するので、`Int -> (Int -> Int)`として読みます。`add 1`は、残りの整数を一つ受け取る関数です。
+`add`の型は`Int -> Int -> Int`です。これは`Int -> (Int -> Int)`、つまり「整数を一つ受け取って、『整数を一つ受け取って整数を返す関数』を返す関数」と読みます。そのため`add 1`は、残りの整数を一つ待っている関数になります。
 
-`let increment = add 1`では、入力に1を足す関数を束縛します。この時点で残りの引数は計算されません。`increment 20`を呼び出すと、`add 1 20`と同じ21になります。部分適用により、設定済みの引数を持つ関数を値として作れます。
+`let increment = add 1`は「1を足す関数」です。`increment 20`を呼ぶと、`add 1 20`と同じ21になります。このように引数を一部だけ渡して新しい関数を作ることを、部分適用と呼びます。
 
 ## 処理の順に縦へつなぐ
 
@@ -90,40 +90,40 @@ pub effect fn main = {
 42
 ```
 
-`20`を`increment`へ渡して21を得て、それを`double`へ渡して42を得ます。`show`で整数を`String`へ変え、`println`へ渡して出力するEffectを作ります。`println`が受け取るのは文字列です。
+`20`を`increment`に渡して21、それを`double`に渡して42になります。`println`は文字列しか受け取らないので、その前に`show`で整数を文字列に変えています。上から下へ、処理の順番どおりに読めます。
 
-`value |> f`は`f value`と同じ適用です。`|>`そのものは特別な非同期処理や遅延評価を行いません。`20 |> add 1`なら、右側の`add 1`という関数へ20を渡します。複数引数関数のどの位置でも自動で埋める構文ではありません。
+`value |> f`は、`f value`と書くのとまったく同じです。`|>`に特別な働きはなく、左の値を右の関数に渡すだけです。`20 |> add 1`なら、`add 1`という関数に20を渡します。部分適用と組み合わせると、引数の多い関数もパイプラインに置けます。
 
 ## 式を一つの引数として渡す
 
-引数が計算式なら、括弧でその範囲をまとめます。次の束縛は`main`内に置き、先ほどの`add`を使います。
+引数に計算式を渡すときは、その式を括弧で囲みます。次の例は、先ほどの`add`を使います。
 
 {/* example: examples/learn/focused/function-grouping.ssrg#arithmetic */}
 ```seseragi title="main内の束縛"
 let grouped = add (20 + 1) 22
 ```
 
-`20 + 1`が最初の引数になり、`add`は21と22を受け取ります。`grouped`は43です。括弧は一つの式をまとめており、`add(20, 22)`のような引数一覧の呼び出し構文ではありません。
+`20 + 1`が一つ目の引数になるので、`add`は21と22を受け取り、`grouped`は43です。この括弧は式をひとまとめにしているだけで、`add(20, 22)`のような呼び出しの括弧ではありません。
 
-別の関数の結果を渡すときも、同じようにまとめます。次は、前の例で定義した`double`も使う束縛です。
+関数の結果を別の関数に渡すときも、同じように括弧で囲みます。
 
 {/* example: examples/learn/focused/function-grouping.ssrg#nested */}
 ```seseragi title="main内の束縛"
 let nested = double (add 20 1)
 ```
 
-`add 20 1`の結果21が`double`の一つの引数になり、`nested`は42です。パイプラインと同じ順序を、入れ子の式で書いた形です。
+`add 20 1`の結果の21が`double`に渡り、`nested`は42です。`add 20 1 |> double`と書いても同じ意味になります。
 
 ## 名前を付けずに関数を作る
 
-ラムダは、名前付きの`fn`宣言を使わずに関数を作る式です。まず、2倍する関数を`main`内で束縛します。
+ラムダを使うと、`fn`で宣言せずにその場で関数を作れます。TypeScriptのアロー関数`(n) => n * 2`にあたります。
 
 {/* example: examples/learn/focused/function-lambda.ssrg#lambda */}
 ```seseragi title="main内の束縛"
 let double = \n: Int -> n * 2
 ```
 
-この束縛の後なら、通常の関数と同じように呼び出せます。
+作った関数は、普通の関数と同じように呼び出せます。
 
 {/* example: examples/learn/focused/function-lambda.ssrg#call */}
 ```seseragi title="main内の式"
@@ -132,11 +132,11 @@ double 21
 |> println
 ```
 
-結果は42です。周囲から引数型を決められる場合は、`\n -> n * 2`と注釈を省けます。引数が二つなら`\x y -> x + y`です。[ArrayとList](/docs/learn/arrays-and-lists)では、ラムダを`map`や`filter`へ渡します。
+42と表示されます。引数の型が前後から分かる場合は、`\n -> n * 2`のように型を省けます。引数が二つなら`\x y -> x + y`です。[ArrayとList](/docs/learn/arrays-and-lists)では、ラムダを`map`や`filter`に渡して使います。
 
 ### 外側の値を使う関数を返す
 
-関数の結果として、別の関数を返せます。次の宣言は、接頭辞を受け取り、その接頭辞を使って挨拶する関数を返します。
+関数は、結果として別の関数を返すこともできます。次の`prefixWith`は、接頭辞を受け取って「その接頭辞を名前の前に付ける関数」を返します。
 
 {/* example: examples/learn/focused/function-closure.ssrg#declaration */}
 ```seseragi title="関数の宣言"
@@ -145,7 +145,7 @@ fn prefixWith prefix: String
   \name -> `${prefix}${name}`
 ```
 
-次は`main`内の使い方です。
+使い方は次のとおりです。
 
 {/* example: examples/learn/focused/function-closure.ssrg#use */}
 ```seseragi title="main内の式"
@@ -154,16 +154,16 @@ welcome "Aki"
 |> println
 ```
 
-結果は`Hi, Aki`です。返されたラムダは、呼び出されるときにも`prefix`を参照します。このように外側の値を保持する関数をclosureと呼びます。保持した値を更新する操作はありません。`"Hello, "`を渡せば、その接頭辞を持つ別の関数ができます。
+`Hi, Aki`と表示されます。返されたラムダは、`prefixWith`の呼び出しが終わったあとも`prefix`の値を覚えています。このように外側の値を覚えている関数をクロージャと呼びます。覚えた値を書き換える方法はありません。`"Hello, "`を渡せば、別の接頭辞を覚えた関数がもう一つできます。
 
 ## 適用と計算の境界
 
-通常の関数の引数は、左から右へ一度ずつ評価されます。関数を別の値へ適用しても、外側の`let`を変更しません。
+関数の引数は、左から右へ順に一度ずつ評価されます。関数を呼んでも、外側で`let`した値が書き換わることはありません。
 
-ここで`add`と`double`は通常の値を返します。`println`は出力する計算を返すため、`main`は`effect fn`です。パイプラインにしただけでEffectが実行されるわけではありません。実行の境界は[Effect](/docs/learn/effects)で詳しく扱います。
+この章の`add`や`double`は、値を返すだけの関数です。一方`println`は「出力する」という処理を返すので、それを使う`main`は`effect fn`にしています。この違いは[Effect](/docs/learn/effects)の章で詳しく扱います。
 
 ## 組み合わせを変える
 
-`let increment = add 1`を`let increment = add 2`に変えると、結果は44です。次に`double`と`increment`の順序を入れ替えると、元の1を足す場合は41になります。関数の並びが計算結果にどう影響するか確かめてください。
+パイプラインの例で`let increment = add 1`を`add 2`に変えると、結果は44になります。`add 1`に戻して`increment`と`double`の行を入れ替えると、今度は41です。関数を並べる順番で結果が変わることを確かめてください。
 
-次は[レコードとstruct](/docs/learn/records-and-structs)で、関数が受け取るデータを複数の値から作ります。宣言や適用の詳細は[関数リファレンス](/docs/reference/functions)にあります。
+次は[レコードとstruct](/docs/learn/records-and-structs)で、複数の値をまとめたデータを作ります。関数の書き方の細かい決まりは[関数リファレンス](/docs/reference/functions)にあります。

@@ -3,15 +3,17 @@ title: "Learn Seseragi"
 description: "Learn values, functions, types, effects, and modules through runnable programs."
 ---
 
-In Seseragi, types describe data, functions transform it, and Effects describe output and changes to external state. This course builds those ideas from small programs you can run and change.
+In Seseragi, types describe the shape of your data, functions transform it, and Effects describe output and changes to state. This course builds those ideas step by step, with small programs you run as you read.
 
-The course assumes familiarity with functions, arrays, objects, and conditionals. It does not assume knowledge of algebraic data types or type classes. For a focused comparison with TypeScript, see [Coming from TypeScript](/en/docs/guides/typescript-to-seseragi).
+If you have used functions, arrays, objects, and conditionals, you are ready. You do not need to know algebraic data types or type classes. For a quick comparison with TypeScript first, read [Coming from TypeScript](/en/docs/guides/typescript-to-seseragi).
 
 ## Run your first program
 
-[Your first program](/en/docs/learn/first-program) displays one string: run it, then change the string. [Local development](/en/docs/learn/local-development) sets up the CLI and editor so you can run the same Hello world locally.
+[Your first program](/en/docs/learn/first-program) prints one line of text and then changes it. [Local development](/en/docs/learn/local-development) sets up the CLI and editor so you can run the same program on your machine.
 
-Each complete example includes a file name and expected output. Smaller examples show declarations at module scope or expressions inside main and identify where they belong. Check an operation on its own before composing it with others later in the chapter. Run the code unchanged, then try the exercise at the end of the chapter. Predict the result before running it to check your understanding of types and evaluation as well as syntax.
+Each example comes with a file name and its output. Short excerpts are labeled with where they belong, such as "Function declaration" or "Expression inside main".
+
+Run each example as it is first. Each chapter ends with exercises that change one value or type. Predict the result before you run it; comparing the two shows how types and evaluation work.
 
 ## 1. Transform values with functions
 
@@ -20,7 +22,7 @@ Each complete example includes a file name and expected output. Smaller examples
 | [Values and expressions](/en/docs/learn/values-and-expressions) | Immutable values, types, blocks, and conditionals |
 | [Functions and pipelines](/en/docs/learn/functions-and-pipelines) | Application, partial application, lambdas, and composition |
 
-Learn to name a string, select a value with a condition, and call a function in separate examples. Combine functions after you can use those parts. The examples also introduce the distinction between an ordinary `fn` that returns a value and an `effect fn` that creates a computation such as output.
+Try naming a value, choosing a value with a condition, and calling a function one at a time, then combine functions. You also meet the difference between an `fn` that only returns a value and an `effect fn` that performs output.
 
 ## 2. Describe data and states
 
@@ -32,7 +34,7 @@ Learn to name a string, select a value with a condition, and call a function in 
 | [Arrays and lists](/en/docs/learn/arrays-and-lists) | Transform, filter, and summarize collections |
 | [Maybe and Either](/en/docs/learn/maybe-and-either) | Distinguish an absent value from a failure with a reason |
 
-The shape of a type determines the inputs a function accepts and the cases it must handle. Consider representing a state directly before giving `null` several meanings or adding independent Boolean flags.
+Once the shape of your data is fixed, so are the inputs a function accepts and the cases it must handle. Instead of giving `null` several meanings or adding Boolean flags, you learn to describe the state itself as a type.
 
 ## 3. Reuse behavior and use recursion
 
@@ -41,7 +43,7 @@ The shape of a type determines the inputs a function accepts and the cases it mu
 | [Generics](/en/docs/learn/generics) | Functions and data types that work with different types |
 | [Recursion](/en/docs/learn/recursion) | Base cases, local functions, and tail recursion |
 
-Generics reuse behavior across data types. Recursion applies the same function to a smaller problem. Generalizing a type and repeating a calculation are separate mechanisms.
+Generics let the same code work when the data type changes. Recursion solves a problem by calling the same function on a smaller input.
 
 ## 4. Compose interactions with the outside world
 
@@ -52,10 +54,10 @@ Generics reuse behavior across data types. Recursion applies the same function t
 | [Type classes](/en/docs/learn/type-classes) | Type-specific operations and constrained generic behavior |
 | [Modules](/en/docs/learn/modules) | File boundaries, visibility, and imports |
 
-Then use [CLI applications](/en/docs/guides/cli-app) or [Web applications](/en/docs/guides/web-app) to build a program with input, output, or a user interface.
+After that, follow the [CLI applications](/en/docs/guides/cli-app) or [Web applications](/en/docs/guides/web-app) guide to build an app with input, output, and a user interface.
 
 ## Look up a specific rule
 
-Learn explains concepts in order. Use the [Reference](/en/docs/reference) to check syntax and contracts. The [standard library](/en/docs/reference/library) is the entry point for finding functions; the [CLI reference](/en/docs/reference/cli) lists commands.
+Learn explains ideas in order. To look up syntax and detailed rules, use the [Reference](/en/docs/reference); to find a standard function, the [standard library](/en/docs/reference/library); for commands, the [CLI reference](/en/docs/reference/cli).
 
-The complete runnable examples have been checked with the CLI. The language and tools are under development. Run the examples again when updating your CLI to check that their types and behavior still match the explanations.
+Every example on these pages has been run with the CLI. The language and tools are still under development, so results may change in newer versions.

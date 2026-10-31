@@ -3,11 +3,11 @@ title: "Functions and pipelines"
 description: "Compose calculations using function application, partial application, and lambdas."
 ---
 
-Start by declaring and calling a function that adds two integers. Then learn to supply some of its arguments and combine functions in a pipeline.
+This chapter starts with a function that adds two integers. Then you learn to pass only some of a function's arguments, and to chain functions with `|>` in a pipeline.
 
 ## Declare and apply a function
 
-A function declaration has the form `fn name parameter: Type -> ResultType = body`. Join multiple parameters with `->`. This fragment shows the declaration shape:
+A function declaration has the form `fn name parameter: Type -> ResultType = body`. With two parameters, list them separated by `->`:
 
 ```seseragi
 fn add x: Int -> y: Int -> Int =
@@ -20,9 +20,9 @@ Supply 20 and 22 to `add` as follows:
 add 20 22
 ```
 
-The two arguments follow the function name, separated by spaces. This expression returns 42.
+The arguments follow the function name, separated by spaces. This is TypeScript's `add(20, 22)`, and it returns 42.
 
-Put the declaration and call together in a complete program:
+Put the declaration and the call together in a program you can run:
 
 {/* example: examples/learn/function-application.ssrg */}
 ```seseragi title="function-application.ssrg"
@@ -39,18 +39,18 @@ pub effect fn main = {
 answer: 42
 ```
 
-`add` is an ordinary function that returns the calculation result. `main` binds that result to `answer` and displays it using the string template introduced in the previous chapter.
+`add` is an ordinary function that only returns a result. `main` names that result `answer` and displays it with a string template from the previous chapter.
 
 ### Call a declaration without named parameters
 
-A function that omits named parameters still receives the `Unit` value `()` when called. Place this declaration at module scope:
+To call a function without parameters, pass the `Unit` value `()`. Here is a function without parameters:
 
 {/* example: examples/learn/focused/function-unit.ssrg#declaration */}
 ```seseragi title="Function declaration"
 fn ready -> String = "ready"
 ```
 
-Use this expression inside `main` to call `ready` and display its string:
+Call it inside `main` and display the result:
 
 {/* example: examples/learn/focused/function-unit.ssrg#use */}
 ```seseragi title="Expression in main"
@@ -58,13 +58,13 @@ ready ()
 |> println
 ```
 
-The output is `ready`. In `ready ()`, `()` is one argument containing the Unit value; it is not an argument-list call syntax. `ready` alone refers to the function before application.
+This prints `ready`. The `()` in `ready ()` is not TypeScript's empty argument list: it passes one value, `()`, as the argument. Writing `ready` alone refers to the function itself without calling it.
 
 ## Supply some arguments
 
-`add` has type `Int -> Int -> Int`. Function types associate to the right, so read this as `Int -> (Int -> Int)`. `add 1` is a function waiting for one more integer.
+`add` has type `Int -> Int -> Int`. Read it as `Int -> (Int -> Int)`: a function that takes an integer and returns "a function that takes an integer and returns an integer". So `add 1` is a function waiting for one more integer.
 
-`let increment = add 1` binds a function that adds 1 to its input. No remaining argument is evaluated at this point. Calling `increment 20` gives 21, just like `add 1 20`. Partial application constructs a function value with some arguments already supplied.
+`let increment = add 1` is "the function that adds 1". Calling `increment 20` gives 21, the same as `add 1 20`. Creating a new function by passing only some arguments is called partial application.
 
 ## Put the calculation in reading order
 
@@ -90,40 +90,40 @@ pub effect fn main = {
 42
 ```
 
-The value `20` goes through `increment` to produce 21, then through `double` to produce 42. `show` converts the integer to a `String`; `println` constructs an Effect that prints that string. `println` accepts a string.
+`20` goes through `increment` to become 21, then through `double` to become 42. `println` accepts only strings, so `show` first turns the integer into a string. The code reads top to bottom, in the order things happen.
 
-`value |> f` is the same application as `f value`. The pipeline operator does not add asynchronous execution or laziness. `20 |> add 1` supplies 20 to the function `add 1`; it does not automatically fill an arbitrary parameter position.
+`value |> f` means exactly the same as `f value`. `|>` does nothing special: it passes the value on its left to the function on its right. `20 |> add 1` passes 20 to the function `add 1`. Combined with partial application, this lets functions with several parameters sit in a pipeline.
 
 ## Group an expression used as an argument
 
-When an argument is a calculation, parentheses mark its extent. This binding belongs inside `main` and uses `add` from above:
+To pass a calculation as an argument, wrap it in parentheses. This example uses `add` from above:
 
 {/* example: examples/learn/focused/function-grouping.ssrg#arithmetic */}
 ```seseragi title="Binding in main"
 let grouped = add (20 + 1) 22
 ```
 
-`20 + 1` becomes the first argument: `add` receives 21 and 22, so `grouped` is 43. Parentheses group one expression; they do not introduce an argument-list call such as `add(20, 22)`.
+`20 + 1` becomes the first argument, so `add` receives 21 and 22, and `grouped` is 43. These parentheses only group an expression; they are not call parentheses like `add(20, 22)`.
 
-Group another function's result in the same way. This binding also uses `double` from the previous example:
+Wrap a function's result in parentheses the same way to pass it to another function:
 
 {/* example: examples/learn/focused/function-grouping.ssrg#nested */}
 ```seseragi title="Binding in main"
 let nested = double (add 20 1)
 ```
 
-The result of `add 20 1`, 21, is the single argument to `double`, so `nested` is 42. This nests expressions in the same order as the pipeline.
+The result of `add 20 1`, 21, goes to `double`, so `nested` is 42. Writing `add 20 1 |> double` means the same thing.
 
 ## Create a function without a declaration
 
-A lambda is an expression that creates a function without a named `fn` declaration. Bind a doubling function inside `main`:
+A lambda creates a function on the spot, without an `fn` declaration. It corresponds to TypeScript's arrow function `(n) => n * 2`.
 
 {/* example: examples/learn/focused/function-lambda.ssrg#lambda */}
 ```seseragi title="Binding in main"
 let double = \n: Int -> n * 2
 ```
 
-After that binding, call it just like an ordinary function:
+Call it just like any other function:
 
 {/* example: examples/learn/focused/function-lambda.ssrg#call */}
 ```seseragi title="Expression in main"
@@ -132,11 +132,11 @@ double 21
 |> println
 ```
 
-The output is 42. When the surrounding type determines the parameter type, omit the annotation with `\n -> n * 2`. A two-parameter lambda is `\x y -> x + y`. [Arrays and lists](/en/docs/learn/arrays-and-lists) passes lambdas to `map` and `filter`.
+This prints 42. When the parameter type is clear from the surrounding code, you can omit it: `\n -> n * 2`. A lambda with two parameters is `\x y -> x + y`. [Arrays and lists](/en/docs/learn/arrays-and-lists) passes lambdas to `map` and `filter`.
 
 ### Return a function that uses an outer value
 
-A function can return another function. This declaration receives a prefix and returns a greeting function that uses that prefix:
+A function can also return another function. `prefixWith` takes a prefix and returns "a function that puts that prefix before a name":
 
 {/* example: examples/learn/focused/function-closure.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -145,7 +145,7 @@ fn prefixWith prefix: String
   \name -> `${prefix}${name}`
 ```
 
-Use it inside `main`:
+Use it like this:
 
 {/* example: examples/learn/focused/function-closure.ssrg#use */}
 ```seseragi title="Expression in main"
@@ -154,16 +154,16 @@ welcome "Aki"
 |> println
 ```
 
-The output is `Hi, Aki`. The returned lambda can still refer to `prefix` when called. A function retaining outer values in this way is a closure. It does not update the captured value. Supplying `"Hello, "` creates another function with that prefix.
+This prints `Hi, Aki`. The returned lambda remembers `prefix` even after `prefixWith` has returned. A function that remembers outer values like this is called a closure. There is no way to change the remembered value. Passing `"Hello, "` creates another function that remembers a different prefix.
 
 ## Understand what application evaluates
 
-Ordinary function arguments are evaluated once, from left to right. Applying a function to another value does not modify an outer `let` binding.
+Function arguments are evaluated once each, from left to right. Calling a function never changes a value bound with `let` outside it.
 
-`add` and `double` return ordinary values. `println` returns a computation that performs output, so `main` is an `effect fn`. Piping a value into a function does not itself execute an Effect. [Effects](/en/docs/learn/effects) explains the execution boundary.
+`add` and `double` in this chapter only return values. `println`, by contrast, returns "printing" as a computation, so `main`, which uses it, is an `effect fn`. The [Effects](/en/docs/learn/effects) chapter explains this difference in detail.
 
 ## Change the composition
 
-Change `let increment = add 1` to `let increment = add 2`; the result becomes 44. Then swap `double` and `increment`. With the original increment of 1, the result becomes 41. Check how ordering the functions changes the calculation.
+In the pipeline example, change `let increment = add 1` to `add 2`: the result becomes 44. Change it back to `add 1` and swap the `increment` and `double` lines: now it is 41. The order of the functions changes the result.
 
-Continue to [Records and structs](/en/docs/learn/records-and-structs) to group several values into one input. The [function reference](/en/docs/reference/functions) covers declarations and application in detail.
+Next, [Records and structs](/en/docs/learn/records-and-structs) groups several values into one piece of data. The detailed rules for functions are in the [function reference](/en/docs/reference/functions).

@@ -3,7 +3,7 @@ title: Your first program
 description: Print one line of text, then edit and run the program again.
 ---
 
-Start by running a program that displays `Hello, Seseragi!`. Once it works, change the text and run it again.
+Let's start by running a program that displays `Hello, Seseragi!`. Once it works, change the text and run it again.
 
 ## Display one line
 
@@ -14,9 +14,9 @@ pub effect fn main =
   println "Hello, Seseragi!"
 ```
 
-`main` is the program's entry point. `pub` exposes that entry point, and `effect fn` declares the computation that performs output.
+`main` is the function that runs first when you start the program. `pub` makes it callable from outside the file, and `effect fn` marks a function that performs side effects such as printing.
 
-`println` prints one line of text. Pass `"Hello, Seseragi!"` after the function name, separated by a space. The double quotes mark the beginning and end of the string.
+`println` prints one line of text. Seseragi passes arguments without parentheses: write the argument after the function name, separated by a space.
 
 ## Run it in the browser
 
@@ -30,7 +30,7 @@ Hello, Seseragi!
 
 ## Run it locally
 
-To use the CLI, save the code as `hello.ssrg`. If you have not installed the CLI, follow [Local development](/en/docs/learn/local-development) first.
+To use the CLI, save the code as `hello.ssrg`. If you have not installed the CLI yet, follow [Local development](/en/docs/learn/local-development) first.
 
 From the directory containing the file, run:
 
@@ -44,8 +44,8 @@ It displays the same `Hello, Seseragi!`.
 
 Replace `"Hello, Seseragi!"` with `"Hello, Kyoto!"` and run the program again. The output changes to `Hello, Kyoto!`.
 
-You can use your own name or message too. Keep the double quotes at both ends.
+You can use your own name or any message. Keep the double quotes at both ends of the string.
 
 ## Read next
 
-[Local development](/en/docs/learn/local-development) covers installing the CLI, running files, and creating a Web app. Then [Values and expressions](/en/docs/learn/values-and-expressions) introduces how calculated results are used.
+[Local development](/en/docs/learn/local-development) covers installing the CLI and creating a Web app. Then [Values and expressions](/en/docs/learn/values-and-expressions) shows how to name values and choose between them with conditions.
