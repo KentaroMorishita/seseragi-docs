@@ -3,9 +3,9 @@ title: Webアプリを作る
 description: 純粋な更新関数とHTMLから、操作できるカウンターを作る。
 ---
 
-「Add one」で数を増やし、「Reset」で0へ戻すカウンターを作ります。状態は`Int`、操作は`Action`、画面は状態から作るHTMLです。DOMへの接続は`dom.app`へ任せます。
+「Add one」で数が増え、「Reset」で0に戻るカウンターを作ります。状態は`Int`、ボタンの操作は`Action`という型、画面は状態から作るHTMLで表します。ブラウザへの表示は`dom.app`に任せます。
 
-コードの基本構文には[関数とパイプライン](/docs/learn/functions-and-pipelines)、Actionの定義には[代数的データ型](/docs/learn/algebraic-data-types)と[パターンマッチ](/docs/learn/pattern-matching)を使います。HTMLとイベントの接続はこのガイドで扱います。
+Actionの定義には、「学ぶ」の[代数的データ型](/docs/learn/algebraic-data-types)と[パターンマッチ](/docs/learn/pattern-matching)の内容を使います。
 
 ## プロジェクトを作る
 
@@ -14,9 +14,9 @@ seseragi new web counter
 cd counter
 ```
 
-`src/main.ssrg`を次のコードへ置き換えてください。生成された`src/app.ssrg`はこの入口からimportしないため、このガイドの画面では使いません。
+`src/main.ssrg`を次のコードに置き換えてください。最初からある`src/app.ssrg`は、このガイドでは使いません。
 
-`seseragi.toml`の`[run]`は`entry = "main"`、`target = "web"`のまま使います。CLIとBunの準備は[ローカルで使う](/docs/learn/local-development)を参照してください。
+`seseragi.toml`はそのままで構いません。CLIとBunの準備は[ローカルで使う](/docs/learn/local-development)を見てください。
 
 ## カウンター全体を書く
 
@@ -72,42 +72,42 @@ pub effect fn main =
   }
 ```
 
-`Increment`と`Reset`は操作の意図です。`update`はDOMを触らず、今の数とActionから次の数を返します。`view`も純粋関数で、現在の数から`Html<Action>`を作ります。
+`Increment`と`Reset`は、ユーザーが何をしたかを表します。`update`は、今の数とActionから次の数を返すだけの関数で、画面には触りません。`view`も、今の数から画面（`Html<Action>`）を作るだけの関数です。
 
-`onClick: Increment`には関数呼び出しやDOM操作を置かず、クリック時に送るActionを指定しています。
+`onClick: Increment`には、クリックで実行する処理ではなく、クリックされたら送るActionを書きます。
 
 ## 開発サーバーで操作する
 
-入口の変更をロックへ反映してから開発サーバーを起動します。
+ロックファイルを更新してから、開発サーバーを起動します。
 
 ```sh
 seseragi lock update
 seseragi dev --open
 ```
 
-既定のURLは`http://127.0.0.1:3000/`です。最初は「Count: 0」が表示されます。「Add one」を二回押すと「Count: 2」、「Reset」を押すと「Count: 0」へ戻ります。
+`http://127.0.0.1:3000/`を開くと、「Count: 0」と表示されます。「Add one」を二回押すと「Count: 2」、「Reset」を押すと「Count: 0」に戻ります。
 
-保存すると再ビルド後にページがリロードされるため、このカウンターの状態も0から始まります。永続化はこのプログラムに含めていません。
+ソースを保存するとページが再読み込みされるので、カウンターも0に戻ります。
 
 ## 状態とDOMの管理を読む
 
-`dom.app`は初期値から`MutableSignal`を一つ作り、`view`で画面のSignalへ変えます。イベントごとに`update`を適用し、DOMへ変更を反映します。Signal生成、DOMターゲットの取得、購読、イベント処理の接続をまとめる通常の標準ライブラリ関数です。
+`dom.app`は、初期値を入れたSignalを作り、`view`で画面を作ります。イベントが起きるたびに`update`で次の状態を計算し、変わったところだけ画面に反映します。中で特別なことをしているわけではなく、Signalの作成・表示先の取得・イベントの接続をまとめた、普通の標準ライブラリの関数です。
 
-イベントは観測した順に処理されます。DOMランタイムの終了時にはイベントリスナーと購読が解除されます。詳細は[Web UI Reference](/docs/reference/web-ui)にあります。
+イベントは起きた順に処理されます。細かい決まりは[Web UIリファレンス](/docs/reference/web-ui)にあります。
 
 ## 見た目を整えてビルドする
 
-`style`へ`html.style`で作ったスタイルを渡せます。この例の`maxWidth`、`margin`、`padding`は、幅を抑えて中央へ置き、内側に余白を作ります。CSSクラス名を渡す場合のprop名は`class`です。
+`style`には、`html.style`で作ったスタイルを渡せます。この例では、`maxWidth`・`margin`・`padding`で幅を抑えて中央に寄せ、内側に余白を付けています。CSSのクラス名を使うときは`class`を使います。
 
-開発サーバーを`Ctrl-C`で止め、変更したソースをロックへ反映してビルドしてください。
+開発サーバーを`Ctrl-C`で止め、ロックファイルを更新してからビルドします。
 
 ```sh
 seseragi lock update
 seseragi build .
 ```
 
-`dist/`へ`index.html`、JavaScript、CSSなどが生成されます。HTMLを`file://`で直接開かず、HTTPサーバーか静的ホスティングで配信してください。
+`dist/`に`index.html`やJavaScript、CSSができます。HTMLファイルを直接開くのではなく、HTTPサーバーや静的ホスティングで配信してください。
 
 ## 次の機能を加える
 
-[状態とAction](/docs/guides/state-and-actions)で更新規則を単独で検証し、[フォーム](/docs/guides/forms)で文字列の入力へ進めます。独立したカウンターを複数並べる場合は、[状態を持つ機能](/docs/guides/stateful-features)の構成が使えます。
+[状態とAction](/docs/guides/state-and-actions)では`update`を画面なしで確かめ、[フォーム](/docs/guides/forms)では文字の入力を扱います。カウンターをいくつも並べたいときは、[状態を持つ機能](/docs/guides/stateful-features)の作り方が使えます。

@@ -3,19 +3,19 @@ title: コンポーネントを作る
 description: propsからHTMLを作る純粋関数を、画面とSSRで再利用する。
 ---
 
-配送のカードを、タイトルと説明を受け取る関数へ分けます。コンポーネントは通常の`fn`です。HTMLを返す計算と、DOMへ接続する副作用を分けるため、同じ関数をブラウザーでも文字列への描画でも使えます。
+配送状況のカードを、タイトルと説明を受け取ってHTMLを返す関数に切り出します。Seseragiのコンポーネントは、特別な仕組みのない普通の`fn`です。HTMLを作ることと、それをブラウザーに表示することが分かれているので、同じ関数をブラウザーでも、HTMLの文字列を作るのにも使えます。
 
-propsには[レコード](/docs/learn/records-and-structs)、Actionの型には[ジェネリクス](/docs/learn/generics)を使います。画面への組み込み方は[Webアプリを作る](/docs/guides/web-app)の`view`をもとに説明します。
+propsには[レコード](/docs/learn/records-and-structs)を、Actionの型には[ジェネリクス](/docs/learn/generics)を使います。
 
 ## propsの形を決める
 
-このカードは`title`と`detail`の二つの文字列を必要とします。`CardProps`はその構造を表すレコードの別名です。
+カードに必要なのは、`title`と`detail`の二つの文字列です。これを`CardProps`というレコード型にします。
 
-propsには画面を作るための値を渡します。カードが呼ばれるたびに共有状態を読み書きする処理を入れず、状態が必要な場合は所有者から現在値を渡します。
+propsには、画面を作るのに必要な値だけを渡します。部品の中で状態を読み書きすることはせず、状態が必要なら、状態を持っている親から今の値を渡してもらいます。
 
 ## 完成したカードを書く
 
-`components.ssrg`へ保存してください。
+次の内容を`components.ssrg`に保存してください。
 
 {/* example: examples/guides/components.ssrg */}
 ```seseragi title="components.ssrg"
@@ -49,9 +49,9 @@ pub effect fn main =
   |> println
 ```
 
-`card<Action>`の`Action`は、HTMLが送るイベントの型です。このカードにはイベントがないため、周囲のActionに合わせて使えます。`html.h2<Action, String>`の型引数は、Actionの型とchildrenの型を明示しています。
+`card<Action>`の`Action`は、このHTMLが送るイベントの型です。カード自体はイベントを送らないので、型引数にしておくと、どんなActionの画面にも組み込めます。`html.h2<Action, String>`では、Actionの型と子要素の型を明示しています。
 
-`String`はテキストとして子に置けます。数値は`show`で文字列へ変える必要があります。childrenの配列では、文字列とHTMLをそのまま混ぜず、テキストを`html.text`でHTMLへ包みます。
+子要素には文字列をそのまま置けます。数値は`show`で文字列にします。子要素の配列で文字列とHTMLを混ぜるときは、文字列を`html.text`で包みます。
 
 ## HTMLへ描画する
 
@@ -59,7 +59,7 @@ pub effect fn main =
 seseragi run components.ssrg
 ```
 
-結果は、`section`の中に`h2`と`p`を持つ一行のHTMLです。読みやすいように改行すると次の構造になります。
+`section`の中に`h2`と`p`が入った、一行のHTMLが表示されます。改行して読みやすくすると、次のようになります。
 
 ```html
 <section class="card">
@@ -68,11 +68,11 @@ seseragi run components.ssrg
 </section>
 ```
 
-`renderToString`は純粋関数で、DOMを生成しません。出力文字列をConsoleへ書く`println`がEffectです。
+`renderToString`はHTMLの文字列を作るだけの関数です。表示しているのは`println`です。
 
 ## propsを変えて比べる
 
-カード全体を使わず、文字列だけを表示するバッジでpropsを確かめます。次の二つのコードを順に`component-props.ssrg`へ保存してください。
+もっと小さな、文字を一つ表示するだけのバッジで試してみます。次の二つのコードを順に`component-props.ssrg`に書いてください。
 
 {/* example: examples/guides/component-props.ssrg#badge */}
 ```seseragi title="component-props.ssrg"
@@ -88,7 +88,7 @@ fn badge props: BadgeProps
   }
 ```
 
-このバッジはイベントを送らないため、Actionの型を`Never`にしています。`label`が同じなら同じHTMLを返し、呼び出し同士で状態を共有しません。
+このバッジはイベントを送らないので、Actionの型を`Never`にしています。同じ`label`を渡せば、いつでも同じHTMLが返ります。
 
 {/* example: examples/guides/component-props.ssrg#labels */}
 ```seseragi title="component-props.ssrg"
@@ -109,7 +109,7 @@ pub effect fn main = do {
 seseragi run component-props.ssrg
 ```
 
-最初の二行は、同じ`span`へそれぞれ`Ready`と`Waiting`を表示するHTMLです。三行目の`"<script>"`もテキストとして描画されます。その行を読みやすく改行すると、次の構造になります。
+一行目と二行目は、`span`に`Ready`と`Waiting`を表示するHTMLです。三行目では`"<script>"`を渡していますが、タグではなくただの文字として表示されます。改行して読みやすくすると、次のようになります。
 
 ```html
 <span class="badge">
@@ -117,22 +117,20 @@ seseragi run component-props.ssrg
 </span>
 ```
 
-propsの文字列をHTMLソースとして解釈していないことも、この小さな例で確認できます。SSRの文字列出力を検証した例で、DOMへの接続やクリックの動作は含みません。
+propsの文字列がHTMLとして解釈されないことも、この例で確かめられます。
 
 ## Webの画面から呼ぶ
 
-[Webアプリを作る](/docs/guides/web-app)の`view`へ`card { title: "Delivery", detail: "Sent to Kyoto" }`を子として渡せます。`card`は自分のDOMターゲットやイベントリスナーを持ちません。
+[Webアプリを作る](/docs/guides/web-app)の`view`の中に、`card { title: "Delivery", detail: "Sent to Kyoto" }`を子要素として置けます。
 
-イベントを含むボタンの部品では、クリック時に送るActionをpropsに含めます。カード側で親の状態を変更する代わりに、親が渡したActionをHTMLのイベントへ置く形にできます。
+ボタンのようにイベントを送る部品では、クリックで送るActionもpropsで受け取ります。部品が親の状態を直接変えるのではなく、親から渡されたActionを送るだけにします。Reactでコールバックをpropsで渡すのと似た考え方です。
 
 ## 安全な値の描画を保つ
 
-`title`や`detail`の文字列はテキストとしてエスケープされます。値をHTMLソースへ連結する関数ではありません。`"<script>"`を渡しても、その文字列を表示するHTMLになります。
+`title`や`detail`の文字列は、自動でエスケープされます。`"<script>"`を渡しても、その文字が表示されるだけで、スクリプトとして実行されることはありません。
 
-リンクや画像には検証された`WebUrl`を渡します。`parseWebUrl`の失敗を型付き結果として扱い、文字列をURL型だと決めつけて渡しません。詳しいpropsと描画の契約は[Web UI Reference](/docs/reference/web-ui)にあります。
+リンクや画像のURLには、検証済みの`WebUrl`型を渡します。文字列を`parseWebUrl`で検証し、失敗した場合も型で扱います。propsと表示の細かい決まりは[Web UIリファレンス](/docs/reference/web-ui)にあります。
 
 ## 状態を持つ部分を分ける
 
-純粋な部品へ現在値を渡す構成は、同じ状態を複数の部品で見せるときに使えます。部品ごとの独立した状態が必要な場合は、Signalを作るEffectの入口も別にします。
-
-[状態を持つ機能](/docs/guides/stateful-features)では、二つのカウンターを同じ親に置きながら、それぞれの値を独立して管理します。
+部品に今の値を渡して表示する作り方は、同じ状態をいくつかの部品で見せるときに向いています。部品ごとに別々の状態を持たせたいときは、[状態を持つ機能](/docs/guides/stateful-features)の作り方を使います。二つのカウンターを並べて、それぞれ独立して動かす例があります。

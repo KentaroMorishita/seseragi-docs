@@ -3,19 +3,17 @@ title: 状態とAction
 description: 更新規則を純粋関数へまとめ、画面や副作用から独立して検証する。
 ---
 
-カウンターの「増やす」と「戻す」を、画面なしで検証します。状態がどの操作でどう変わるかを純粋な`update`へ集めると、UIを作る前に規則を確認できます。
-
-[Webアプリを作る](/docs/guides/web-app)のカウンターで使う更新規則を扱います。Actionのケースと`match`は[代数的データ型](/docs/learn/algebraic-data-types)と[パターンマッチ](/docs/learn/pattern-matching)の構文です。
+[Webアプリを作る](/docs/guides/web-app)のカウンターの「増やす」「戻す」を、画面なしで確かめます。「どの操作で状態がどう変わるか」を`update`という一つの関数にまとめておくと、画面を作る前に動きを確かめられます。
 
 ## 現在値と操作を分ける
 
-この例の状態は現在の数を表す`Int`です。`Action`は`Increment`と`Reset`の二つで、適用する操作を指定します。`update action state`は新しい状態を返します。
+状態は今の数を表す`Int`、操作は`Increment`と`Reset`の二つのケースを持つ`Action`です。`update action state`は、操作と今の状態から新しい状態を返します。
 
-イベント名と状態を同じ型に混ぜません。たとえば`Reset`という操作を受けた結果の状態は、`Reset`という値ではなく`0`です。
+操作と状態は別の型にします。`Reset`という操作を受けた結果の状態は、`Reset`ではなく`0`です。
 
 ## 完成した更新例
 
-`state.ssrg`へ保存してください。
+次の内容を`state.ssrg`に保存してください。
 
 {/* example: examples/guides/state.ssrg */}
 ```seseragi title="state.ssrg"
@@ -43,7 +41,7 @@ pub effect fn main = do {
 }
 ```
 
-`update Increment`は残りの状態を受け取る関数です。そのため、`0 |> update Increment`は`update Increment 0`と同じ計算になります。
+`update Increment`は、状態を待っている関数です（部分適用）。そのため`0 |> update Increment`は`update Increment 0`と同じ意味になり、パイプラインで操作を続けて書けます。
 
 ## 操作の列を実行する
 
@@ -56,17 +54,15 @@ seseragi run state.ssrg
 0
 ```
 
-最初のパイプラインは0へ二回`Increment`を適用します。次は5へ`Reset`を適用します。`println`以外の処理に副作用はなく、同じ入力から同じ結果が得られます。
+一つ目のパイプラインは、0に`Increment`を二回適用して2に、二つ目は5に`Reset`を適用して0にしています。`println`以外は値を計算しているだけなので、何度実行しても同じ結果になります。
 
 ## 複数の値をまとめて状態にする
 
-フォームでは現在値だけでなく、編集中の文字列や表示メッセージをまとめて持てます。`Model`は名前を持つstructです。新しい状態を作るときは、`Model { ...model, draft: value }`のようにstructの新しい値を作ります。
-
-`let`で束縛したstructのフィールドへ代入して更新することはできません。構造を広げる具体例は[フォーム](/docs/guides/forms)にあります。
+フォームなどでは、数だけでなく入力中の文字列やメッセージも状態に持ちたくなります。そのときは、状態をstructにまとめます。更新するときは、`Model { ...model, draft: value }`のように新しい値を作ります。フィールドに代入して書き換えることはできません。より大きな例は[フォーム](/docs/guides/forms)にあります。
 
 ### 一つのフィールドだけを変える
 
-次は、カウントと入力文字列を持つ独立した更新例です。三つのコードを順に`state-fields.ssrg`へ保存してください。
+カウントと入力中の文字列を持つ例です。次の三つのコードを順に`state-fields.ssrg`に書いてください。
 
 {/* example: examples/guides/state-fields.ssrg#model */}
 ```seseragi title="state-fields.ssrg"
@@ -80,7 +76,7 @@ type Action =
   | ResetCount
 ```
 
-`Edited`は文字列を渡し、`ResetCount`は数だけを0にします。更新しないフィールドは`...model`から引き継ぎます。
+`Edited`は入力された文字列を持ち、`ResetCount`は数だけを0にします。変えないフィールドは`...model`でそのまま引き継ぎます。
 
 {/* example: examples/guides/state-fields.ssrg#update */}
 ```seseragi title="state-fields.ssrg"
@@ -132,16 +128,16 @@ Count: 0
 Ada
 ```
 
-編集後の`draft`は`Ada`ですが、元の`initial.draft`は空のままです。編集では`count`の2を保ち、Resetでは入力の`Ada`を保ちます。`edited`と`reset`はそれぞれ計算結果を束縛した名前で、同じ変数へ代入し直しているわけではありません。
+編集後の`draft`は`Ada`ですが、元の`initial.draft`は空のままです。`Edited`では`count`の2がそのまま残り、`ResetCount`では入力の`Ada`がそのまま残ります。
 
 ## 副作用の位置を決める
 
-純粋な`update`の中で入力や通信を実行することはできません。`dom.app`を使う場合、更新関数はActionと状態から次の状態を返す契約です。
+`update`は値を計算するだけの関数なので、中で通信などはできません。
 
-外部操作が必要になったら、Effectを実行するdispatchと状態の更新を分けます。`MutableSignal`へ`signals.update`を適用する例は[状態を持つ機能](/docs/guides/stateful-features)にあります。外部操作の結果をActionへ戻す設計では、成功と失敗の両方をActionのケースに含めます。
+通信などが必要になったら、Effectを実行する部分と、状態を更新する部分を分けます。Signalを直接更新する例は[状態を持つ機能](/docs/guides/stateful-features)にあります。通信の結果をActionとして`update`に戻す場合は、成功と失敗の両方をActionのケースにしておきます。
 
 ## 更新規則をテストする
 
-UIのボタンを毎回押して確認する代わりに、`update Increment 0`が1になることや、`update Reset 5`が0になることをテストへ置けます。
+ボタンを毎回押して確かめる代わりに、「`update Increment 0`は1」「`update Reset 5`は0」をテストに書いておけます。書き方は[テスト](/docs/guides/testing)で扱います。
 
-[テスト](/docs/guides/testing)では`std/test`の実行手順を扱います。Actionに新しいケースを追加した場合は`match`の網羅性もコンパイラーが確認します。構文の詳しい契約は[パターン Reference](/docs/reference/patterns)で調べられます。
+Actionに新しいケースを足したときは、`update`の`match`で扱い忘れがないかもコンパイラーが確かめてくれます。パターンの細かい決まりは[パターンリファレンス](/docs/reference/patterns)にあります。
