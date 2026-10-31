@@ -3,29 +3,29 @@ title: "CLI"
 description: "配布版CLIのコマンド、target、profile、診断、テストと終了statusを確認する。"
 ---
 
-このページは配布版の`seseragi --help`で確認したコマンドを説明します。手元のbinaryを確認するには、`seseragi --version`または`seseragi --version-json`を使います。インストールは[ローカルで使う](/docs/learn/local-development)を参照してください。
+このページでは、配布されているCLIの`seseragi --help`に載っているコマンドを説明します。手元のCLIのバージョンは、`seseragi --version`か`seseragi --version-json`で確かめられます。インストールの仕方は[ローカルで使う](/docs/learn/local-development)にあります。
 
 ## コマンド一覧
 
 | コマンド | 用途 |
 | --- | --- |
-| `new web PATH` | Web starterとlockを生成する |
-| `run FILE_OR_PACKAGE` | processアプリを実行する |
-| `build FILE_OR_PACKAGE` | process/Webの配布物を生成する |
-| `dev [PACKAGE]` | Webの監視buildとpreviewを開始する |
-| `lock update [PACKAGE]` | パッケージとProviderのlockを明示更新する |
-| `lint FILE_OR_PACKAGE` | lint診断を出す |
+| `new web PATH` | Webアプリのひな形とロックファイルを作る |
+| `run FILE_OR_PACKAGE` | CLIアプリを実行する |
+| `build FILE_OR_PACKAGE` | CLIアプリやWebアプリの配布物を作る |
+| `dev [PACKAGE]` | Webアプリの開発サーバーを起動する（保存すると自動でビルドし直す） |
+| `lock update [PACKAGE]` | ロックファイルを更新する |
+| `lint FILE_OR_PACKAGE` | コードの問題点を指摘する |
 | `format [--check] FILE` | ソースを整形する、または整形済みか調べる |
-| `test [PACKAGE]` | tests ルートのTest ツリーを実行する |
-| `benchmark [PACKAGE]` | benchmarks ルートを計測する |
-| `doc [PACKAGE] --test` | declarationのdocument exampleを検査する |
-| `dts convert [PACKAGE]` | 設定されたTypeScript バインディングを生成する |
+| `test [PACKAGE]` | `tests/`のテストを実行する |
+| `benchmark [PACKAGE]` | `benchmarks/`のベンチマークを計測する |
+| `doc [PACKAGE] --test` | ドキュメントコメントの中のコード例を実行して確かめる |
+| `dts convert [PACKAGE]` | `.d.ts`からTypeScriptのbindingを生成する |
 
-`new`が提供するテンプレートは現在`web`だけです。既存ディレクトリへ上書き生成しません。`doc`は現在`--test`の経路を提供し、一般のAPIサイト出力を作るコマンドではありません。
+`new`で作れるひな形は、今は`web`だけです。すでにあるディレクトリには作りません。`doc`は今のところ`--test`だけで、APIドキュメントのサイトを作る機能はありません。
 
 ## runとターゲット
 
-単一ファイルはscratchとして実行できます。複数モジュールや依存関係を使う場合は、`seseragi.toml`と`seseragi.lock`を持つパッケージを渡します。
+ファイルを一つだけ渡して、そのまま実行できます。複数のモジュールや依存パッケージを使うときは、`seseragi.toml`と`seseragi.lock`を持つパッケージのディレクトリを渡します。
 
 ```bash
 seseragi run main.ssrg
@@ -34,9 +34,9 @@ seseragi run . --profile release
 
 logical ターゲットは`process`と`web`です。現在`run`はprocess、`dev`はwebを実行し、`build`は両方に対応します。オプションの値として受理しても、コマンドが未対応の組み合わせを別ターゲットへfallbackしません。
 
-ターゲットはCLI override、`run.target`、コマンドのcapability判定・既定値から選びます。必須サービスを提供できないターゲットは実行前に拒否します。HTTP serverはprocessアプリで、静的Web appへ自動分類しません。
+ターゲット（CLIで動かすか、ブラウザーで動かすか）は、コマンドのオプション、`run.target`、コマンドの種類の順に決まります。プログラムが必要とするサービスをターゲットが用意できない場合は、実行する前にエラーになります。HTTPサーバーはCLIアプリとして扱われ、Webアプリにはなりません。
 
-## buildと開発server
+## buildと開発サーバー
 
 ```bash
 seseragi build . --profile release
@@ -45,20 +45,20 @@ seseragi dev \
   --port 3000
 ```
 
-buildは`--out-dir PATH`、`--source-map emit|omit`を受理します。プロファイルの選択順はCLI、`[build].profile`、developmentです。ソース mapはdevelopmentでemit、releaseでomitが既定です。process developmentのentryは`entry.ts`、first-party releaseは`entry.js`です。出力には`artifact-manifest.json`を含み、実際のentryを確認できます。
+`build`では`--out-dir PATH`と`--source-map emit|omit`を指定できます。プロファイル（developmentかreleaseか）は、コマンドのオプション、`[build].profile`の順に決まり、どちらもなければdevelopmentです。ソースマップは、developmentでは出力し、releaseでは出力しません。CLIアプリの入口のファイルは、developmentでは`entry.ts`、releaseでは`entry.js`です。出力に含まれる`artifact-manifest.json`で、実際の入口を確かめられます。
 
-devは保存したソースを監視し、同じWeb builderで再生成します。devはexactな依存関係グラフを保ち、通常ソースの編集をeditable ワークスペースとして許容します。通常のbuild/testではソース変更もlockのダイジェスト不一致になるため、lock updateが必要です。マニフェスト・依存関係・Provider要件の変更はdevでも明示更新します。`--open`でブラウザーを開きます。
+`dev`は保存したソースを見張り、`build`と同じ仕組みでビルドし直します。`dev`の間は、ソースを編集してもロックファイルを更新する必要はありません（`build`や`test`では、ソースを変えるとロックファイルの更新が必要です）。ただし、`seseragi.toml`・依存パッケージ・Providerの要件を変えたときは、`dev`中でも更新が必要です。`--open`を付けるとブラウザーが開きます。
 
 ## 診断と整形
 
-`run`・`lint`は`--diagnostic-format text|json`を受理します。JSON形式ではANSI色を含めず、toolはmessageの文言よりstableな`SES-*` codeで分類します。`lint --deny-warnings`はwarningも失敗として扱います。
+`run`と`lint`では`--diagnostic-format text|json`を指定できます。JSON形式では色の制御文字を含みません。ツールでエラーを見分けるときは、メッセージの文言ではなく、変わらない`SES-*`のコードを使ってください。`lint --deny-warnings`は、警告も失敗として扱います。
 
 ```bash
 seseragi lint . --deny-warnings
 seseragi format --check main.ssrg
 ```
 
-formatterはソースの意味を保ちます。スタイルはcanonicalで、indentやquoteの独自設定をCLIへ渡す方式ではありません。document/site用には、読めるソースを先に書き、画面幅のCSSだけで折り返すことへ依存しないでください。
+フォーマッターは、プログラムの意味を変えずに整形します。整形のスタイルは一つに決まっていて、インデントや引用符の好みを指定するオプションはありません。
 
 ## test、benchmark、document test
 
@@ -68,19 +68,19 @@ seseragi benchmark . --target node
 seseragi doc . --test --target node
 ```
 
-testは`--filter TEXT`または`--exact NAME`でcaseを選び、`--jobs`、`--timeout`、`--seed`を指定できます。Test ツリーは`pub let tests: test.Test`で公開します。
+`test`では、`--filter TEXT`か`--exact NAME`で実行するテストを選べ、`--jobs`・`--timeout`・`--seed`も指定できます。テストは`pub let tests: test.Test`として公開します。
 
-benchmarkは`pub let benchmarks: benchmark.Benchmark`を公開し、`--warmup`、`--samples`、`--minimum-sample-ms`、`--json`、`--baseline`、`--save-baseline`、`--regression-threshold-percent`などを使えます。ターゲットの指定が曖昧にならないよう、上の例ではノードを明示しています。詳しくは[テスト](/docs/guides/testing)と[性能](/docs/reference/performance)を参照してください。
+`benchmark`では、ベンチマークを`pub let benchmarks: benchmark.Benchmark`として公開し、`--warmup`・`--samples`・`--minimum-sample-ms`・`--json`・`--baseline`・`--save-baseline`・`--regression-threshold-percent`などを指定できます。上の例では、どの環境で動かすかがはっきりするよう、`node`を明示しています。詳しくは[テスト](/docs/guides/testing)と[性能](/docs/reference/performance)にあります。
 
-## processの実行オプションと終了
+## CLIアプリの実行オプションと終了コード
 
-`run`は`--signal-mode cancel|forward`、`--shutdown-grace-ms`、`--hash-seed entropy|INT`、`--random-seed entropy|INT`も受理します。対応マニフェスト値をその実行だけ上書きし、ソースやlockを書き換えません。固定random seedは再現用で、secure entropyを固定する設定ではありません。
+`run`では、`--signal-mode cancel|forward`・`--shutdown-grace-ms`・`--hash-seed entropy|INT`・`--random-seed entropy|INT`も指定できます。どれも`seseragi.toml`の設定をその実行の間だけ上書きするもので、ファイルは書き換えません。乱数のシードを固定するのは結果を再現するためで、暗号用の乱数まで固定するものではありません。
 
 | status | 意味 |
 | --- | --- |
 | 0 | 正常終了 |
-| 1 | 未処理のtyped failure、またはtest/lintなどの不合格 |
-| 2 | コマンド・compile・マニフェスト・ターゲットなどの事前エラー |
-| 70 | 実行後のランタイム defect |
+| 1 | 処理されなかった失敗、またはテスト・lintの不合格 |
+| 2 | コマンド・コンパイル・設定・ターゲットなど、実行前のエラー |
+| 70 | 実行中のdefect（バグによる異常終了） |
 
 signalによる終了はホストのsignal status規則へ従います。cancel modeではルート Effectへキャンセルを要求し、grace期間内にfinalizerを実行します。forward modeやgraceの設定はターゲットのcapabilityに従い、未対応の設定は事前エラーになります。
