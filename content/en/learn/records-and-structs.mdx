@@ -3,13 +3,13 @@ title: "Records and structs"
 description: "Group named values and understand structural records and nominal structs."
 ---
 
-Represent a point as two integers. We will write a function that returns a horizontally shifted point while preserving the original.
+This chapter shows how to group several values into one. At the end, you write a function that takes a point and returns a new point shifted to the right, without changing the original.
 
-## Use a record by its required fields
+## A record's type is its shape
 
-`{ x: 1, y: 2 }` is a record with named fields and type `{ x: Int, y: Int }`. Access a field with an expression such as `point.x`.
+`{ x: 1, y: 2 }` is a record with named fields. It works almost exactly like a TypeScript object literal, and its type is `{ x: Int, y: Int }`. Read a field with `point.x`.
 
-Records are structurally typed. This declaration accepts a record containing a `name`:
+A record's type is decided by its shape: which fields it has. This function accepts any record that has a `name`:
 
 {/* example: examples/learn/focused/record-fields.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -17,9 +17,7 @@ fn nameOf value: { name: String }
   -> String = value.name
 ```
 
-You can pass `{ name: "Aki", score: 42 }` because it contains the required `name: String` field. This acceptance of additional fields is called width subtyping. A missing field or a field of the wrong type is still rejected.
-
-This expression belongs inside `main`. Pass a record with `score` to `nameOf`, which requires only `name`:
+`{ name: "Aki", score: 42 }` has `name: String`, so you can pass it even with the extra `score`. This is the same structural typing as TypeScript. A record without `name`, or with a `name` of another type, is rejected.
 
 {/* example: examples/learn/focused/record-fields.ssrg#use */}
 ```seseragi title="Expression in main"
@@ -28,15 +26,13 @@ This expression belongs inside `main`. Pass a record with `score` to `nameOf`, w
 |> println
 ```
 
-The output is `Aki`. The function's type identifies the fields it needs.
+This prints `Aki`. The function's type tells you which fields it uses.
 
-## Give a type a name with struct
+## A struct is identified by its name
 
-`struct Point` declares a type named `Point`. Construct it with `Point { x: 1, y: 2 }` and read its fields.
+`struct` declares a named type. Unlike a record, a struct with a different name is a different type, even if the shape is the same.
 
-A separate `struct Size` with the same fields is still a different type. Unlike records, matching field shapes do not make `Point` and `Size` interchangeable. This distinction based on a declaration's identity is called nominal typing.
-
-Place this struct declaration at module scope:
+First, declare `Point`:
 
 {/* example: examples/learn/focused/struct-fields.ssrg#declaration */}
 ```seseragi title="Struct declaration"
@@ -46,7 +42,7 @@ struct Point {
 }
 ```
 
-Construct and read a value inside `main`:
+Create a value with `Point { ... }` and read a field with `.x`:
 
 {/* example: examples/learn/focused/struct-fields.ssrg#access */}
 ```seseragi title="Expression in main"
@@ -56,9 +52,9 @@ point.x
 |> println
 ```
 
-The output is 3. This example isolates construction with `Point { ... }` and field access with `.x`.
+This prints 3.
 
-Declaring another type with the same fields still does not create a Point:
+Now declare `Size`, with exactly the same fields as `Point`:
 
 {/* example: examples/learn/focused/struct-nominal-error.ssrg#size */}
 ```seseragi title="Another struct"
@@ -68,7 +64,7 @@ struct Size {
 }
 ```
 
-This function requires a Point:
+This function takes a `Point`:
 
 {/* example: examples/learn/focused/struct-nominal-error.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -76,7 +72,7 @@ fn readX point: Point -> Int =
   point.x
 ```
 
-These bindings inside `main` are an intentional compile-error example:
+Passing a `Size` to it is a compile error:
 
 {/* example: examples/learn/focused/struct-nominal-error.ssrg#invalid */}
 ```seseragi title="Bindings with a type error"
@@ -84,11 +80,11 @@ let size = Size { x: 3, y: 4 }
 let wrong = readX size
 ```
 
-`readX size` produces `SES-T0101` because it supplies Size where Point is required. A record's rule of accepting the required fields does not apply to structs.
+`readX size` passes a `Size` where a `Point` is required, so it fails with `SES-T0101`. Types with different names cannot be mixed up, even when their fields match. This helps when values have the same shape but different meanings, such as a position and a size.
 
-### Try record spread on its own
+### Change part of a record with spread
 
-These bindings belong inside `main`:
+Records support the same `...` spread syntax as TypeScript, so you can copy a record with some fields changed:
 
 {/* example: examples/learn/focused/record-spread.ssrg#update */}
 ```seseragi title="Bindings in main"
@@ -96,7 +92,7 @@ let base = { name: "Aki", score: 30 }
 let next = { ...base, score: 42 }
 ```
 
-`base.score` is 30; `next.score` is 42. `next.name` retains `"Aki"`. Record spread copies the existing fields, then the following field supplies a new value. The original `base` does not change.
+`next.score` is 42 and `next.name` is `"Aki"`, taken from `base`. `...base` copies the fields, and the `score` written after it overrides one. `base.score` is still 30.
 
 ## Produce an updated value
 
@@ -127,13 +123,13 @@ pub effect fn main = do {
 4, 2
 ```
 
-`moveX 3 start` returns a new `Point` with 3 added to `start.x`. `Point { ...point, x: ... }` first takes the original fields and then replaces `x` in the new value. `start` remains `1, 2`.
+`moveX 3 start` returns a new `Point` with 3 added to `start.x`. Structs support spread too: `Point { ...point, x: ... }` takes the original fields and replaces only `x`. `start` is still `1, 2`.
 
-Constructing a struct requires all fields. With spread, place one value of the same struct type first and inherit the fields you do not replace. Records also support spread and can combine several records from left to right. See [Data types](/en/docs/reference/data-types) for the detailed differences.
+Creating a struct requires every field. With spread, a struct takes one value of the same type, placed first. A record can stack several records from left to right. [Data types](/en/docs/reference/data-types) lists the detailed differences.
 
 ## Destructure a value
 
-Patterns extract data from tuples, records, and structs. This fragment could appear inside `moveX`:
+Patterns take values out of tuples, records, and structs, much like TypeScript's destructuring. For example, inside `moveX` you could write:
 
 ```seseragi
 let Point { x, y } = point
@@ -141,32 +137,32 @@ let offset = { x: amount, y: 0 }
 let { x: dx, y: dy } = offset
 ```
 
-`x: dx` takes the value of field `x` and binds the name `dx`. It does not write to another field. Struct patterns include the type name; record patterns do not.
+`x: dx` takes the value of field `x` and names it `dx` (the same as TypeScript's `const { x: dx } = offset`). A struct pattern includes the type name, as in `Point { x, y }`; a record pattern does not.
 
-To isolate record decomposition, first define this value inside `main`:
+Try it. First, create a record:
 
 {/* example: examples/learn/focused/record-decomposition.ssrg#point */}
 ```seseragi title="Binding in main"
 let point = { x: 3, y: 4 }
 ```
 
-Then extract the fields with different binding names:
+Take the fields out under different names:
 
 {/* example: examples/learn/focused/record-decomposition.ssrg#rename */}
 ```seseragi title="Binding in main"
 let { x: dx, y: dy } = point
 ```
 
-`dx` is 3 and `dy` is 4. This lets you check extraction separately from creating an updated record.
+`dx` is 3 and `dy` is 4.
 
-## Choose the data type
+## Records or structs?
 
-A record type can state the small set of fields a function needs. Use a struct or [newtype](/en/docs/reference/data-types) when the type's identity should distinguish meanings such as a coordinate, amount, or identifier.
+When a function uses only a few fields, a record type says "this is all I need". When the type's name should tell meanings apart, such as a position, an amount, or an ID, use a struct or a [newtype](/en/docs/reference/data-types).
 
-A struct can also have methods, but it does not require an object that mutates its own data. This example describes movement as an ordinary function from an input `Point` to an output `Point`.
+Structs can have methods, but they do not need to be objects that change themselves. An ordinary function that takes a `Point` and returns a new `Point`, like `moveX`, is enough.
 
 ## Add another movement
 
-Use `moveX` as a model to define `moveY`, then move `start` up by 5. Print the original point as well to confirm it stays unchanged. Then define a `Size` with the same fields and try passing it to `moveX`; the type checker rejects the mismatch.
+Write `moveY` based on `moveX`, and move `start` up by 5. Print the original point too, to confirm it has not changed. Then pass a `Size` value with the same fields to `moveX` and see the type error.
 
-Continue to [Algebraic data types](/en/docs/learn/algebraic-data-types), which describes one of several possible states rather than several fields held together.
+Next, [Algebraic data types](/en/docs/learn/algebraic-data-types) goes beyond types that hold several values together, to types that represent one of several states.

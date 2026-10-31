@@ -3,13 +3,13 @@ title: "レコードとstruct"
 description: "名前付きの値をまとめ、structとレコードの型の違いを理解する。"
 ---
 
-点の座標を二つの整数としてまとめます。元の点を変更せず、横へ移動した新しい点を返す関数を作ります。
+この章では、複数の値を一つにまとめる方法を学びます。最後に、座標を表す点を作り、元の点を書き換えずに「横へ動かした新しい点」を返す関数を書きます。
 
-## レコードは必要なフィールドで使う
+## レコードは形で型が決まる
 
-`{ x: 1, y: 2 }`は、名前付きフィールドを持つレコードです。型は`{ x: Int, y: Int }`になります。フィールドは`point.x`のように読み取ります。
+`{ x: 1, y: 2 }`は、名前付きのフィールドを持つレコードです。TypeScriptのオブジェクトリテラルとほぼ同じで、型は`{ x: Int, y: Int }`です。フィールドは`point.x`のように読み取ります。
 
-レコードは構造で型を判定します。たとえば、次の宣言は`name`を持つレコードを受け取る形です。
+レコードの型は、どんなフィールドを持っているかという「形」で決まります。次の関数は、`name`を持つレコードなら何でも受け取ります。
 
 {/* example: examples/learn/focused/record-fields.ssrg#declaration */}
 ```seseragi title="関数の宣言"
@@ -17,9 +17,7 @@ fn nameOf value: { name: String }
   -> String = value.name
 ```
 
-`{ name: "Aki", score: 42 }`には必要な`name: String`があるので渡せます。余分なフィールドを許すこの規則をwidth subtypingと呼びます。必要なフィールドがない場合や、その型が異なる場合には渡せません。
-
-次は`main`内に置く式です。`score`を使わない`nameOf`へ、`score`も持つレコードを渡します。
+`{ name: "Aki", score: 42 }`は`name: String`を持っているので、余分な`score`があっても渡せます。TypeScriptの構造的な型付けと同じ考え方です。`name`がない場合や、`name`の型が違う場合は渡せません。
 
 {/* example: examples/learn/focused/record-fields.ssrg#use */}
 ```seseragi title="main内の式"
@@ -28,15 +26,13 @@ fn nameOf value: { name: String }
 |> println
 ```
 
-結果は`Aki`です。関数が要求するフィールドを、関数の型から確認できます。
+`Aki`と表示されます。関数がどのフィールドを使うのかは、関数の型を見れば分かります。
 
-## structは名前を持つ型
+## structは名前で区別される
 
-`struct Point`は`Point`という型を定義します。`Point { x: 1, y: 2 }`でその値を作り、`x`と`y`を読み取れます。
+`struct`を使うと、名前の付いた型を定義できます。レコードと違い、structは形が同じでも名前が違えば別の型として扱われます。
 
-同じフィールド構成の`struct Size`を別に定義しても、`Point`と`Size`は別の型です。レコードとは違い、フィールドが一致するだけで代わりに渡せません。このように宣言の名前で区別する性質をnominal typingと呼びます。
-
-まず、モジュールにこのstructを宣言します。
+まず`Point`を宣言します。
 
 {/* example: examples/learn/focused/struct-fields.ssrg#declaration */}
 ```seseragi title="structの宣言"
@@ -46,7 +42,7 @@ struct Point {
 }
 ```
 
-次は`main`内に置く生成と読み取りです。
+`Point { ... }`で値を作り、`.x`でフィールドを読み取ります。
 
 {/* example: examples/learn/focused/struct-fields.ssrg#access */}
 ```seseragi title="main内の式"
@@ -56,9 +52,9 @@ point.x
 |> println
 ```
 
-結果は3です。`Point { ... }`で生成し、`.x`でフィールドを読むところまでを、この例で確認します。
+3と表示されます。
 
-同じフィールドを持つ次の型を別に宣言しても、Pointにはなりません。
+では、`Point`とまったく同じフィールドを持つ`Size`を宣言してみます。
 
 {/* example: examples/learn/focused/struct-nominal-error.ssrg#size */}
 ```seseragi title="別のstructの宣言"
@@ -68,7 +64,7 @@ struct Size {
 }
 ```
 
-この関数が要求するのはPointです。
+次の関数は`Point`を受け取ります。
 
 {/* example: examples/learn/focused/struct-nominal-error.ssrg#declaration */}
 ```seseragi title="関数の宣言"
@@ -76,7 +72,7 @@ fn readX point: Point -> Int =
   point.x
 ```
 
-次の`main`内の束縛は、意図したコンパイルエラーの例です。
+ここに`Size`を渡すと、コンパイルエラーになります。
 
 {/* example: examples/learn/focused/struct-nominal-error.ssrg#invalid */}
 ```seseragi title="型エラーになる束縛"
@@ -84,11 +80,11 @@ let size = Size { x: 3, y: 4 }
 let wrong = readX size
 ```
 
-`readX size`は、Pointを要求する場所へSizeを渡しているため`SES-T0101`になります。レコードの「必要なフィールドがあれば渡せる」という規則を、structには当てはめません。
+`readX size`は、`Point`が必要な場所に`Size`を渡しているので`SES-T0101`エラーになります。フィールドの形が同じでも、名前の違う型どうしは取り違えられません。座標と大きさのように、形は同じでも意味が違う値を区別したいときに役立ちます。
 
-### レコードのspreadだけを試す
+### スプレッドで一部だけ変える
 
-次の束縛は`main`内に置きます。
+レコードは、TypeScriptと同じ`...`のスプレッド構文で、一部のフィールドだけを変えたコピーを作れます。
 
 {/* example: examples/learn/focused/record-spread.ssrg#update */}
 ```seseragi title="main内の束縛"
@@ -96,7 +92,7 @@ let base = { name: "Aki", score: 30 }
 let next = { ...base, score: 42 }
 ```
 
-`base.score`は30、`next.score`は42です。`next.name`は元の`"Aki"`を引き継ぎます。レコードのspreadで既存フィールドをコピーし、後ろのフィールドで新しい値を指定しています。元の`base`は変わりません。
+`next.score`は42、`next.name`は`base`から引き継いだ`"Aki"`です。`...base`でフィールドをコピーし、後ろに書いた`score`で上書きしています。`base.score`は30のまま変わりません。
 
 ## 元の値を保って更新する
 
@@ -127,13 +123,13 @@ pub effect fn main = do {
 4, 2
 ```
 
-`moveX 3 start`は`start`の`x`に3を足した新しい`Point`を返します。`Point { ...point, x: ... }`では、まず元のフィールドを引き継ぎ、後ろに書いた`x`だけを置き換えます。元の`start`は`1, 2`のままです。
+`moveX 3 start`は、`start`の`x`に3を足した新しい`Point`を返します。structでもスプレッドが使え、`Point { ...point, x: ... }`は元のフィールドを引き継いで`x`だけを置き換えます。元の`start`は`1, 2`のままです。
 
-structの生成では全フィールドが必要です。spreadで引き継ぐ場合は、同じstruct型の値を一つだけ先頭に置けます。レコードにもspreadがあり、複数のレコードを左から右へ組み合わせられます。詳しい違いは[データ型](/docs/reference/data-types)で確認できます。
+structを作るときは、すべてのフィールドが必要です。スプレッドを使う場合、structでは同じ型の値を一つだけ先頭に置けます。レコードでは、複数のレコードを並べて左から順に重ねられます。細かい違いは[データ型](/docs/reference/data-types)にまとめています。
 
 ## 分解して名前を付ける
 
-tupleやレコード、structは、パターンで必要な値を取り出せます。これは`moveX`の中へ置く場合の断片です。
+タプル・レコード・structからは、パターンを使って中の値を取り出せます。TypeScriptの分割代入に近いものです。たとえば`moveX`の中で、次のように書けます。
 
 ```seseragi
 let Point { x, y } = point
@@ -141,32 +137,32 @@ let offset = { x: amount, y: 0 }
 let { x: dx, y: dy } = offset
 ```
 
-`x: dx`は、フィールド`x`の値を`dx`という名前で取り出します。値を別のフィールドへ書き込む操作ではありません。structには型名を付けたパターンを使い、レコードには名前のないパターンを使います。
+`x: dx`は、フィールド`x`の値に`dx`という名前を付けて取り出します（TypeScriptの`const { x: dx } = offset`と同じです）。structのときは`Point { x, y }`のように型名を付け、レコードのときは型名なしで書きます。
 
-レコードの分解だけを試すなら、`main`内で次の値を用意します。
+試してみましょう。まず、レコードを用意します。
 
 {/* example: examples/learn/focused/record-decomposition.ssrg#point */}
 ```seseragi title="main内の束縛"
 let point = { x: 3, y: 4 }
 ```
 
-続けて、フィールドとは違う名前で取り出します。
+フィールドとは違う名前で取り出します。
 
 {/* example: examples/learn/focused/record-decomposition.ssrg#rename */}
 ```seseragi title="main内の束縛"
 let { x: dx, y: dy } = point
 ```
 
-`dx`は3、`dy`は4です。値の取り出しと、更新用レコードの作成を分けて確認できます。
+`dx`は3、`dy`は4になります。
 
-## データ型を選ぶ
+## レコードとstructの使い分け
 
-関数が少数のフィールドだけを必要とするなら、レコード型で必要な形を示せます。座標、金額、識別子のように用途を型の名前で区別したい場合は、structや[newtype](/docs/reference/data-types)を使います。
+関数がいくつかのフィールドだけを使うなら、レコード型で「これだけあればいい」という形を書けます。座標・金額・IDのように、意味の違いを型の名前で区別したいなら、structや[newtype](/docs/reference/data-types)を使います。
 
-structにメソッドを定義することもできますが、データを変更するオブジェクトである必要はありません。この例では入力の`Point`から出力の`Point`を返す通常の関数で移動を表しています。
+structにはメソッドも定義できますが、値を書き換えるオブジェクトにする必要はありません。この章の`moveX`のように、`Point`を受け取って新しい`Point`を返す普通の関数で十分です。
 
 ## 別の移動を作る
 
-`moveX`を参考に`moveY`を追加し、`start`を上へ5移動させてください。元の点も出力し、元の値が変更されていないことを確認します。次に同じフィールドを持つ`Size`を定義して`moveX`へ渡すと、型の不一致になります。
+`moveX`をまねて`moveY`を書き、`start`を上へ5動かしてみてください。元の点も表示して、書き換わっていないことを確かめます。次に、同じフィールドを持つ`Size`の値を`moveX`に渡すと、型エラーになることも確かめてください。
 
-次は[代数的データ型](/docs/learn/algebraic-data-types)で、複数の値を同時に持つ形から、複数の状態のどれかを取る形へ進みます。
+次の[代数的データ型](/docs/learn/algebraic-data-types)では、「複数の値をまとめて持つ」型から一歩進んで、「いくつかの状態のどれか一つ」を表す型を作ります。

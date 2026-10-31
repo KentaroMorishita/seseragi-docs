@@ -3,11 +3,11 @@ title: "Algebraic data types"
 description: "Describe possible states as cases and attach the data each case needs."
 ---
 
-[Records and structs](/en/docs/learn/records-and-structs) grouped values together. This chapter uses a light that can be red or green to define a set of possible states as one type. Examine type declarations and value syntax in separate steps.
+[Records and structs](/en/docs/learn/records-and-structs) grouped several values together. This chapter describes data that takes one of several states, such as "red or green", as a type.
 
 ## Define a type by listing cases
 
-A `type` declaration lists cases separated by `|`. A type that chooses one of several cases is an algebraic data type, or ADT. This syntax example declares a type with two cases:
+Declare a type with `type` and list its possible cases separated by `|`. A type that is "one of several cases" is called an algebraic data type (ADT). It is close to a TypeScript union such as `"red" | "green"`.
 
 ```seseragi title="Type declaration syntax"
 type Light =
@@ -15,24 +15,24 @@ type Light =
   | Green
 ```
 
-Both `Red` and `Green` are values of `Light`. One value cannot be both cases at once. You also cannot use `Yellow` as a value of `Light` when it is absent from this declaration.
+Both `Red` and `Green` are values of type `Light`. A value is never both cases at once, and `Yellow`, which is not declared, cannot be used as a `Light`.
 
-A struct in the previous chapter holds several fields together; this type selects one of several cases.
+If a struct is a type that holds all its fields at once, an ADT is a type that takes exactly one of its cases.
 
 ## Use a case without data
 
-`Red` and `Green` have no additional data, so the case name alone is a value. With the declaration above, you can write these bindings inside a block such as `main`. This is a syntax example:
+`Red` and `Green` are cases without data. Writing the case name is enough to make a value.
 
 ```seseragi title="Value binding syntax"
 let red: Light = Red
 let green: Light = Green
 ```
 
-The values belong to different cases, but both have type `Light`. These fragments show how to define a type and construct values; they are not programs that print output. The next chapter creates a function that returns text for each case.
+The cases differ, but both values have type `Light`. The next chapter shows how to do something different for each case.
 
 ## Attach data to a case
 
-Next, define a measurement result. An unmeasured state holds no extra data; a measured state holds one integer.
+A case can carry data. `Reading` below represents a measurement: the "not measured yet" case carries nothing, and the "measured" case carries the measured value as an integer.
 
 ```seseragi title="Type declaration with payloads"
 type Reading =
@@ -40,18 +40,18 @@ type Reading =
   | Measured Int
 ```
 
-`NoReading` is already a value of `Reading`. `Measured` is a constructor that accepts one integer; supplying the data completes a value of `Reading`. Data attached to a case is called its payload.
+`NoReading` is a value of `Reading` on its own. `Measured` is a function that takes one integer and creates a value of `Reading`; it is called a constructor. The data a case carries is called its payload.
 
 ```seseragi title="Value binding syntax"
 let absent: Reading = NoReading
 let measured: Reading = Measured 23
 ```
 
-`Measured "warm"` fails because it supplies a string where an integer is required. `Measured` alone is still a function waiting for an integer, rather than a completed value of `Reading`.
+Passing anything other than an integer, as in `Measured "warm"`, is a type error. And `Measured` alone is still a function waiting for an integer, not a value of `Reading`.
 
 ## Cases that hold several values
 
-A case can hold several values by using one tuple as its payload. In this fragment, a rectangle holds width and height:
+To give a case several values, use a tuple. `Rectangle` below carries two integers, a width and a height:
 
 {/* example: examples/learn/focused/adt-tuple-payload.ssrg#declaration */}
 ```seseragi title="Type declaration"
@@ -60,9 +60,7 @@ type Shape =
   | Rectangle (Int, Int)
 ```
 
-Construct a value with `Rectangle (3, 4)`. The tuple `(3, 4)` groups two integers into one value, and that tuple is the constructor's single argument. `Rectangle 3 4` does not work as a two-argument call.
-
-This binding belongs inside `main` and uses Shape from above. Its annotation also confirms that supplying a tuple produces a Shape:
+Create a value with `Rectangle (3, 4)`. `(3, 4)` is one tuple holding two integers, and `Rectangle` takes that single tuple. You cannot write `Rectangle 3 4`.
 
 {/* example: examples/learn/focused/adt-tuple-payload.ssrg#value */}
 ```seseragi title="Binding in main"
@@ -70,11 +68,11 @@ let rectangle: Shape =
   Rectangle (3, 4)
 ```
 
-When field names help distinguish the data, group it into a struct as in the previous chapter, then use the struct as a case's payload. The ADT selects a state; the struct defines the values held together.
+When you want named fields, use a struct from the previous chapter as the payload. The ADT says which state you are in, and the struct says what data that state carries.
 
 ### Use a struct as a payload
 
-Consider a type that holds account information only when signed in. Define the information at module scope first:
+Consider a type that holds account information only while signed in. First, define the account information as a struct:
 
 {/* example: examples/learn/focused/adt-struct-payload.ssrg#data */}
 ```seseragi title="Struct declaration"
@@ -83,7 +81,7 @@ struct Account {
 }
 ```
 
-Then define the case that needs it:
+Then define the type for the sign-in state:
 
 {/* example: examples/learn/focused/adt-struct-payload.ssrg#declaration */}
 ```seseragi title="Type declaration"
@@ -92,7 +90,7 @@ type Session =
   | SignedIn Account
 ```
 
-`Guest` needs no information. `SignedIn` requires an Account. This binding belongs inside `main`:
+`Guest` needs no account information, but `SignedIn` cannot be created without an `Account`. The state "signed in but no account information" simply cannot exist.
 
 {/* example: examples/learn/focused/adt-struct-payload.ssrg#value */}
 ```seseragi title="Binding in main"
@@ -100,18 +98,18 @@ let session: Session =
   SignedIn (Account { name: "Aki" })
 ```
 
-Parentheses group the inner Account construction into the single argument supplied to SignedIn. These are also declaration and value fragments. The next chapter introduces selecting a case and reading its data with pattern matching.
+Parentheses turn `Account { ... }` into one argument for `SignedIn`. The next chapter shows how to tell the cases apart and take the account information out.
 
 ## Type names and input conditions
 
-ADTs are distinguished by their declared names. Another type with the same case names and shapes does not convert implicitly to this one. Define required conversions with functions.
+Like structs, ADTs are identified by their names. Another type with exactly the same case names and shapes is not converted automatically; write a function when you need a conversion.
 
-A type specifies the payload's type without validating every condition on its value. This `Reading` accepts both 23 and −1 as a `Measured` payload. A construction function can validate conditions such as the allowed measurement range.
+A type also only fixes the payload's type. This `Reading` accepts both 23 and −1 in `Measured`. Check conditions such as "a measurement is never negative" in the function that creates the value.
 
 ## Continue to case-specific behavior
 
-So far, you have defined the values that can be constructed. Use `match` when a function needs to distinguish cases and extract their payloads. The next chapter, [Pattern matching](/en/docs/learn/pattern-matching), introduces that syntax.
+In this chapter, types decided which values can exist. To tell the cases apart and take out the payload on the receiving side, use `match`.
 
-Adding `Yellow` to the `Light` declaration makes `Yellow` another value of `Light`. Replacing `Measured 23` with `NoReading` still produces a `Reading`. Check the choice of case separately from the payload's type.
+Try adding `Yellow` to the `Light` declaration: `Yellow` becomes a valid `Light`. In `Reading`, changing `Measured 23` to `NoReading` keeps the type `Reading`.
 
-See the [data types reference](/en/docs/reference/data-types) to look up declarations. Next, [Pattern matching](/en/docs/learn/pattern-matching) starts with the two values of `Bool`, then extracts the payload of `Reading`.
+The [data types reference](/en/docs/reference/data-types) covers how to write declarations. Next, [Pattern matching](/en/docs/learn/pattern-matching) handles each case separately and extracts the payload of `Reading`.
