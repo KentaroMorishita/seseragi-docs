@@ -3,25 +3,25 @@ title: Build a CLI application
 description: Read a quantity from standard input, validate it, and print a total.
 ---
 
-Read a one-line quantity and print its total at a unit price of 480. Accept integers from 1 through 1000. Keep parsing and validation in a pure function, and standard input and output in `main`.
+Build a CLI that reads one line with a quantity from standard input and prints the total at a unit price of 480. It accepts integers from 1 through 1000. Converting and validating the text happen in ordinary functions; standard input and output happen only in `main`.
 
-This task uses function application and `match`, plus [Maybe and Either](/en/docs/learn/maybe-and-either) and [Effects](/en/docs/learn/effects). Review application syntax in [Functions and pipelines](/en/docs/learn/functions-and-pipelines).
+It uses what you learned in [Maybe and Either](/en/docs/learn/maybe-and-either) and [Effects](/en/docs/learn/effects).
 
 ## Prepare the toolchain
 
-Install the CLI and Bun through [Local development](/en/docs/learn/local-development). This example runs as one file without additional packages.
+Install the Seseragi CLI and Bun by following [Local development](/en/docs/learn/local-development). The program is a single file and needs no extra packages.
 
-It uses the standard input and Console capabilities supplied by the `process` target. It is not a browser program to run under the `web` target.
+Because it uses standard input and the console, it runs from the CLI (the `process` target), not in a browser.
 
-## Define the input contract
+## Decide what input to accept
 
-`quantity` parses a string and checks its range, returning `Either<AppError, Int>`. Malformed numbers, 0, 1001, and missing input become `InvalidQuantity`.
+The `quantity` function converts a string to an integer, checks the range, and returns `Either<AppError, Int>`. Text that is not an integer, 0, 1001, and so on all become the failure `InvalidQuantity`.
 
-`Nothing` from `readLine` means end of input. It differs from `Just ""`, which means an empty line was read. Neither is a valid quantity for this application.
+`readLine` returns `Nothing` when input has ended and `Just ""` when it reads an empty line; the two are distinct. Neither is a valid quantity here, so both are treated as failures.
 
 ## Save the complete program
 
-Save it as `quantity.ssrg`.
+Save the following as `quantity.ssrg`.
 
 {/* example: examples/guides/cli-app.ssrg */}
 ```seseragi title="quantity.ssrg"
@@ -60,11 +60,13 @@ pub effect fn main = do {
 }
 ```
 
-`fromEither` moves the validation result into an Effect. `mapError` converts `StdinError` and `ConsoleError` into `AppError`. The compiler does not automatically combine distinct failure types into a new type.
+`fromEither` turns the validation result, an `Either`, into an Effect. For `Left`, the Effect fails there.
+
+The standard input failure `StdinError` and the output failure `ConsoleError` are brought together into the application's `AppError` with `mapError`. Different failure types are never merged automatically, so you merge them yourself like this.
 
 ## Pass input and run
 
-On macOS or Linux, pipe a quantity into standard input:
+On macOS or Linux, pass a quantity to standard input like this:
 
 ```sh
 printf '3\n' |
@@ -75,7 +77,7 @@ printf '3\n' |
 Total: 1440
 ```
 
-If you run `seseragi run quantity.ssrg` directly, enter a quantity and press Enter. The program reads one line; additional lines are not included in the calculation.
+If you run just `seseragi run quantity.ssrg`, type a quantity and press Enter. `readLine` reads one line, so further lines are ignored.
 
 ## Check invalid input
 
@@ -86,17 +88,17 @@ printf 'many\n' |
   seseragi run quantity.ssrg
 ```
 
-Both produce an unhandled typed failure `InvalidQuantity` and exit with code 1. They do not print a total. Compile or target configuration failures use exit code 2.
+Both fail with `InvalidQuantity`, and because nothing handles that failure, the CLI exits with code 1 without printing a total. (When a program cannot run at all because of a compile error or a configuration problem, the exit code is 2.)
 
-To display a user-facing message, use `attempt` and `match` as shown in [Handle failures](/en/docs/guides/error-handling).
+To show a message for the user on failure, use `attempt` and `match`, introduced in [Handle failures](/en/docs/guides/error-handling).
 
 ## Distinguish blank input from parsing failure
 
-This independent program checks input normalization. Save the following three blocks in order as `cli-normalization.ssrg`. It uses fixed strings and does not read stdin.
+The rest is a separate program that only tries out tidying input. Write the following three blocks in order in `cli-normalization.ssrg`. It uses fixed strings instead of standard input.
 
 ### Trim before parsing
 
-`trim` from `std/text` removes surrounding whitespace. An input that becomes empty produces `EmptyLine`; an input that cannot be parsed as an integer produces `NotANumber`. Keep those reasons distinct before turning them into Actions or wording.
+`trim` from `std/text` removes surrounding whitespace. If nothing is left, the result is `EmptyLine`; if it cannot be read as an integer, `NotANumber`. Keeping the reasons separate lets you respond to each differently.
 
 {/* example: examples/guides/cli-normalization.ssrg#parser */}
 ```seseragi title="cli-normalization.ssrg"
@@ -124,7 +126,7 @@ fn parse input: String -> Parsed = {
 
 ### Give each reason its own message
 
-`message` turns validation into display text. It neither reads input nor writes to Console.
+`message` only turns a result into text to display. It neither reads input nor prints anything.
 
 {/* example: examples/guides/cli-normalization.ssrg#message */}
 ```seseragi title="cli-normalization.ssrg"
@@ -169,10 +171,10 @@ Enter a whole number
 Quantity: 0
 ```
 
-`" 3 "` becomes 3, while the empty string and `"many"` receive different messages. Zero is also a valid integer, so this small parser accepts it. Validate the business range of 1–1000 separately, as the earlier `quantity` function does.
+`" 3 "` becomes 3, and the empty string and `"many"` get different messages. 0 can be read as an integer, so this `parse` accepts it. To limit the range to 1 through 1000, add a check like the earlier `quantity`.
 
 ## Move into a package
 
-Use a package with `seseragi.toml` when you want reusable modules or tests. Set `target = "process"` in `[run]` for this entry point.
+When you want to split functions into files or write tests, add a `seseragi.toml` to make a package. For a CLI application, set `target = "process"` under `[run]`.
 
-[Testing](/en/docs/guides/testing) fixes the boundary cases you want to preserve. [Packages and deployment](/en/docs/guides/packages-and-deployment) separates an executable entry from a public API. The [CLI Reference](/en/docs/reference/cli) describes command options.
+[Testing](/en/docs/guides/testing) automates checks of boundary values, and [Packages and deployment](/en/docs/guides/packages-and-deployment) separates the application entry point from the functions you publish. Command options are in the [CLI reference](/en/docs/reference/cli).

@@ -3,26 +3,26 @@ title: Practical guides
 description: Build working applications and organize state, forms, tests, and deployment.
 ---
 
-Choose a guide for the task you want to complete. Each includes file paths, commands, and an observable result. Start with [Local development](/en/docs/learn/local-development) if you need the CLI and Bun.
+Start with whichever guide fits what you want to build. Every guide includes the files to save, the commands to run, and the output you should see. If you have not installed the CLI and Bun yet, read [Local development](/en/docs/learn/local-development) first.
 
 ## Start from TypeScript
 
-[From TypeScript to Seseragi](/en/docs/guides/typescript-to-seseragi) connects functions, types, failures, and effects to concepts you already know. If you use React, first establish where state lives and what a function returning HTML does.
+[From TypeScript to Seseragi](/en/docs/guides/typescript-to-seseragi) compares function calls, types, failures, and side effects side by side with TypeScript. If you know React, also check there where state lives and what functions returning HTML do; it makes the Web guides easier to follow.
 
 ## Run a command-line application
 
-[Build a CLI application](/en/docs/guides/cli-app) reads standard input, validates a quantity, and prints an amount. [Handle failures](/en/docs/guides/error-handling) represents input failures with a type and translates them into messages.
+[Build a CLI application](/en/docs/guides/cli-app) reads a quantity from standard input, validates it, and prints an amount. [Handle failures](/en/docs/guides/error-handling) represents input failures as a type and turns them into messages for the user.
 
 ## Build a browser interface
 
-[Build a Web application](/en/docs/guides/web-app) creates a counter you can operate through the development server. [State and Actions](/en/docs/guides/state-and-actions) organizes its update function. [Forms](/en/docs/guides/forms) connects entered text and validation results to the interface.
+[Build a Web application](/en/docs/guides/web-app) creates a counter and runs it on the development server. [State and Actions](/en/docs/guides/state-and-actions) organizes how state is updated, and [Forms](/en/docs/guides/forms) connects input and validation results to the screen.
 
 ## Divide a larger interface
 
-[Components](/en/docs/guides/components) covers pure functions returning HTML. [Stateful features](/en/docs/guides/stateful-features) creates a Signal for each feature and returns a read-only view to its parent. These guides distinguish rendering a view from creating its state.
+[Components](/en/docs/guides/components) splits a screen into parts with functions that only return HTML. [Stateful features](/en/docs/guides/stateful-features) gives each feature its own state and hands only its view to the parent.
 
 ## Verify and distribute changes
 
-[Testing](/en/docs/guides/testing) automates boundary checks. [Packages and deployment](/en/docs/guides/packages-and-deployment) separates public functions from the application entry point. [TypeScript bindings](/en/docs/guides/typescript-bindings) wraps host functions with explicit calling contracts.
+[Testing](/en/docs/guides/testing) automates checks of boundary values. [Packages and deployment](/en/docs/guides/packages-and-deployment) separates the functions you publish from the application entry point. [TypeScript bindings](/en/docs/guides/typescript-bindings) lets Seseragi call TypeScript functions with proper types.
 
-Use [Learn](/en/docs/learn/first-program) for a guided introduction to syntax and [Reference](/en/docs/reference) for exact type and API contracts.
+To learn the language step by step, see [Learn](/en/docs/learn/first-program); to look up detailed rules for types and APIs, see the [Reference](/en/docs/reference).
