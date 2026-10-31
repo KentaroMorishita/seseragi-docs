@@ -3,11 +3,11 @@ title: From TypeScript to Seseragi
 description: Compare calls, immutable data, Maybe, Either, Effect, and React props and state through small examples.
 ---
 
-Learn Seseragi functions, data, effects, and Web UI by comparing them with familiar TypeScript code. Start with examples that produce the same result for the same input, then examine differences in numbers and effect execution.
+This guide puts the TypeScript you write every day next to Seseragi, covering functions, data, side effects, and Web UI. Most examples give the same result, but some behave differently, such as how numbers work and when side effects run. We look at those differences too.
 
-Examples containing `main` can be saved under the displayed filename and run with `seseragi run filename.ssrg`. Declarations, excerpts inside `main`, and Web packages are identified separately. See [Local development](/en/docs/learn/local-development) to prepare the CLI.
+Examples containing `main` can be saved under the file name in their heading and run with `seseragi run filename.ssrg`. See [Local development](/en/docs/learn/local-development) to set up the CLI.
 
-The TypeScript programs have been typechecked with `strict`, and their output has been verified in Node.js. The React TSX examples are component excerpts verified by typechecking. The Seseragi Web example is built for the browser.
+Every TypeScript example has been type-checked with `strict` and run in Node.js to confirm its output.
 
 ## Pass a number to a function
 
@@ -22,9 +22,9 @@ function double(value: number) {
 console.log(double(21));
 ```
 
-Seseragi's `fn` defines a function. `n: Int` is the parameter; the final `Int` is the result type. `double 21` passes 21 as an argument after a space.
+In Seseragi, `fn` defines a function. `n: Int` is the parameter and the final `Int` is the result type. Calls use no parentheses: write the argument after the function name, separated by a space, as in `double 21`.
 
-Use `printValue` to display the integer. `main` is the program entry point. It is declared with `pub effect fn` because it produces output.
+`printValue` displays a value as it is. `main` is the program's entry point and is declared with `pub effect fn` because it produces output.
 
 {/* example: examples/guides/migration.ssrg */}
 
@@ -43,7 +43,7 @@ Output
 42
 ```
 
-Both produce 42. `let answer` binds a name to the computed value. Seseragi's `let` is immutable: it does not allow reassignment like TypeScript's `let`.
+Both print 42. Seseragi's `let` corresponds to TypeScript's `const`: it cannot be reassigned later.
 
 `printValue` does not append a newline. Later examples use `println`, which accepts a string, to display multiple results on separate lines. Use `show` to convert numbers and other values to strings.
 
@@ -65,7 +65,7 @@ Output
 2.5, 2.5
 ```
 
-Seseragi uses `Int` for integers and `Float` for floating-point numbers. Integer division truncates toward zero. For example, `-5 / 2` is `-2`.
+In Seseragi, integers are `Int` and decimals are `Float`: two different types. Integer division drops the fractional part (it rounds toward zero, so `-5 / 2` is `-2`).
 
 {/* example: examples/guides/migration-numeric.ssrg */}
 
@@ -83,11 +83,11 @@ Output
 2, 2.5
 ```
 
-The annotations can be omitted here: `5` is inferred as `Int`, and `5.0` as `Float`. There is no implicit conversion between `Int` and `Float`. Write required conversions explicitly.
+`5` is inferred as `Int` and `5.0` as `Float`, so the types in this example can be omitted. `Int` and `Float` are never converted automatically; use a function to convert.
 
-The standard definitions do not support comparing `Float` values directly with `==` or `>`. Choose a suitable operation such as `ieeeEq` or `totalCompare` from the [Float functions](/en/docs/reference/library/float).
+Also, `Float` values cannot be compared directly with `==` or `>`. To compare them, pick a suitable function such as `ieeeEq` or `totalCompare` from the [Float functions](/en/docs/reference/library/float).
 
-Do not replace every TypeScript `number` with `Int`. When importing `.d.ts` declarations, `number` maps to `Float` by default. Check that a value is an integer within the safe range when specifying `Int` instead. See [TypeScript bindings](/en/docs/guides/typescript-bindings) and [Types](/en/docs/reference/types).
+Do not simply replace every TypeScript `number` with `Int`. When types are imported from `.d.ts` files, `number` becomes `Float` first. Use `Int` only when you know the value is an integer within the safe range. See [TypeScript bindings](/en/docs/guides/typescript-bindings) and [Types](/en/docs/reference/types).
 
 ## Group an argument expression with parentheses
 
@@ -128,7 +128,7 @@ Output
 
 `double 20 + 1` doubles 20 and then adds 1. `double (20 + 1)` doubles the sum of 20 and 1.
 
-Here, Seseragi's parentheses group the expression passed as an argument. They are not a function-call marker. In later examples, read application as space-separated arguments, with parentheses where an expression needs grouping.
+Seseragi's parentheses group an expression passed as an argument; they do not mark a function call. Functions are called with spaces, and parentheses appear only where an expression needs grouping.
 
 ## Receive arguments one at a time
 
@@ -161,7 +161,7 @@ Output
 42
 ```
 
-`Int -> Int -> Int` receives an `Int` and returns a function that receives the next `Int`. Applying only `add 20` therefore creates a function waiting for the remaining argument.
+`Int -> Int -> Int` means "takes an `Int` and returns a function that takes an `Int` and returns an `Int`". So passing just one argument, as in `add 20`, gives a function waiting for the rest.
 
 To write the same shape in TypeScript, return a function from another function.
 
@@ -175,7 +175,7 @@ const addTwenty = add(20);
 console.log(addTwenty(22));
 ```
 
-Seseragi supports partial application without a special wrapper.
+In Seseragi, you can pass only some arguments without any extra work (partial application).
 
 {/* example: examples/guides/migration-partial.ssrg */}
 
@@ -196,7 +196,7 @@ Output
 42
 ```
 
-`addTwenty` has type `Int -> Int`. Writing `add (20, 22)` does not pass two arguments. It passes a single tuple, `(20, 22)`, which does not match the type of `add` above.
+`addTwenty` has type `Int -> Int`. Note that writing `add (20, 22)` out of TypeScript habit passes one tuple, `(20, 22)`, rather than two arguments, and fails to type-check.
 
 Practice application order and function types in [Functions and pipelines](/en/docs/learn/functions-and-pipelines).
 
@@ -347,9 +347,9 @@ pass
 retry
 ```
 
-Both branches have the same type: `String` in this example. In Seseragi, return the conditional expression's value rather than assigning a variable in each branch.
+Both branches must have the same type; here both are `String`. It is close to TypeScript's `? :` operator, so there is no need to declare a variable and assign it in each branch.
 
-Here, `main = do { ... }` runs multiple outputs in sequence. A regular `{ ... }` block returns its final expression; it does not automatically execute a series of Effects. See [Values and expressions](/en/docs/learn/values-and-expressions) and [Effects](/en/docs/learn/effects) for these two roles.
+This example's `main` uses `do { ... }` to run several outputs in order. A plain `{ ... }` without `do` returns its last expression and does not run the Effects inside it in order. [Values and expressions](/en/docs/learn/values-and-expressions) and [Effects](/en/docs/learn/effects) explain the difference.
 
 ## Read a record field
 
@@ -377,11 +377,11 @@ Output
 3
 ```
 
-In Seseragi, `{ x: 3, y: 4 }` is a record. Its type is determined by the field names and each field's type.
+In Seseragi, `{ x: 3, y: 4 }` is a record. Its type is decided by the field names and types, by shape, just like a TypeScript object type.
 
 ## Create a new record for an update
 
-TypeScript's `const` prevents reassignment to the variable, but it does not by itself make an object's fields immutable. Here, spread creates a copy to preserve the original value.
+TypeScript's `const` only prevents reassigning the variable; the object's contents can still be changed. To keep the original, make a copy with spread syntax.
 
 {/* example: examples/guides/migration-typescript/immutable.ts#example */}
 
@@ -396,7 +396,7 @@ console.log(
 );
 ```
 
-A Seseragi record is itself immutable. Inherit the existing fields to create a new record with some different values.
+A Seseragi record cannot be changed in the first place. The same spread syntax creates a new record with some fields changed.
 
 {/* example: examples/guides/migration-immutable.ssrg */}
 
@@ -419,7 +419,7 @@ Output
 1, 2
 ```
 
-`next.count` is 2, while `base.count` remains 1. `{ ...base, count: ... }` does not overwrite the original value. This approach is also similar to creating a copy when [updating object state in React](https://react.dev/learn/updating-objects-in-state).
+`next.count` is 2 and `base.count` stays 1. It is the same idea as making a copy when [updating object state in React](https://react.dev/learn/updating-objects-in-state), except that in Seseragi it is the only way.
 
 ## Distinguish type aliases from structs
 
@@ -440,7 +440,7 @@ const point: Point = { x: 3, y: 4 };
 console.log(horizontal(point));
 ```
 
-Use `alias` to name a record type in Seseragi. These are declarations.
+To name a record type in Seseragi, use `alias`.
 
 {/* example: examples/guides/migration-alias.ssrg#declaration */}
 
@@ -466,13 +466,13 @@ Output
 3
 ```
 
-This `alias Point` does not create a new nominal type. It accepts records with the same fields and types.
+`alias` only adds a name, so `alias Point` accepts any record with the same fields, just like TypeScript's `type`.
 
-In contrast, Seseragi's `struct Point { ... }` creates a type distinguished by its name. Another struct is a different type even when its fields match. Choose a structural record or a type distinguished by its name, rather than mechanically replacing every TypeScript object type with a struct. See [Records and structs](/en/docs/learn/records-and-structs) for concrete examples.
+Seseragi's `struct Point { ... }`, on the other hand, creates a type identified by its name. A struct with a different name is a different type, even with exactly the same fields. When porting a TypeScript object type, choose a record to work by shape, or a struct to tell meanings apart. [Records and structs](/en/docs/learn/records-and-structs) has concrete examples.
 
 ## Handle union cases with match
 
-Leave numeric functions and compare data representing a delivery state. TypeScript can distinguish cases through a discriminated union. This is the type declaration.
+Next, compare data representing a parcel's delivery state. In TypeScript, a union type with a tag property such as `kind` represents the cases.
 
 {/* example: examples/guides/migration-typescript/data.ts#declaration */}
 
@@ -482,7 +482,7 @@ type Delivery =
   | { kind: "sent"; city: string };
 ```
 
-This part constructs a value.
+Create a value:
 
 {/* example: examples/guides/migration-typescript/data.ts#construct */}
 
@@ -508,9 +508,9 @@ function label(value: Delivery) {
 }
 ```
 
-In Seseragi, the cases are `Preparing` and `Sent String`. The capitalized `Sent` is a constructor; `Sent "Kyoto"` creates a value carrying a city name. Read its role here separately from passing an argument to an ordinary function.
+In Seseragi, the cases are `Preparing` and `Sent String`. `Sent "Kyoto"` creates a `Sent` value carrying a city name. There is no tag property to maintain yourself.
 
-`match` distinguishes the cases and extracts the city from `Sent city`. This is a standalone program.
+`match` tells the cases apart, and `Sent city` takes out the city name.
 
 {/* example: examples/guides/migration-data.ssrg */}
 
@@ -537,13 +537,13 @@ Output
 Kyoto
 ```
 
-The TypeScript call `label(delivery)` also returns `Kyoto`. In Seseragi, a `match` that does not handle every declared case is diagnosed at compile time.
+The TypeScript `label(delivery)` also returns `Kyoto`. The difference is in missed cases: a Seseragi `match` that does not handle every case is a compile error.
 
 Learn case definitions in [Algebraic data types](/en/docs/learn/algebraic-data-types) and value extraction in [Pattern matching](/en/docs/learn/pattern-matching).
 
 ## Represent an absent value with Maybe
 
-TypeScript can represent a value that may be absent with a type such as `string | undefined`. This function returns `Guest` only when the value is absent.
+In TypeScript, a value that may be missing is typed as `string | undefined` or similar. This function returns `Guest` only when there is no name.
 
 {/* example: examples/guides/migration-typescript/maybe.ts#name */}
 
@@ -555,7 +555,7 @@ function name(
 }
 ```
 
-Seseragi's `Maybe<String>` is either `Just`, carrying a value, or `Nothing`, carrying none. This is the function declaration.
+Seseragi uses `Maybe<String>`: either `Just`, with a value, or `Nothing`, without one.
 
 {/* example: examples/guides/migration-maybe.ssrg#name */}
 
@@ -565,9 +565,9 @@ fn name value: Maybe<String>
   value ?? "Guest"
 ```
 
-In both languages, `??` evaluates and uses the right-hand side when the value is absent. An empty string is present, so it passes through.
+In both, `??` uses the right side only when there is no value. An empty string counts as a value, so it is returned as is.
 
-Compare three inputs in TypeScript. Square brackets are added only for display, so an empty result remains visible.
+Compare three inputs. Square brackets are added only when printing, so the empty string stays visible.
 
 {/* example: examples/guides/migration-typescript/maybe.ts#inputs */}
 
@@ -577,7 +577,7 @@ console.log(`[${name(undefined)}]`);
 console.log(`[${name("")}]`);
 ```
 
-In Seseragi, put this inside `main = do { ... }` in the same file.
+In Seseragi:
 
 {/* example: examples/guides/migration-maybe.ssrg#inputs */}
 
@@ -598,11 +598,11 @@ Output
 []
 ```
 
-`Just ""` and `Nothing` are different. To reject an empty string too, validate the input separately from handling absence.
+`Just ""` and `Nothing` are different. To reject empty strings as well, validate them separately from handling a missing value.
 
 ## Transform only the value inside a Maybe
 
-This TypeScript function doubles the value only when it is present.
+Compare a function that doubles a value only when there is one.
 
 {/* example: examples/guides/migration-typescript/maybe-map.ts#example */}
 
@@ -649,13 +649,13 @@ Just 42
 Nothing
 ```
 
-`map double` transforms the value inside `Just`. `Nothing` stays unchanged. The `Maybe<Int>` annotation fixes the payload type even when the case carries no value.
+`map double` transforms only the content of a `Just` and returns `Nothing` unchanged. There is no need to check for a value with `if` as in TypeScript. (`Nothing` alone does not reveal the content type, so the type `Maybe<Int>` is written.)
 
-This `map` and array `map` both transform the contents of a container. Learn the mechanism in [Type classes](/en/docs/learn/type-classes) and absence handling in [Maybe and Either](/en/docs/learn/maybe-and-either).
+This `map` is the same function as the array `map`, because both "transform the contents of a container". [Type classes](/en/docs/learn/type-classes) explains how, and [Maybe and Either](/en/docs/learn/maybe-and-either) covers missing values in detail.
 
 ## Represent a failure reason with Either
 
-Return a reason for an empty name and a successful value otherwise. In TypeScript, success and failure can form a union.
+This example returns a failure reason for an empty name and a success value otherwise. In TypeScript, a union type can represent success and failure.
 
 {/* example: examples/guides/migration-typescript/either.ts#validate */}
 
@@ -677,7 +677,7 @@ function validate(
 }
 ```
 
-Seseragi uses `Either<String, String>`. Its first type is the failure reason; its second is the success value. Both are strings here.
+Seseragi uses `Either<String, String>`. The first type is the failure reason and the second is the success value; both are strings here.
 
 {/* example: examples/guides/migration-either.ssrg#validate */}
 
@@ -690,7 +690,7 @@ fn validate text: String
     Right text
 ```
 
-Use a separate function to turn the result into display text.
+Add a function that turns the result into text to display.
 
 {/* example: examples/guides/migration-typescript/either.ts#report */}
 
@@ -713,9 +713,7 @@ fn report r: Either<String, String>
   }
 ```
 
-Validating `"Ada"` succeeds, while validating `""` fails. Both are values carrying a result that can be handled by case.
-
-This is an excerpt inside Seseragi's `main = do { ... }`.
+Validating `"Ada"` succeeds and `""` fails. A failure is an ordinary value, not an exception, so `match` handles each case.
 
 {/* example: examples/guides/migration-either.ssrg#cases */}
 
@@ -737,13 +735,13 @@ Enter a name
 
 TypeScript produces the same two strings with `report(validate("Ada"))` and `report(validate(""))`.
 
-`Either` is a result already obtained through validation. Starting asynchronous work or throwing an exception is not the role of this type itself. Distinguish it from Effect in the next section. [Handle failures](/en/docs/guides/error-handling) implements input validation separately from recovery from Effect failures.
+An `Either` is a value holding a result that has already been computed. It does not start asynchronous work or throw exceptions; such work is expressed with an Effect, covered next. [Handle failures](/en/docs/guides/error-handling) combines validation with `Either` and handling Effect failures.
 
 ## Compare when Promise and Effect execute
 
-TypeScript's `async` functions and Seseragi's `effect fn` both name computations that perform effects. Their execution timing differs.
+A TypeScript `async` function and a Seseragi `effect fn` both give a name to work with side effects. They differ in when that work runs.
 
-This TypeScript function prints before the awaits shown below.
+This TypeScript function prints a message as soon as it is called.
 
 {/* example: examples/guides/migration-typescript/effect.ts#announce */}
 
@@ -753,7 +751,7 @@ async function announce(s: string) {
 }
 ```
 
-Call the function and await the same Promise twice. This is an excerpt at the top level of an ES module. To try it in a standalone TypeScript file, combine it with the declaration above and append `export {};` to make the file a module.
+Call the function and `await` the same Promise twice. (To try it in a single file, combine it with the declaration above and add `export {};` at the end.)
 
 {/* example: examples/guides/migration-typescript/effect.ts#execute */}
 
@@ -771,9 +769,9 @@ ran
 constructed
 ```
 
-Calling `announce("ran")` advances the function body, so it prints before `constructed`. Awaiting the same Promise twice does not call that body again.
+The body runs the moment `announce("ran")` is called, so `ran` prints before `constructed`. Awaiting the same Promise twice does not run the body again.
 
-In Seseragi, calling an `effect fn` constructs a computation to execute. This is the declaration.
+In Seseragi, calling an `effect fn` only creates "work that prints when run"; nothing happens yet.
 
 {/* example: examples/guides/migration-effect.ssrg#announce */}
 
@@ -782,7 +780,7 @@ effect fn announce text: String =
   println text
 ```
 
-Put this inside `main = do { ... }`. `let job` constructs the computation; each subsequent `job` executes it.
+In the `do` block of `main`, `let job` creates the work, and each `job` line after it runs the work.
 
 {/* example: examples/guides/migration-effect.ssrg#execute */}
 
@@ -801,9 +799,9 @@ ran
 ran
 ```
 
-`constructed` prints first. Executing the same Effect twice produces output twice.
+This time `constructed` prints first. And running the same Effect twice prints twice.
 
-To reuse the value obtained by execution, use `<-` inside `do`. This separate program prints a message and then returns 42.
+To use a result several times, run the work once with `<-` and keep the result. This example prints a message and then returns 42.
 
 {/* example: examples/guides/migration-effect-result.ssrg */}
 
@@ -829,9 +827,9 @@ ran
 42, 42
 ```
 
-`let job` constructs the computation; `answer <- job` executes it once and binds its result. The two subsequent uses of `answer` reuse that integer, so `ran` prints only once. Writing `let answer = job` would bind the computation itself without executing it.
+`answer <- job` runs the work once and receives the resulting integer as `answer`. The two uses of `answer` after it just reuse that integer, so `ran` prints only once. Writing `let answer = job` instead of `<-` would only name the work, without running it.
 
-`Effect<R, E, A>` describes the required environment R, failure type E, and success type A. TypeScript's `Promise<A>` describes the success value through its type parameter; Effect also represents the environment and failure in its type.
+The type `Effect<R, E, A>` carries three things: what the work needs (`R`), its failure type (`E`), and its success type (`A`). Unlike `Promise<A>`, which tells you only the success type, it tells you what the work uses and how it can fail.
 
 | What you need to represent | What to use in Seseragi |
 | --- | --- |
@@ -840,11 +838,11 @@ ran
 | An obtained result that is success or failure | `Either<E, A>` |
 | A computation with effects to construct and execute later | `Effect<R, E, A>` |
 
-See [Effects](/en/docs/learn/effects) for composition and `do`, and [Effect Reference](/en/docs/reference/effects) for explicit environment and failure types.
+[Effects](/en/docs/learn/effects) covers building Effects and `do`, and the [Effect reference](/en/docs/reference/effects) has the detailed rules for the types.
 
 ## Compare React props and rendering functions
 
-Start with a component that has no state or events. [React props](https://react.dev/learn/passing-props-to-a-component) pass values from a parent to a component. This is a React component excerpt.
+Start with a component that has no state or events. In React, [props](https://react.dev/learn/passing-props-to-a-component) pass values from a parent to a component.
 
 {/* example: examples/guides/migration-typescript/react.tsx#badge */}
 
@@ -856,7 +854,7 @@ function Badge(props: BadgeProps) {
 }
 ```
 
-In Seseragi, use a regular function that receives props and returns HTML. These are the import, type, and function declarations.
+In Seseragi, it is an ordinary function that takes props and returns HTML. Functions from the `html` module take the place of JSX.
 
 {/* example: examples/guides/migration-props.ssrg#badge */}
 
@@ -870,7 +868,7 @@ fn badge props: BadgeProps
   html.span { children: props.label }
 ```
 
-This component emits no Actions, so its result type is `Html<Never>`. Serializing `badge { label: "Ready" }` to HTML produces:
+The `A` in `Html<A>` is the type of events (Actions) the view can emit. This component emits none, so it is `Html<Never>`. Turning `badge { label: "Ready" }` into an HTML string gives:
 
 Output
 
@@ -880,11 +878,11 @@ Output
 
 Reading props looks similar, but Seseragi's `badge` itself is a pure function constructing an HTML value. Mounting it in the DOM is a separate operation. [Components](/en/docs/guides/components) covers multiple props and escaping.
 
-This example uses `Html<Never>` for standalone HTML output. In the documented version, it cannot be passed directly where `Html<Action>` is required. A component used in a screen needs the same Action type as that screen. To reuse a component with multiple Action types, make its Action type a [generic](/en/docs/learn/generics) parameter A and return `Html<A>`.
+Note that in the current version, an `Html<Never>` component cannot be placed directly in an `Html<Action>` view. A component used in a view needs the same Action type as the view. To reuse a component across views, make its Action type a [generic](/en/docs/learn/generics) type parameter and return `Html<A>`.
 
 ## Compare state updates as pure functions
 
-A React [reducer](https://react.dev/learn/extracting-state-logic-into-a-reducer) returns the next state from the current state and an Action. Compare this function alone before adding a UI.
+A React [reducer](https://react.dev/learn/extracting-state-logic-into-a-reducer) is a function that returns the next state from the current state and an Action. Compare just this function before building a view.
 
 {/* example: examples/guides/migration-typescript/update.ts#update */}
 
@@ -906,7 +904,7 @@ function reducer(
 }
 ```
 
-In Seseragi, define `update` to compute the next state too. The function passed to `dom.app` receives the Action first, then the current state. This reverses the argument order of React's reducer.
+In Seseragi, too, write `update` to compute the next state. Actions are an ADT, so the compiler points out any case the `match` misses. The arguments come in the order Action, current state, the reverse of a React reducer.
 
 {/* example: examples/guides/migration-update.ssrg#update */}
 
@@ -923,7 +921,7 @@ fn update action: Action
   }
 ```
 
-Check these two calls in TypeScript.
+In TypeScript, check it like this:
 
 {/* example: examples/guides/migration-typescript/update.ts#cases */}
 
@@ -936,7 +934,7 @@ console.log(reducer(
 ));
 ```
 
-In Seseragi, put this inside `main = do { ... }`.
+In Seseragi:
 
 {/* example: examples/guides/migration-update.ssrg#cases */}
 
@@ -956,11 +954,11 @@ Output
 0
 ```
 
-`Increment` adds one to the current value; `Reset` returns zero regardless of that value. Run and test the update rules before connecting state to the UI.
+`Increment` adds 1 to the current value, and `Reset` returns 0 whatever the value. You can run and test the update rules before connecting them to a view.
 
 ## Connect events and state to the UI
 
-Now connect the React example with `useReducer`. This component excerpt uses the preceding `reducer` and an import of `useReducer`.
+In React, `useReducer` connects the reducer to the view.
 
 {/* example: examples/guides/migration-typescript/react.tsx#events */}
 
@@ -979,7 +977,7 @@ function Counter() {
 }
 ```
 
-In React, the click handler calls `dispatch`. In Seseragi, `onClick` receives an Action value. This `view` declaration uses the preceding `Action`.
+In React, the click handler calls `dispatch`. In Seseragi, `onClick` takes the Action value itself.
 
 {/* example: examples/guides/migration-web/src/main.ssrg#view */}
 
@@ -993,9 +991,9 @@ fn view count: Int
   }
 ```
 
-`view` constructs `Html<Action>` from the count. `onClick: Increment` specifies the Action sent on a click. Pass it to `update` rather than embedding state changes in `view`.
+`view` only builds `Html<Action>` from the count. `onClick: Increment` means "send `Increment` when clicked". State changes are never written in `view`; they all belong to `update`.
 
-Connect them in the `main` of the same Web package. Import `dom` from `std/web/dom`.
+Finally, mount it in `main`. Import `dom` from `std/web/dom`.
 
 {/* example: examples/guides/migration-web/src/main.ssrg#mount */}
 
@@ -1009,8 +1007,8 @@ pub effect fn main =
   }
 ```
 
-`dom.app` mounts the UI at `#app`, starting from state 0. It passes the click Action to `update`, then passes the next state to `view` to update the display. The button initially shows `Count: 0`; one click changes it to `Count: 1`.
+`dom.app` mounts the view on the `#app` element and starts from state 0. It passes each Action sent by a click to `update` to get the next state, then passes that to `view` to update the screen. The button starts at `Count: 0` and shows `Count: 1` after one click.
 
-This code is built as a Web package. It is different from the standalone CLI examples. See [Build a Web application](/en/docs/guides/web-app) for the package, HTML entry point, and steps from building to running in a browser.
+This example is a Web app that runs in the browser, so it is built as a Web package rather than run with `seseragi run`. See [Build a Web application](/en/docs/guides/web-app) for the steps.
 
-`dom.app` manages the state Signal and its connection to the DOM. It is not a direct rewrite of React hooks. [Stateful features](/en/docs/guides/stateful-features) covers independent and shared state, while [Forms](/en/docs/guides/forms) shows how input values become Actions.
+`dom.app` takes care of managing state and updating the screen. [Stateful features](/en/docs/guides/stateful-features) shows how to give each part its own state, and [Forms](/en/docs/guides/forms) shows how input becomes Actions.
