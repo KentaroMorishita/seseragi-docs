@@ -3,6 +3,6 @@ type Phase deriving Eq, Show =
   | Done
 
 pub effect fn main = do {
-  println (show (Ready == Ready))
+  println $ show $ Ready == Ready
   println (show Done)
 }

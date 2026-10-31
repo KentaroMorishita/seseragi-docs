@@ -3,10 +3,10 @@ import { fee } from "docs/shipping"
 
 pub let tests: test.Test =
   test.suite "fee" [
-    test.test "below threshold"
-      (test.equal 400 (fee 2999)),
-    test.test "at threshold"
-      (test.equal 0 (fee 3000)),
-    test.test "above threshold"
-      (test.equal 0 (fee 3001))
+    test.test "below threshold" $
+      test.equal 400 $ fee 2999,
+    test.test "at threshold" $
+      test.equal 0 $ fee 3000,
+    test.test "above threshold" $
+      test.equal 0 $ fee 3001
   ]

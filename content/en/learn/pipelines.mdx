@@ -1,0 +1,84 @@
+---
+title: "Pipelines"
+description: "Pass a value to a function with `|>` and chain steps in the order they run."
+---
+
+In [Functions](/en/docs/learn/functions), passing one function's result to another meant wrapping it in parentheses, as in `double (add 20 1)`. You have to read that from the inner `add 20 1` outward. With `|>`, you start from the value and write the steps top to bottom, in the order they run.
+
+## Pass a value to a function
+
+`|>` passes the value on its left to the function on its right.
+
+{/* example: examples/learn/focused/pipeline-basic.ssrg#single */}
+```seseragi title="Binding in main"
+let piped =
+  21
+  |> double
+```
+
+`21 |> double` means exactly the same as `double 21`, so `piped` is 42. `|>` does nothing special; it only flips the direction of the call.
+
+## Chain steps in the order they run
+
+When you keep adding `|>`, each function's result goes to the next one.
+
+{/* example: examples/learn/pipelines.ssrg */}
+```seseragi title="pipelines.ssrg"
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+fn double x: Int -> Int =
+  x * 2
+
+pub effect fn main = {
+  let increment = add 1
+  20
+  |> increment
+  |> double
+  |> show
+  |> println
+}
+```
+
+```text title="Output"
+42
+```
+
+`20` goes to `increment` and becomes 21, which goes to `double` and becomes 42. [`println`](/en/docs/learn/first-program) only accepts strings, so `show` turns the integer into a string first. `show` is a standard function that turns values such as integers into display strings. With parentheses this would be `println (show (double (increment 20)))`; the pipeline reads in the order things happen.
+
+A `|>` at the start of a line continues the previous line. Putting one step on each line makes it easy to add or reorder steps later.
+
+## Combine with partial application
+
+The right side of `|>` can be a [partially applied](/en/docs/learn/functions) function. `20 |> add 1` passes 20 to `add 1`, the function that adds 1. The value coming from the left becomes the last argument.
+
+Many standard library functions take the value they work on as their last argument, so they line up in a pipeline as they are.
+
+{/* example: examples/learn/focused/pipeline-arguments.ssrg#text */}
+```seseragi title="Expression in main"
+"  hello-world  "
+|> text.trim
+|> text.replace "-" " "
+|> println
+```
+
+This prints `hello world`. `text.trim` removes the surrounding spaces, and `text.replace "-" " "` replaces `-` with a space. `text.replace` first takes what to replace and what to replace it with, and takes the string to work on last. `text` is the standard library module `std/text`, loaded at the top of the file with `import * as text from "std/text"`. [Modules](/en/docs/learn/modules) covers imports.
+
+## Calculations finish before the value is passed
+
+`|>` applies after arithmetic and comparisons.
+
+{/* example: examples/learn/focused/pipeline-basic.ssrg#precedence */}
+```seseragi title="Binding in main"
+let summed =
+  20 + 1
+  |> double
+```
+
+`20 + 1` becomes 21 first, and that goes to `double`, so `summed` is 42. You can pass a calculation's result straight to the next function.
+
+## Change the composition
+
+In `pipelines.ssrg`, change `let increment = add 1` to `add 2`: the result becomes 44. Change it back to `add 1` and swap the `increment` and `double` lines: now it is 41. The order of the functions changes the result.
+
+Next, [The application operator](/en/docs/learn/application-operator) introduces `$`, which removes parentheses while you read from the function side.

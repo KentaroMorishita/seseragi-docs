@@ -1,0 +1,13 @@
+fn double x: Int -> Int = x * 2
+
+pub effect fn main = do {
+  let ready = True
+  println $ show $ double 21
+  println $ show $ double $ 20 + 1
+  println $ if ready then "ready" else "waiting"
+  println $
+    match ready {
+      True -> "yes"
+      False -> "no"
+    }
+}

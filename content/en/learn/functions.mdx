@@ -1,9 +1,9 @@
 ---
-title: "Functions and pipelines"
-description: "Compose calculations using function application, partial application, and lambdas."
+title: "Functions"
+description: "Declare and call functions, and make new ones with partial application and lambdas."
 ---
 
-This chapter starts with a function that adds two integers. Then you learn to pass only some of a function's arguments, and to chain functions with `|>` in a pipeline.
+This chapter starts with a function that adds two integers. Then you learn partial application, which passes only some of a function's arguments, and lambdas, which create functions without a name. The next two chapters cover `|>`, which chains functions, and `$`, which removes parentheses.
 
 ## Declare and apply a function
 
@@ -66,34 +66,6 @@ This prints `ready`. The `()` in `ready ()` is not TypeScript's empty argument l
 
 `let increment = add 1` is "the function that adds 1". Calling `increment 20` gives 21, the same as `add 1 20`. Creating a new function by passing only some arguments is called partial application.
 
-## Put the calculation in reading order
-
-{/* example: examples/learn/functions-and-pipelines.ssrg */}
-```seseragi title="functions-and-pipelines.ssrg"
-fn add x: Int -> y: Int -> Int =
-  x + y
-
-fn double x: Int -> Int =
-  x * 2
-
-pub effect fn main = {
-  let increment = add 1
-  20
-  |> increment
-  |> double
-  |> show
-  |> println
-}
-```
-
-```text title="Output"
-42
-```
-
-`20` goes through `increment` to become 21, then through `double` to become 42. `println` accepts only strings, so `show` first turns the integer into a string. The code reads top to bottom, in the order things happen.
-
-`value |> f` means exactly the same as `f value`. `|>` does nothing special: it passes the value on its left to the function on its right. `20 |> add 1` passes 20 to the function `add 1`. Combined with partial application, this lets functions with several parameters sit in a pipeline.
-
 ## Group an expression used as an argument
 
 To pass a calculation as an argument, wrap it in parentheses. This example uses `add` from above:
@@ -105,14 +77,14 @@ let grouped = add (20 + 1) 22
 
 `20 + 1` becomes the first argument, so `add` receives 21 and 22, and `grouped` is 43. These parentheses only group an expression; they are not call parentheses like `add(20, 22)`.
 
-Wrap a function's result in parentheses the same way to pass it to another function:
+Wrap a function's result in parentheses the same way to pass it to another function. Assume `fn double n: Int -> Int = n * 2` is also declared:
 
 {/* example: examples/learn/focused/function-grouping.ssrg#nested */}
 ```seseragi title="Binding in main"
 let nested = double (add 20 1)
 ```
 
-The result of `add 20 1`, 21, goes to `double`, so `nested` is 42. Writing `add 20 1 |> double` means the same thing.
+The result of `add 20 1`, 21, goes to `double`, so `nested` is 42. When parentheses start to nest, rewrite them with `|>` from [Pipelines](/en/docs/learn/pipelines) or `$` from [The application operator](/en/docs/learn/application-operator).
 
 ## Create a function without a declaration
 
@@ -162,8 +134,6 @@ Function arguments are evaluated once each, from left to right. Calling a functi
 
 `add` and `double` in this chapter only return values. `println`, by contrast, returns "printing" as a computation, so `main`, which uses it, is an `effect fn`. The [Effects](/en/docs/learn/effects) chapter explains this difference in detail.
 
-## Change the composition
+## What to learn next
 
-In the pipeline example, change `let increment = add 1` to `add 2`: the result becomes 44. Change it back to `add 1` and swap the `increment` and `double` lines: now it is 41. The order of the functions changes the result.
-
-Next, [Records and structs](/en/docs/learn/records-and-structs) groups several values into one piece of data. The detailed rules for functions are in the [function reference](/en/docs/reference/functions).
+Next, [Pipelines](/en/docs/learn/pipelines) chains the functions from this chapter in the order they run. The detailed rules for functions are in the [function reference](/en/docs/reference/functions).

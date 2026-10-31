@@ -18,19 +18,11 @@ fn same<A> left: A -> right: A
   left == right
 ```
 
-{/* example: examples/learn/focused/type-class-eq.ssrg#numbers */}
+{/* example: examples/learn/focused/type-class-eq.ssrg#calls */}
 ```seseragi title="Expression in main do"
-println (show (same 42 42))
-```
-
-{/* example: examples/learn/focused/type-class-eq.ssrg#strings */}
-```seseragi title="Expression in main do"
-println (show (same "Aki" "Aki"))
-```
-
-{/* example: examples/learn/focused/type-class-eq.ssrg#arrays */}
-```seseragi title="Expression in main do"
-println (show (same [1, 2] [2, 1]))
+println $ show $ same 42 42
+println $ show $ same "Aki" "Aki"
+println $ show $ same [1, 2] [2, 1]
 ```
 
 The results are `True`, `True`, and `False`. The body of `same` stays the same, but it uses the `Eq` implementation for `Int`, `String`, and Array in turn. Array comparison also compares the order of elements, so the last one is `False`.
@@ -105,7 +97,7 @@ type Phase deriving Eq, Show =
   | Done
 
 pub effect fn main = do {
-  println (show (Ready == Ready))
+  println $ show $ Ready == Ready
   println (show Done)
 }
 ```
@@ -141,12 +133,12 @@ Compare and display them:
 
 {/* example: examples/learn/focused/type-class-derived-fields.ssrg#comparison */}
 ```seseragi title="Expression in main do"
-println (show (left == right))
+println $ show $ left == right
 ```
 
 {/* example: examples/learn/focused/type-class-derived-fields.ssrg#display */}
 ```seseragi title="Expression in main do"
-println (show left)
+println $ show left
 ```
 
 ```text title="Output"

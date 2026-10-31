@@ -143,7 +143,7 @@ try {
   const representative = [
     "/", "/en", "/docs", "/en/docs", "/docs/learn",
     "/docs/learn/first-program", "/en/docs/learn/first-program",
-    "/docs/learn/functions-and-pipelines", "/en/docs/learn/functions-and-pipelines",
+    "/docs/learn/functions", "/en/docs/learn/functions", "/docs/learn/pipelines", "/en/docs/learn/pipelines", "/docs/learn/application-operator", "/en/docs/learn/application-operator",
     "/docs/learn/algebraic-data-types", "/docs/learn/pattern-matching",
     "/docs/guides", "/docs/guides/typescript-to-seseragi", "/en/docs/guides/typescript-to-seseragi",
     "/docs/guides/forms", "/en/docs/guides/forms", "/docs/guides/stateful-features",

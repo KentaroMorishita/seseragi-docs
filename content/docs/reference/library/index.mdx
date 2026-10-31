@@ -7,7 +7,7 @@ Seseragiの標準ライブラリを、Preludeを含む63の項目に分け、1,4
 
 ## 型の読み方
 
-関数はカリー化されています。型は引数の順に並び、最後が結果の型です。コレクションの操作では、処理対象を最後の引数に置く関数が多く、[縦に並べたパイプライン](/docs/learn/functions-and-pipelines)へつなげられます。`where`は必要な[型クラス](/docs/reference/type-classes)の制約です。掲載するsignatureは型の表記であり、実行する定義ではありません。
+関数はカリー化されています。型は引数の順に並び、最後が結果の型です。コレクションの操作では、処理対象を最後の引数に置く関数が多く、[縦に並べたパイプライン](/docs/learn/pipelines)へつなげられます。`where`は必要な[型クラス](/docs/reference/type-classes)の制約です。掲載するsignatureは型の表記であり、実行する定義ではありません。
 
 `Effect<R, E, A>`の型引数は、必要な環境、型付きの失敗、成功値を表します。moduleをimportしてもEffectは実行されず、providerが提供されるわけでもありません。[Effect](/docs/reference/effects)と[runtime provider](/docs/reference/runtime-providers)で境界を確認できます。内部表現を隠した型には、必ずしも`Show`のinstanceがあるとは限りません。
 

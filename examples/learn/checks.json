@@ -5,7 +5,7 @@
     "mode": "run"
   },
   {
-    "file": "examples/learn/functions-and-pipelines.ssrg",
+    "file": "examples/learn/pipelines.ssrg",
     "stdout": "42\n",
     "mode": "run"
   },
@@ -304,5 +304,25 @@
     "file": "examples/learn/focused/struct-nominal-error.ssrg",
     "mode": "diagnostic",
     "code": "SES-T0101"
+  },
+  {
+    "file": "examples/learn/focused/pipeline-basic.ssrg",
+    "mode": "run",
+    "stdout": "42/42\n"
+  },
+  {
+    "file": "examples/learn/focused/pipeline-arguments.ssrg",
+    "mode": "run",
+    "stdout": "hello world\n"
+  },
+  {
+    "file": "examples/learn/application-operator.ssrg",
+    "mode": "run",
+    "stdout": "42\n42\nready\nyes\n"
+  },
+  {
+    "file": "examples/learn/focused/application-operator-basic.ssrg",
+    "mode": "run",
+    "stdout": "42\n"
   }
 ]

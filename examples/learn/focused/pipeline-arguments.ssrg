@@ -1,0 +1,10 @@
+import * as text from "std/text"
+
+pub effect fn main = do {
+  // docs:start text
+  "  hello-world  "
+  |> text.trim
+  |> text.replace "-" " "
+  |> println
+  // docs:end text
+}

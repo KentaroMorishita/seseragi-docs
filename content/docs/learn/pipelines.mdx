@@ -1,0 +1,84 @@
+---
+title: "パイプライン"
+description: "`|>`で値を関数に渡し、処理の順に縦へつなぐ。"
+---
+
+[関数](/docs/learn/functions)の章では、関数の結果を別の関数に渡すときに`double (add 20 1)`と括弧で囲みました。この書き方は、内側の`add 20 1`から外へ向かって読む必要があります。`|>`を使うと、値から始めて、処理する順に上から下へ書けます。
+
+## 値を関数に渡す
+
+`|>`は、左の値を右の関数に渡します。
+
+{/* example: examples/learn/focused/pipeline-basic.ssrg#single */}
+```seseragi title="main内の束縛"
+let piped =
+  21
+  |> double
+```
+
+`21 |> double`は`double 21`とまったく同じ意味で、`piped`は42です。`|>`に特別な働きはなく、関数を呼ぶ向きを入れ替えているだけです。
+
+## 処理の順に縦へつなぐ
+
+`|>`を続けると、前の関数の結果が次の関数に渡ります。
+
+{/* example: examples/learn/pipelines.ssrg */}
+```seseragi title="pipelines.ssrg"
+fn add x: Int -> y: Int -> Int =
+  x + y
+
+fn double x: Int -> Int =
+  x * 2
+
+pub effect fn main = {
+  let increment = add 1
+  20
+  |> increment
+  |> double
+  |> show
+  |> println
+}
+```
+
+```text title="実行結果"
+42
+```
+
+`20`を`increment`に渡して21、それを`double`に渡して42になります。[`println`](/docs/learn/first-program)は文字列しか受け取らないので、その前に`show`で整数を文字列に変えています。`show`は、整数などの値を表示用の文字列にする標準の関数です。括弧で書くと`println (show (double (increment 20)))`ですが、パイプラインなら処理の順番どおりに読めます。
+
+行の先頭にある`|>`は、前の行の続きとして扱われます。一つの処理を一行に置くと、あとから処理を足したり入れ替えたりしやすくなります。
+
+## 部分適用と組み合わせる
+
+`|>`の右には、[部分適用](/docs/learn/functions)した関数も置けます。`20 |> add 1`は、`add 1`という「1を足す関数」に20を渡します。左から来る値は、最後の引数になります。
+
+標準ライブラリの関数も、加工する対象を最後の引数に取るものが多く、そのままパイプラインに並べられます。
+
+{/* example: examples/learn/focused/pipeline-arguments.ssrg#text */}
+```seseragi title="main内の式"
+"  hello-world  "
+|> text.trim
+|> text.replace "-" " "
+|> println
+```
+
+`hello world`と表示されます。`text.trim`で前後の空白を取り、`text.replace "-" " "`で`-`を空白に置き換えています。`text.replace`は「何を」「何に」の二つを先に受け取り、置き換える対象の文字列を最後に受け取ります。`text`は標準ライブラリの`std/text`モジュールで、ファイルの先頭で`import * as text from "std/text"`と読み込んでいます。importの書き方は[モジュール](/docs/learn/modules)で扱います。
+
+## 計算が先に済んでから渡る
+
+`|>`は、足し算や比較などの計算よりあとに働きます。
+
+{/* example: examples/learn/focused/pipeline-basic.ssrg#precedence */}
+```seseragi title="main内の束縛"
+let summed =
+  20 + 1
+  |> double
+```
+
+先に`20 + 1`が21になり、それが`double`に渡るので、`summed`は42です。計算の結果をそのまま次の関数に渡せます。
+
+## 組み合わせを変える
+
+`pipelines.ssrg`の`let increment = add 1`を`add 2`に変えると、結果は44になります。`add 1`に戻して`increment`と`double`の行を入れ替えると、今度は41です。関数を並べる順番で結果が変わることを確かめてください。
+
+次は[関数適用演算子](/docs/learn/application-operator)で、関数のほうから読み進めながら括弧を減らす`$`を学びます。
