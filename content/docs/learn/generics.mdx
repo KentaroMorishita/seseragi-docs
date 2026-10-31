@@ -3,18 +3,18 @@ title: "ジェネリクス"
 description: "型引数を使って、異なる型にも同じ処理とデータの形を使う。"
 ---
 
-整数を包む型と文字列を包む型を別々に書く代わりに、中身の型を引数にする`Box<A>`を作れます。`A`は実行時の値ではなく、宣言の中で使う型の名前です。
+整数を入れる箱と文字列を入れる箱を別々に作る代わりに、中身の型を引数にした`Box<A>`を一つ作れます。これがジェネリクスで、TypeScriptの`Box<T>`と同じ考え方です。`A`は値ではなく、型の名前の代わりに置く記号です。
 
 ## 引数と結果の型を同じに保つ
 
-まず、型引数を一つ使う小さな関数をモジュールに宣言します。
+まず、型引数を一つ使う小さな関数を書きます。関数名の後ろの`<A>`が型引数です。
 
 {/* example: examples/learn/focused/generic-identity.ssrg#declaration */}
 ```seseragi title="関数の宣言"
 fn identity<A> value: A -> A = value
 ```
 
-`A`は呼び出しごとに具体的な型になります。次は`main`内で型引数を明示する束縛です。
+`A`は、呼び出すたびに具体的な型に置き換わります。`<Int>`のように、型を明示して呼ぶこともできます。
 
 {/* example: examples/learn/focused/generic-identity.ssrg#explicit */}
 ```seseragi title="main内の束縛"
@@ -22,7 +22,7 @@ let number = identity<Int> 42
 let text = identity<String> "hello"
 ```
 
-`number`はIntの42、`text`はStringの`"hello"`です。関数の同じ本体を使いながら、引数と結果が同じ型である関係を保ちます。整数の引数から、無関係なStringを返す宣言ではありません。
+`number`は`Int`の42、`text`は`String`の`"hello"`です。同じ関数を使いながら、「受け取った型と同じ型を返す」という関係は保たれます。
 
 ## 型を引数にする
 
@@ -59,25 +59,23 @@ pub effect fn main = do {
 hello
 ```
 
-`Box { value: 42 }`は`Box<Int>`、`Box { value: "hello" }`は`Box<String>`です。フィールドの値から型引数を決められるので、生成時に型を明示する必要はありません。
+`Box { value: 42 }`は`Box<Int>`、`Box { value: "hello" }`は`Box<String>`です。中の値から型が分かるので、作るときに型を書く必要はありません。
 
-`unbox<A>`は`Box<A>`から`A`を取り出します。整数なら整数、文字列なら文字列が返ります。呼び出しごとに型の関係を保ちます。出力するときは`show`で`String`へ変えて、文字列を受け取る`println`へ渡します。
+`unbox<A>`は`Box<A>`から中身の`A`を取り出します。`Box<Int>`なら整数が、`Box<String>`なら文字列が返ります。
 
-## 型引数は宣言の中で使う
+## 型引数には何でも入る
 
-`identity<A> value: A -> A`は、受け取った型と同じ型を返します。引数と戻り値を別の不明な型にする宣言ではありません。`identity 42`の結果は`Int`です。
-
-この関数は`A`にどんな型が来るかを仮定できません。たとえば`value + 1`に変えると、任意の`A`で整数の加算ができるとは限らず、エラーになります。型ごとの操作が必要なら、[型クラス](/docs/learn/type-classes)の制約でその要件を表します。
+`identity<A> value: A -> A`は、どんな型でも受け取れる代わりに、`A`がどんな型かを何も知りません。たとえば本体を`value + 1`に変えると、`A`が数とは限らないのでエラーになります。「足し算ができる型だけ」のように条件を付けたいときは、[型クラス](/docs/learn/type-classes)の制約を使います。
 
 ## 推論できない場合は明示する
 
-型引数は、引数の型や期待する結果型から推論されます。必要なら`identity<String> "hello"`のように明示できます。関数名と`<`の間には空白を置きません。
+型引数は、ふつうは引数や結果の型から自動で決まります。書くときは`identity<String> "hello"`のように、関数名と`<`の間に空白を入れません。
 
-空のコレクションなど、値から要素型が分からない場合もあります。`let empty: Array<Int> = []`なら期待型を与えられます。型を決められない場合、コンパイラーは`Any`へ逃がさず注釈を求めます。
+空のArrayのように、値から型が分からない場合もあります。そのときは`let empty: Array<Int> = []`のように型を書きます。型が決まらないとき、コンパイラーは何でもありの型で済ませず、型を書くよう求めます。
 
 ### 入力とは違う型へ変換する
 
-Boxの中の値を変換する関数では、入力の型Aと出力の型Bを分けます。次の宣言は、上のBoxを使います。
+Boxの中身を変換する関数では、変換前の型`A`と変換後の型`B`の二つの型引数を使います。
 
 {/* example: examples/learn/focused/generic-map-box.ssrg#declaration */}
 ```seseragi title="関数の宣言"
@@ -85,8 +83,6 @@ fn mapBox<A, B> f: (A -> B)
   -> box: Box<A> -> Box<B> =
   Box { value: f box.value }
 ```
-
-次は`main`内の束縛です。
 
 {/* example: examples/learn/focused/generic-map-box.ssrg#transform */}
 ```seseragi title="main内の束縛"
@@ -97,11 +93,11 @@ let labeled: Box<String> =
   |> mapBox (\n -> `score: ${n}`)
 ```
 
-`number`は`Box<Int>`、`labeled`は`Box<String>`です。`labeled.value`は`score: 42`になります。変換関数がIntからStringを返し、その関係がBoxの型にも反映されます。
+`number`は`Box<Int>`、`labeled`は`Box<String>`で、`labeled.value`は`score: 42`です。変換する関数が`Int`を`String`にするので、Boxの型も`Box<Int>`から`Box<String>`に変わります。
 
 ## データの形を型で再利用する
 
-ADTも型引数を持てます。次の断片では、成功値の型を`A`で表します。
+ADTも型引数を持てます。次の`Result<A>`は、成功したときの値の型を`A`にしています。
 
 {/* example: examples/learn/focused/generic-result.ssrg#data */}
 ```seseragi title="型の宣言"
@@ -110,11 +106,11 @@ type Result<A> =
   | Succeeded A
 ```
 
-`Result<Int>`と`Result<String>`は、同じケース構成を持ちつつ異なるpayload型を保ちます。`Maybe<A>`や`Either<E, A>`も、このように型引数で中身を指定する型です。
+`Result<Int>`と`Result<String>`は、ケースは同じで、成功の値の型だけが違います。前の章の`Maybe<A>`や`Either<E, A>`も、こうして作られた型です。
 
-型へ別の名前を付けるだけなら、`alias Pair<A> = (A, A)`と書けます。aliasは新しいnominal型を作りません。名前によって区別するstructやnewtypeとは役割が違います。
+型に別名を付けるだけなら、`alias Pair<A> = (A, A)`と書けます。`alias`は名前を付けるだけで、新しい型は作りません。
 
-このResultから値を取り出す関数も、型引数を保って書けます。モジュールに置く宣言です。
+`Result`から値を取り出す関数も、型引数を使って書けます。
 
 {/* example: examples/learn/focused/generic-result.ssrg#declaration */}
 ```seseragi title="関数の宣言"
@@ -126,8 +122,6 @@ fn valueOr<A> fallback: A
   }
 ```
 
-次は`main`内の束縛です。
-
 {/* example: examples/learn/focused/generic-result.ssrg#inputs */}
 ```seseragi title="main内の束縛"
 let number =
@@ -138,13 +132,11 @@ let text =
   |> valueOr "untitled"
 ```
 
-`number`は42、`text`は`untitled`です。成功値と既定値が同じAなので、関数の結果もそのAになります。失敗理由を表示するか、既定値へ置き換えるかは、この関数を選ぶ側の方針です。
+`number`は42、`text`は`untitled`です。成功の値と代わりの値がどちらも`A`なので、結果も`A`になります。
 
-## letで束縛した関数も再利用できる
+## letで作った関数もいろいろな型に使える
 
-非再帰的な`let`で束縛した関数は、利用ごとに型を具体化できます。たとえば、ブロックの中で`let same = \value -> value`を束縛し、整数と文字列にそれぞれ使えます。これをlet-polymorphismと呼びます。
-
-次の断片を`main`内に置くと、同じ関数を二つの型へ適用できます。
+`let`で束縛した関数も、使うたびに違う型で使えます。
 
 {/* example: examples/learn/focused/generic-local-function.ssrg#polymorphic */}
 ```seseragi title="main内の束縛"
@@ -153,12 +145,12 @@ let number = same 42
 let text = same "hello"
 ```
 
-`number`は42、`text`は`hello`です。一つの関数の型を、最初の呼び出しの型だけへ固定しているわけではありません。
+`number`は42、`text`は`hello`です。最初に整数で呼んだからといって、`same`が整数専用になるわけではありません。
 
-型の一般化は、同じArrayに異なる要素型を混ぜることを許す規則ではありません。`Array<Int>`と`Array<String>`は別の型です。また、`Box<Int>`が`Box<Float>`へ暗黙に変換されることもありません。
+ただし、ジェネリクスは一つのArrayに違う型の要素を混ぜられるという意味ではありません。`Array<Int>`と`Array<String>`は別の型です。`Box<Int>`が`Box<Float>`に自動で変換されることもありません。
 
 ## 別の型を取り出す
 
-例の`Box { value: "hello" }`を`Box { value: True }`へ変えてください。`unbox`の宣言を変えずに、結果が`Bool`になります。次に`unbox`の結果へ常に1を足すようにすると、genericな宣言として成り立たなくなります。
+例の`Box { value: "hello" }`を`Box { value: True }`に変えてみてください。`unbox`は書き換えなくても、結果が`Bool`になります。次に`unbox`の中で値に1を足すようにすると、`A`が数とは限らないのでエラーになります。
 
-次は[再帰](/docs/learn/recursion)で、型の一般化とは別に、入力を小さくして処理を繰り返す関数を作ります。型引数の構文と規則は[型リファレンス](/docs/reference/types)を参照してください。
+次の[再帰](/docs/learn/recursion)では、入力を小さくしながら同じ関数を繰り返し呼ぶ書き方を学びます。型引数の細かい決まりは[型リファレンス](/docs/reference/types)にあります。

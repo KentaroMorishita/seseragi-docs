@@ -3,18 +3,20 @@ title: "Effect"
 description: "外部処理を遅延された計算として表し、doで順番と依存を組み立てる。"
 ---
 
-文字列を計算することと、その文字列を出力することは違います。`Effect`は、出力、状態の読み書き、非同期処理などを、実行できる計算の値として表します。
+文字列を組み立てることと、その文字列を画面に出力することは、別のことです。前者は何度やっても同じ結果になりますが、後者は外の世界に影響を与えます。
+
+Seseragiでは、出力・状態の読み書き・非同期処理のような外の世界とのやり取りを、`Effect`という値で表します。Effectは「実行すると何かをする処理」を表す値で、作っただけではまだ何も起こりません。この章では、Effectの作り方、実行の仕方、失敗の扱い方を学びます。
 
 ## 成功する計算から値を受け取る
 
-まず、外部のサービスを使わずに成功値を返すEffectを作ります。モジュールに次のimportを置きます。
+まずは、外の世界を使わずに、ただ値を返すだけのEffectを作ってみます。`std/effect`をimportします。
 
 {/* example: examples/learn/focused/effect-bind.ssrg#import */}
 ```seseragi title="importの宣言"
 import * as effects from "std/effect"
 ```
 
-`succeed`は、通常の値から成功する計算を作ります。次はモジュールに置く関数です。
+`succeed`は、普通の値から「その値で成功するEffect」を作ります。
 
 {/* example: examples/learn/focused/effect-bind.ssrg#declaration */}
 ```seseragi title="関数の宣言"
@@ -22,7 +24,7 @@ effect fn answer -> Int =
   effects.succeed 42
 ```
 
-`answer ()`を呼ぶと、整数そのものではなく整数で成功するEffectが得られます。`main = do { ... }`の中では、次のように成功値を取り出して出力できます。
+`answer ()`を呼んで返ってくるのは、整数そのものではなく「42で成功するEffect」です。中の値を使うには、`main`の`do`の中で`<-`を使って取り出します。
 
 {/* example: examples/learn/focused/effect-bind.ssrg#bind */}
 ```seseragi title="mainのdo内の式"
@@ -32,9 +34,9 @@ value
 |> println
 ```
 
-結果は42です。`value <- ...`で実行時の成功値を受け取り、そこから先では通常の整数として扱っています。
+42と表示されます。`value <- answer ()`でEffectを実行して成功の値を受け取り、そのあとは普通の整数として使っています。TypeScriptの`const value = await answer()`に近い書き方です。
 
-## 計算を作ることと実行すること
+## Effectは作っただけでは実行されない
 
 {/* example: examples/learn/effects.ssrg */}
 ```seseragi title="effects.ssrg"
@@ -57,13 +59,13 @@ Hello, Aki
 Hello, Aki
 ```
 
-`let greeting = greet "Aki"`は出力するEffectを作り、名前を付けます。その行で挨拶を出力しないので、最初の出力は`Before greeting`です。その後で同じ`greeting`を二度実行すると、挨拶も二度出力されます。
+`let greeting = greet "Aki"`は、「挨拶を出力するEffect」を作って名前を付けるだけで、この時点では何も出力しません。そのため最初に表示されるのは`Before greeting`です。そのあと`greeting`を二回実行すると、挨拶も二回表示されます。
 
-Effectはcoldな計算です。作っただけでは外部処理は始まらず、同じ計算を再び実行すれば外部処理も再び行います。計算済みの結果を保存したPromiseのように考えると、この違いを見落とします。通常の純粋な式や関数の引数はstrictに評価される規則のままです。
+ここがTypeScriptのPromiseとの大きな違いです。Promiseは作った瞬間に処理が始まり、結果は一度しか得られません。Effectは作っただけでは始まらず、実行するたびに処理が行われます。そのため、Effectは変数に入れたり、関数に渡したり、あとで何度でも実行したりできる、ただの値として扱えます。
 
-## 三つの型で契約を表す
+## Effectの型が教えてくれること
 
-`Effect<R, E, A>`の`R`は必要な環境、`E`は回復可能な失敗、`A`は成功時の結果です。例の`greet`は、Consoleを必要とし、ConsoleErrorで失敗しうる、Unitを返す計算です。
+Effectの型`Effect<R, E, A>`には、三つの情報が入っています。`R`は処理に必要なもの、`E`は起こりうる失敗、`A`は成功したときの結果です。例の`greet`の型は次のとおりで、「コンソールを使い、`ConsoleError`で失敗することがあり、成功すると`Unit`を返す」と読めます。
 
 ```seseragi
 Effect<
@@ -73,31 +75,31 @@ Effect<
 >
 ```
 
-`effect fn`の`-> Unit`は、この成功型を示します。`with Console`は環境、`fails ConsoleError`は失敗の型です。関数を呼んでもUnitが直ちに得られるのではなく、Unitで成功するEffectが得られます。
+`effect fn`の宣言では、`-> Unit`が成功の型、`with Console`が必要なもの、`fails ConsoleError`が失敗の型にあたります。関数のシグネチャを見るだけで、その関数が何を使い、どう失敗しうるのかが分かります。TypeScriptの関数では、中で`fetch`や`console.log`を呼んでいても型からは分かりませんし、何を`throw`するかも分かりません。
 
-## doで順番を決める
+## doで順番に実行する
 
-`do`の中では、Effectを順番に実行する計算を組み合わせます。途中で成功値が必要なら`value <- effect`と書き、その後の処理で`value`を使います。途中の`let`は純粋な値の束縛で、Effectを実行しません。
+`do`の中に書いたEffectは、上から順に実行されます。成功の値を使いたいときは`value <- effect`と書きます。`do`の中の`let`は、普通の値に名前を付けるだけで、Effectを実行しません。
 
-最後にはEffectを返します。普通の値を成功結果にしたい場合は、`succeed value`または`pure value`で持ち上げます。通常のブロックに複数のEffectを書いただけでは、`do`の逐次合成を代わりに行うわけではありません。
+`do`の最後はEffectにします。普通の値を結果にしたいときは、`succeed value`か`pure value`でEffectに包みます。なお、`do`ではない普通のブロック`{ ... }`にEffectを並べても、順に実行されるわけではありません。
 
-`do`はMaybeやEitherにも使えるMonadの合成構文です。使う型がEffectなら外部処理、Maybeなら欠如、Eitherなら同期の失敗に応じて次へ進むかが決まります。
+[MaybeとEither](/docs/learn/maybe-and-either)の章でも`do`を使いました。`do`は同じ書き方で、Maybeなら「値がなければ止まる」、Eitherなら「失敗したら止まる」、Effectなら「処理を順に実行し、失敗したら止まる」という動きになります。
 
-## 推論する宣言と明示する宣言
+## 型を書くか、推論に任せるか
 
-例の`greet`は契約を明示しています。`main`のように`->`、`with`、`fails`を全部省く形では、本体から環境、失敗、成功の型を推論します。
+例の`greet`は、成功・必要なもの・失敗の型をすべて書いています。`main`のように`->`・`with`・`fails`を全部省くと、本体からすべて推論されます。
 
-`effect fn ... -> Unit`まで書いた契約の形で`with`や`fails`を省くと、環境は`{}`、失敗は`Never`です。省いた部分を本体から補う形ではありません。Consoleへ出力する明示契約なら、例のようにConsoleとConsoleErrorを含めます。
+注意したいのは、`-> Unit`のように成功の型を書いたときです。この場合、省いた`with`は「何も必要としない」、省いた`fails`は「失敗しない（`Never`）」という意味になり、本体から推論はされません。コンソールに出力するなら、例のように`with Console`と`fails ConsoleError`も書きます。
 
-推論する場合も公開された型には結果の契約が残ります。環境は必要なフィールドを合わせますが、異なる失敗型を自動で合併しません。失敗をどう分類するかは、ADTと`mapError`などで決めます。
+推論に任せた場合も、必要なものと失敗の型は関数の型に残ります。必要なものは自動でまとめられますが、種類の違う失敗の型が自動で一つにまとめられることはありません。失敗をどう分類するかは、ADTと`mapError`を使って自分で決めます。
 
-## 失敗と実行の境界
+## 失敗を扱う
 
-同じ`do`で組み合わせる回復可能な失敗の型は揃えます。`Never`は失敗しない型として必要な失敗型へ広げられます。予想する失敗は`fail`や標準APIの失敗値で表し、`recover`で回復できます。
+一つの`do`の中で組み合わせるEffectは、失敗の型を揃える必要があります（失敗しない`Never`は、どの失敗の型にも合わせられます）。起こりうる失敗は`fail`で表し、`recover`で立て直せます。
 
-### 失敗を回復した成功値にする
+### 失敗から立て直す
 
-失敗の型を、まずモジュールで定義します。この例でも`std/effect`をeffectsとしてimportします。
+まず失敗の型を定義します。この例でも`std/effect`を`effects`としてimportしています。
 
 {/* example: examples/learn/focused/effect-recovery.ssrg#failure-type */}
 ```seseragi title="型の宣言"
@@ -105,7 +107,7 @@ type CheckError =
   | Rejected
 ```
 
-次は、許可されれば42で成功し、許可されなければRejectedで失敗する計算です。
+次は、`allowed`が`True`なら42で成功し、`False`なら`Rejected`で失敗するEffectです。
 
 {/* example: examples/learn/focused/effect-recovery.ssrg#declaration */}
 ```seseragi title="関数の宣言"
@@ -117,7 +119,7 @@ effect fn accepted allowed: Bool
     effects.fail Rejected
 ```
 
-回復用の関数もEffectを返します。成功時と同じIntを返す必要があります。
+失敗したときに代わりに実行する関数を用意します。成功したときと同じ`Int`を返すEffectにします。
 
 {/* example: examples/learn/focused/effect-recovery.ssrg#fallback */}
 ```seseragi title="関数の宣言"
@@ -126,7 +128,7 @@ effect fn fallback error: CheckError
   effects.succeed 0
 ```
 
-`main`のdo内では、次のようにつなげられます。
+`recover`でつなぎます。
 
 {/* example: examples/learn/focused/effect-recovery.ssrg#recover */}
 ```seseragi title="mainのdo内の式"
@@ -135,11 +137,11 @@ value <-
   |> effects.recover fallback
 ```
 
-`value`は0です。FalseをTrueへ変えると42になり、fallbackを呼びません。失敗が起きた場合だけ回復の計算へ進みます。
+`value`は0です。`False`を`True`に変えると42になり、`fallback`は呼ばれません。失敗したときだけ、`recover`に渡した関数が実行されます。TypeScriptの`try ... catch`に近いですが、どんな失敗が来るかは型で決まっています。
 
 ### 失敗の型を変換する
 
-Stringの理由を、アプリで使うADTへまとめる場合はmapErrorを使います。次の宣言をモジュールに置きます。
+文字列の失敗を、アプリで使うADTの失敗に変えたいときは`mapError`を使います。まず、変換先の型を定義します。
 
 {/* example: examples/learn/focused/effect-map-error.ssrg#failure-type */}
 ```seseragi title="型の宣言"
@@ -147,7 +149,7 @@ type InputError =
   | Invalid String
 ```
 
-変換元はStringで失敗する計算です。
+変換元は、文字列で失敗するEffectです。
 
 {/* example: examples/learn/focused/effect-map-error.ssrg#source */}
 ```seseragi title="関数の宣言"
@@ -156,7 +158,7 @@ fails String =
   effects.fail "empty"
 ```
 
-`mapError Invalid`は、そのStringからInputErrorのケースを作ります。
+`mapError Invalid`で、失敗の文字列を`Invalid`に包んで`InputError`にします。
 
 {/* example: examples/learn/focused/effect-map-error.ssrg#mapping */}
 ```seseragi title="関数の宣言"
@@ -166,7 +168,7 @@ fails InputError =
   |> effects.mapError Invalid
 ```
 
-mapErrorだけでは回復しません。このcheckedを次の関数でrecoverすると、成功する文字列`invalid: empty`を得られます。
+`mapError`は失敗の型を変えるだけで、失敗から立て直すわけではありません。立て直すには、さらに`recover`を使います。
 
 {/* example: examples/learn/focused/effect-map-error.ssrg#recovery */}
 ```seseragi title="回復する関数の宣言"
@@ -181,7 +183,7 @@ effect fn describe error: InputError
   }
 ```
 
-mainのdo内で回復し、文字列を出力する部分です。
+`main`では次のように使います。
 
 {/* example: examples/learn/focused/effect-map-error.ssrg#use */}
 ```seseragi title="mainのdo内の式"
@@ -191,14 +193,14 @@ value <-
 println value
 ```
 
-結果は`invalid: empty`です。変換は失敗の分類、回復は次の成功結果を作る操作です。
+`invalid: empty`と表示されます。`mapError`は失敗を分類し直し、`recover`は失敗から成功の結果を作ります。
 
-defectやキャンセルは、回復可能な失敗とは別です。`recover`をすべての異常を捕まえる`catch`のように扱いません。処理の設計は[エラー処理](/docs/guides/error-handling)で扱います。
+なお、プログラムのバグによる異常終了や処理のキャンセルは、`fails`で表す失敗とは別のものです。`recover`は、どんな異常でも捕まえる`catch`ではありません。失敗の設計の仕方は[エラー処理](/docs/guides/error-handling)のガイドで扱います。
 
-CLIは公開された`main`のEffectを実行します。普通の`fn`も、型を明示すればEffectを値として返せます。`effect fn`はEffectを返す関数の宣言を読みやすくする構文で、別の実行モデルではありません。
+プログラムを実行すると、CLIが`pub`の`main`が返すEffectを実行します。`effect fn`は「Effectを返す関数」を読みやすく書くための構文で、普通の`fn`でも型を書けばEffectを返せます。
 
 ## 実行回数を変える
 
-`greeting`を実行する行を一つ削除すると、挨拶も一回になります。`let greeting = ...`だけ残して実行する行を両方削除すると、挨拶は出力されません。計算の作成と実行を分けて確かめてください。
+`greeting`を実行する行を一つ消すと、挨拶も一回になります。`let greeting = ...`だけを残して実行する行を両方消すと、挨拶は表示されません。Effectは作っただけでは実行されないことを確かめてください。
 
-次は[Signal](/docs/learn/signals)で、変化する状態をEffectから読み書きします。契約の詳細は[Effectリファレンス](/docs/reference/effects)を参照してください。
+次の[Signal](/docs/learn/signals)では、変化する状態をEffectで読み書きします。Effectの細かい決まりは[Effectリファレンス](/docs/reference/effects)にあります。

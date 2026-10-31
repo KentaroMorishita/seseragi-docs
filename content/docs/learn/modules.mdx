@@ -3,11 +3,11 @@ title: "モジュール"
 description: "型と関数をファイルへ分け、公開APIとpackageの境界を作る。"
 ---
 
-一つの`.ssrg`ファイルが一つのモジュールです。配送の型と表示する関数を`parcel.ssrg`へ置き、`main.ssrg`から利用します。複数ファイルをまとめるpackageとして、実行する入口も指定します。
+プログラムが大きくなったら、ファイルを分けます。Seseragiでは、一つの`.ssrg`ファイルが一つのモジュールです。この章では、荷物の配送状況を表す型と関数を`parcel.ssrg`に置き、`main.ssrg`から使います。複数のファイルは、パッケージとしてまとめて実行します。
 
 ## ファイルの役割を分ける
 
-新しいディレクトリへ、次の構成でファイルを保存します。
+新しいディレクトリに、次のようにファイルを作ります。
 
 ```text
 parcel-app/
@@ -17,11 +17,11 @@ parcel-app/
     parcel.ssrg
 ```
 
-`parcel.ssrg`は配送の型と計算、`main.ssrg`は出力する入口です。`src`の下の相対パスが、このpackage内でのモジュールの場所になります。ソースの先頭へmodule名を宣言する必要はありません。
+`parcel.ssrg`には配送の型と関数を、`main.ssrg`にはプログラムの入口を書きます。`src`の下のファイルの位置が、そのままモジュールの場所になります。ファイルの中でモジュール名を宣言する必要はありません。
 
 ## 型と関数を公開する
 
-`src/parcel.ssrg`へ保存してください。
+`src/parcel.ssrg`に、次の内容を保存します。
 
 {/* example: examples/learn/modules/src/parcel.ssrg */}
 ```seseragi title="parcel.ssrg"
@@ -36,13 +36,13 @@ pub fn label parcel: Parcel -> String =
   }
 ```
 
-宣言は既定でモジュール内だけに公開されます。他のファイルから使う型と関数へ`pub`を付けます。この`Parcel`はopaqueではないので、`Packing`と`Sent`というコンストラクターも型と一緒に公開されます。
+何も付けない宣言は、そのファイルの中だけで使えます。ほかのファイルから使わせたい型や関数には`pub`を付けます。`pub type`で公開した`Parcel`は、`Packing`と`Sent`というケースも一緒に公開されます。
 
-`label`は表示する文字列を返すだけです。このファイルをimportしても、出力などのI/Oは始まりません。
+なお、ファイルをimportしただけで何かが実行されることはありません。
 
 ## 名前をimportする
 
-`src/main.ssrg`へ保存してください。
+`src/main.ssrg`に、次の内容を保存します。
 
 {/* example: examples/learn/modules/src/main.ssrg */}
 ```seseragi title="main.ssrg"
@@ -54,13 +54,13 @@ pub effect fn main =
   |> println
 ```
 
-`import { label, Sent }`は、必要な公開名だけを現在のスコープへ導入します。`"./parcel"`は、現在のファイルと同じディレクトリの`parcel.ssrg`です。現在の作業ディレクトリや、別の拡張子、ディレクトリのindexを総当たりして探す規則ではありません。
+`import { label, Sent } from "./parcel"`は、`parcel.ssrg`が公開している名前のうち、`label`と`Sent`を使えるようにします。書き方はTypeScriptとほぼ同じです。`"./parcel"`は、このファイルと同じディレクトリの`parcel.ssrg`を指します。TypeScriptと違い、`index`ファイルや別の拡張子を探すことはありません。
 
-名前が衝突する場合は`import { label as parcelLabel } from "./parcel"`と別名を付けられます。`import * as parcels from "./parcel"`なら、`parcels.label`や`parcels.Sent`で参照します。importはファイルの先頭に置きます。
+名前がぶつかるときは、`import { label as parcelLabel } from "./parcel"`のように別名を付けられます。`import * as parcels from "./parcel"`と書くと、`parcels.label`や`parcels.Sent`のように使えます。importはファイルの先頭に書きます。
 
-## manifestで実行の入口を指定する
+## seseragi.tomlで入口を指定する
 
-`seseragi.toml`へ次を保存します。
+最後に、パッケージの設定ファイル`seseragi.toml`を作ります。`[run]`の`entry`で、どのモジュールから実行するかを指定します。
 
 ```toml title="seseragi.toml"
 [package]
@@ -73,7 +73,7 @@ entry = "main"
 target = "process"
 ```
 
-`parcel-app`へ移動して、lockfileを作り、packageを実行します。
+`parcel-app`に移動して、ロックファイルを作ってから実行します。
 
 ```sh
 seseragi lock update .
@@ -84,20 +84,20 @@ seseragi run .
 Sent to Kyoto
 ```
 
-最初のコマンドは`seseragi.lock`を生成します。package実行はmanifestとlockfileを使用します。単一ファイルだけを渡す実行と、複数モジュールを解決するpackage実行を区別してください。設定の契約は[プロジェクト設定](/docs/reference/project-configuration)で扱います。
+一つ目のコマンドで`seseragi.lock`ができます。`seseragi run .`のようにディレクトリを渡すと、`seseragi.toml`とロックファイルを読んで、パッケージとして実行します。設定ファイルの書き方は[プロジェクト設定](/docs/reference/project-configuration)にあります。
 
-## 公開範囲と依存を保つ
+## 公開範囲と依存関係
 
-公開された型や関数の契約には、利用側が理解できる型を使います。内部表現を隠す必要がある型には`pub opaque struct`や`pub opaque type`を使い、公開関数を通じて操作します。
+型の中身を外から見せたくないときは、`pub opaque struct`や`pub opaque type`を使います。型の名前だけが公開され、中身には公開した関数を通してしかアクセスできなくなります。
 
-`self/`は現在のpackage、`std/`は標準ライブラリ、その他のpackage名はmanifestへ宣言した直接依存を指します。packageの境界を相対importで越えたり、依存先の非公開ファイルへ直接入ったりすることはできません。
+importのパスは、`self/`で始まれば自分のパッケージ、`std/`で始まれば標準ライブラリ、それ以外は`seseragi.toml`に書いた依存パッケージを指します。相対パスでパッケージの外に出たり、依存パッケージの公開されていないファイルを直接importしたりはできません。
 
-モジュール間の循環importは禁止です。互いの型を必要とするファイルが出てきたら、共有する型を第三のモジュールへ分けるなど、依存を一方向にします。同じモジュール内の相互再帰には`rec`を使います。
+モジュールどうしが互いにimportし合うことはできません。そうなりそうなときは、共通の型を三つ目のモジュールに分けて、依存の向きを一方向にします。
 
 ## 公開APIを変えてみる
 
-ファイルを変更した後は、`seseragi lock update .`でロックを更新してから`seseragi run .`を実行します。
+ファイルを変えたら、`seseragi lock update .`でロックファイルを更新してから`seseragi run .`で実行します。
 
-`label`の`pub`を外して、import側の診断を確認してください。次に`pub`を戻し、`main`の入力を`Packing`へ変えます。named importへ`Packing`を追加すると、`Preparing`を出力できます。
+まず、`label`の`pub`を外してみてください。`main.ssrg`のimportがエラーになります。`pub`を戻したら、`main`の`Sent "Kyoto"`を`Packing`に変え、importにも`Packing`を足します。`Preparing`と表示されれば成功です。
 
-Learnの基本コースはここまでです。次は[CLIアプリ](/docs/guides/cli-app)または[Webアプリ](/docs/guides/web-app)へ進んで、入力や画面と組み合わせてください。公開APIの詳細は[モジュールリファレンス](/docs/reference/modules)、依存管理と公開手順は[パッケージとデプロイ](/docs/guides/packages-and-deployment)で確認できます。
+「学ぶ」はここまでです。お疲れさまでした。次は[CLIアプリ](/docs/guides/cli-app)や[Webアプリ](/docs/guides/web-app)のガイドで、入力や画面のあるアプリを作ってみてください。モジュールの細かい決まりは[モジュールリファレンス](/docs/reference/modules)、パッケージの依存関係と公開の仕方は[パッケージとデプロイ](/docs/guides/packages-and-deployment)にあります。

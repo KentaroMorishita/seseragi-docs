@@ -3,11 +3,11 @@ title: "Modules"
 description: "Split types and functions into files and define public APIs and package boundaries."
 ---
 
-Each `.ssrg` file is one module. Put the parcel type and its display function in `parcel.ssrg`, then use them from `main.ssrg`. A package groups the files and declares the execution entry point.
+As a program grows, you split it into files. In Seseragi, each `.ssrg` file is one module. This chapter puts a type and a function for parcel delivery status in `parcel.ssrg` and uses them from `main.ssrg`. Several files are run together as a package.
 
 ## Assign a role to each file
 
-Save files in a new directory with this layout:
+Create files in a new directory like this:
 
 ```text
 parcel-app/
@@ -17,11 +17,11 @@ parcel-app/
     parcel.ssrg
 ```
 
-`parcel.ssrg` contains the type and calculation; `main.ssrg` performs output at the entry point. The path below `src` identifies a module's location within this package. There is no module-name declaration at the top of a source file.
+`parcel.ssrg` holds the delivery type and function, and `main.ssrg` holds the program's entry point. A file's location under `src` is its module's location. You do not declare a module name inside the file.
 
 ## Export a type and function
 
-Save this as `src/parcel.ssrg`:
+Save the following as `src/parcel.ssrg`:
 
 {/* example: examples/learn/modules/src/parcel.ssrg */}
 ```seseragi title="parcel.ssrg"
@@ -36,13 +36,13 @@ pub fn label parcel: Parcel -> String =
   }
 ```
 
-Declarations are module-private by default. Add `pub` to types and functions needed by another file. This `Parcel` is not opaque, so its `Packing` and `Sent` constructors are exported with the type.
+A declaration without anything in front is usable only inside its file. Add `pub` to types and functions other files should use. A `Parcel` exported with `pub type` also exports its cases, `Packing` and `Sent`.
 
-`label` only returns a display string. Importing this file does not start output or other I/O.
+Importing a file never runs anything by itself.
 
 ## Import the required names
 
-Save this as `src/main.ssrg`:
+Save the following as `src/main.ssrg`:
 
 {/* example: examples/learn/modules/src/main.ssrg */}
 ```seseragi title="main.ssrg"
@@ -54,13 +54,13 @@ pub effect fn main =
   |> println
 ```
 
-`import { label, Sent }` introduces only the requested public names into the local scope. `"./parcel"` means `parcel.ssrg` beside the current file. Resolution does not search the working directory, try alternative extensions, or look for a directory index.
+`import { label, Sent } from "./parcel"` makes `label` and `Sent`, two of the names `parcel.ssrg` exports, available here. The syntax is almost the same as TypeScript. `"./parcel"` refers to `parcel.ssrg` in the same directory as this file. Unlike TypeScript, there is no lookup of `index` files or other extensions.
 
-To avoid a name collision, use `import { label as parcelLabel } from "./parcel"`. A namespace import, `import * as parcels from "./parcel"`, exposes names such as `parcels.label` and `parcels.Sent`. Imports appear at the beginning of the file.
+When names collide, rename one: `import { label as parcelLabel } from "./parcel"`. With `import * as parcels from "./parcel"`, use `parcels.label` and `parcels.Sent`. Imports go at the top of the file.
 
-## Declare the package entry point
+## Set the entry point in seseragi.toml
 
-Save the following as `seseragi.toml`:
+Finally, create the package configuration file `seseragi.toml`. `entry` under `[run]` says which module to run:
 
 ```toml title="seseragi.toml"
 [package]
@@ -73,7 +73,7 @@ entry = "main"
 target = "process"
 ```
 
-Change into `parcel-app`, create its lockfile, and run the package:
+Move into `parcel-app`, create the lockfile, and run it:
 
 ```sh
 seseragi lock update .
@@ -84,20 +84,20 @@ seseragi run .
 Sent to Kyoto
 ```
 
-The first command generates `seseragi.lock`. Package execution uses the manifest and lockfile. Distinguish single-file execution from package execution, which resolves multiple modules. See [Project configuration](/en/docs/reference/project-configuration) for the configuration contract.
+The first command creates `seseragi.lock`. Passing a directory, as in `seseragi run .`, reads `seseragi.toml` and the lockfile and runs it as a package. [Project configuration](/en/docs/reference/project-configuration) explains how to write the configuration file.
 
-## Preserve visibility and dependency boundaries
+## Visibility and dependencies
 
-Public contracts must use types their consumers can understand. Hide a type's representation with `pub opaque struct` or `pub opaque type` when needed, and expose functions for working with it.
+To hide what is inside a type, use `pub opaque struct` or `pub opaque type`. Only the type's name is exported, and its contents can be reached only through the functions you export.
 
-`self/` identifies the current package, `std/` identifies a standard library module, and other package names refer to direct dependencies declared in the manifest. Relative imports cannot cross package boundaries, and a dependency's private source files are not importable API.
+An import path starting with `self/` refers to your own package, `std/` to the standard library, and anything else to a dependency listed in `seseragi.toml`. A relative path cannot leave the package, and you cannot import a dependency's unexported files directly.
 
-Module import cycles are prohibited. If two files need each other's types, separate shared types into a third module and make dependencies one-directional. Use `rec` for mutually recursive functions within one module.
+Modules cannot import each other in a cycle. When that seems necessary, move the shared types into a third module so dependencies point one way.
 
 ## Change the public API
 
-After changing a file, update the lock with `seseragi lock update .` before executing `seseragi run .`.
+After changing a file, update the lockfile with `seseragi lock update .`, then run `seseragi run .`.
 
-Remove `pub` from `label` and inspect the import diagnostic. Restore it, then change the input in `main` to `Packing`. Add `Packing` to the named import to print `Preparing`.
+First, remove `pub` from `label`: the import in `main.ssrg` becomes an error. Restore `pub`, change `Sent "Kyoto"` in `main` to `Packing`, and add `Packing` to the import. If it prints `Preparing`, you are done.
 
-This completes the basic Learn course. Continue to [CLI applications](/en/docs/guides/cli-app) or [Web applications](/en/docs/guides/web-app) to combine these concepts with input or a view. See the [module reference](/en/docs/reference/modules) for API rules and [Packages and deployment](/en/docs/guides/packages-and-deployment) for dependency and publishing procedures.
+That is the end of Learn. Well done! Next, follow the [CLI applications](/en/docs/guides/cli-app) or [Web applications](/en/docs/guides/web-app) guide to build an app with input or a screen. The detailed rules for modules are in the [module reference](/en/docs/reference/modules), and package dependencies and publishing are covered in [Packages and deployment](/en/docs/guides/packages-and-deployment).

@@ -3,18 +3,18 @@ title: "Generics"
 description: "Reuse data shapes and behavior while preserving each argument type."
 ---
 
-Instead of separate containers for integers and strings, define `Box<A>` with a type parameter. `A` names a type within the declaration; it is not a runtime value.
+Instead of making one box for integers and another for strings, you can make a single `Box<A>` whose content type is a parameter. These are generics, the same idea as TypeScript's `Box<T>`. `A` is not a value; it stands in for a type name.
 
 ## Keep the argument and result types related
 
-First, declare a small function with one type parameter at module scope:
+Start with a small function that uses one type parameter. The `<A>` after the function name is the type parameter:
 
 {/* example: examples/learn/focused/generic-identity.ssrg#declaration */}
 ```seseragi title="Function declaration"
 fn identity<A> value: A -> A = value
 ```
 
-Each application gives A a concrete type. These bindings inside `main` supply type arguments explicitly:
+Each call replaces `A` with a concrete type. You can also pass the type explicitly, as in `<Int>`:
 
 {/* example: examples/learn/focused/generic-identity.ssrg#explicit */}
 ```seseragi title="Bindings in main"
@@ -22,7 +22,7 @@ let number = identity<Int> 42
 let text = identity<String> "hello"
 ```
 
-`number` is the Int 42 and `text` is the String `"hello"`. The same function body retains the relationship that its argument and result have the same type. It does not declare an unrelated String result for an integer input.
+`number` is the `Int` 42 and `text` is the `String` `"hello"`. The same function keeps the relationship "returns the same type it receives".
 
 ## Parameterize a type
 
@@ -59,25 +59,23 @@ pub effect fn main = do {
 hello
 ```
 
-`Box { value: 42 }` is a `Box<Int>`, and `Box { value: "hello" }` is a `Box<String>`. The field value determines the type argument, so construction does not need an explicit type argument here.
+`Box { value: 42 }` is a `Box<Int>`, and `Box { value: "hello" }` is a `Box<String>`. The type follows from the value inside, so you do not need to write it.
 
-`unbox<A>` extracts an `A` from a `Box<A>`. It returns an integer for an integer box and a string for a string box, preserving the type relationship at each call. Before output, `show` converts the result to a `String` for `println`.
+`unbox<A>` takes the `A` out of a `Box<A>`: an integer from a `Box<Int>`, a string from a `Box<String>`.
 
-## Use a type parameter within its declaration
+## A type parameter accepts anything
 
-`identity<A> value: A -> A` returns the same type it receives. It does not describe two unrelated unknown types. The result of `identity 42` is an `Int`.
-
-The body cannot assume a particular `A`. Replacing the body with `value + 1` is rejected because an arbitrary `A` need not support integer addition. Use a [type class](/en/docs/learn/type-classes) constraint when a generic function needs a type-specific operation.
+`identity<A> value: A -> A` accepts any type, but in exchange it knows nothing about `A`. If you change the body to `value + 1`, it fails, because `A` is not necessarily a number. To require something such as "only types that support addition", use a [type class](/en/docs/learn/type-classes) constraint.
 
 ## Supply a type when inference needs it
 
-Type arguments are inferred from arguments or the expected result type. You can also write `identity<String> "hello"` explicitly. There is no space between the function name and `<`.
+Type arguments are usually worked out from the arguments or the expected result. When you write one, as in `identity<String> "hello"`, put no space between the function name and `<`.
 
-An empty collection has no values from which to infer an element type. `let empty: Array<Int> = []` supplies an expected type. When the compiler cannot determine a type, it requests an annotation instead of falling back to `Any`.
+Sometimes the value does not reveal the type, as with an empty Array. Then write the type: `let empty: Array<Int> = []`. When a type cannot be determined, the compiler asks you to write it instead of falling back to a catch-all type.
 
 ### Transform to a different type
 
-A function transforming a value inside Box separates the input type A from the output type B. This declaration uses Box above:
+A function that transforms the content of a Box uses two type parameters: `A` before the transformation and `B` after it.
 
 {/* example: examples/learn/focused/generic-map-box.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -85,8 +83,6 @@ fn mapBox<A, B> f: (A -> B)
   -> box: Box<A> -> Box<B> =
   Box { value: f box.value }
 ```
-
-These bindings belong inside `main`:
 
 {/* example: examples/learn/focused/generic-map-box.ssrg#transform */}
 ```seseragi title="Bindings in main"
@@ -97,11 +93,11 @@ let labeled: Box<String> =
   |> mapBox (\n -> `score: ${n}`)
 ```
 
-`number` is `Box<Int>` and `labeled` is `Box<String>`. `labeled.value` is `score: 42`. The transformation returns String from Int, and the Box types preserve that relationship.
+`number` is `Box<Int>`, `labeled` is `Box<String>`, and `labeled.value` is `score: 42`. Because the function turns an `Int` into a `String`, the Box type changes from `Box<Int>` to `Box<String>` too.
 
 ## Reuse a data shape
 
-ADTs can have type parameters too. This fragment uses `A` for its successful payload:
+ADTs can have type parameters too. `Result<A>` below uses `A` for the type of a successful value:
 
 {/* example: examples/learn/focused/generic-result.ssrg#data */}
 ```seseragi title="Type declaration"
@@ -110,11 +106,11 @@ type Result<A> =
   | Succeeded A
 ```
 
-`Result<Int>` and `Result<String>` share the case structure while retaining different payload types. `Maybe<A>` and `Either<E, A>` also describe their contents with type arguments.
+`Result<Int>` and `Result<String>` have the same cases and differ only in the success type. `Maybe<A>` and `Either<E, A>` from the previous chapter are built the same way.
 
-If you only need another name for a type, use `alias Pair<A> = (A, A)`. An alias does not introduce a new nominal type identity. It serves a different purpose from a struct or newtype.
+To give a type another name, write `alias Pair<A> = (A, A)`. An `alias` only adds a name; it does not create a new type.
 
-A function extracting data from Result can also preserve the type parameter. Place it at module scope:
+A function that takes a value out of a `Result` can use a type parameter as well:
 
 {/* example: examples/learn/focused/generic-result.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -126,8 +122,6 @@ fn valueOr<A> fallback: A
   }
 ```
 
-These bindings belong inside `main`:
-
 {/* example: examples/learn/focused/generic-result.ssrg#inputs */}
 ```seseragi title="Bindings in main"
 let number =
@@ -138,15 +132,11 @@ let text =
   |> valueOr "untitled"
 ```
 
-`number` is 42; `text` is `untitled`. The success and fallback share A, so the function's result has that type. Whether to display a failure reason or replace it with a fallback is a policy chosen by the caller.
+`number` is 42 and `text` is `untitled`. The success value and the fallback are both `A`, so the result is `A` too.
 
-## Reuse a function bound with let
+## Functions bound with let work at many types
 
-A function bound with a non-recursive `let` can be instantiated differently at each use. For example, bind `let same = \value -> value` inside a block and apply it separately to an integer and a string. This is called let-polymorphism.
-
-Generalization does not allow different element types within one Array. `Array<Int>` and `Array<String>` are different types. Nor does a `Box<Int>` implicitly convert to a `Box<Float>`.
-
-Put this fragment inside `main` to apply one bound function at two types:
+A function bound with `let` can also be used at a different type each time:
 
 {/* example: examples/learn/focused/generic-local-function.ssrg#polymorphic */}
 ```seseragi title="Bindings in main"
@@ -155,10 +145,12 @@ let number = same 42
 let text = same "hello"
 ```
 
-`number` is 42; `text` is `hello`. The function is not fixed to the type of its first use.
+`number` is 42 and `text` is `hello`. Calling `same` with an integer first does not make it integer-only.
+
+Generics do not mean you can mix element types in one Array, though. `Array<Int>` and `Array<String>` are different types, and a `Box<Int>` never converts to a `Box<Float>` automatically.
 
 ## Extract another type
 
-Change `Box { value: "hello" }` in the example to `Box { value: True }`. Without changing `unbox`, its result becomes a `Bool`. Then try adding 1 to every `unbox` result; the declaration no longer works for an arbitrary type argument.
+Change `Box { value: "hello" }` in the example to `Box { value: True }`. Without touching `unbox`, the result becomes a `Bool`. Then make `unbox` add 1 to the value: it fails, because `A` is not necessarily a number.
 
-Continue to [Recursion](/en/docs/learn/recursion), a separate mechanism for repeating behavior by reducing the input. See [Types](/en/docs/reference/types) for precise type-argument rules.
+Next, [Recursion](/en/docs/learn/recursion) shows how to repeat work by calling the same function on a smaller input. The detailed rules for type parameters are in [Types](/en/docs/reference/types).

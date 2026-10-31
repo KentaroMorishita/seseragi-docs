@@ -3,11 +3,13 @@ title: "型クラス"
 description: "型ごとの操作を定義し、where制約で共通の関数から使う。"
 ---
 
-同じ`map`がArrayやMaybeに使えるのは、それぞれの型が操作を提供しているからです。型クラスは、ある型で使える操作を表します。ここでは、値を表示する独自の操作を定義します。
+同じ`map`がArrayにもMaybeにも使えるのは、それぞれの型が`map`の実装を持っているからです。このように「この操作ができる型」をまとめる仕組みを型クラスと呼びます。TypeScriptの`interface`に近いですが、型クラスは値ではなく型に対して実装を結び付けます。
+
+この章では、標準の型クラスを使ってから、値を表示する自分の型クラスを作ります。
 
 ## 標準の操作を制約として使う
 
-これまで使った`==`には、比較する型のEqが必要です。型引数を持つ関数では、その要件をwhereで示せます。次はモジュールに置く宣言です。
+これまで使ってきた`==`は、`Eq`という型クラスの操作です。ジェネリックな関数で`==`を使うには、「`A`は`Eq`を実装している」という条件を`where`で書きます。
 
 {/* example: examples/learn/focused/type-class-eq.ssrg#declaration */}
 ```seseragi title="関数の宣言"
@@ -15,8 +17,6 @@ fn same<A> left: A -> right: A
   -> Bool where Eq<A> =
   left == right
 ```
-
-次の各式は、mainのdo内で独立に試せます。
 
 {/* example: examples/learn/focused/type-class-eq.ssrg#numbers */}
 ```seseragi title="mainのdo内の式"
@@ -33,11 +33,11 @@ println (show (same "Aki" "Aki"))
 println (show (same [1, 2] [2, 1]))
 ```
 
-順にTrue、True、Falseです。sameの本体は同じでも、Int、String、ArrayのEqをそれぞれ使います。Arrayの比較では要素の値と順序も比較するので、最後はFalseになります。
+結果は順に`True`、`True`、`False`です。`same`の本体は同じでも、`Int`・`String`・Arrayそれぞれの`Eq`の実装が使われます。Arrayの比較では要素の順番も比べるので、最後は`False`になります。
 
-## traitで操作の型を宣言する
+## traitで型クラスを宣言する
 
-ここからは、独自の操作を段階ごとに定義します。まず、モジュールへ必要な操作の宣言を置きます。
+ここからは、自分で型クラスを作ります。まず`trait`で、型クラスが持つ操作を宣言します。
 
 {/* example: examples/learn/focused/type-class-instances.ssrg#trait */}
 ```seseragi title="traitの宣言"
@@ -46,7 +46,7 @@ trait Render<A> {
 }
 ```
 
-次に、操作の対象となる型と、その型の実装を置きます。
+次に、対象の型と、その型での実装を書きます。
 
 {/* example: examples/learn/focused/type-class-instances.ssrg#badge */}
 ```seseragi title="型とinstanceの宣言"
@@ -60,15 +60,13 @@ instance Render<Badge> {
 }
 ```
 
-`trait Render<A>`は、`A`を受け取って`String`を返す`render`という操作を要求します。traitの中では型だけを書き、関数の本体は書きません。
+`trait Render<A>`は、「`A`を受け取って`String`を返す`render`という操作を持つ」という約束です。`trait`の中には型だけを書き、本体は書きません。
 
-`Badge`は表示したいラベルを持つデータ型です。`instance Render<Badge>`に`render`の本体を書き、この型の値をどのように表示するかを決めます。
+`instance Render<Badge>`で、`Badge`型での`render`の中身を書きます。これで`Badge`は`Render`の約束を満たします。
 
 ## whereで必要な操作を示す
 
-`framed<A>`は任意の`A`を受け取りますが、`where Render<A>`で、その型のRenderが必要なことを示しています。`render value`を呼ぶための条件が、関数の型に含まれます。
-
-モジュールにこの関数を宣言します。
+次の`framed<A>`は、`where Render<A>`で「`A`は`Render`を実装していること」を条件にしています。この条件があるので、本体で`render value`を呼べます。
 
 {/* example: examples/learn/focused/type-class-instances.ssrg#framed */}
 ```seseragi title="関数の宣言"
@@ -77,7 +75,7 @@ where Render<A> =
   `<${render value}>`
 ```
 
-main内では、Badgeをframedへ渡せます。
+`Badge`を`framed`に渡してみます。
 
 {/* example: examples/learn/focused/type-class-instances.ssrg#badge-use */}
 ```seseragi title="main内の式"
@@ -86,19 +84,19 @@ Badge { label: "ADMIN" }
 |> println
 ```
 
-結果は`<ADMIN>`です。trait、instance、制約付きの関数を定義してから、それらを組み合わせています。
+`<ADMIN>`と表示されます。
 
-`Badge`には対応するinstanceがあるので、`framed`へ渡せます。対応するinstanceのない型へ適用するとコンパイルエラーです。値の実際のフィールドやJavaScriptのconstructorを調べて、実行時にinstanceを探す方式ではありません。
+`Badge`には`Render`のinstanceがあるので、`framed`に渡せます。instanceのない型を渡すと、コンパイルエラーになります。どの実装を使うかはコンパイル時に決まり、実行中に値を調べて探すことはありません。
 
 ## 同じ操作を違う型で使う
 
-標準の`map`は`Functor`の操作です。Arrayなら各要素、Maybeなら`Just`の中身、Eitherなら`Right`の中身を変換します。外側の構造を保って成功値を変換する、という共通の契約をそれぞれのinstanceが実装します。
+標準の`map`は`Functor`という型クラスの操作です。Arrayなら各要素を、Maybeなら`Just`の中身を、Eitherなら`Right`の中身を変換します。どれも「外側の形はそのままで、中身だけを変換する」という同じ約束を、型ごとに実装しています。
 
-`Show`は値の文字列表現、`Eq`は等値比較の操作を提供します。型クラスごとに操作と契約があるので、同じ関数名ならどんな動作でもよい、という仕組みではありません。
+ほかにも、`Show`は値を文字列にする操作、`Eq`は等しいかを比べる操作を持ちます。型クラスごとに決まった意味があり、名前が同じなら何をしてもよいわけではありません。
 
-## 標準のinstanceを導出する
+## instanceを自動で作る
 
-単純なデータ型の`Eq`や`Show`は、`deriving`で導出できます。次の例では、ケースの等値比較と文字列化を使います。
+`Eq`や`Show`のinstanceは、`deriving`を付けると自動で作れます。
 
 {/* example: examples/learn/deriving.ssrg */}
 ```seseragi title="deriving.ssrg"
@@ -117,11 +115,11 @@ True
 Done
 ```
 
-payloadやフィールドを持つ型では、それらも導出する操作を提供する必要があります。たとえば、Showを持たないフィールドを含む型へ、無条件にShowを導出することはできません。独自のRenderを`deriving`で生成することもできません。
+ペイロードやフィールドを持つ型の場合、その中身の型も同じ型クラスを実装している必要があります。たとえば、`Show`を持たないフィールドがある型には、`Show`を`deriving`できません。また、自分で作った`Render`のような型クラスは`deriving`できません。
 
 ### フィールドを持つ型の導出
 
-ケース名だけでなく、structのフィールドにもEqとShowを導出できます。モジュールに次の型を宣言します。
+フィールドを持つstructにも、`Eq`と`Show`を`deriving`できます。
 
 {/* example: examples/learn/focused/type-class-derived-fields.ssrg#declaration */}
 ```seseragi title="structの宣言"
@@ -131,7 +129,7 @@ struct Point deriving Eq, Show {
 }
 ```
 
-mainのdo内で、yだけ違う二つの値を用意します。
+`y`だけが違う二つの値を作ります。
 
 {/* example: examples/learn/focused/type-class-derived-fields.ssrg#values */}
 ```seseragi title="mainのdo内の束縛"
@@ -139,7 +137,7 @@ let left = Point { x: 1, y: 2 }
 let right = Point { x: 1, y: 3 }
 ```
 
-比較と表示は、それぞれ次の式です。
+比較と表示をしてみます。
 
 {/* example: examples/learn/focused/type-class-derived-fields.ssrg#comparison */}
 ```seseragi title="mainのdo内の式"
@@ -156,19 +154,19 @@ False
 Point { x: 1, y: 2 }
 ```
 
-導出されたEqはフィールドの違いを比較します。Showは型名とフィールドを文字列にします。フィールドのIntが両方の操作を提供しているため、この型にも導出できます。
+自動で作られた`Eq`はフィールドを一つずつ比べ、`Show`は型名とフィールドを文字列にします。フィールドの`Int`が`Eq`と`Show`を持っているので、`Point`にも`deriving`できます。
 
-## instanceの範囲と契約
+## instanceの決まり
 
-同じ型クラス適用に複数のinstanceは定義できません。instanceは、traitまたは対象の最外の型を定義したモジュールで宣言します。この規則で、importを増やしただけで既存の操作が別の実装へ切り替わることを防ぎます。
+一つの型に、同じ型クラスのinstanceは一つしか書けません。また、instanceを書けるのは、その`trait`を宣言したモジュールか、対象の型を宣言したモジュールだけです。この決まりのおかげで、importを一つ足しただけで別の実装に切り替わってしまう、ということが起きません。
 
-`impl Badge`に書くメソッドと、`instance Render<Badge>`は別です。前者は型固有の名前付き操作、後者は型クラスの要件を満たす実装です。型クラスは継承階層やruntime objectのinterfaceを作る仕組みではありません。
+`impl Badge`に書くメソッドと、`instance Render<Badge>`は別物です。メソッドはその型だけの操作で、instanceは型クラスの約束を満たすための実装です。型クラスは、クラスの継承のような仕組みではありません。
 
-型検査は操作の型を確かめますが、Eqの反射律やFunctorの合成則といったlawを自動証明しません。独自のinstanceを定義するときは、その契約をテストで確かめます。詳しくは[型クラスリファレンス](/docs/reference/type-classes)を参照してください。
+コンパイラーが確かめるのは型までです。「`a == a`は必ず`True`」のような、型クラスが期待する性質までは確かめません。自分でinstanceを書いたときは、テストで確かめましょう。詳しくは[型クラスリファレンス](/docs/reference/type-classes)にあります。
 
 ### 二つ目のinstanceを定義する
 
-表示の規則を持つ別の型を、モジュールに追加します。
+別の型にも`Render`を実装してみます。
 
 {/* example: examples/learn/focused/type-class-instances.ssrg#tag */}
 ```seseragi title="型とinstanceの宣言"
@@ -182,7 +180,7 @@ instance Render<Tag> {
 }
 ```
 
-main内では、同じframedへ渡します。
+同じ`framed`に渡します。
 
 {/* example: examples/learn/focused/type-class-instances.ssrg#tag-use */}
 ```seseragi title="main内の式"
@@ -191,10 +189,10 @@ Tag { text: "help" }
 |> println
 ```
 
-結果は`<#help>`です。Tagのrenderは先頭へ`#`を付け、framedはその結果を囲みます。framedを書き直さず、型ごとの表示の違いをinstanceに置けます。
+`<#help>`と表示されます。`Tag`の`render`が先頭に`#`を付け、`framed`がそれを`< >`で囲みます。`framed`を書き直さなくても、instanceを足すだけで新しい型に対応できます。
 
-## 別の型で同じ関数を使う
+## 試してみる
 
-`struct Tag { text: String }`と`instance Render<Tag>`を追加し、`framed`へ渡してみてください。`framed`の本体は変更せず、Tagの表示だけをinstanceで定義できます。対応するinstanceを削除した場合の診断も確認します。
+`Badge`と`Tag`の例を一つのファイルにまとめて、両方を`framed`に渡してみてください。そのあと`instance Render<Tag>`を消すと、`Tag`を`framed`に渡している行がエラーになることを確かめます。
 
-次は[モジュール](/docs/learn/modules)で、型とその操作をファイルへ分け、公開する範囲を決めます。
+次の[モジュール](/docs/learn/modules)では、型と関数をファイルに分けて、どこまで公開するかを決めます。
