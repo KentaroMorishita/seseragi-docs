@@ -3,19 +3,19 @@ title: "モジュール"
 description: "公開範囲、import、re-export、名前解決、循環と初期化を確認する。"
 ---
 
-`.ssrg`ファイル一つが一つのモジュールです。ソース内にモジュール名は書きません。通常のidentityはパッケージ identityとソースルートからの相対モジュール pathで決まり、ファイルの絶対pathでは決まりません。
+`.ssrg`ファイル一つが、一つのモジュールです。ファイルの中にモジュール名は書きません。モジュールは、パッケージと、ソースのディレクトリからの相対パスで決まります（ファイルの絶対パスには左右されません）。
 
 ## 公開範囲
 
-宣言は既定でモジュール内だけで公開です。他のモジュールから使う`fn`、`let`、`type`、`struct`、`newtype`、`alias`、`trait`などへ`pub`を付けます。公開署名から非公開型を漏らすことはできません。
+何も付けない宣言は、そのモジュールの中だけで使えます。ほかのモジュールから使う`fn`・`let`・`type`・`struct`・`newtype`・`alias`・`trait`などには`pub`を付けます。公開した関数の型に、公開していない型を含めることはできません。
 
-公開ADT/newtypeのコンストラクターと公開structのフィールドは、通常は型と一緒に公開されます。`pub opaque`を使うと、他モジュールには型名と公開operationだけを渡し、コンストラクター・フィールド・分解を定義モジュール内へ隠せます。
+公開したADT・newtypeのコンストラクターと、公開したstructのフィールドは、型と一緒に公開されます。`pub opaque`を使うと、ほかのモジュールには型の名前と公開した関数だけを見せ、コンストラクター・フィールド・パターンでの分解を、宣言したモジュールの中に隠せます。
 
 inherent メソッドも既定では非公開です。trait instance自体へ`pub`は付けません。instanceのモジュールがtransitive import closureへ含まれると、instance探索の対象になります。
 
 ## importと二つのファイル
 
-`labels.ssrg`は、型と表示関数を公開するモジュールです。次は宣言ファイルの内容です。
+`labels.ssrg`は、型と表示用の関数を公開するモジュールです。
 
 ```seseragi title="src/labels.ssrg"
 pub type Stage =
@@ -29,7 +29,7 @@ pub fn title stage: Stage -> String =
   }
 ```
 
-同じソースディレクトリの`main.ssrg`から、公開名だけをimportします。この二ファイルのパッケージを実行すると`Seseragi`を出力します。
+同じディレクトリの`main.ssrg`から、公開した名前をimportします。この二つのファイルからなるパッケージを実行すると、`Seseragi`と出力されます。
 
 {/* example: examples/reference/modules-project/src/main.ssrg */}
 
@@ -45,38 +45,38 @@ pub effect fn main =
 
 importはモジュール先頭へ置きます。別名を付ける`import { parse as parseText }`と、`import * as text from "std/text"`のnamespace importも使えます。namespace importは`text.trim`のような修飾参照だけを導入し、全名をunqualifiedにするワイルドカード構文はありません。
 
-## specifierの解決
+## importのパスの解決
 
 | 先頭形式 | 解決先 |
 | --- | --- |
-| `./`、`../` | 現在モジュールと同じルート内の相対ファイル |
-| `self/` | 現在パッケージの非公開ソースモジュール |
-| `std/` | canonical standard モジュール |
-| `gen/` | 現在パッケージのgenerated バインディング |
-| bare specifier | 宣言済みの直接依存関係と公開subpath |
+| `./`、`../` | 同じソースディレクトリの中のファイル（相対パス） |
+| `self/` | 自分のパッケージのモジュール |
+| `std/` | 標準ライブラリのモジュール |
+| `gen/` | 自分のパッケージで生成したbinding |
+| それ以外 | `seseragi.toml`に書いた依存パッケージと、その公開されたパス |
 
-`./labels`は正確に`labels.ssrg`へ解決します。ディレクトリ index、別拡張子、working ディレクトリへのfallbackはありません。ソース/test/generated ルートを相対importで横断することもできません。
+`./labels`は、ちょうど`labels.ssrg`を指します。`index`ファイルや別の拡張子を探したり、作業ディレクトリから探したりはしません。ソース・テスト・生成ファイルのディレクトリをまたいで、相対パスでimportすることもできません。
 
-依存関係ではexport mapにあるsubpathだけ使えます。transitive 依存関係を直接importする場合も、自分のマニフェストへ直接依存関係として宣言します。[プロジェクト設定](/docs/reference/project-configuration)でlayoutとexport mapを確認できます。
+依存パッケージからは、その`[exports]`に書かれたパスだけをimportできます。依存パッケージがさらに依存しているパッケージを直接importしたいときは、自分の`seseragi.toml`にも依存として書きます。ディレクトリ構成と`[exports]`は[プロジェクト設定](/docs/reference/project-configuration)にあります。
 
-## re-exportと名前空間
+## 再公開と名前の種類
 
-`pub import { Name } from "./module"`は元のidentityを保ったまま公開APIへ加えます。`pub import * as tools from "./tools"`は公開namespaceを導入します。
+`pub import { Name } from "./module"`と書くと、importした`Name`を自分のモジュールからも公開できます（別の型になるわけではありません）。`pub import * as tools from "./tools"`は、`tools.`で始まる名前をまとめて公開します。
 
-型/trait、値/関数/constructor、フィールド/method、モジュールの別名、独自演算子は別namespaceです。newtypeの型とコンストラクターが同じspellingでも、一つのnamed importで両方を導入できます。
+型とtrait、値と関数とコンストラクター、フィールドとメソッド、モジュールの別名、自分の演算子は、それぞれ別の種類の名前で、同じ名前でもぶつかりません。newtypeの型とコンストラクターが同じ名前の場合、一つのimportで両方を使えるようになります。
 
 unqualified名はlocal バインディング、現在モジュールの宣言、明示import、preludeの順に探します。同じnamespace・同じ段階の重複を勝手に選びません。演算子は`import { operator <+> }`で別にimportし、fixityもinterfaceから取得します。
 
 ## 循環と初期化
 
-型だけのimportでもモジュールグラフの循環は禁止です。相互参照する共有型は第三モジュールへ分け、同一モジュールの関数相互再帰は`rec`へまとめます。
+モジュールどうしが互いにimportし合うことは、型だけのimportでもできません。互いに使う型は三つ目のモジュールに分けます。
 
-モジュールは依存関係順に一度だけ初期化し、top-level `let`はソース順に評価します。後続の`let`を初期化前に読む呼び出しは`SES-N0201`です。同じモジュールを複数箇所からimportしてもtop-level値を二度作りません。
+モジュールは依存している順に一度だけ初期化され、一番外側の`let`は書いた順に計算されます。まだ初期化されていない後ろの`let`を読もうとすると`SES-N0201`エラーです。同じモジュールをいくつかの場所からimportしても、一番外側の値が二回作られることはありません。
 
 importでSeseragiのEffectは実行しません。foreign モジュールのload modeは別の明示契約です。[TypeScript連携](/docs/reference/typescript-interop)を参照してください。
 
 ## 実行モジュール
 
-実行パッケージは`run.entry`から公開`main`を一つ解決します。`main`の成功は`Unit`、要件は閉じたレコードです。ライブラリパッケージに`main`は不要で、importしたモジュールの`main`を暗黙に実行することもありません。
+実行するパッケージでは、`seseragi.toml`の`run.entry`で指定したモジュールの、`pub`の`main`が実行されます。`main`は`Unit`で成功し、必要なものはフィールドの決まったレコードです。ライブラリのパッケージには`main`は要りません。importしたモジュールの`main`が勝手に実行されることもありません。
 
-単一ファイルのscratch実行ではパッケージ依存関係や複数ファイルのグラフを推測しません。このページの二ファイル例のようなアプリは、マニフェストとlockを持つパッケージで実行してください。[パッケージを作る](/docs/guides/packages-and-deployment)で手順を説明しています。
+ファイルを一つだけ渡して実行するときは、依存パッケージやほかのファイルを探しません。このページの例のように複数のファイルからなるアプリは、`seseragi.toml`とロックファイルを持つパッケージとして実行してください。手順は[パッケージと配布](/docs/guides/packages-and-deployment)にあります。
