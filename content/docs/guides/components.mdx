@@ -5,7 +5,7 @@ description: propsからHTMLを作る純粋関数を、画面とSSRで再利用�
 
 配送状況のカードを、タイトルと説明を受け取ってHTMLを返す関数に切り出します。Seseragiのコンポーネントは、特別な仕組みのない普通の`fn`です。HTMLを作ることと、それをブラウザーに表示することが分かれているので、同じ関数をブラウザーでも、HTMLの文字列を作るのにも使えます。
 
-propsには[レコード](/docs/learn/records-and-structs)を、Actionの型には[ジェネリクス](/docs/learn/generics)を使います。
+propsには[レコード](/docs/learn/records-and-structs)を、Actionの型には[ジェネリクス](/docs/learn/generics)を使います。画面を表示する`main`では、[Effect](/docs/learn/effects)と[モジュール](/docs/learn/modules)のimportも使います。
 
 ## propsの形を決める
 

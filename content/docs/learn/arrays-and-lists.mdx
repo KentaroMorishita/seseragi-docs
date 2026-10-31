@@ -5,6 +5,8 @@ description: "列を変換・選別・集計し、ArrayとListの違いを使い
 
 この章では、たくさんの値をまとめて扱うArrayとListを学びます。要素を変換する`map`と、要素を選ぶ`filter`から始めて、添字・集計・Listへと進み、最後にそれらを組み合わせます。
 
+この章のコードでは、[関数](/docs/learn/functions)のラムダ、[パイプライン](/docs/learn/pipelines)の`|>`と`show`、[パターンマッチ](/docs/learn/pattern-matching)の`match`を使います。
+
 ## 要素を変えるmap
 
 `[1, 2, 3]`は`Array<Int>`型の配列です。`map`は、各要素に関数を適用した新しいArrayを作ります。TypeScriptの`array.map(...)`と同じ働きです。
@@ -25,7 +27,7 @@ description: "列を変換・選別・集計し、ArrayとListの違いを使い
 
 ## 残す要素を選ぶfilter
 
-`filter`は、条件の関数が`True`を返した要素だけを残します。`filter`は`std/array`モジュールにあるので、ファイルの先頭でimportします。
+`filter`は、条件の関数が`True`を返した要素だけを残します。`filter`は`std/array`モジュールにあるので、ファイルの先頭でimportします。importの書き方は[モジュール](/docs/learn/modules)で詳しく扱います。
 
 {/* example: examples/learn/focused/array-filter.ssrg#import */}
 ```seseragi title="importの宣言"

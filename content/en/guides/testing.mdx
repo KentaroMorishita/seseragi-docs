@@ -5,6 +5,8 @@ description: Verify a public API with std/test and preserve meaningful boundary 
 
 Test a function that returns a shipping fee of 0 for a subtotal of 3000 or more and 400 otherwise. Testing just below the boundary, exactly at it, and just above it means you notice right away if the condition is ever written wrong.
 
+It uses what you learned in [Modules](/en/docs/learn/modules) and `$` from [The application operator](/en/docs/learn/application-operator). The input validation tests later on also use [Maybe and Either](/en/docs/learn/maybe-and-either).
+
 ## Create a package for tests
 
 Create the following files in `shipping/`. Functions go in `src/` and tests in `tests/`.

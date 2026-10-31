@@ -5,6 +5,8 @@ description: "Group named values and understand structural records and nominal s
 
 This chapter shows how to group several values into one. At the end, you write a function that takes a point and returns a new point shifted to the right, without changing the original.
 
+The code in this chapter uses [Pipelines](/en/docs/learn/pipelines) for `|>` and `show`. The `do { ... }` in `main` runs the steps inside it from top to bottom; [Effects](/en/docs/learn/effects) covers it in detail.
+
 ## A record's type is its shape
 
 `{ x: 1, y: 2 }` is a record with named fields. It works almost exactly like a TypeScript object literal, and its type is `{ x: Int, y: Int }`. Read a field with `point.x`.

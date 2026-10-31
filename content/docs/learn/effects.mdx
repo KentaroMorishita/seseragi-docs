@@ -7,9 +7,11 @@ description: "外部処理を遅延された計算として表し、doで順番�
 
 Seseragiでは、出力・状態の読み書き・非同期処理のような外の世界とのやり取りを、`Effect`という値で表します。Effectは「実行すると何かをする処理」を表す値で、作っただけではまだ何も起こりません。この章では、Effectの作り方、実行の仕方、失敗の扱い方を学びます。
 
+この章のコードでは、[パイプライン](/docs/learn/pipelines)の`|>`と`show`、[レコードとstruct](/docs/learn/records-and-structs)、[代数的データ型](/docs/learn/algebraic-data-types)、[パターンマッチ](/docs/learn/pattern-matching)の`match`を使います。
+
 ## 成功する計算から値を受け取る
 
-まずは、外の世界を使わずに、ただ値を返すだけのEffectを作ってみます。`std/effect`をimportします。
+まずは、外の世界を使わずに、ただ値を返すだけのEffectを作ってみます。`std/effect`をimportします（importの書き方は[モジュール](/docs/learn/modules)で扱います）。
 
 {/* example: examples/learn/focused/effect-bind.ssrg#import */}
 ```seseragi title="importの宣言"

@@ -5,6 +5,8 @@ description: 更新規則を純粋関数へまとめ、画面や副作用から�
 
 [Webアプリを作る](/docs/guides/web-app)のカウンターの「増やす」「戻す」を、画面なしで確かめます。「どの操作で状態がどう変わるか」を`update`という一つの関数にまとめておくと、画面を作る前に動きを確かめられます。
 
+操作の種類には[代数的データ型](/docs/learn/algebraic-data-types)、`update`の分岐には[パターンマッチ](/docs/learn/pattern-matching)、状態をまとめるのには[struct](/docs/learn/records-and-structs)を使います。
+
 ## 現在値と操作を分ける
 
 状態は今の数を表す`Int`、操作は`Increment`と`Reset`の二つのケースを持つ`Action`です。`update action state`は、操作と今の状態から新しい状態を返します。

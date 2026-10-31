@@ -5,7 +5,7 @@ description: privateなSignalを作り、読み取り専用の画面を親へ返
 
 「Today」と「Tomorrow」の二つのカウンターを並べ、片方を押してももう片方は変わらないようにします。カウンターのモジュールが自分の状態を持ち、親には画面（`Signal<Html<Task<Unit>>>`）だけを返します。親は子の状態に触れません。
 
-「学ぶ」の[Effect](/docs/learn/effects)、[Signal](/docs/learn/signals)、[モジュール](/docs/learn/modules)の内容を使います。`Task<Unit>`は`Effect<{}, Never, Unit>`の別名で、何も必要とせず失敗もしないEffectです。ボタンは、このTaskをクリック時のActionとして持ちます。
+「学ぶ」の[Effect](/docs/learn/effects)、[Signal](/docs/learn/signals)、[モジュール](/docs/learn/modules)の内容を使います。状態には[struct](/docs/learn/records-and-structs)、ボタンの処理には[関数](/docs/learn/functions)のラムダ、括弧を減らすのに[関数適用演算子](/docs/learn/application-operator)の`$`を使います。`Task<Unit>`は`Effect<{}, Never, Unit>`の別名で、何も必要とせず失敗もしないEffectです。ボタンは、このTaskをクリック時のActionとして持ちます。
 
 ## プロジェクトを準備する
 

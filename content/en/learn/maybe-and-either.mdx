@@ -7,6 +7,8 @@ In TypeScript, a missing value is often `undefined` or `null`, and a failure is 
 
 Seseragi expresses both in types. When having no value is an ordinary result, as in "searched but not found", use `Maybe`. When you need to say why something failed, as in "the input was invalid", use `Either`. This chapter tries each in turn, then combines them in an example that validates a port number.
 
+The code in this chapter uses [Functions](/en/docs/learn/functions) for lambdas, [Pipelines](/en/docs/learn/pipelines) for `|>`, [Algebraic data types](/en/docs/learn/algebraic-data-types), [Pattern matching](/en/docs/learn/pattern-matching) for `match`, and [Arrays and lists](/en/docs/learn/arrays-and-lists).
+
 ## Represent presence and absence with Maybe
 
 `Maybe<A>` is either `Just value`, holding a value, or `Nothing`, holding none. `Just 21` means there is an integer. `Nothing` alone does not say what type is missing, so write the type when needed: `let absent: Maybe<Int> = Nothing`.

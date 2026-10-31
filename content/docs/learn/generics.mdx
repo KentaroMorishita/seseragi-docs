@@ -5,6 +5,8 @@ description: "型引数を使って、異なる型にも同じ処理とデータ
 
 整数を入れる箱と文字列を入れる箱を別々に作る代わりに、中身の型を引数にした`Box<A>`を一つ作れます。これがジェネリクスで、TypeScriptの`Box<T>`と同じ考え方です。`A`は値ではなく、型の名前の代わりに置く記号です。
 
+この章のコードでは、[関数](/docs/learn/functions)、[パイプライン](/docs/learn/pipelines)の`|>`と`show`、[レコードとstruct](/docs/learn/records-and-structs)、[代数的データ型](/docs/learn/algebraic-data-types)、[パターンマッチ](/docs/learn/pattern-matching)の`match`を使います。`main`の`do { ... }`は、中の処理を上から順に実行する書き方です。詳しくは[Effect](/docs/learn/effects)で扱います。
+
 ## 引数と結果の型を同じに保つ
 
 まず、型引数を一つ使う小さな関数を書きます。関数名の後ろの`<A>`が型引数です。
