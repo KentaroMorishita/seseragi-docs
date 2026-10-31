@@ -3,7 +3,7 @@ title: "型クラス"
 description: "型で選ぶtrait、instance、constraint、deriving、operator、doの規則を確認する。"
 ---
 
-型クラスは、型がどの操作を実装できるかを表します。継承やランタイムのオブジェクトのinterfaceではなく、型検査時に一意に選ぶinstanceの契約です。
+型クラスは、ある型がどんな操作を持っているかを表します。クラスの継承や、実行時のオブジェクトのinterfaceとは違い、どの実装（instance）を使うかは型チェックのときに一つに決まります。
 
 ## traitとinstance
 
@@ -35,19 +35,19 @@ pub effect fn main =
   |> println
 ```
 
-出力は`Language`です。`instance Label<Topic>`のメソッド型は、traitの`A`を`Topic`へ置き換えた型と一致する必要があります。
+出力は`Language`です。`instance Label<Topic>`の中の関数の型は、traitの`A`を`Topic`に置き換えた型と一致していなければなりません。
 
-`impl Topic`はその型固有のメソッド用です。traitを実装するときは`instance`を使います。`impl Label<Topic>`をtrait instanceのつもりで書くと`SES-T0502`です。
+`impl Topic`は、その型だけのメソッドを書くためのものです。traitを実装するときは`instance`を使います。`impl Label<Topic>`と書くと`SES-T0502`エラーになります。
 
-## constraintと選択
+## 制約とinstanceの選ばれ方
 
-`where Label<A>`は、その関数を呼ぶ場所でinstanceが必要という制約です。具体型が決まるとinstanceを選び、generic codeは制約の辞書を受け取る意味になります。
+`where Label<A>`は、「この関数を呼ぶときには、`A`の`Label`のinstanceが必要」という制約です。呼ぶ側で具体的な型が決まると、その型のinstanceが選ばれて関数に渡されます。
 
-同じ名前のtrait メソッドがscopeへ複数入り、型からtrait自体を選べない場合は、`Functor.map`のように修飾します。ランタイム tag、JavaScriptのコンストラクター名、objectのshapeを調べてinstanceを再探索することはありません。
+同じ名前の関数を持つtraitがいくつも見えていて、型からどのtraitか決められないときは、`Functor.map`のようにtrait名を付けて書きます。実行中に値を調べてinstanceを探すことはありません。
 
 standard コレクションの`Show`などは要素型のinstanceも必要です。空Arrayや`Nothing`であっても、値を見て要素のconstraintを省略しません。必要なinstanceがない場合は`SES-T0201`です。
 
-### generic関数へconstraintを渡す
+### ジェネリックな関数と制約
 
 {/* example: examples/reference/typeclass-variants.ssrg#constraints */}
 
@@ -64,7 +64,7 @@ println $ display 42
 println $ display True
 ```
 
-IntとBoolのShow instanceをそれぞれ選び、42とTrueを出力します。
+`Int`と`Bool`の`Show`のinstanceがそれぞれ選ばれ、42と`True`が出力されます。
 
 whereを省いた次の宣言は、genericなAにShowの証拠がなく、`SES-T0201`です。これは意図的なエラー例です。
 
@@ -79,13 +79,13 @@ pub effect fn main =
   |> println
 ```
 
-## coherenceとorphan rule
+## instanceは一つだけ
 
-同じtrait適用には、プログラム全体で一つのinstanceだけ存在できます。instanceを置けるのはtraitを定義したモジュール、またはheadの最外nominal型を定義したモジュールです。局所instance、重複候補への優先順位、overlapはありません。
+一つの型に対する同じtraitのinstanceは、プログラム全体で一つしか書けません。instanceを書けるのは、traitを宣言したモジュールか、対象の型を宣言したモジュールだけです。関数の中だけで使うinstanceや、候補が複数あるときの優先順位といった仕組みはありません。
 
 aliasはinstance identityを作りません。aliasと展開先に別のinstanceを定義して回避することはできません。匿名レコードやタプルへuser-definedなstructural instanceを追加することもできません。
 
-標準の`Iterable<C, A>`は`C`から`A`、算術traitはオペランド型から結果型を一意に決めます。このfunctional 依存関係に反するinstanceもcoherence errorです。user traitへfunctional 依存関係を宣言する構文は現在ありません。
+標準の`Iterable<C, A>`では`C`が決まれば`A`が一つに決まり、算術のtraitでは引数の型から結果の型が一つに決まります。この決まりに反するinstanceもエラーです。自分で作るtraitにこうした決まりを宣言する構文は、今はありません。
 
 ## 標準traitと演算子
 
@@ -94,19 +94,19 @@ aliasはinstance identityを作りません。aliasと展開先に別のinstance
 | `Eq<A>` | `eq`、`==`、`!=` |
 | `Ord<A>` | `compare`、順序比較 |
 | `Show<A>` | `show`、テンプレート埋め込み |
-| `Hash<A>` | Hash構造で使う値のhash |
+| `Hash<A>` | ハッシュを使うコレクションのためのハッシュ値 |
 | `Functor<F>` | `map`、`<$>` |
 | `Applicative<F>` | `pure`、`apply`、`<*>` |
 | `Monad<M>` | `flatMap`、`>>=`、`do` |
 | `Add<L, R, O>`など | 算術演算子 |
 
-`F<_>`や`M<_>`は型構築子パラメーターです。`Functor<Maybe>`や`Monad<Effect<R, E, _>>`のように使います。`Ord`は一貫した全順序が必要で、Floatにはstandard `Ord`がありません。Floatの比較をホストの比較へ暗黙に迂回しません。
+`F<_>`や`M<_>`は「型引数を一つ受け取る型」を表し、`Functor<Maybe>`や`Monad<Effect<R, E, _>>`のように使います。`Ord`はすべての値に一貫した順序が必要なので、`NaN`のある`Float`には標準の`Ord`がありません。
 
 struct/newtypeの`impl`内の標準`operator`宣言は、対応する標準trait instanceの糖衣です。独自symbolや優先順位は別のトップレベル`operator`宣言で定義します。
 
 ### 同じmapを複数の型へ使う
 
-以下ではincrementをIntへ1を足すpure関数とします。raiseの宣言はArray、Maybe、Listのいずれにも特定せず、Functor constraintを要求します。
+`increment`は`Int`に1を足す関数です。`raise`はArray・Maybe・Listのどれかに決めず、`Functor`の制約だけを持ちます。
 
 {/* example: examples/reference/typeclass-variants.ssrg#functor */}
 
@@ -125,15 +125,15 @@ println $ show $ raise $ Just 2
 println $ show $ raise `[3, 4]
 ```
 
-順に`[2, 3]`、`Just 3`、`` `[4, 5] ``を出力します。instanceは入力の型から選びます。
+順に`[2, 3]`、`Just 3`、`` `[4, 5] ``が出力されます。どのinstanceを使うかは、渡した値の型から決まります。
 
-## derivingとlaws
+## derivingと型クラスの性質
 
-`deriving`で導出できるのは`Eq`、`Ord`、`Show`、`Debug`、`Hash`、`JsonEncode`、`JsonDecode`です。必要なフィールド/payload型にも同じtraitのinstanceが必要です。generic型なら、その条件を生成instanceへ加えます。
+`deriving`で自動で作れるのは、`Eq`・`Ord`・`Show`・`Debug`・`Hash`・`JsonEncode`・`JsonDecode`です。フィールドやペイロードの型にも、同じtraitのinstanceが必要です。型パラメーターを持つ型なら、その型パラメーターにも同じ条件が付きます。
 
-`Hash`には同じ型の`Eq`も必要です。derivingと明示instanceで同じ適用を二重定義するとエラーです。導出した`Ord`はvariantの宣言順、その後にペイロードの辞書式順序を使います。newtypeのShowはコンストラクター名を残します。
+`Hash`を作るには、同じ型の`Eq`も必要です。`deriving`と手書きの`instance`で同じものを二回定義するとエラーです。自動で作った`Ord`は、まずケースを宣言した順に比べ、同じケースならペイロードを先頭から順に比べます。newtypeの`Show`は、コンストラクター名も表示します。
 
-Eq、Ord、Functor、Applicative、Monadなどのlawはinstanceの契約です。型検査だけでlawを証明することはありません。[テスト](/docs/guides/testing)でも動作を確認してください。
+`Eq`・`Ord`・`Functor`・`Applicative`・`Monad`などには、instanceが満たすべき性質（「`a == a`は必ず`True`」など）があります。コンパイラーはこれを確かめないので、[テスト](/docs/guides/testing)で確かめてください。
 
 ### 導出したEqを使う
 
@@ -152,11 +152,11 @@ Tag "docs" == Tag "docs"
 |> println
 ```
 
-同じペイロードを持つTag同士を比較するので、出力はTrueです。IntやStringとwrapperを暗黙に同じ型にはしません。
+同じ中身の`Tag`どうしを比べているので、出力は`True`です。`Tag`と`String`が同じ型として扱われることはありません。
 
-## do notation
+## do記法
 
-`do`は一つの`Monad<M>`のbind列です。Effectだけの構文ではありません。
+`do`は、一つの`Monad`の処理を順につなげる書き方です。Effect専用の構文ではありません。
 
 ```seseragi title="doの構文"
 do {
@@ -166,13 +166,13 @@ do {
 }
 ```
 
-`<-`はmonadのペイロードを束縛し、`let`はpureな値を束縛します。途中のmonadic expressionは結果を捨てて続け、最後のmonadic expressionがblock全体の結果です。最後の式は必須です。
+`<-`は中の値を取り出して名前を付け、`let`は普通の値に名前を付けます。途中に書いた式は、結果を捨てて次に進みます。最後の式が`do`全体の結果になり、省略できません。
 
-すべての計算を同じ型構築子へ揃えます。EitherをEffectへ混ぜるなら`fromEither`などで明示変換します。bind patternは必ず一致する必要があり、refutable patternを暗黙の失敗へ変換しません。[パターン](/docs/reference/patterns)も参照してください。
+一つの`do`の中の式は、すべて同じMonadでなければなりません。EffectのdoでEitherを使うなら、`fromEither`などで変換します。`<-`の左側のパターンは必ず一致するものに限られます（[パターン](/docs/reference/patterns)）。
 
 ### Maybeのdo
 
-次はpure関数の宣言です。二つのMaybeを同じMonadへ揃え、ペイロードを足してMaybeへ戻します。
+二つの`Maybe`の中身を足し、結果を`Maybe`で返す関数です。
 
 {/* example: examples/reference/do-variants.ssrg#maybe-do */}
 
@@ -197,7 +197,7 @@ sum Nothing (Just 3)
 |> println
 ```
 
-出力はJust 5とNothingです。
+出力は`Just 5`と`Nothing`です。
 
 ### Arrayのdo
 
@@ -219,6 +219,6 @@ choices ()
 |> println
 ```
 
-出力は`[11, 21, 12, 22]`です。最初のArrayが外側、次のArrayが内側の組み合わせになります。
+出力は`[11, 21, 12, 22]`です。一つ目のArrayが外側、二つ目のArrayが内側のループのように組み合わされます。
 
-現在のコンパイラーでは、Effect関数内のdoで別monadのdoを直接pure letへ置く形にコンパイラー制約があります。上のようにpure関数へ分けて結果を使えます。doをEffectだけに限定する言語仕様ではありません。
+今のコンパイラーには、Effectの`do`の中の`let`に、別のMonadの`do`を直接書けないという制限があります。上の例のように、別の関数に分ければ使えます。
