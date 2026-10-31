@@ -12,18 +12,18 @@ description: "パターンの種類、束縛、guard、網羅性、失敗しう�
 | `value` | 値全体を束縛する |
 | `_` | 値を使わない |
 | `42`、`"ready"` | literalとの一致 |
-| `Just value` | constructorとpayload |
-| `(x, y)` | 同じarityのtuple |
-| `{ name, age: years }` | record fieldを選んで分解 |
-| `User { name }` | nominal structのfieldを分解 |
+| `Just value` | コンストラクターとペイロード |
+| `(x, y)` | 同じarityのタプル |
+| `{ name, age: years }` | レコードフィールドを選んで分解 |
+| `User { name }` | nominal structのフィールドを分解 |
 | `[first, ...rest]` | Arrayの先頭と残り |
 | `` `[first, ...rest] `` | Listの先頭と共有tail |
 
-入れ子にできます。同じパターンで同じ名前を二度束縛することはできません。constructorやfieldの型は対象値から決め、tupleのarityやpayloadの形が違う場合は型エラーです。
+入れ子にできます。同じパターンで同じ名前を二度束縛することはできません。コンストラクターやフィールドの型は対象値から決め、タプルのarityやペイロードの形が違う場合は型エラーです。
 
 ## matchの評価と網羅性
 
-対象式は一度だけ評価します。armを上から順に試し、patternとguardが最初に一致したarmの式だけを評価します。すべての結果型を揃える必要があります。
+対象式は一度だけ評価します。分岐を上から順に試し、patternとガードが最初に一致した分岐の式だけを評価します。すべての結果型を揃える必要があります。
 
 {/* example: examples/reference/patterns.ssrg */}
 
@@ -43,11 +43,11 @@ pub effect fn main = do {
 
 出力は`Empty`、`Aki`の順です。`[]`は長さ0、`[first, ..._]`は一個以上のArrayを扱うため、すべての長さを覆います。restのない`[first]`は長さ1だけに一致します。
 
-網羅しない`match`はコンパイルエラーです。先行armにすべて覆われて到達できないarmもエラーです。`Int`や`String`のliteralだけでは全値を覆えないので、必要なら最後にbindingや`_`を置きます。
+網羅しない`match`はコンパイルエラーです。先行分岐にすべて覆われて到達できない分岐もエラーです。`Int`や`String`のliteralだけでは全値を覆えないので、必要なら最後にバインディングや`_`を置きます。
 
-## guard
+## ガード
 
-guardは`when Bool式`で書き、patternで導入した名前を参照できます。次はarmの構文です。
+ガードは`when Bool式`で書き、patternで導入した名前を参照できます。次は分岐の構文です。
 
 ```seseragi title="guard付きarm"
 Just value when value > 0 ->
@@ -56,9 +56,9 @@ Just _ -> "other"
 Nothing -> "missing"
 ```
 
-guard付きarmは網羅性に寄与しません。`Just value when True`だけを置いても、guardのない`Just`を覆うarmが必要です。guardはpatternが一致した後にだけ評価します。
+ガード付き分岐は網羅性に寄与しません。`Just value when True`だけを置いても、ガードのない`Just`を覆う分岐が必要です。ガードはpatternが一致した後にだけ評価します。
 
-### Maybeのguardとfallback
+### Maybeのガードとfallback
 
 {/* example: examples/reference/pattern-variants.ssrg#maybe-guard */}
 
@@ -72,7 +72,7 @@ fn describe value: Maybe<Int>
   }
 ```
 
-Justのpayloadが正なら最初のarm、それ以外のJustは二番目、Nothingは三番目へ進みます。guardがFalseなら次のarmを試します。
+Justのペイロードが正なら最初の分岐、それ以外のJustは二番目、Nothingは三番目へ進みます。ガードがFalseなら次の分岐を試します。
 
 {/* example: examples/reference/pattern-variants.ssrg#guard-cases */}
 
@@ -82,7 +82,7 @@ println $ describe $ Just 0
 println $ describe Nothing
 ```
 
-出力はpositive、non-positive、missingの順です。二番目のJust armを省くと、guardだけでは網羅できません。
+出力はpositive、non-positive、missingの順です。二番目のJust 分岐を省くと、ガードだけでは網羅できません。
 
 ## 束縛できる場所
 
@@ -92,12 +92,12 @@ println $ describe Nothing
 | --- | --- | --- |
 | `let pattern = value` | RHSの型 | 禁止 |
 | `do`の`let` | pure RHSの型 | 禁止 |
-| `pattern <- computation` | monadのpayload型 | 禁止 |
-| `match` arm | 対象値の型 | 許可 |
+| `pattern <- computation` | monadのペイロード型 | 禁止 |
+| `match` 分岐 | 対象値の型 | 許可 |
 | comprehension generator | Iterableの要素型 | 不一致の要素を除外 |
 | effectful `for` | Iterableの要素型 | 禁止 |
 
-名前、`_`、内部も必ず一致するtuple/record/structはirrefutableです。一variantだけのconstructorとnewtypeも、内部patternがirrefutableなら使えます。Array/Listでは固定要素を持たない`[...rest]`だけが必ず一致します。
+名前、`_`、内部も必ず一致するタプル/record/structはirrefutableです。一variantだけのコンストラクターとnewtypeも、内部patternがirrefutableなら使えます。Array/Listでは固定要素を持たない`[...rest]`だけが必ず一致します。
 
 `let Just value = maybeValue`は使えません。`match`で`Nothing`も処理します。失敗しうるbindを暗黙の例外や`MonadFail`へ変換することはありません。
 
@@ -110,7 +110,7 @@ let (label, _) = ("Aki", 42)
 println label
 ```
 
-tupleの第二要素は使わず、Akiだけを出力します。`_`は参照できる変数を作りません。
+タプルの第二要素は使わず、Akiだけを出力します。`_`は参照できる変数を作りません。
 
 {/* example: examples/reference/pattern-variants.ssrg#record-bind */}
 
@@ -122,7 +122,7 @@ let { name, age: years } = {
 println `${name}: ${years}`
 ```
 
-ageの値をyearsとして束縛するため、出力は`Mio: 7`です。field自体をageからyearsへ改名する操作ではありません。
+ageの値をyearsとして束縛するため、出力は`Mio: 7`です。フィールド自体をageからyearsへ改名する操作ではありません。
 
 ### letでJustだけを分解する場合
 
@@ -139,14 +139,14 @@ pub effect fn main = do {
 }
 ```
 
-## recordとoptional query
+## レコードとoptional query
 
-record patternは指定field以外を無視します。struct patternも指定しないfieldを無視しますが、nominal型と公開範囲を守ります。パターン内のspreadはありません。
+レコード patternは指定フィールド以外を無視します。struct patternも指定しないフィールドを無視しますが、nominal型と公開範囲を守ります。パターン内のspreadはありません。
 
-optional fieldには`{ id? }`または`{ id?: pattern }`を使います。`id?`はpresenceを`Maybe<A>`として束縛し、`id?: Just value`は存在する場合だけ一致します。required fieldへqueryすると常に`Just`です。optional fieldを通常の`{ id }`で取り出すことはできません。
+省略可能なフィールドには`{ id? }`または`{ id?: pattern }`を使います。`id?`はpresenceを`Maybe<A>`として束縛し、`id?: Just value`は存在する場合だけ一致します。required フィールドへqueryすると常に`Just`です。省略可能なフィールドを通常の`{ id }`で取り出すことはできません。
 
 ## scopeとコスト
 
-束縛の入力式は、その束縛が作る名前を参照できません。`match`の名前は同じarmのguardとbodyだけ、`let`や`do` bindの名前は後続itemだけで使えます。パターン全体の一致が成功してから名前を導入するため、部分的に束縛された状態は見えません。
+束縛の入力式は、その束縛が作る名前を参照できません。`match`の名前は同じ分岐のガードとbodyだけ、`let`や`do` bindの名前は後続itemだけで使えます。パターン全体の一致が成功してから名前を導入するため、部分的に束縛された状態は見えません。
 
 Listのrestは既存tailを共有します。Arrayのrestは残りのArrayを作るため、Arrayを`[head, ...tail]`で最後まで再帰すると二乗時間になります。大きなArrayの走査には`reduce`などを使います。[性能](/docs/reference/performance)でこの違いを確認できます。

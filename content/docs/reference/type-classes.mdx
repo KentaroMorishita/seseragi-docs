@@ -3,11 +3,11 @@ title: "型クラス"
 description: "型で選ぶtrait、instance、constraint、deriving、operator、doの規則を確認する。"
 ---
 
-型クラスは、型がどの操作を実装できるかを表します。継承やruntime objectのinterfaceではなく、型検査時に一意に選ぶinstanceの契約です。
+型クラスは、型がどの操作を実装できるかを表します。継承やランタイムのオブジェクトのinterfaceではなく、型検査時に一意に選ぶinstanceの契約です。
 
 ## traitとinstance
 
-traitはmethodの型を宣言し、instanceが本体を与えます。次の例では、`Topic`の値を表示する操作を`Label`で抽象化しています。
+traitはメソッドの型を宣言し、instanceが本体を与えます。次の例では、`Topic`の値を表示する操作を`Label`で抽象化しています。
 
 {/* example: examples/reference/type-classes.ssrg */}
 
@@ -35,17 +35,17 @@ pub effect fn main =
   |> println
 ```
 
-出力は`Language`です。`instance Label<Topic>`のmethod型は、traitの`A`を`Topic`へ置き換えた型と一致する必要があります。
+出力は`Language`です。`instance Label<Topic>`のメソッド型は、traitの`A`を`Topic`へ置き換えた型と一致する必要があります。
 
-`impl Topic`はその型固有のmethod用です。traitを実装するときは`instance`を使います。`impl Label<Topic>`をtrait instanceのつもりで書くと`SES-T0502`です。
+`impl Topic`はその型固有のメソッド用です。traitを実装するときは`instance`を使います。`impl Label<Topic>`をtrait instanceのつもりで書くと`SES-T0502`です。
 
 ## constraintと選択
 
 `where Label<A>`は、その関数を呼ぶ場所でinstanceが必要という制約です。具体型が決まるとinstanceを選び、generic codeは制約の辞書を受け取る意味になります。
 
-同じ名前のtrait methodがscopeへ複数入り、型からtrait自体を選べない場合は、`Functor.map`のように修飾します。runtime tag、JavaScriptのconstructor名、objectのshapeを調べてinstanceを再探索することはありません。
+同じ名前のtrait メソッドがscopeへ複数入り、型からtrait自体を選べない場合は、`Functor.map`のように修飾します。ランタイム tag、JavaScriptのコンストラクター名、objectのshapeを調べてinstanceを再探索することはありません。
 
-standard collectionの`Show`などは要素型のinstanceも必要です。空Arrayや`Nothing`であっても、値を見て要素のconstraintを省略しません。必要なinstanceがない場合は`SES-T0201`です。
+standard コレクションの`Show`などは要素型のinstanceも必要です。空Arrayや`Nothing`であっても、値を見て要素のconstraintを省略しません。必要なinstanceがない場合は`SES-T0201`です。
 
 ### generic関数へconstraintを渡す
 
@@ -81,26 +81,26 @@ pub effect fn main =
 
 ## coherenceとorphan rule
 
-同じtrait適用には、プログラム全体で一つのinstanceだけ存在できます。instanceを置けるのはtraitを定義したmodule、またはheadの最外nominal型を定義したmoduleです。局所instance、重複候補への優先順位、overlapはありません。
+同じtrait適用には、プログラム全体で一つのinstanceだけ存在できます。instanceを置けるのはtraitを定義したモジュール、またはheadの最外nominal型を定義したモジュールです。局所instance、重複候補への優先順位、overlapはありません。
 
-aliasはinstance identityを作りません。aliasと展開先に別のinstanceを定義して回避することはできません。匿名recordやtupleへuser-definedなstructural instanceを追加することもできません。
+aliasはinstance identityを作りません。aliasと展開先に別のinstanceを定義して回避することはできません。匿名レコードやタプルへuser-definedなstructural instanceを追加することもできません。
 
-標準の`Iterable<C, A>`は`C`から`A`、算術traitはoperand型から結果型を一意に決めます。このfunctional dependencyに反するinstanceもcoherence errorです。user traitへfunctional dependencyを宣言する構文は現在ありません。
+標準の`Iterable<C, A>`は`C`から`A`、算術traitはオペランド型から結果型を一意に決めます。このfunctional 依存関係に反するinstanceもcoherence errorです。user traitへfunctional 依存関係を宣言する構文は現在ありません。
 
-## 標準traitとoperator
+## 標準traitと演算子
 
 | trait | 操作・構文 |
 | --- | --- |
 | `Eq<A>` | `eq`、`==`、`!=` |
 | `Ord<A>` | `compare`、順序比較 |
-| `Show<A>` | `show`、template interpolation |
+| `Show<A>` | `show`、テンプレート埋め込み |
 | `Hash<A>` | Hash構造で使う値のhash |
 | `Functor<F>` | `map`、`<$>` |
 | `Applicative<F>` | `pure`、`apply`、`<*>` |
 | `Monad<M>` | `flatMap`、`>>=`、`do` |
-| `Add<L, R, O>`など | 算術operator |
+| `Add<L, R, O>`など | 算術演算子 |
 
-`F<_>`や`M<_>`は型構築子parameterです。`Functor<Maybe>`や`Monad<Effect<R, E, _>>`のように使います。`Ord`は一貫した全順序が必要で、Floatにはstandard `Ord`がありません。Floatの比較をhostの比較へ暗黙に迂回しません。
+`F<_>`や`M<_>`は型構築子パラメーターです。`Functor<Maybe>`や`Monad<Effect<R, E, _>>`のように使います。`Ord`は一貫した全順序が必要で、Floatにはstandard `Ord`がありません。Floatの比較をホストの比較へ暗黙に迂回しません。
 
 struct/newtypeの`impl`内の標準`operator`宣言は、対応する標準trait instanceの糖衣です。独自symbolや優先順位は別のトップレベル`operator`宣言で定義します。
 
@@ -129,9 +129,9 @@ println $ show $ raise `[3, 4]
 
 ## derivingとlaws
 
-`deriving`で導出できるのは`Eq`、`Ord`、`Show`、`Debug`、`Hash`、`JsonEncode`、`JsonDecode`です。必要なfield/payload型にも同じtraitのinstanceが必要です。generic型なら、その条件を生成instanceへ加えます。
+`deriving`で導出できるのは`Eq`、`Ord`、`Show`、`Debug`、`Hash`、`JsonEncode`、`JsonDecode`です。必要なフィールド/payload型にも同じtraitのinstanceが必要です。generic型なら、その条件を生成instanceへ加えます。
 
-`Hash`には同じ型の`Eq`も必要です。derivingと明示instanceで同じ適用を二重定義するとエラーです。導出した`Ord`はvariantの宣言順、その後にpayloadの辞書式順序を使います。newtypeのShowはconstructor名を残します。
+`Hash`には同じ型の`Eq`も必要です。derivingと明示instanceで同じ適用を二重定義するとエラーです。導出した`Ord`はvariantの宣言順、その後にペイロードの辞書式順序を使います。newtypeのShowはコンストラクター名を残します。
 
 Eq、Ord、Functor、Applicative、Monadなどのlawはinstanceの契約です。型検査だけでlawを証明することはありません。[テスト](/docs/guides/testing)でも動作を確認してください。
 
@@ -152,7 +152,7 @@ Tag "docs" == Tag "docs"
 |> println
 ```
 
-同じpayloadを持つTag同士を比較するので、出力はTrueです。IntやStringとwrapperを暗黙に同じ型にはしません。
+同じペイロードを持つTag同士を比較するので、出力はTrueです。IntやStringとwrapperを暗黙に同じ型にはしません。
 
 ## do notation
 
@@ -166,13 +166,13 @@ do {
 }
 ```
 
-`<-`はmonadのpayloadを束縛し、`let`はpureな値を束縛します。途中のmonadic expressionは結果を捨てて続け、最後のmonadic expressionがblock全体の結果です。最後の式は必須です。
+`<-`はmonadのペイロードを束縛し、`let`はpureな値を束縛します。途中のmonadic expressionは結果を捨てて続け、最後のmonadic expressionがblock全体の結果です。最後の式は必須です。
 
 すべての計算を同じ型構築子へ揃えます。EitherをEffectへ混ぜるなら`fromEither`などで明示変換します。bind patternは必ず一致する必要があり、refutable patternを暗黙の失敗へ変換しません。[パターン](/docs/reference/patterns)も参照してください。
 
 ### Maybeのdo
 
-次はpure関数の宣言です。二つのMaybeを同じMonadへ揃え、payloadを足してMaybeへ戻します。
+次はpure関数の宣言です。二つのMaybeを同じMonadへ揃え、ペイロードを足してMaybeへ戻します。
 
 {/* example: examples/reference/do-variants.ssrg#maybe-do */}
 
@@ -221,4 +221,4 @@ choices ()
 
 出力は`[11, 21, 12, 22]`です。最初のArrayが外側、次のArrayが内側の組み合わせになります。
 
-現在のcompilerでは、Effect関数内のdoで別monadのdoを直接pure letへ置く形にcompiler制約があります。上のようにpure関数へ分けて結果を使えます。doをEffectだけに限定する言語仕様ではありません。
+現在のコンパイラーでは、Effect関数内のdoで別monadのdoを直接pure letへ置く形にコンパイラー制約があります。上のようにpure関数へ分けて結果を使えます。doをEffectだけに限定する言語仕様ではありません。

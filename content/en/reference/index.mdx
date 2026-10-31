@@ -3,7 +3,7 @@ title: "Language reference"
 description: "Look up the rules for syntax, types, evaluation, effects, modules, and tools."
 ---
 
-Use this reference to check what you can write, how expressions are typed, when computations run, and where errors occur. For a guided introduction, start with [Learn](/en/docs/learn/first-program). For an application workflow, use the [Guides](/en/docs/guides/cli-app).
+The reference is for looking up what you can write, what type something has, when it runs, and where errors occur. To learn the language step by step, see [Learn](/en/docs/learn/first-program); to build something specific, see the [Guides](/en/docs/guides).
 
 ## Syntax and data
 
@@ -41,8 +41,8 @@ Use this reference to check what you can write, how expressions are typed, when 
 | Collection costs, recursion, profiles, and measurement | [Performance](/en/docs/reference/performance) |
 | Standard-module functions, types, and supported targets | [Standard library](/en/docs/reference/library) |
 
-## Verification scope
+## About this reference
 
-The runnable examples on these pages were checked with the distributed CLI. The compiler distribution version and the language version selected by `package.language` are separate. A manifest specifies a language range accepted by the compiler in use.
+The examples on these pages have been run with the distributed CLI. Note that the compiler version and the language version written in `package.language` in `seseragi.toml` are different things. `package.language` holds the range of language versions the compiler you use accepts.
 
-A future contract in the language specification is not presented as an available command or API. Any unimplemented feature discussed here is identified where it appears. Optimization guidance also separates structures that may be erased from optimizations the current backend actually guarantees.
+The language specification also describes features that are not implemented yet. This reference marks what you can use today and what you cannot yet, wherever it matters. For optimizations, too, it separates what could be optimized in principle from what the current compiler always does.

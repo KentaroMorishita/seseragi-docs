@@ -3,32 +3,32 @@ title: "性能"
 description: "collectionの計算量、再帰、closure、Effect、release profileと計測の境界を確認する。"
 ---
 
-性能は、意味論上の保証、消去できる抽象、backendの最適化品質に分けて考えます。仕様上消せる構造があることは、すべてのprogramで自動fusionや最速のJavaScriptが得られるという保証ではありません。
+性能は、意味論上の保証、消去できる抽象、バックエンドの最適化品質に分けて考えます。仕様上消せる構造があることは、すべてのプログラムで自動fusionや最速のJavaScriptが得られるという保証ではありません。
 
-## sourceから見えるコスト
+## ソースから見えるコスト
 
 | 操作・構造 | 予想すべき仕事 |
 | --- | --- |
-| alias、型引数、pipeline、`$` | それ自体のruntime objectは不要 |
-| lambda、部分適用 | 必要なcaptureを保持するclosureになりうる |
+| alias、型引数、パイプライン、`$` | それ自体のランタイムのオブジェクトは不要 |
+| ラムダ、部分適用 | 必要なcaptureを保持するclosureになりうる |
 | trait constraint | 型検査で選択。generic境界では辞書が残りうる |
 | map/filter/reduce、Show、JSON、SSR | 入力・出力・短絡位置に応じた走査 |
 | Effect、Stream、Signal、DOM mount | queue、scheduling、購読、cleanup |
-| foreign変換 | 安全性のための検査とsnapshot copy |
+| foreign変換 | 安全性のための検査とスナップショット copy |
 
-関数値のidentityやhost objectのlayoutは観測できません。backendは値・評価順・failure・cancellation・resource・外部ABIを変えない限り、representationを変えられます。
+関数値のidentityやホスト objectのlayoutは観測できません。バックエンドは値・評価順・failure・キャンセル・リソース・外部ABIを変えない限り、representationを変えられます。
 
 ## ArrayとList
 
 Arrayは不変の連続列、Listはpersistent linked listです。Listへのconsとtail取得は定数時間です。Array patternのrestは残りのArrayを作るため、`[head, ...tail]`で繰り返し再帰すると合計で二乗時間になります。
 
-大きなArrayを走査するなら、`reduce`や`reduceUntil`などのcollection APIを使います。途中終了operationは停止した位置より後のcallbackを評価しません。Array/List間の変換やforeign snapshotのcopyもコストとして数えてください。
+大きなArrayを走査するなら、`reduce`や`reduceUntil`などのコレクション APIを使います。途中終了operationは停止した位置より後のコールバックを評価しません。Array/List間の変換やforeign スナップショットのcopyもコストとして数えてください。
 
-map/filterの結果はstrictです。中間collectionを観測せず、callbackの回数・順序・defectが同じ場合にfusionできる余地はありますが、現在のbackendがすべてのpipelineをfusionする保証はありません。
+map/filterの結果はstrictです。中間コレクションを観測せず、コールバックの回数・順序・defectが同じ場合にfusionできる余地はありますが、現在のバックエンドがすべてのパイプラインをfusionする保証はありません。
 
 ## 再帰とstack
 
-pureな名前付き関数への、全引数を与えた直接self tail callは一定のhost stackで実行します。次は再帰の結果へ後処理を残さず、引数を更新して次へ進む例です。
+pureな名前付き関数への、全引数を与えた直接self tail callは一定のホスト stackで実行します。次は再帰の結果へ後処理を残さず、引数を更新して次へ進む例です。
 
 {/* example: examples/reference/performance.ssrg */}
 
@@ -46,17 +46,17 @@ pub effect fn main =
   |> println
 ```
 
-development/releaseの両方で5050を出力することを確認しています。tail位置は最終式やif/matchの最終branchを含みます。相互再帰、部分適用したself call、lambda内からの呼び出し、`1 + recursiveCall`のようなnon-tail callには同じ保証がありません。
+development/releaseの両方で5050を出力することを確認しています。tail位置は最終式やif/matchの最終分岐を含みます。相互再帰、部分適用したself call、ラムダ内からの呼び出し、`1 + recursiveCall`のようなnon-tail callには同じ保証がありません。
 
-Effectの末尾再帰は、pure関数の同期loopへ置き換えるものではありません。Effect continuationで処理を続けます。長い標準bind列や逐次走査も、入力件数に比例してhost stackを増やさない契約を持ちます。
+Effectの末尾再帰は、pure関数の同期loopへ置き換えるものではありません。Effect continuationで処理を続けます。長い標準bind列や逐次走査も、入力件数に比例してホスト stackを増やさない契約を持ちます。
 
 ## Effect、Signal、DOM
 
-compilerは順次Effectを勝手に並列化せず、resourceの獲得・解放やcancellation checkpointを越えて仕事を動かしません。購読やlistenerはGCに任せずscopeで解除します。
+コンパイラーは順次Effectを勝手に並列化せず、リソースの獲得・解放やキャンセル checkpointを越えて仕事を動かしません。購読やlistenerはGCに任せずscopeで解除します。
 
-Signalは一transactionで影響するderived nodeを高々一度再計算し、安定してから通知します。DOMはstatic部分、reactive leaf、structural regionを明示できます。更新する必要のないwhole treeを毎回作る方式だけに依存しません。
+Signalは一トランザクションで影響するderived ノードを高々一度再計算し、安定してから通知します。DOMは静的な部分、reactive leaf、structural regionを明示できます。更新する必要のないwhole ツリーを毎回作る方式だけに依存しません。
 
-ただし「DOM編集回数が常に最小」「すべてのclosureが消える」「すべてのgenericがspecializeされる」といった最適化は保証しません。必要なinput保持やsubscriptionの寿命を、allocationの数字だけで短縮してはいけません。
+ただし「DOM編集回数が常に最小」「すべてのclosureが消える」「すべてのgenericがspecializeされる」といった最適化は保証しません。必要なinput保持や購読の寿命を、allocationの数字だけで短縮してはいけません。
 
 ## release artifact
 
@@ -65,15 +65,15 @@ seseragi build . --profile release
 seseragi build . --source-map emit
 ```
 
-profileで言語の意味は変わりません。現在のfirst-party process releaseはruntimeを含む`entry.js`を、Webは`assets/app.js`を生成します。foreign hostを持つprocessはstaged経路が残るため、すべてのbuildが単一fileになるわけではありません。
+プロファイルで言語の意味は変わりません。現在のfirst-party process releaseはランタイムを含む`entry.js`を、Webは`assets/app.js`を生成します。foreign ホストを持つprocessはstaged経路が残るため、すべてのbuildが単一ファイルになるわけではありません。
 
-`artifact-manifest.json`は実際のentry、compiler/runtime/bundler version、file size/digest、source-map policy、実施したbundleやretention解析を記録します。未実施のsize/解析は`null`で、成功した0 byteと区別します。
+`artifact-manifest.json`は実際のentry、コンパイラー/runtime/bundler バージョン、ファイル size/digest、ソース-map policy、実施したbundleやretention解析を記録します。未実施のsize/解析は`null`で、成功した0 byteと区別します。
 
-現在のreleaseではfirst-party bundleのminifyと到達解析を行います。未使用宣言のcompiler inventoryと、最終bundleに残ったcodeは別です。provider bootstrapやtimezone databaseなど、現在必要なruntime costを「tree shaking済み」として隠さないでください。
+現在のreleaseではfirst-party bundleのminifyと到達解析を行います。未使用宣言のコンパイラー inventoryと、最終bundleに残ったcodeは別です。provider bootstrapやtimezone databaseなど、現在必要なランタイム costを「ツリー shaking済み」として隠さないでください。
 
 ## 計測と比較
 
-`std/benchmark`でcaseを定義し、`seseragi benchmark`でwarmup・sample・baselineを管理します。入力size、compiler/runtime/host version、profile、seedを揃え、同じ意味を保ったまま時間・allocation・throughputを比較します。
+`std/benchmark`でcaseを定義し、`seseragi benchmark`でwarmup・sample・baselineを管理します。入力size、コンパイラー/runtime/host バージョン、プロファイル、seedを揃え、同じ意味を保ったまま時間・allocation・throughputを比較します。
 
 ```bash
 seseragi benchmark . --target node \
@@ -81,6 +81,6 @@ seseragi benchmark . --target node \
   --minimum-sample-ms 100
 ```
 
-benchmark bodyは実行するたびに新しく計算し、必要なら`blackBox`で入力・結果を観測可能な境界へ渡します。一度計算した結果の取得時間だけを測る構成にはしないでください。baselineの比較だけで、typed failureやresource cleanupが保たれたことまでは証明できません。
+benchmark bodyは実行するたびに新しく計算し、必要なら`blackBox`で入力・結果を観測可能な境界へ渡します。一度計算した結果の取得時間だけを測る構成にはしないでください。baselineの比較だけで、typed failureやリソース cleanupが保たれたことまでは証明できません。
 
 APIごとの詳しい計算量は[標準ライブラリ](/docs/reference/library)、caseの作り方は[テスト](/docs/guides/testing)を参照してください。

@@ -7,16 +7,16 @@ description: "宣言、適用、部分適用、lambda、local関数、再帰とm
 
 ## 宣言と型
 
-parameter名と型を`->`でつなぎ、最後に戻り型を書きます。通常の`fn`ではparameter型と戻り型が必須です。
+パラメーター名と型を`->`でつなぎ、最後に戻り型を書きます。通常の`fn`ではパラメーター型と戻り型が必須です。
 
 ```seseragi title="宣言の構文"
 fn add x: Int -> y: Int -> Int =
   x + y
 ```
 
-`add`の型は`Int -> Int -> Int`、つまり`Int -> (Int -> Int)`です。引数を持たないように見える`fn ready -> Bool`も、名前のないUnit parameterを一つ受け取り、`ready ()`で呼びます。
+`add`の型は`Int -> Int -> Int`、つまり`Int -> (Int -> Int)`です。引数を持たないように見える`fn ready -> Bool`も、名前のないUnit パラメーターを一つ受け取り、`ready ()`で呼びます。
 
-公開する関数には`pub`を付けます。型parameterは`fn identity<A> value: A -> A`のように名前の直後へ置きます。推論とconstraintの規則は[型](/docs/reference/types)と[型クラス](/docs/reference/type-classes)を参照してください。
+公開する関数には`pub`を付けます。型パラメーターは`fn identity<A> value: A -> A`のように名前の直後へ置きます。推論とconstraintの規則は[型](/docs/reference/types)と[型クラス](/docs/reference/type-classes)を参照してください。
 
 ## 適用と部分適用
 
@@ -39,7 +39,7 @@ pub effect fn main = do {
 }
 ```
 
-`increment`の型は`Int -> Int`です。`show`でIntをStringへ変換し、`println`へ渡すので出力は42です。入力を先に書く`value |> function`は`function value`と同じです。標準collection APIなどはdata argumentが最後なので、関数を部分適用してpipelineへ置けます。
+`increment`の型は`Int -> Int`です。`show`でIntをStringへ変換し、`println`へ渡すので出力は42です。入力を先に書く`value |> function`は`function value`と同じです。標準コレクション APIなどはdata argumentが最後なので、関数を部分適用してパイプラインへ置けます。
 
 ### 括弧でまとめる範囲
 
@@ -75,21 +75,21 @@ let increment = add 1
 
 `add 1`の型は`Int -> Int`です。Arrayへ適用した出力は`[2, 3, 4]`になります。
 
-## 評価順とlambda
+## 評価順とラムダ
 
-Seseragiはstrict evaluationです。引数を左から右へ一度ずつ評価し、適用された本体を評価します。部分適用は残りのparameterを受け取る関数を作り、まだ与えていない引数を評価しません。Effectを返す関数の呼び出しは、返した計算の実行とは別です。
+Seseragiはstrict evaluationです。引数を左から右へ一度ずつ評価し、適用された本体を評価します。部分適用は残りのパラメーターを受け取る関数を作り、まだ与えていない引数を評価しません。Effectを返す関数の呼び出しは、返した計算の実行とは別です。
 
-lambdaは`\x -> x + 1`、複数parameterなら`\x y -> x + y`と書きます。parameter型は文脈から決まる場合に省略できます。決まらない場合は`\x: Int -> x + 1`のように注釈します。
+ラムダは`\x -> x + 1`、複数パラメーターなら`\x y -> x + y`と書きます。パラメーター型は文脈から決まる場合に省略できます。決まらない場合は`\x: Int -> x + 1`のように注釈します。
 
 ```seseragi title="高階関数の構文"
 map (\value: Int -> value + 1) [1, 2]
 ```
 
-lambdaは必要なlexical bindingをcaptureします。型parameterは実行時の値ではないので、generic関数の中で型名を調べて分岐することはできません。
+ラムダは必要なlexical バインディングをcaptureします。型パラメーターは実行時の値ではないので、generic関数の中で型名を調べて分岐することはできません。
 
-### 匿名関数とoperator value
+### 匿名関数と演算子の関数値
 
-lambdaを直接渡す場合も、名前付き関数を渡す場合も、必要な型は同じです。次はmain内の断片で、`[2, 4, 6]`を出力します。
+ラムダを直接渡す場合も、名前付き関数を渡す場合も、必要な型は同じです。次はmain内の断片で、`[2, 4, 6]`を出力します。
 
 {/* example: examples/reference/function-values.ssrg#lambda */}
 
@@ -114,7 +114,7 @@ lambdaを直接渡す場合も、名前付き関数を渡す場合も、必要�
 
 ## ブロックとlocal関数
 
-ブロックは最後の式を返します。`let`は再代入できず、その後からブロック末尾まで見えます。localな`fn`は、自身のbodyと宣言後のitemから参照できます。宣言前のbindingをcaptureできますが、後続bindingはcaptureできません。
+ブロックは最後の式を返します。`let`は再代入できず、その後からブロック末尾まで見えます。localな`fn`は、自身のbodyと宣言後のitemから参照できます。宣言前のバインディングをcaptureできますが、後続バインディングはcaptureできません。
 
 ```seseragi title="local関数の構文"
 fn twice value: Int -> Int = {
@@ -138,18 +138,18 @@ fn shifted amount: Int -> value: Int
 }
 ```
 
-`shift`は外側のparameter `amount`をcaptureします。`shifted 3 7`は10です。後から宣言するlocal bindingをcaptureする規則ではありません。
+`shift`は外側のパラメーター `amount`をcaptureします。`shifted 3 7`は10です。後から宣言するlocal バインディングをcaptureする規則ではありません。
 
 ## 再帰
 
 名前付き関数は自分自身を呼べます。相互再帰する関数は同じ`rec` groupに置きます。通常の`let`は、自分自身を右辺から参照できません。
 
-完全に引数を渡した、pureな名前付き関数への直接self tail callは、入力件数に比例してhost stackを増やしません。相互再帰、再帰結果へ演算する呼び出し、lambdaの内側からの呼び出しは同じ保証を持ちません。[性能](/docs/reference/performance)に確認した実行例があります。
+完全に引数を渡した、pureな名前付き関数への直接self tail callは、入力件数に比例してホスト stackを増やしません。相互再帰、再帰結果へ演算する呼び出し、ラムダの内側からの呼び出しは同じ保証を持ちません。[性能](/docs/reference/performance)に確認した実行例があります。
 
-## methodとEffect関数
+## メソッドとEffect関数
 
-`value.method arg`は静的に`Type.method value arg`へ解決します。methodはnominal型を定義したmoduleの`impl Type`へ置き、第一parameterは`self: Type`です。動的dispatchや継承はありません。
+`value.method arg`は静的に`Type.method value arg`へ解決します。メソッドはnominal型を定義したモジュールの`impl Type`へ置き、第一パラメーターは`self: Type`です。動的dispatchや継承はありません。
 
-`effect fn`はEffectを返す関数の宣言構文です。引数のcurry規則は通常の関数と同じです。本体が普通の値なら、`succeed`などで明示的にEffectへ包みます。詳しいcontract form・compact formは[Effectと失敗](/docs/reference/effects)で説明しています。
+`effect fn`はEffectを返す関数の宣言構文です。引数のcurry規則は通常の関数と同じです。本体が普通の値なら、`succeed`などで明示的にEffectへ包みます。詳しい契約を書く形・compact formは[Effectと失敗](/docs/reference/effects)で説明しています。
 
-部分適用とpipelineを順に読むなら、[関数とパイプライン](/docs/learn/functions-and-pipelines)へ進んでください。
+部分適用とパイプラインを順に読むなら、[関数とパイプライン](/docs/learn/functions-and-pipelines)へ進んでください。

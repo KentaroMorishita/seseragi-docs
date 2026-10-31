@@ -51,7 +51,7 @@ pub effect fn main = do {
 
 `nonNegative (-2)`は`BelowZero`で失敗する計算を作ります。`recover`がtyped failureを成功値0へ変え、`value <- answer`が実行結果を束縛します。出力は0です。
 
-通常のcodeへEffectの汎用run操作は公開しません。公開`main`、test runner、callback adapterなどの明示境界でhostが実行します。`do`は順次合成です。並列化は`effects.parallel`などで明示し、compilerが順次操作を勝手に並列化することはありません。
+通常のcodeへEffectの汎用run操作は公開しません。公開`main`、test runner、コールバック adapterなどの明示境界でホストが実行します。`do`は順次合成です。並列化は`effects.parallel`などで明示し、コンパイラーが順次操作を勝手に並列化することはありません。
 
 ### 同じEffectを二度実行する
 
@@ -77,7 +77,7 @@ job
 
 ### 成功値の変換と結果のbind
 
-次も同じ`main`の`do`ブロック内へ置く断片です。`effects`は`std/effect`のmodule aliasです。mapで`Task<Int>`を作っても、その結果を値として取り出したわけではありません。
+次も同じ`main`の`do`ブロック内へ置く断片です。`effects`は`std/effect`のモジュールの別名です。mapで`Task<Int>`を作っても、その結果を値として取り出したわけではありません。
 
 {/* example: examples/reference/effect-execution.ssrg#map-task */}
 
@@ -101,14 +101,14 @@ mappedを出力した後にcalculationを実行し、42を出力します。`let
 
 ## effect fnの二つの形
 
-compact formはparameterの後へ直接`=`を書きます。`R`・`E`・`A`をbodyから推論し、公開interfaceには正規Effect型を保存します。
+compact formはパラメーターの後へ直接`=`を書きます。`R`・`E`・`A`をbodyから推論し、公開interfaceには正規Effect型を保存します。
 
 ```seseragi title="compact form"
 effect fn greet name: String =
   println $ `Hello, ${name}`
 ```
 
-contract formはsuccess型から書き、environmentとfailureをsourceへ固定します。
+契約を書く形は成功型から書き、environmentとfailureをソースへ固定します。
 
 ```seseragi title="contract form"
 effect fn greet name: String -> Unit
@@ -117,7 +117,7 @@ fails ConsoleError =
   println $ `Hello, ${name}`
 ```
 
-contract formで`with`を省略すると`{}`、`fails`を省略すると`Never`です。bodyから補完しません。compact formへ`with`や`fails`だけを混ぜる中間形はありません。どちらもbodyはEffect型が必要で、通常値を暗黙にliftしません。
+契約を書く形で`with`を省略すると`{}`、`fails`を省略すると`Never`です。bodyから補完しません。compact formへ`with`や`fails`だけを混ぜる中間形はありません。どちらもbodyはEffect型が必要で、通常値を暗黙にliftしません。
 
 ### 推論する宣言と固定する宣言
 
@@ -146,7 +146,7 @@ second <- contract 5
 println `${first}: ${second}`
 ```
 
-出力は`4: 5`です。contract formのwith/fails省略は、それぞれ空のenvironmentとNeverを指定します。
+出力は`4: 5`です。契約を書く形のwith/fails省略は、それぞれ空のenvironmentとNeverを指定します。
 
 ### 通常値をEffectへ暗黙liftしない
 
@@ -163,26 +163,26 @@ pub effect fn main =
 
 ## environmentとfailureの合成
 
-`R`はrequired service fieldのrecordです。合成時はfieldの和集合になり、同名fieldは同じ型でなければなりません。optional requirementはありません。`with Console`はcanonical fieldを使う`{ console: Console }`の糖衣です。environmentは`provide`で明示的に渡せます。
+`R`はrequired サービスフィールドのレコードです。合成時はフィールドの和集合になり、同名フィールドは同じ型でなければなりません。optional 要件はありません。`with Console`はcanonical フィールドを使う`{ console: Console }`の糖衣です。environmentは`provide`で明示的に渡せます。
 
-必要fieldの少ないEffectは、同じ型のfieldをすべて含む広いrequirementへwidenできます。generic signatureではEffect/Streamの第一型引数に限り、`R & { clock: Clock }`のようなmergeを使います。一般intersection型ではありません。
+必要フィールドの少ないEffectは、同じ型のフィールドをすべて含む広い要件へwidenできます。generic signatureではEffect/Streamの第一型引数に限り、`R & { clock: Clock }`のようなmergeを使います。一般intersection型ではありません。
 
-failureは自動unionしません。異なるerror型を合わせるには、アプリのADTへ`mapError`で写すか`recover`で処理します。`Never`だけは必要なerror型へwidenできるため、Signalの`Task`をfallibleな`do`へ入れられます。success型は合成全体で整合する必要があります。
+failureは自動unionしません。異なるerror型を合わせるには、アプリのADTへ`mapError`で写すか`recover`で処理します。`Never`だけは必要なerror型へwidenできるため、Signalの`Task`をfallibleな`do`へ入れられます。成功型は合成全体で整合する必要があります。
 
-## typed failure、defect、cancellation
+## typed failure、defect、キャンセル
 
 | 終了理由 | 扱い |
 | --- | --- |
 | typed failure | `E`として設計した回復可能な失敗。`recover`で扱える |
 | defect | overflow、zero division、境界契約違反など。通常codeではcatchできない |
-| cancellation | hostや親計算による中断。typed errorへ変換しない |
+| キャンセル | ホストや親計算による中断。typed errorへ変換しない |
 
-`recover`はdefectやcancellationを捕捉しません。外部throw/rejectionは[TypeScript adapter](/docs/reference/typescript-interop)がtyped failureへ変換します。想定できる入力エラーはdefectではなく、`Either`やEffectのerror型として設計してください。
+`recover`はdefectやキャンセルを捕捉しません。外部throw/rejectionは[TypeScript adapter](/docs/reference/typescript-interop)がtyped failureへ変換します。想定できる入力エラーはdefectではなく、`Either`やEffectのerror型として設計してください。
 
-## resourceとentry point
+## リソースとentry point
 
-`bracket acquire use release`や`acquireRelease`でresourceをscopeへ登録します。success・failure・cancellationのすべてで、finalizerを逆順に一度ずつ実行します。acquire成功からfinalizer登録までの引き継ぎはcancellationに対してatomicです。finalizerはtyped failureを外へ残せません。
+`bracket acquire use release`や`acquireRelease`でリソースをscopeへ登録します。成功・failure・キャンセルのすべてで、finalizerを逆順に一度ずつ実行します。acquire成功からfinalizer登録までの引き継ぎはキャンセルに対してatomicです。finalizerはtyped failureを外へ残せません。
 
-`main`は公開され、匿名Unit parameterを受け取り、successが`Unit`のEffectを返します。requirementはfield集合が確定したrecord、failure型も具体型である必要があります。`Never`以外のfailureには`Show` instanceが必要です。供給できないserviceは実行前に拒否し、実行中へ欠落serviceを持ち込みません。
+`main`は公開され、匿名Unit パラメーターを受け取り、成功が`Unit`のEffectを返します。要件はフィールド集合が確定したレコード、failure型も具体型である必要があります。`Never`以外のfailureには`Show` instanceが必要です。供給できないサービスは実行前に拒否し、実行中へ欠落サービスを持ち込みません。
 
 操作の組み方は[Effectを使う](/docs/learn/effects)、アプリのerror設計は[失敗を扱う](/docs/guides/error-handling)を参照してください。

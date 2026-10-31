@@ -3,9 +3,9 @@ title: "プロジェクト設定"
 description: "seseragi.toml、source roots、exports、dependency、foreign入力、Web asset、lockの契約を確認する。"
 ---
 
-package rootには一つの`seseragi.toml`を置きます。対象fileから親へ探索した最初のmanifestを使い、さらに外側のmanifestやpackage.jsonから設定をmergeしません。
+パッケージルートには一つの`seseragi.toml`を置きます。対象ファイルから親へ探索した最初のマニフェストを使い、さらに外側のマニフェストやパッケージ.jsonから設定をmergeしません。
 
-## 必須のpackageと実行設定
+## 必須のパッケージと実行設定
 
 ```toml title="seseragi.toml"
 [package]
@@ -18,26 +18,26 @@ entry = "main"
 target = "process"
 ```
 
-`package.name`・`version`・`language`は必須です。nameはlowercase segmentを`/`でつなぎ、versionはSemVer、languageは言語versionのrangeです。配布版compilerのversion番号をそのままlanguageへ書くものではありません。
+`package.name`・`version`・`language`は必須です。nameはlowercase segmentを`/`でつなぎ、バージョンはSemVer、languageは言語バージョンの範囲です。配布版コンパイラーのバージョン番号をそのままlanguageへ書くものではありません。
 
-`run.entry`はsource root内の拡張子なしmodule pathです。`run.target`はprocessまたはwebです。libraryはrunを省略できます。未知のcore key・重複key・型の違う値はエラーです。tool固有設定は`[tool.NAME]`へ置きます。
+`run.entry`はソースルート内の拡張子なしモジュール pathです。`run.target`はprocessまたはwebです。ライブラリはrunを省略できます。未知のcore key・重複key・型の違う値はエラーです。tool固有設定は`[tool.NAME]`へ置きます。
 
-## source rootsとmodule path
+## ソースのルートとモジュールのパス
 
-| root | 既定directory | 役割 |
+| ルート | 既定ディレクトリ | 役割 |
 | --- | --- | --- |
-| source | `src` | 通常のmodule、公開API |
-| tests | `tests` | test runnerだけが読むmodule |
-| benchmarks | `benchmarks` | benchmark runnerだけが読むmodule |
-| generated | `.seseragi/generated` | 再生成するforeign binding |
+| ソース | `src` | 通常のモジュール、公開API |
+| tests | `tests` | test runnerだけが読むモジュール |
+| benchmarks | `benchmarks` | benchmark runnerだけが読むモジュール |
+| generated | `.seseragi/generated` | 再生成するforeign バインディング |
 
-`[layout]`で変更できます。rootは互いに重複できず、absolute pathやpackage外へescapeするpathを指定できません。相対importは同じroot内に限ります。
+`[layout]`で変更できます。ルートは互いに重複できず、absolute pathやパッケージ外へエスケープするpathを指定できません。相対importは同じルート内に限ります。
 
-manifestのmodule pathは`main`や`http/client`です。`.ssrg`、空segment、`.`/`..`、backslashを含めません。caseとUnicode正規化の衝突も拒否します。generated moduleは`gen/`、source-private moduleは`self/`から参照します。
+マニフェストのモジュール pathは`main`や`http/client`です。`.ssrg`、空segment、`.`/`..`、backslashを含めません。caseとUnicode正規化の衝突も拒否します。generated モジュールは`gen/`、ソース-private モジュールは`self/`から参照します。
 
-## exportsとdependency
+## exportsと依存関係
 
-`[exports]`は公開subpathからsource moduleへのmapです。
+`[exports]`は公開subpathからソースモジュールへのmapです。
 
 ```toml title="公開API"
 [exports]
@@ -45,9 +45,9 @@ manifestのmodule pathは`main`や`http/client`です。`.ssrg`、空segment、`
 "email" = "email"
 ```
 
-packageが`acme/validation`ならroot importと`acme/validation/email`を公開します。mapにない内部pathは外部からimportできません。testやgenerated fileを直接exportすることもできません。
+パッケージが`acme/validation`ならルート importと`acme/validation/email`を公開します。mapにない内部pathは外部からimportできません。testやgenerated ファイルを直接exportすることもできません。
 
-local dependencyは次のように設定します。
+local 依存関係は次のように設定します。
 
 ```toml title="local dependency"
 [dependencies.validation]
@@ -55,13 +55,13 @@ package = "acme/validation"
 path = "../validation"
 ```
 
-dependency keyはimport rootで、対象manifestのpackage identityと一致させます。使うtransitive packageも直接dependencyとして宣言します。core sourceにgit URLやbranchを指定する方式はありません。
+依存関係 keyはimport ルートで、対象マニフェストのパッケージ identityと一致させます。使うtransitive パッケージも直接依存関係として宣言します。core ソースにgit URLや分岐を指定する方式はありません。
 
-仕様はregistry version rangeも定義していますが、現在の配布版のpackage loaderはlocal/path projectを対象とします。ここではregistryからの自動取得やpublish commandを利用できる機能として扱いません。
+仕様はレジストリバージョン範囲も定義していますが、現在の配布版のパッケージローダーはlocal/path プロジェクトを対象とします。ここではレジストリからの自動取得やpublish コマンドを利用できる機能として扱いません。
 
-## host入力とWeb document
+## ホスト入力とWeb document
 
-foreign TypeScriptを使うpackageでは`[foreign.typescript]`へresolver、host manifest、host lockfileを指定します。生成bindingはmanifestとconverter設定から再生成し、手編集しません。
+foreign TypeScriptを使うパッケージでは`[foreign.typescript]`へresolver、ホストマニフェスト、ホスト lockfileを指定します。生成バインディングはマニフェストとconverter設定から再生成し、手編集しません。
 
 Webではoptionalな`[web]`を設定できます。
 
@@ -71,7 +71,7 @@ index = "web/index.html"
 public = "public"
 ```
 
-custom HTMLのheadに`<!-- seseragi:head -->`、bodyに`<!-- seseragi:entry -->`を各一個置きます。builderがgenerated CSS/scriptへ置換します。publicのregular fileは相対pathを保ってcopyします。generated assets、root index、build markerなどへの衝突、symlink、package外の入力はエラーです。
+custom HTMLのheadに`<!-- seseragi:head -->`、bodyに`<!-- seseragi:entry -->`を各一個置きます。builderがgenerated CSS/scriptへ置換します。publicのregular ファイルは相対pathを保ってcopyします。generated assets、ルート index、build markerなどへの衝突、symlink、パッケージ外の入力はエラーです。
 
 ## lockの更新
 
@@ -79,14 +79,14 @@ custom HTMLのheadに`<!-- seseragi:head -->`、bodyに`<!-- seseragi:entry -->`
 seseragi lock update .
 ```
 
-lockはpackageのexact identity、source digest、言語/stdlib/Unicode/timezone version、Provider選択とartifact identityを固定します。通常のbuild/testはlockを必須とし、勝手に更新しません。欠落や不一致は`SES-K0102`です。
+lockはパッケージのexact identity、ソースダイジェスト、言語/stdlib/Unicode/timezone バージョン、Provider選択とartifact identityを固定します。通常のbuild/testはlockを必須とし、勝手に更新しません。欠落や不一致は`SES-K0102`です。
 
-source、manifest、Web input、converter metadataなどの変更後は、通常build前にlockを更新します。devだけはexact graphとProvider選択を保った通常source編集を許容します。設定やProvider要件が変わった場合はdevでも更新が必要です。
+ソース、マニフェスト、Web input、converter metadataなどの変更後は、通常build前にlockを更新します。devだけはexact グラフとProvider選択を保った通常ソース編集を許容します。設定やProvider要件が変わった場合はdevでも更新が必要です。
 
-## profileとrunner設定
+## プロファイルとrunner設定
 
-`[build].profile`でdevelopment/releaseを選べます。targetは`[run].target`へ置き、buildに複製しません。CLI overrideはその実行だけに作用します。
+`[build].profile`でdevelopment/releaseを選べます。ターゲットは`[run].target`へ置き、buildに複製しません。CLI overrideはその実行だけに作用します。
 
-`[test]`にはtarget、jobs、timeout_ms、cleanup_grace_ms、seedを、`[benchmark]`にはtarget、warmup、samples、minimum_sample_ms、regression_threshold_percentを設定できます。[CLI](/docs/reference/cli)のoptionが対応値を上書きします。
+`[test]`にはターゲット、jobs、timeout_ms、cleanup_grace_ms、seedを、`[benchmark]`にはターゲット、warmup、samples、minimum_sample_ms、regression_threshold_percentを設定できます。[CLI](/docs/reference/cli)のオプションが対応値を上書きします。
 
-`[providers]`は実行rootがserviceごとのProviderを選ぶ設定、`[provider].artifacts`はProvider packageがartifactを公開する設定です。意味を混ぜないでください。[Runtime Provider](/docs/reference/runtime-providers)で選択条件を説明しています。運用手順は[packageとデプロイ](/docs/guides/packages-and-deployment)を参照してください。
+`[providers]`は実行ルートがサービスごとのProviderを選ぶ設定、`[provider].artifacts`はProvider パッケージがartifactを公開する設定です。意味を混ぜないでください。[Runtime Provider](/docs/reference/runtime-providers)で選択条件を説明しています。運用手順は[パッケージとデプロイ](/docs/guides/packages-and-deployment)を参照してください。
