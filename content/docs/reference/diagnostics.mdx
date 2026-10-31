@@ -3,13 +3,13 @@ title: 診断を読む
 description: 位置とエラーコードから、型の不一致、未処理のケース、Intの範囲、古いlockを直す。
 ---
 
-診断は、問題のあるソース位置と理由を伝えます。コンパイルエラーがある場合はコード生成へ進みません。実行したEffectが返す型付きの失敗とは、発生する段階が異なります。
+エラーメッセージは、問題のある場所と理由を教えてくれます。コンパイルエラーがあると、プログラムは生成されません。実行中にEffectが失敗するのとは、起きるタイミングが違います。
 
 ## 位置と理由を読む
 
-CLIのテキスト出力には、ファイル、行・列、`SES-T0101`などのコード、該当箇所、理由が表示されます。後続の式を一度に直す前に、最初の原因を確認してください。一つの定義の誤りが、複数の使用箇所へ影響する場合があります。
+CLIのエラーには、ファイル名、行と列、`SES-T0101`のようなコード、問題の箇所、理由が表示されます。エラーがたくさん出たときは、まず最初のエラーを見てください。一つの定義の間違いが、それを使っているいくつもの場所のエラーになっていることがあります。
 
-JSONで取得する場合は、対応する`run`や`lint`のオプションを使います。現在の`build`には`--diagnostic-format`を渡せません。
+JSONで受け取りたいときは、`run`や`lint`の`--diagnostic-format json`を使います。今の`build`には、このオプションはありません。
 
 ```sh
 seseragi lint parcel.ssrg \
@@ -20,7 +20,7 @@ lintはコンパイラの診断に加え、未使用のローカル定義を調�
 
 ## 引数の型を合わせる
 
-次のコードは`SES-T0101`で拒否されます。明示的にimportしたConsoleの関数はStringを受け取りますが、`42`はIntです。
+次のコードは`SES-T0101`エラーになります。importした`console.println`は`String`を受け取りますが、`42`は`Int`だからです。
 
 {/* example: examples/diagnostics/type-mismatch.ssrg */}
 
@@ -32,11 +32,11 @@ pub effect fn main =
   console.println 42
 ```
 
-`show`で文字列へ変換してから`console.println`へ渡すか、`Show`を必要とする`console.printValue`を使います。宣言された型は[Console API](/docs/reference/library/console)で確認できます。
+`show`で文字列にしてから`console.println`に渡すか、`Show`を持つ値をそのまま表示できる`console.printValue`を使います。関数の型は[ConsoleのAPI](/docs/reference/library/console)で確かめられます。
 
 ## すべてのケースを処理する
 
-次の定義には`Sent`の処理がありません。`main`が今は`Packing`だけを使っていても、`SES-T0301`で拒否されます。
+次の定義には`Sent`の場合の処理がありません。`main`が今は`Packing`しか使っていなくても、`SES-T0301`エラーになります。
 
 {/* example: examples/diagnostics/non-exhaustive.ssrg */}
 
@@ -56,11 +56,11 @@ pub effect fn main =
   |> println
 ```
 
-`Sent city`の分岐を追加してください。網羅性は、現在の入口が使う値だけでなく、型の取りうる値に対して検査します。[パターンマッチ](/docs/learn/pattern-matching)では、各ケースのデータを使いながら分岐を書く方法を学べます。
+`Sent city`の分岐を足してください。コンパイラーは、今実際に使われている値ではなく、その型が取りうるすべての値について確かめます。[パターンマッチ](/docs/learn/pattern-matching)で、ケースごとの書き方を学べます。
 
 ## Intの範囲を確認する
 
-Intの範囲は`-9007199254740991..9007199254740991`です。次のリテラルは`SES-P0203`で拒否されます。
+`Int`の範囲は`-9007199254740991..9007199254740991`です。次のリテラルは`SES-P0203`エラーになります。
 
 {/* example: examples/diagnostics/integer-range.ssrg */}
 
@@ -71,18 +71,18 @@ pub effect fn main =
   |> println
 ```
 
-任意精度が必要な値には[BigInt](/docs/reference/library/big-int)を使います。範囲外のIntを書いてから変換しても、リテラルの検査を避けることはできません。
+もっと大きな整数には[BigInt](/docs/reference/library/big-int)を使います。範囲外の`Int`を書いてから変換する、という書き方はできません。
 
-## 古いlockを明示的に更新する
+## 古いロックファイルを更新する
 
-`SES-K0102`はlockがないか、パッケージグラフ、設定、providerの選択、lock対象の内容と一致していないことを表します。変更を確認し、明示的に更新してください。
+`SES-K0102`は、ロックファイルがないか、依存パッケージ・設定・Providerの選択・ソースの内容と食い違っていることを表します。何が変わったかを確かめてから、`seseragi lock update`で更新してください。
 
 ```sh
 seseragi lock update
 ```
 
-パッケージのコードを編集してからテストを実行する場合も、更新が必要になることがあります。開発サーバーのwatch中は自パッケージのソース変更を扱いますが、依存関係や設定を変えた場合は明示的なlock更新とサーバーの再起動が必要です。[プロジェクト設定](/docs/reference/project-configuration)で詳しく説明しています。
+ソースを編集してからテストを実行するときも、更新が必要です。開発サーバーの起動中は自分のパッケージのソースの変更だけなら更新は要りませんが、依存パッケージや設定を変えたときは、ロックファイルを更新してサーバーを起動し直してください。詳しくは[プロジェクト設定](/docs/reference/project-configuration)にあります。
 
 ## コンパイルエラーと実行時の失敗を分ける
 
-コンパイルエラーは実行前に停止します。Effectの型付きの失敗はerror channelの値であり、`catchAll`などで回復できます。defectと中断は同じchannelではありません。[失敗を扱う](/docs/guides/error-handling)と[Effectリファレンス](/docs/reference/effects)へ進んでください。
+コンパイルエラーでは、プログラムは実行されません。実行中のEffectの失敗は型で表された値で、`recover`などで立て直せます。バグによる異常（defect）やキャンセルは、それとは別に扱われます。詳しくは[失敗を扱う](/docs/guides/error-handling)と[Effectリファレンス](/docs/reference/effects)を見てください。

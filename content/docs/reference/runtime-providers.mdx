@@ -3,18 +3,18 @@ title: "Runtime Provider"
 description: "service requirement、logical target、互換性、決定的なProvider選択とlockを確認する。"
 ---
 
-アプリは「HTTPを使う」「Clockを使う」というサービスを型で要求します。どのホスト APIで実行するかはProviderの設定へ置きます。ライブラリの追加だけで、アプリのランタイム implementationが勝手に切り替わることはありません。
+アプリは、「HTTPを使う」「時計を使う」といったサービスを型で要求します。それを実際にどの環境のAPIで動かすかは、Providerの設定で決めます。ライブラリを追加しただけで、アプリの動かし方が勝手に変わることはありません。
 
-## API、Contract、bridge、Provider
+## 四つの層
 
 | 層 | 責務 |
 | --- | --- |
-| std/package API | アプリが使う型、Effect、typed error、値の正規化 |
-| Provider Contract | サービス identity、論理operation、input・成功・failure |
-| Runtime ABI/bridge | バックエンド上の値の変換と呼び出しプロトコル |
-| ランタイム Provider | ホスト APIや外部ライブラリの呼び出し |
+| 標準ライブラリやパッケージのAPI | アプリが使う型、Effect、失敗の型、値の整え方 |
+| Providerの契約（Contract） | サービスの名前、操作、入力・成功・失敗の形 |
+| ランタイムとの橋渡し | 生成したコードとの値の受け渡しと呼び出し方 |
+| ランタイムProvider | 実行環境のAPIや外部ライブラリの呼び出し |
 
-アプリは公開モジュールのoperationを呼びます。サービス objectのmember、ABIのresult envelope、内部handleを直接呼ぶAPIとして扱いません。
+アプリが呼ぶのは、公開されたモジュールの関数だけです。サービスの内部や橋渡しの仕組みを直接呼ぶことはありません。
 
 ## サービスとターゲット
 
@@ -27,13 +27,13 @@ description: "service requirement、logical target、互換性、決定的なPro
 | `std/web/dom` | `dom` | `std/web/dom::Dom` |
 | `std/web/storage` | `storage` | `std/web/storage::Storage` |
 
-要件はEffect型からentryの閉じた environmentへ集めます。importしただけで、使わないサービスを要求へ加えることはありません。
+アプリが必要とするサービスは、Effectの型から集められ、`main`の必要なものとしてまとめられます。importしただけで使っていないサービスが、必要なものに加わることはありません。
 
-マニフェストの`process`/`web`はlogical ターゲットです。Provider artifactの`bun-process`などはtoolchain adapter identityです。logical ターゲットを決めた後にProviderを選び、Provider不足を別ターゲットへの切り替えで隠しません。現在のprocess経路はBun、Web経路はブラウザーを使います。コンパイラーをWASMで配ることと、生成プログラムがWASMになることも別です。
+`seseragi.toml`に書く`process`や`web`は、アプリをどこで動かすかを表すターゲットです。Providerの成果物に付いている`bun-process`のような名前は、それとは別の、実際の実行環境の名前です。まずターゲットを決め、そのあとでProviderが選ばれます。Providerが足りないからといって、勝手に別のターゲットに切り替わることはありません。今は、`process`はBunで、`web`はブラウザーで動きます。なお、コンパイラーがWASMで配られていることと、生成されるプログラムがWASMになることは別の話です。
 
 ## Clockを使う例
 
-次のパッケージはClockのoperationを要求し、`Clock ready`を出力します。
+次のパッケージは時計（Clock）のサービスを使い、`Clock ready`と出力します。
 
 {/* example: examples/reference/provider-clock/src/main.ssrg */}
 
@@ -46,17 +46,17 @@ pub effect fn main = do {
 }
 ```
 
-この例のマニフェストはprocessを選び、`[providers]`のサービス key`std/clock::Clock`へProvider identity`seseragi/runtime-bun#clock`を指定しています。省略時は対応ターゲットのtoolchain defaultを使えます。明示指定はdeployment設定であり、アプリの関数signatureへProvider名を入れるものではありません。
+この例の`seseragi.toml`は、ターゲットに`process`を選び、`[providers]`でサービス`std/clock::Clock`にProvider`seseragi/runtime-bun#clock`を指定しています。指定を省くと、ターゲットごとの既定のProviderが使われます。Providerの指定は動かし方の設定で、アプリの関数の型にProviderの名前が出てくることはありません。
 
 ## 候補と互換性
 
-候補は、選択ターゲットのtoolchain catalogにあるartifactか、実行ルートの直接依存関係が公開するartifactです。transitive ライブラリはサービスを要求できますが、consumerの代わりにProviderを選べません。
+Providerの候補になるのは、選んだターゲットに標準で用意されているものか、アプリが直接依存しているパッケージが公開しているものです。間接的に依存しているライブラリは、サービスを要求することはできますが、アプリの代わりにProviderを選ぶことはできません。
 
-候補はサービス identity、ターゲット、Contract バージョン、バックエンド family/ABI major、ランタイム feature、ホストパッケージ解決をすべて満たす必要があります。Contract majorは一致、Provider minorはrequired minor以上です。パッケージのSemVerとContract/ABIのバージョンを同一視しません。
+候補は、サービス・ターゲット・契約のバージョン・ランタイムとの橋渡しのバージョン・必要な機能・TypeScript側のパッケージの解決を、すべて満たしていなければなりません。契約のメジャーバージョンは一致し、マイナーバージョンは必要なもの以上でなければなりません。パッケージのバージョンと、契約や橋渡しのバージョンは別物です。
 
 ## 選択と事前エラー
 
-互換性確認後の選択順は、ルートマニフェストの明示指定、toolchain default、互換候補が一件だけの場合の順です。明示指定やdefaultが不適合でも、別候補へfallbackしません。指定がなく候補0件ならmissing、2件以上ならambiguousです。
+条件を満たす候補の中から、アプリの`seseragi.toml`での指定、ターゲットの既定、候補が一つだけならそれ、の順で選ばれます。指定や既定が条件を満たさなくても、別の候補に勝手に切り替わることはありません。指定がなく、候補が一つもなければ「見つからない」、二つ以上あれば「決められない」というエラーになります。
 
 | code | 原因 |
 | --- | --- |
@@ -69,12 +69,12 @@ pub effect fn main = do {
 | `SES-K0207` | 要件のContract majorが衝突 |
 | `SES-K0208` | 明示/defaultのidentityが候補として不可視 |
 
-選択はentry評価前に完了します。未提供サービスへundefinedを入れてランタイム errorにすることはありません。選択情報・artifact ダイジェスト・ホスト identityは同じ`seseragi.lock`へ保存します。
+Providerの選択は、プログラムを実行する前に終わります。用意できないサービスを`undefined`のまま実行して、途中でエラーになるようなことはありません。選んだProviderの情報は`seseragi.lock`に記録されます。
 
 ## 実行とリソース
 
-Provider-backed Effectもcoldで、構築時にホスト operationを開始しません。typed failure、defect、キャンセルを別の終了理由として保持します。リソース acquireの成功からscope登録までをatomicに引き継ぎ、明示closeとfinalizerが重なっても一度だけcloseします。
+Providerを使うEffectも、作っただけでは実行されません。失敗・defect・キャンセルは、それぞれ別の終わり方として扱われます。リソースを取得してから後始末を登録するまでの間に取りこぼしは起きず、自分で閉じたあとに後始末が動いても、閉じる処理は一回だけです。
 
-リソースやコールバックは、consumerのscopeと解除契約を持ちます。GCやモジュール globalへlifetimeを逃がしません。Providerを自作する場合は、schema・compatibility・lifecycleのconformanceを満たす必要があります。
+リソースやコールバックは、使う側のスコープが終わるときに解除されます。ガベージコレクションやモジュールのグローバル変数に後始末を任せることはしません。Providerを自分で作る場合は、データの形・互換性・後始末についての決まりを満たす必要があります。
 
-アプリの要件を組み立てる規則は[Effect](/docs/reference/effects)、設定とlock更新は[プロジェクト設定](/docs/reference/project-configuration)、対応モジュールとターゲットは[標準ライブラリ](/docs/reference/library)を参照してください。
+アプリが必要とするものの組み立て方は[Effect](/docs/reference/effects)、設定とロックファイルの更新は[プロジェクト設定](/docs/reference/project-configuration)、モジュールごとの対応ターゲットは[標準ライブラリ](/docs/reference/library)にあります。
