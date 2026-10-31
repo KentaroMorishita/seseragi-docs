@@ -3,7 +3,7 @@ title: "パターン"
 description: "パターンの種類、束縛、guard、網羅性、失敗しうる分解の扱いを確認する。"
 ---
 
-パターンは値の形を照合し、内部の値へ名前を付けます。`match`だけでなく、`let`、`do`のbind、comprehension、effectful `for`でも同じ型の規則を使います。構文ごとに違うのは、一致しない場合の扱いと名前のscopeです。
+パターンは、値の形を照らし合わせて、中の値に名前を付けます。`match`のほか、`let`、`do`の`<-`、内包表記、Effectの`for`でも、同じ書き方と型の決まりで使えます。場所によって違うのは、一致しなかったときの扱いと、名前が使える範囲です。
 
 ## 使えるパターン
 
@@ -11,19 +11,19 @@ description: "パターンの種類、束縛、guard、網羅性、失敗しう�
 | --- | --- |
 | `value` | 値全体を束縛する |
 | `_` | 値を使わない |
-| `42`、`"ready"` | literalとの一致 |
+| `42`、`"ready"` | リテラルとの一致 |
 | `Just value` | コンストラクターとペイロード |
-| `(x, y)` | 同じarityのタプル |
+| `(x, y)` | 同じ要素数のタプル |
 | `{ name, age: years }` | レコードフィールドを選んで分解 |
-| `User { name }` | nominal structのフィールドを分解 |
+| `User { name }` | structのフィールドを分解 |
 | `[first, ...rest]` | Arrayの先頭と残り |
-| `` `[first, ...rest] `` | Listの先頭と共有tail |
+| `` `[first, ...rest] `` | Listの先頭と残り（コピーしない） |
 
-入れ子にできます。同じパターンで同じ名前を二度束縛することはできません。コンストラクターやフィールドの型は対象値から決め、タプルのarityやペイロードの形が違う場合は型エラーです。
+パターンは入れ子にできます。一つのパターンの中で、同じ名前を二回使うことはできません。コンストラクターやフィールドの型は照らし合わせる値から決まり、タプルの要素数やペイロードの形が違えば型エラーです。
 
 ## matchの評価と網羅性
 
-対象式は一度だけ評価します。分岐を上から順に試し、patternとガードが最初に一致した分岐の式だけを評価します。すべての結果型を揃える必要があります。
+`match`の対象の式は一度だけ計算されます。分岐を上から順に試し、パターンとガードが最初に一致した分岐の右側だけが計算されます。すべての分岐の結果の型は同じでなければなりません。
 
 {/* example: examples/reference/patterns.ssrg */}
 
@@ -41,13 +41,13 @@ pub effect fn main = do {
 }
 ```
 
-出力は`Empty`、`Aki`の順です。`[]`は長さ0、`[first, ..._]`は一個以上のArrayを扱うため、すべての長さを覆います。restのない`[first]`は長さ1だけに一致します。
+出力は`Empty`、`Aki`の順です。`[]`は長さ0、`[first, ..._]`は長さ1以上のArrayに一致するので、すべての長さを扱えています。`...`のない`[first]`は、長さがちょうど1のときだけ一致します。
 
-網羅しない`match`はコンパイルエラーです。先行分岐にすべて覆われて到達できない分岐もエラーです。`Int`や`String`のliteralだけでは全値を覆えないので、必要なら最後にバインディングや`_`を置きます。
+扱っていない値がある`match`は、コンパイルエラーになります。前の分岐ですべて受け止められてしまい、決して選ばれない分岐もエラーです。`Int`や`String`はリテラルだけでは全部の値を扱えないので、最後に名前や`_`の分岐を置きます。
 
 ## ガード
 
-ガードは`when Bool式`で書き、patternで導入した名前を参照できます。次は分岐の構文です。
+ガードは`when 条件`の形で書き、条件の中ではパターンで付けた名前を使えます。
 
 ```seseragi title="guard付きarm"
 Just value when value > 0 ->
@@ -56,7 +56,7 @@ Just _ -> "other"
 Nothing -> "missing"
 ```
 
-ガード付き分岐は網羅性に寄与しません。`Just value when True`だけを置いても、ガードのない`Just`を覆う分岐が必要です。ガードはpatternが一致した後にだけ評価します。
+コンパイラーはガードの中身を見ないので、ガード付きの分岐は「すべての値を扱えているか」の判定に数えられません。`Just value when True`と書いても、ガードのない`Just`の分岐が別に必要です。ガードの条件は、パターンが一致したときだけ計算されます。
 
 ### Maybeのガードとfallback
 
@@ -72,7 +72,7 @@ fn describe value: Maybe<Int>
   }
 ```
 
-Justのペイロードが正なら最初の分岐、それ以外のJustは二番目、Nothingは三番目へ進みます。ガードがFalseなら次の分岐を試します。
+`Just`の中身が正の数なら一つ目、それ以外の`Just`なら二つ目、`Nothing`なら三つ目の分岐に進みます。ガードが`False`なら、次の分岐が試されます。
 
 {/* example: examples/reference/pattern-variants.ssrg#guard-cases */}
 
@@ -82,24 +82,24 @@ println $ describe $ Just 0
 println $ describe Nothing
 ```
 
-出力はpositive、non-positive、missingの順です。二番目のJust 分岐を省くと、ガードだけでは網羅できません。
+出力は`positive`、`non-positive`、`missing`の順です。二つ目の`Just`の分岐を消すと、扱っていない値があるとしてエラーになります。
 
 ## 束縛できる場所
 
-「必ず一致する」パターンをirrefutable、「一致しない値がある」パターンをrefutableと呼びます。
+パターンには、「どんな値にも必ず一致する」ものと、「一致しない値がある」ものがあります。後者を書ける場所は限られています。
 
-| 場所 | 入力 | refutable pattern |
+| 場所 | 照らし合わせる値 | 一致しない値があるパターン |
 | --- | --- | --- |
-| `let pattern = value` | RHSの型 | 禁止 |
-| `do`の`let` | pure RHSの型 | 禁止 |
-| `pattern <- computation` | monadのペイロード型 | 禁止 |
-| `match` 分岐 | 対象値の型 | 許可 |
-| comprehension generator | Iterableの要素型 | 不一致の要素を除外 |
-| effectful `for` | Iterableの要素型 | 禁止 |
+| `let pattern = value` | 右辺の値 | 書けない |
+| `do`の`let` | 右辺の値 | 書けない |
+| `pattern <- computation` | 取り出した値 | 書けない |
+| `match`の分岐 | 対象の値 | 書ける |
+| 内包表記の`<-` | 各要素 | 書ける（一致しない要素は除かれる） |
+| Effectの`for` | 各要素 | 書けない |
 
-名前、`_`、内部も必ず一致するタプル/record/structはirrefutableです。一variantだけのコンストラクターとnewtypeも、内部patternがirrefutableなら使えます。Array/Listでは固定要素を持たない`[...rest]`だけが必ず一致します。
+必ず一致するのは、名前、`_`、中身もすべて必ず一致するタプル・レコード・structです。ケースが一つしかないADTのコンストラクターとnewtypeも、中身のパターンが必ず一致するなら同じ扱いです。Array・Listでは、要素を一つも決めない`[...rest]`だけが必ず一致します。
 
-`let Just value = maybeValue`は使えません。`match`で`Nothing`も処理します。失敗しうるbindを暗黙の例外や`MonadFail`へ変換することはありません。
+そのため`let Just value = maybeValue`とは書けず、`match`で`Nothing`の場合も扱います。一致しなかったら例外を投げる、という動きにはなりません。
 
 ### 不要な値と名前の付け替え
 
@@ -110,7 +110,7 @@ let (label, _) = ("Aki", 42)
 println label
 ```
 
-タプルの第二要素は使わず、Akiだけを出力します。`_`は参照できる変数を作りません。
+タプルの二つ目は使わず、`Aki`だけを出力します。`_`は名前を作りません。
 
 {/* example: examples/reference/pattern-variants.ssrg#record-bind */}
 
@@ -126,7 +126,7 @@ ageの値をyearsとして束縛するため、出力は`Mio: 7`です。フィ�
 
 ### letでJustだけを分解する場合
 
-次は意図的なエラー例です。右辺がJustに見えても、MaybeにはNothingがあるためletでは`SES-T0101`になります。matchで両方を扱ってください。
+次は、わざとエラーにした例です。右辺が`Just`だと見て分かっても、`Maybe`型には`Nothing`もありうるので、`let`では`SES-T0101`になります。`match`で両方を扱ってください。
 
 {/* example: examples/reference/invalid/refutable-binding.ssrg#invalid */}
 
@@ -139,14 +139,14 @@ pub effect fn main = do {
 }
 ```
 
-## レコードとoptional query
+## レコードと省略可能なフィールド
 
-レコード patternは指定フィールド以外を無視します。struct patternも指定しないフィールドを無視しますが、nominal型と公開範囲を守ります。パターン内のspreadはありません。
+レコードのパターンは、書いたフィールド以外を無視します。structのパターンも同じですが、型の名前が合っていて、そのフィールドが見える場所でなければ使えません。パターンの中でスプレッドは使えません。
 
-省略可能なフィールドには`{ id? }`または`{ id?: pattern }`を使います。`id?`はpresenceを`Maybe<A>`として束縛し、`id?: Just value`は存在する場合だけ一致します。required フィールドへqueryすると常に`Just`です。省略可能なフィールドを通常の`{ id }`で取り出すことはできません。
+省略可能なフィールドには`{ id? }`か`{ id?: pattern }`を使います（今のバージョンのコンパイラーはまだ対応しておらず、`SES-T0101`になります。それまではフィールドを読んで得た`Maybe`を`match`してください）。`id?`はフィールドがあるかどうかを`Maybe<A>`として受け取り、`id?: Just value`はフィールドがある場合だけ一致します。必ずあるフィールドに`?`を付けると、いつも`Just`になります。省略可能なフィールドを、普通の`{ id }`で取り出すことはできません。
 
-## scopeとコスト
+## 名前が使える範囲とコスト
 
-束縛の入力式は、その束縛が作る名前を参照できません。`match`の名前は同じ分岐のガードとbodyだけ、`let`や`do` bindの名前は後続itemだけで使えます。パターン全体の一致が成功してから名前を導入するため、部分的に束縛された状態は見えません。
+右辺の式では、そのパターンで作る名前は使えません。`match`で付けた名前はその分岐のガードと右側だけで、`let`や`do`の`<-`で付けた名前はそれより後ろの行だけで使えます。パターン全体が一致してから名前が付くので、一部だけ名前が付いた中途半端な状態はありません。
 
-Listのrestは既存tailを共有します。Arrayのrestは残りのArrayを作るため、Arrayを`[head, ...tail]`で最後まで再帰すると二乗時間になります。大きなArrayの走査には`reduce`などを使います。[性能](/docs/reference/performance)でこの違いを確認できます。
+Listの`...rest`は、元のListの残りをそのまま使います。Arrayの`...rest`は残りのArrayをコピーするので、Arrayを`[head, ...tail]`で最後まで再帰すると、要素数の二乗に比例する時間がかかります。大きなArrayには`reduce`などを使ってください。この違いは[性能](/docs/reference/performance)で確かめられます。
