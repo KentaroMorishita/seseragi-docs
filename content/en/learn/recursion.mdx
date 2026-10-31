@@ -3,11 +3,13 @@ title: "Recursion"
 description: "Reduce the input with a base case, local functions, and tail recursion."
 ---
 
-Recursion calls the same function on a smaller problem. Start with a small factorial to see the base case, then move to summation, mutual recursion, and trees.
+Recursion is a way of writing a function that calls itself, making the problem a little smaller each time. It can express repetition that is awkward to write with Array functions such as `map` and `reduce`.
+
+This chapter checks the basics with a factorial, then moves on to summing a large range, functions that call each other, and tree-shaped data.
 
 ## Check termination with a small example
 
-The factorial of 5 is `5 * 4 * 3 * 2 * 1`. Place this declaration at module scope:
+The factorial of 5 is `5 * 4 * 3 * 2 * 1`. Written recursively:
 
 {/* example: examples/learn/focused/recursion-factorial.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -18,17 +20,15 @@ fn factorial n: Int -> Int =
     n * factorial (n - 1)
 ```
 
-These bindings belong inside `main`:
-
 {/* example: examples/learn/focused/recursion-factorial.ssrg#inputs */}
 ```seseragi title="Bindings in main"
 let zero = factorial 0
 let five = factorial 5
 ```
 
-`zero` is 1; `five` is 120. The function ends when `n <= 1`, and otherwise calls itself with the smaller `n - 1`. This implementation also returns 1 for negative inputs. Choose a policy such as validating input first if that range should be rejected.
+`zero` is 1 and `five` is 120. When `n <= 1`, it returns 1 and stops; otherwise it calls itself with the smaller `n - 1`. Recursion always needs these two things: a condition for stopping, and an input that gets smaller. Note that this version also returns 1 for negative numbers.
 
-Multiplication remains after the recursive call, so the function is not tail recursive. Use small inputs here to examine its structure. The next summation example discusses larger inputs.
+This `factorial` still has a multiplication to do after calling itself. Recursion like this can run out of stack for large inputs. The next example shows a version that is safe for large inputs.
 
 ## Choose a base case and the next input
 
@@ -56,27 +56,27 @@ pub effect fn main =
 5000050000
 ```
 
-`loop n total` finishes when `n <= 0`. Otherwise, it decreases `n`, adds the current `n` to `total`, and calls itself. Both branches return an `Int`.
+When `n` is 0 or less, `loop n total` returns the running total `total` and stops. Otherwise it decreases `n` by one, adds `n` to `total`, and calls itself again.
 
-This definition returns 0 for a negative limit. Acceptable inputs and out-of-range behavior are design decisions for the function. Recursion itself does not guarantee positive inputs or termination.
+For a negative number, this `sumUpTo` returns 0. How to treat out-of-range input is up to the person writing the function.
 
-## Keep implementation parameters local
+## Functions inside functions
 
-`loop` is declared inside the `sumUpTo` block. Callers use `sumUpTo` without supplying an intermediate accumulator.
+`loop` is a local function declared inside `sumUpTo`. Only `sumUpTo` is visible from outside, so callers do not have to pass the running `total`.
 
-A local function can refer to its own name and lexical bindings declared before it. It cannot implicitly capture later local values or functions. Annotate parameters and the return type so the recursive function has a stable result type.
+Inside a local function, you can use the function itself and values bound with `let` before it, but not values declared after it. Write the parameter and result types of a recursive function.
 
-## Recognize tail recursion
+## Tail recursion
 
-This `loop` returns the recursive call's result directly. No addition or other work remains after the call. It is a direct self call in tail position.
+`loop` returns the result of calling itself directly, with no addition or other work left afterward. Recursion where calling itself is the very last step is called tail recursion.
 
-Seseragi executes direct self tail calls in ordinary pure functions without growing the host call stack in proportion to the input size. This example has been checked with 100000 iterations.
+Seseragi runs tail recursion as a loop. The stack does not grow no matter how many times it repeats, so this example works fine with 100000.
 
-The same guarantee does not cover calls such as `n + sumUpTo (n - 1)`, which perform work afterward, mutual recursion, partial application, or calls through callbacks. Do not apply the pure function's synchronous-loop guarantee directly to `effect fn` either. See [Performance](/en/docs/reference/performance) for its precise scope.
+Recursion with work left after the call, such as `n + sumUpTo (n - 1)`, functions that call each other (next section), and calls through a function passed as an argument are not turned into loops. Neither is `effect fn`. See [Performance](/en/docs/reference/performance) for details.
 
-## Group mutual recursion with rec
+## Group functions that call each other with rec
 
-Functions that call each other belong to the same `rec` group inside a function block. A bare `rec { ... }` is not permitted at module scope. Place this ordinary function declaration at module scope:
+When local functions call each other, group them with `rec { ... }`. `rec` can be used only inside a function, not at the top level of a file.
 
 {/* example: examples/learn/focused/recursion-mutual.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -94,13 +94,13 @@ fn parity n: Int -> String = {
 }
 ```
 
-`parity 6` produces `even`; `parity 7` produces `odd`. The inner even and odd functions can refer to each other within the group.
+`parity 6` is `even` and `parity 7` is `odd`. `even` and `odd` call each other inside the same `rec`.
 
-This definition assumes nonnegative input. Negative input never approaches zero, so it does not terminate. Mutual recursion also lacks the stack guarantee of direct self tail calls; this example is not a replacement for a large-input implementation.
+This example assumes numbers of 0 or more. A negative number never approaches 0, so it never finishes. Functions that call each other are not turned into loops either, so they are not suited to large numbers.
 
 ### Walk recursive data
 
-Recursion also works when a data type contains more values of the same type. This declaration represents either one leaf or a branch containing two trees. Place it at module scope:
+Recursion also fits data that contains values of its own type. `Tree` below is either a leaf, or a branch holding two `Tree`s:
 
 {/* example: examples/learn/focused/recursion-tree.ssrg#data */}
 ```seseragi title="Type declaration"
@@ -109,7 +109,7 @@ type Tree =
   | Branch (Tree, Tree)
 ```
 
-Count leaves by returning 1 for a leaf and adding both subtree results for a branch:
+To count the leaves, return 1 for a leaf, and for a branch add up the leaves on each side:
 
 {/* example: examples/learn/focused/recursion-tree.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -126,8 +126,6 @@ fn countLeaves tree: Tree -> Int =
   }
 ```
 
-Use it inside `main`:
-
 {/* example: examples/learn/focused/recursion-tree.ssrg#input */}
 ```seseragi title="Expression in main"
 let pair = Branch (Leaf, Leaf)
@@ -137,16 +135,16 @@ Branch (pair, Leaf)
 |> println
 ```
 
-The output is 3. Each Branch visits both children, and reaching Leaf ends that call. Adding the two results remains afterward, so this function is also not tail recursive.
+This prints 3. A branch visits both sides, and reaching a leaf ends that path. The shape of the code follows the shape of the data.
 
-## Choose between recursion and collection operations
+## Recursion or standard functions?
 
-A range and `sum` can also express a sum. When a standard traversal describes the goal, use it to make termination and ordering easier to read.
+To compute a sum, a range and `sum` also work: `1..=100000 |> sum`. When a standard function can do the job, it shows what the code does more clearly and cannot loop forever.
 
-Recursion is useful for recursively shaped data such as trees or for calculations that choose their own next input. [Arrays and lists](/en/docs/learn/arrays-and-lists) explains the cost of repeatedly splitting an Array into head and tail.
+Recursion shines for nested data such as trees, and for work that decides for itself what to process next.
 
 ## Check the boundaries
 
-Replace 100000 in `main` with 0, 1, and 5. The results are 0, 1, and 15. Removing the base case only keeps decreasing the input without returning a result. When reading recursion, check how each call approaches termination.
+Replace 100000 in `main` with 0, 1, and 5: the results are 0, 1, and 15. Remove the stopping condition `if n <= 0` and it never finishes. When reading recursion, check that each call moves the input closer to the stopping condition.
 
-Continue to [Effects](/en/docs/learn/effects) to combine pure calculations with external work. The [function reference](/en/docs/reference/functions) covers recursive declarations.
+Next, [Effects](/en/docs/learn/effects) combines calculations with interactions with the outside world, such as printing. The detailed rules for recursion are in the [function reference](/en/docs/reference/functions).

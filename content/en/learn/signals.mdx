@@ -3,11 +3,13 @@ title: "Signals"
 description: "Read and update changing state through Effects and explicitly compose derived values."
 ---
 
-Ordinary values are immutable. For state that changes over time, create a `MutableSignal<A>` and read or update it through Effects. Derived values form read-only `Signal<A>` nodes.
+Values in Seseragi never change once created. Yet you also need state that changes over time, such as how many times a button was pressed. That is what Signals are for.
+
+A `MutableSignal<A>` is a container for state you can change, read and written with Effects. Values computed from state become read-only `Signal<A>`s, and they follow the original state automatically when it changes.
 
 ## Set a new value
 
-Start with updates and reads, without a derived value. Import `std/signal` as signals at module scope. Put these expressions in the do block of main:
+First, an example that only changes state and reads it back. Import `std/signal` as `signals`:
 
 {/* example: examples/learn/focused/signal-set.ssrg#set */}
 ```seseragi title="Expressions in main do"
@@ -17,9 +19,9 @@ count := 5
 after <- *count
 ```
 
-`before` is 1; `after` is 5. `count := 5` changes the stored state. The earlier snapshot `before` remains 1 after the update. The next example introduces a value calculated from that state.
+`signals.make 1` creates a Signal holding 1. `*count` reads the current value, and `count := 5` changes it. `before` is 1 and `after` is 5. `before`, read earlier, stays 1 after the change.
 
-## Create a source and a derived value
+## Compute a value from state
 
 {/* example: examples/learn/signals.ssrg */}
 ```seseragi title="signals.ssrg"
@@ -43,25 +45,25 @@ before: 2
 after: 4
 ```
 
-`signals.make 1` is a computation that creates a mutable integer Signal. `count <- ...` binds its success value.
+`signals.map (\n -> n * 2) count` creates a Signal representing "twice `count`". When `count` goes from 1 to 2, `doubled` goes from 2 to 4. It is like a spreadsheet formula that refers to another cell: change that cell and the result changes too.
 
-`signals.map (\n -> n * 2) count` creates a derived Signal that doubles `count`. The mapping function is pure. Do not put output or asynchronous work inside it.
+The function passed to `signals.map` should only compute a value. Do not put Effects such as output inside it.
 
 ## Reading is an Effect too
 
-`*doubled` is a `Task<Int>` that reads the current value. It is not a pure integer dereference, so use `first <- *doubled`. The captured `first` is an ordinary immutable integer.
+`*doubled` is an Effect (`Task<Int>`) that reads the current value. The result depends on when you read it, so it is an Effect rather than an integer. That is why you receive it with `<-`, as in `first <- *doubled`. `first` is then an ordinary integer.
 
-A later Signal update does not change `first`. Read again when you need the updated value. A Signal is neither reassignment of an ordinary `let` binding nor a continuously changing integer value held in that binding.
+If the Signal changes later, the `first` you already received does not. Read again to get the new value.
 
-## Update from the current value
+## Update based on the current value
 
-`signals.update (\n -> n + 1) count` transforms the current value and stores the result atomically.
+`signals.update (\n -> n + 1) count` updates the value to the current value plus 1. The read and the write happen together, so no other update can slip in between.
 
-To supply a replacement value directly, write `count := 2`. This operator accepts only MutableSignal targets, not derived Signals such as `doubled` or ordinary bindings. When an update depends on the current value, use `update` instead of separate read and set operations.
+To set a value directly, write `count := 2`. `:=` works only on a `MutableSignal`, not on a computed Signal such as `doubled`. When the new value depends on the current one, use `update` rather than reading and then using `:=`.
 
-## Commit several updates in a transaction
+## Group several updates
 
-This example updates width and height together and computes their area:
+This example changes width and height together and computes the area:
 
 {/* example: examples/learn/signal-transaction.ssrg */}
 ```seseragi title="signal-transaction.ssrg"
@@ -87,21 +89,21 @@ pub effect fn main = do {
 30
 ```
 
-`combine` supplies both Signal values to `(*)`, the multiplication operator referenced as a curried function value. Its dependencies are explicit arguments, not automatically tracked reads within the function.
+`signals.combine (*) width height` creates a Signal of the two values multiplied. `(*)` uses multiplication as a function of two arguments. The Signals it depends on are given as arguments; Signals read inside the function are not tracked automatically.
 
-`planSet` constructs an update plan, and `transaction` publishes all plans in one commit. Derived values and subscribers do not observe a combination in which only the width has changed. A transaction groups Signal updates; it does not make arbitrary I/O atomic.
+`planSet` creates a plan to set a value, and `transaction` applies all the plans at once. `area` and others never see the in-between state where only the width has changed. `transaction` groups Signal updates only, though; it does not include other work such as writing files.
 
-## Choose a snapshot or a subscription
+## Read once, or keep receiving changes
 
-One read captures the published value at that time. When reading two Signals separately, an update may occur between reads. For a consistent combination, create a derived Signal with `combine` or a similar operation and read that Signal once. The captured value does not provide a lock against later updates.
+Reading with `*` takes the value at that moment, once. If you read two Signals separately, an update may happen in between. To use two values from the same moment, combine them into one Signal with `combine` or similar, and read it once.
 
-Use `subscribe` explicitly to receive subsequent updates. A successful subscription also notifies its observer once with the current value. Release the returned Subscription with `unsubscribe` when it is no longer needed. Constructing a derived Signal or reading it once does not start a subscription.
+To keep receiving changes, subscribe with `subscribe`. A new subscription first receives the current value, then every update. When you no longer need it, pass the `Subscription` returned by `subscribe` to `unsubscribe`. Creating a computed Signal or reading it once does not start a subscription.
 
-Setting the same value still notifies by default. Use `distinct` to suppress equal consecutive values. See the [Signal reference](/en/docs/reference/signals) for lifetime and failure rules, and [State and actions](/en/docs/guides/state-and-actions) for connecting state to a view.
+Updating with the same value still sends a notification. To be notified only when the value changes, use `distinct`. The detailed rules for subscriptions are in the [Signal reference](/en/docs/reference/signals), and connecting state to a screen is covered in the [State and actions](/en/docs/guides/state-and-actions) guide.
 
-### Check subscription startup and cleanup
+### Try subscribing and unsubscribing
 
-Record notified integers as a List in another Signal. Place these declarations at module scope. History is an alias for the longer type:
+Record the notified values in a List stored in another Signal. `History` is an alias for the longer type:
 
 {/* example: examples/learn/focused/signal-subscription.ssrg#callback */}
 ```seseragi title="Notification recorder"
@@ -115,7 +117,7 @@ effect fn remember history: History
 }
 ```
 
-This observer only updates a Signal and has failure type Never. Main performs Console output. The checked program explicitly declares main's Console environment and failure. This fragment is the beginning of its declaration; place the later code in this do block:
+This function just adds the notified value to the front of the List. `main` starts as follows, and the code below goes inside this `do`:
 
 {/* example: examples/learn/focused/signal-subscription.ssrg#entry */}
 ```seseragi title="Start of main declaration"
@@ -124,7 +126,7 @@ with Console
 fails ConsoleError = do {
 ```
 
-First, prepare the observed state and an empty List for the history:
+First, prepare the state to watch and an empty List for the record:
 
 {/* example: examples/learn/focused/signal-subscription.ssrg#setup */}
 ```seseragi title="Expressions in main do"
@@ -133,7 +135,7 @@ let empty: List<Int> = `[]
 history <- signals.make empty
 ```
 
-Start subscribing, then change the state once:
+Start the subscription, then change the state once:
 
 {/* example: examples/learn/focused/signal-subscription.ssrg#subscription */}
 ```seseragi title="Expressions in main do"
@@ -144,7 +146,7 @@ subscription <-
 count := 1
 ```
 
-The subscription first reports 0 and then the updated 1. Prepending to the history puts the newest notification first.
+The subscription reports 0 when it starts, then the updated 1. Values are added to the front of the List, so the newest comes first.
 
 {/* example: examples/learn/focused/signal-subscription.ssrg#cleanup */}
 ```seseragi title="Expressions in main do"
@@ -153,17 +155,17 @@ count := 2
 events <- *history
 ```
 
-Displaying events with show produces this List:
+Displaying `events` gives:
 
 ```text title="Recorded values"
 `[1, 0]
 ```
 
-The update to 2 after cleanup is not recorded. This separates a read from the lifetime of an ongoing subscription.
+The 2 set after unsubscribing is not recorded.
 
-### Reduce notifications for equal values
+### Skip notifications for the same value
 
-Use remember above to compare an ordinary subscription with one through distinct. Inside main's do block, create count with 0 and two mutable history Signals, all and unique, from empty Lists. Then use these expressions:
+Using `remember` from above, compare an ordinary subscription with one through `distinct`. Create `count` with 0 and two records, `all` and `unique`, holding empty Lists, then write:
 
 {/* example: examples/learn/focused/signal-distinct.ssrg#views */}
 ```seseragi title="Expressions in main do"
@@ -178,7 +180,7 @@ uniqueSub <-
   |> signals.subscribe uniqueObserver
 ```
 
-Give both subscriptions the same updates:
+Update with the same value twice:
 
 {/* example: examples/learn/focused/signal-distinct.ssrg#updates */}
 ```seseragi title="Expressions in main do"
@@ -191,10 +193,12 @@ count := 1
 | count | `` `[1, 1, 0] `` |
 | distinct | `` `[1, 0] `` |
 
-The ordinary subscription also reports the repeated update to 1; distinct suppresses a value equal to its predecessor. This example unsubscribes both Subscriptions at the end. Distinct changes notification behavior without modifying the source's state.
+The ordinary subscription receives both updates to 1. Through `distinct`, a value equal to the previous one is skipped. `distinct` does not change `count` itself, only how notifications are sent. (This example also unsubscribes both at the end.)
 
 ## Change the update and transformation
 
-Change the first example's update to `\n -> n + 3`; the final output becomes `after: 8`. Change the derived calculation to triple the value; the original increment then changes the result from 3 to 6.
+In the second example, change the update to `\n -> n + 3`: the last line becomes `after: 8`. Change `doubled` to triple the value: it prints `before: 3` and `after: 6`.
 
-Print `first` again at the end. It remains 2 after the update. Check the difference between the captured snapshot and the derived Signal. Continue to [Type classes](/en/docs/learn/type-classes) to understand operations such as `map` across different types.
+Print `first` again at the end: it is still 2 after the update. This shows the difference between a value read once and a Signal that follows the state.
+
+Next, [Type classes](/en/docs/learn/type-classes) explains how functions such as `map` work on both Array and Maybe.

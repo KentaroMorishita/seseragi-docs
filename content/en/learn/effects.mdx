@@ -3,18 +3,20 @@ title: "Effects"
 description: "Describe external work as a delayed computation and compose its order and dependencies with do."
 ---
 
-Computing a string and printing it are different operations. An `Effect` represents output, external state access, and asynchronous work as a computation value that can be executed.
+Building a string and printing it on the screen are two different things. The first gives the same result every time; the second affects the world outside the program.
+
+Seseragi represents interactions with the outside world, such as output, reading and writing state, and asynchronous work, as values called `Effect`s. An Effect is a value describing "work that does something when run"; creating one does not do anything yet. This chapter covers creating Effects, running them, and handling failures.
 
 ## Receive the value from a successful computation
 
-First, create an Effect that succeeds without an external service. Place this import at module scope:
+Start with an Effect that does not touch the outside world and simply returns a value. Import `std/effect`:
 
 {/* example: examples/learn/focused/effect-bind.ssrg#import */}
 ```seseragi title="Import declaration"
 import * as effects from "std/effect"
 ```
 
-`succeed` lifts an ordinary value into a successful computation. Place this function at module scope:
+`succeed` turns an ordinary value into "an Effect that succeeds with that value":
 
 {/* example: examples/learn/focused/effect-bind.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -22,7 +24,7 @@ effect fn answer -> Int =
   effects.succeed 42
 ```
 
-Calling `answer ()` produces an Effect that succeeds with an integer, rather than an integer itself. Inside `main = do { ... }`, extract that successful value and display it:
+Calling `answer ()` returns not an integer but "an Effect that succeeds with 42". To use the value inside, take it out with `<-` in the `do` block of `main`:
 
 {/* example: examples/learn/focused/effect-bind.ssrg#bind */}
 ```seseragi title="Expressions in main do"
@@ -32,9 +34,9 @@ value
 |> println
 ```
 
-The output is 42. `value <- ...` receives the success value during execution; subsequent code treats it as an ordinary integer.
+This prints 42. `value <- answer ()` runs the Effect and receives its success value, which is an ordinary integer from then on. It is close to TypeScript's `const value = await answer()`.
 
-## Separate construction from execution
+## Creating an Effect does not run it
 
 {/* example: examples/learn/effects.ssrg */}
 ```seseragi title="effects.ssrg"
@@ -57,13 +59,13 @@ Hello, Aki
 Hello, Aki
 ```
 
-`let greeting = greet "Aki"` constructs and names an output Effect. It does not print the greeting on that line, so `Before greeting` appears first. Executing the same `greeting` twice prints it twice.
+`let greeting = greet "Aki"` only creates "an Effect that prints a greeting" and names it; nothing is printed at that point. So `Before greeting` comes first. Running `greeting` twice afterward prints the greeting twice.
 
-Effects are cold. Constructing one does not start its external work; executing it again performs the work again. Treating it like a Promise holding an already computed result misses this distinction. Ordinary pure expressions and function arguments still follow strict evaluation rules.
+This is the big difference from a TypeScript Promise. A Promise starts working the moment it is created, and its result is produced only once. An Effect does not start when created, and does its work every time it runs. That is why an Effect can be treated as a plain value: stored in a variable, passed to a function, and run later as many times as you like.
 
-## Describe a contract with three types
+## What an Effect's type tells you
 
-In `Effect<R, E, A>`, `R` is the required environment, `E` is the recoverable failure type, and `A` is the success type. `greet` requires Console, may fail with ConsoleError, and succeeds with Unit.
+The type `Effect<R, E, A>` carries three pieces of information: `R` is what the work needs, `E` is how it can fail, and `A` is the result on success. The type of `greet` is shown below; read it as "uses the console, may fail with `ConsoleError`, and returns `Unit` on success".
 
 ```seseragi
 Effect<
@@ -73,35 +75,31 @@ Effect<
 >
 ```
 
-In `effect fn`, `-> Unit` names the success type, `with Console` names the requirement, and `fails ConsoleError` names the error. Calling the function produces an Effect that succeeds with Unit, not an immediate Unit result.
+In an `effect fn` declaration, `-> Unit` is the success type, `with Console` is what it needs, and `fails ConsoleError` is the failure type. The signature alone tells you what a function uses and how it can fail. A TypeScript function's type does not tell you whether it calls `fetch` or `console.log` inside, or what it might `throw`.
 
-## Compose an order with do
+## Run in order with do
 
-A `do` block composes Effects for sequential execution. Use `value <- effect` when later work needs an Effect's success value. A `let` inside `do` binds a pure value; it does not execute an Effect.
+Effects written inside `do` run from top to bottom. To use a success value, write `value <- effect`. A `let` inside `do` just names an ordinary value and does not run an Effect.
 
-The last expression returns an Effect. Lift an ordinary value into a success with `succeed value` or `pure value`. Placing several Effects in an ordinary block does not automatically perform the sequential composition provided by `do`.
+The last line of a `do` must be an Effect. To return an ordinary value, wrap it with `succeed value` or `pure value`. Putting Effects in an ordinary block `{ ... }` without `do` does not run them in order.
 
-`do` is Monad composition syntax and also works with Maybe and Either. An Effect sequences external work, Maybe stops on absence, and Either stops on a synchronous failure.
+You used `do` in [Maybe and Either](/en/docs/learn/maybe-and-either) too. The same notation means "stop if there is no value" for Maybe, "stop on failure" for Either, and "run the work in order, stopping on failure" for Effect.
 
-## Choose inferred or explicit contracts
+## Write the types, or let them be inferred
 
-`greet` has an explicit contract. A declaration such as `main`, omitting all of `->`, `with`, and `fails`, infers its environment, error, and success types from the body.
+`greet` writes out the success type, what it needs, and the failure type. When you omit all of `->`, `with`, and `fails`, as `main` does, everything is inferred from the body.
 
-If you start an explicit contract with `effect fn ... -> Unit` and omit `with` or `fails`, the defaults are environment `{}` and error `Never`. The omitted parts are not inferred from the body. A console-printing explicit contract therefore needs Console and ConsoleError as shown above.
+Be careful when you write the success type, as in `-> Unit`. Then an omitted `with` means "needs nothing" and an omitted `fails` means "cannot fail" (`Never`); they are not inferred from the body. To print to the console, also write `with Console` and `fails ConsoleError`, as in the example.
 
-Inferred public declarations still expose the resulting contract in their typed interface. Environment requirements are combined, but different error types are not automatically unioned. Design the failure categories with an ADT and operations such as `mapError`.
+Even when inferred, what a function needs and how it fails remain part of its type. Requirements are merged automatically, but different failure types are never merged into one automatically. Decide how to classify failures yourself, with an ADT and `mapError`.
 
-## Understand failure and execution boundaries
+## Handle failures
 
-Recoverable error types must agree within one composition. `Never`, which cannot produce a recoverable failure, can widen to a required error type. Represent expected failure with `fail` or a standard API's error value, and handle it with `recover`.
+Effects combined in one `do` must share the same failure type (`Never`, which cannot fail, fits any failure type). Express a possible failure with `fail`, and recover from it with `recover`.
 
-Defects and cancellation are separate from recoverable errors. `recover` is not a catch-all for every abnormal outcome. See [Error handling](/en/docs/guides/error-handling) for designing those paths.
+### Recover from a failure
 
-The CLI executes the exported `main` Effect. An ordinary `fn` can also return an Effect as a value with an explicit type. `effect fn` makes that declaration easier to read; it does not introduce another execution model.
-
-### Recover a failure into a success value
-
-Define the failure type at module scope first. This example also imports `std/effect` as effects:
+First define the failure type. This example also imports `std/effect` as `effects`:
 
 {/* example: examples/learn/focused/effect-recovery.ssrg#failure-type */}
 ```seseragi title="Type declaration"
@@ -109,7 +107,7 @@ type CheckError =
   | Rejected
 ```
 
-This computation succeeds with 42 when allowed and fails with Rejected otherwise:
+This Effect succeeds with 42 when `allowed` is `True`, and fails with `Rejected` when it is `False`:
 
 {/* example: examples/learn/focused/effect-recovery.ssrg#declaration */}
 ```seseragi title="Function declaration"
@@ -121,7 +119,7 @@ effect fn accepted allowed: Bool
     effects.fail Rejected
 ```
 
-The recovery function also returns an Effect. Its success value must have the same Int type:
+Prepare a function to run instead on failure. It returns an Effect with the same `Int` as the success case:
 
 {/* example: examples/learn/focused/effect-recovery.ssrg#fallback */}
 ```seseragi title="Function declaration"
@@ -130,7 +128,7 @@ effect fn fallback error: CheckError
   effects.succeed 0
 ```
 
-Chain them inside the do block of `main`:
+Connect them with `recover`:
 
 {/* example: examples/learn/focused/effect-recovery.ssrg#recover */}
 ```seseragi title="Expressions in main do"
@@ -139,11 +137,11 @@ value <-
   |> effects.recover fallback
 ```
 
-`value` is 0. Changing False to True produces 42 without calling fallback. Recovery runs only when the initial computation fails.
+`value` is 0. Change `False` to `True` and it becomes 42, without calling `fallback`. The function passed to `recover` runs only on failure. It resembles TypeScript's `try ... catch`, except that the type decides which failures can arrive.
 
 ### Convert the failure type
 
-Use mapError to wrap a String reason in the application's ADT. Place this declaration at module scope:
+To turn a string failure into your application's ADT failure, use `mapError`. First, define the target type:
 
 {/* example: examples/learn/focused/effect-map-error.ssrg#failure-type */}
 ```seseragi title="Type declaration"
@@ -151,7 +149,7 @@ type InputError =
   | Invalid String
 ```
 
-The source computation fails with a String:
+The source is an Effect that fails with a string:
 
 {/* example: examples/learn/focused/effect-map-error.ssrg#source */}
 ```seseragi title="Function declaration"
@@ -160,7 +158,7 @@ fails String =
   effects.fail "empty"
 ```
 
-`mapError Invalid` constructs an InputError case from that String:
+`mapError Invalid` wraps the failure string in `Invalid`, making it an `InputError`:
 
 {/* example: examples/learn/focused/effect-map-error.ssrg#mapping */}
 ```seseragi title="Function declaration"
@@ -170,7 +168,7 @@ fails InputError =
   |> effects.mapError Invalid
 ```
 
-MapError does not recover on its own. Recovering checked with this function produces the successful string `invalid: empty`:
+`mapError` only changes the failure type; it does not recover. To recover, add `recover`:
 
 {/* example: examples/learn/focused/effect-map-error.ssrg#recovery */}
 ```seseragi title="Recovery function"
@@ -185,7 +183,7 @@ effect fn describe error: InputError
   }
 ```
 
-Recover and display the string inside the do block of main:
+Use it in `main` like this:
 
 {/* example: examples/learn/focused/effect-map-error.ssrg#use */}
 ```seseragi title="Expressions in main do"
@@ -195,10 +193,14 @@ value <-
 println value
 ```
 
-The output is `invalid: empty`. Error mapping classifies a failure; recovery creates a subsequent success result.
+This prints `invalid: empty`. `mapError` reclassifies a failure, and `recover` turns a failure into a success.
+
+Crashes caused by bugs and cancelled work are separate from the failures expressed with `fails`. `recover` is not a `catch` that captures every abnormal outcome. The [Error handling](/en/docs/guides/error-handling) guide covers how to design failures.
+
+When you run a program, the CLI runs the Effect returned by the `pub` `main`. `effect fn` is a readable way to write "a function that returns an Effect"; an ordinary `fn` can return an Effect too if you write its type.
 
 ## Change the execution count
 
-Remove one `greeting` expression and the greeting prints once. Keep only `let greeting = ...` and remove both execution expressions; no greeting prints. Check construction and execution separately.
+Remove one of the lines that run `greeting`, and the greeting prints once. Keep only `let greeting = ...` and remove both, and no greeting prints. This confirms that creating an Effect does not run it.
 
-Continue to [Signals](/en/docs/learn/signals) to read and update changing state through Effects. The [Effect reference](/en/docs/reference/effects) covers exact contracts.
+Next, [Signals](/en/docs/learn/signals) reads and updates changing state with Effects. The detailed rules for Effects are in the [Effect reference](/en/docs/reference/effects).

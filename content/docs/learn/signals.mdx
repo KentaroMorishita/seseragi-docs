@@ -3,11 +3,13 @@ title: "Signal"
 description: "変化する状態をEffectから読み書きし、派生値を明示的につなぐ。"
 ---
 
-通常の値は不変です。時間とともに変わる状態が必要な場合は、`MutableSignal<A>`を作り、Effectから読み書きします。状態から計算した値は、読み取り専用の`Signal<A>`としてつなげられます。
+Seseragiの値は、一度作ったら変わりません。でも、ボタンを押した回数のように、時間とともに変わる状態も必要です。そのために使うのがSignalです。
+
+`MutableSignal<A>`は書き換えられる状態の入れ物で、Effectを使って読み書きします。状態から計算した値は、読み取り専用の`Signal<A>`として作れます。元の状態が変わると、計算した値も自動で追従します。
 
 ## 値を指定して更新する
 
-まず派生値を作らず、更新と読み取りだけを試します。モジュールでは`std/signal`をsignalsとしてimportしてください。次は`main`のdo内に置く式です。
+まずは、状態を書き換えて読み取るだけの例です。`std/signal`を`signals`としてimportしておきます。
 
 {/* example: examples/learn/focused/signal-set.ssrg#set */}
 ```seseragi title="mainのdo内の式"
@@ -17,9 +19,9 @@ count := 5
 after <- *count
 ```
 
-`before`は1、`after`は5です。`count := 5`は保存した状態を変えます。すでに読み取った`before`は、更新後も1のままです。次の例で、状態から計算した値へ進みます。
+`signals.make 1`で、1が入ったSignalを作ります。`*count`で今の値を読み取り、`count := 5`で値を書き換えます。`before`は1、`after`は5です。先に読み取った`before`は、書き換えたあとも1のままです。
 
-## 更新元と派生値を作る
+## 状態から計算した値を作る
 
 {/* example: examples/learn/signals.ssrg */}
 ```seseragi title="signals.ssrg"
@@ -43,25 +45,25 @@ before: 2
 after: 4
 ```
 
-`signals.make 1`は、整数を保持する更新可能なSignalを作る計算です。`count <- ...`で成功値を取り出します。
+`signals.map (\n -> n * 2) count`は、「`count`の2倍」を表すSignalを作ります。`count`を1から2に増やすと、`doubled`も2から4に変わります。表計算ソフトで、あるセルを参照する式を書いておくと、元のセルを変えたときに結果も変わるのと似ています。
 
-`signals.map (\n -> n * 2) count`は、`count`から2倍の値を得る派生Signalを作ります。`map`の関数は純粋な計算です。派生値を作るときに、出力や非同期処理をその関数へ入れません。
+`signals.map`に渡す関数は、値を計算するだけの関数にします。出力などのEffectは入れません。
 
 ## 読み取りもEffect
 
-`*doubled`は、現在値を読み取る`Task<Int>`です。整数そのものを返す純粋な参照ではないので、`first <- *doubled`と書きます。読み取った`first`は普通の不変の整数です。
+`*doubled`は、今の値を読み取るEffect（`Task<Int>`）です。読むタイミングによって結果が変わるので、整数そのものではなくEffectになっています。そのため`first <- *doubled`のように`<-`で受け取ります。受け取った`first`は普通の整数です。
 
-後からSignalが変わっても、すでに取得した`first`の値は変わりません。更新後の値が必要なら、再び読み取ります。Signalを通常の`let`の再代入や、常に変わり続ける整数そのものと混同しないでください。
+あとでSignalが変わっても、すでに受け取った`first`は変わりません。新しい値が欲しければ、もう一度読み取ります。
 
-## 現在値に基づく更新
+## 今の値をもとに更新する
 
-`signals.update (\n -> n + 1) count`は、その時点の値を受け取り、新しい値を保存します。この更新はatomicです。
+`signals.update (\n -> n + 1) count`は、今の値に1を足した値で更新します。読み取りと書き込みが一度に行われるので、間に別の更新が割り込むことはありません。
 
-値をそのまま指定する場合は`count := 2`と書けます。この演算子はMutableSignalだけに使えます。派生した`doubled`や普通の変数へは代入できません。現在値に依存する更新は、先に読んでから`:=`する二段階ではなく、`update`で表せます。
+値を直接指定するときは`count := 2`と書きます。`:=`は`MutableSignal`にだけ使え、`doubled`のような計算したSignalには使えません。今の値をもとに更新したいときは、読み取ってから`:=`するより、`update`を使いましょう。
 
-## 複数の更新をtransactionにする
+## 複数の更新をまとめる
 
-幅と高さを同時に更新して、面積を計算する例です。
+幅と高さを同時に変えて、面積を計算する例です。
 
 {/* example: examples/learn/signal-transaction.ssrg */}
 ```seseragi title="signal-transaction.ssrg"
@@ -87,21 +89,21 @@ pub effect fn main = do {
 30
 ```
 
-`combine`は二つのSignalの値を`(*)`へ渡します。`(*)`は乗算を二引数の関数として参照した値です。依存するSignalを引数で明示しており、関数内の読み取りを自動追跡する方式ではありません。
+`signals.combine (*) width height`は、二つのSignalの値を掛け算した値のSignalを作ります。`(*)`は、掛け算を二つの引数を取る関数として使う書き方です。どのSignalに依存するかは引数で明示します。関数の中で読んだSignalを自動で追跡する仕組みではありません。
 
-`planSet`は更新計画を作り、`transaction`がすべてを一度に公開します。派生値や購読先に、幅だけ変わった途中の組み合わせを見せません。transactionはSignalの更新をまとめる操作で、任意のI/Oをatomicにする仕組みではありません。
+`planSet`は「この値に変える」という予定を作り、`transaction`がそれらを一度に反映します。幅だけ変わって高さはまだ、という途中の状態が、`area`などから見えることはありません。ただし`transaction`がまとめるのはSignalの更新だけで、ファイルへの書き込みなど他の処理までまとめるものではありません。
 
-## snapshotと購読を使い分ける
+## 一度読むか、変化を受け取り続けるか
 
-一度の読み取りは、その時点のsnapshotです。二つのSignalを別々に読むと、読み取りの間に更新が入る可能性があります。同じ時点の組を使いたい場合は、`combine`などでまとめた派生Signalを一度だけ読みます。取得後の排他制御まで保証するものではありません。
+`*`での読み取りは、その瞬間の値を一回だけ取り出します。二つのSignalを別々に読むと、その間に更新が入るかもしれません。同じ瞬間の二つの値を使いたいときは、`combine`などで一つにまとめたSignalを一回だけ読みます。
 
-更新を継続的に受け取るには`subscribe`を明示します。成功時には現在値も一度通知されます。返されたSubscriptionは、不要になったら`unsubscribe`で解除します。派生値を作ったり一度読んだりするだけでは、購読は始まりません。
+変化を受け取り続けたいときは、`subscribe`で購読します。購読を始めると、まず今の値が一度通知され、そのあと更新のたびに通知されます。要らなくなったら、`subscribe`が返した`Subscription`を`unsubscribe`に渡して解除します。計算したSignalを作ったり、一度読んだりするだけでは、購読は始まりません。
 
-同じ値の更新も既定では通知されます。重複を避けたい場合は`distinct`を使います。購読の寿命や失敗の扱いは[Signalリファレンス](/docs/reference/signals)、画面との接続は[状態とアクション](/docs/guides/state-and-actions)で扱います。
+同じ値で更新した場合も、通知は届きます。値が変わったときだけ通知してほしい場合は`distinct`を使います。購読の細かい決まりは[Signalリファレンス](/docs/reference/signals)、画面とのつなぎ方は[状態とアクション](/docs/guides/state-and-actions)のガイドにあります。
 
-### 購読開始と解除を確かめる
+### 購読と解除を試す
 
-通知された整数を、別のSignalにListで記録してみます。次の宣言をモジュールに置きます。Historyは、長い型に付けた別名です。
+通知された値を、別のSignalに入れたListに記録してみます。`History`は、長い型に付けた別名です。
 
 {/* example: examples/learn/focused/signal-subscription.ssrg#callback */}
 ```seseragi title="通知を記録する関数"
@@ -115,7 +117,7 @@ effect fn remember history: History
 }
 ```
 
-このobserverはSignalを更新するだけで、失敗型はNeverです。Consoleへの出力はmainで行います。確認用プログラムのmainは、Consoleの環境と失敗を明示しています。次はその宣言の先頭の断片で、後のコードをこのdoブロック内に置きます。
+この関数は、通知された値をListの先頭に足すだけです。`main`は次のように始め、以下のコードをこの`do`の中に書きます。
 
 {/* example: examples/learn/focused/signal-subscription.ssrg#entry */}
 ```seseragi title="mainの宣言の先頭"
@@ -124,7 +126,7 @@ with Console
 fails ConsoleError = do {
 ```
 
-まず、観測する状態と、記録用の空Listを用意します。
+まず、見張る状態と、記録用の空のListを用意します。
 
 {/* example: examples/learn/focused/signal-subscription.ssrg#setup */}
 ```seseragi title="mainのdo内の式"
@@ -133,7 +135,7 @@ let empty: List<Int> = `[]
 history <- signals.make empty
 ```
 
-次に購読を開始し、状態を一度変えます。
+購読を始めてから、状態を一度変えます。
 
 {/* example: examples/learn/focused/signal-subscription.ssrg#subscription */}
 ```seseragi title="mainのdo内の式"
@@ -144,7 +146,7 @@ subscription <-
 count := 1
 ```
 
-購読開始時の0と、更新後の1が通知されます。記録は先頭に追加するので、新しい通知が先頭になります。
+購読を始めたときの0と、更新後の1が通知されます。記録はListの先頭に足していくので、新しいものが前に来ます。
 
 {/* example: examples/learn/focused/signal-subscription.ssrg#cleanup */}
 ```seseragi title="mainのdo内の式"
@@ -153,17 +155,17 @@ count := 2
 events <- *history
 ```
 
-`events`をshowで表示すると、次のListです。
+`events`を表示すると、次のようになります。
 
 ```text title="記録された値"
 `[1, 0]
 ```
 
-解除後の2は記録されません。読み取りと、通知を受け続ける購読の寿命を分けて確認できます。
+解除したあとの2は記録されません。
 
-### 同じ値の通知を減らす
+### 同じ値の通知を省く
 
-上のrememberを使い、普通の購読とdistinctを通した購読を比べます。mainのdo内でcountを0から作り、記録用のMutableSignalをallとuniqueとして空Listから作った後の式です。
+上の`remember`を使って、普通の購読と`distinct`を通した購読を比べます。`count`を0で作り、記録用に空のListを入れた`all`と`unique`を用意してから、次のように書きます。
 
 {/* example: examples/learn/focused/signal-distinct.ssrg#views */}
 ```seseragi title="mainのdo内の式"
@@ -178,7 +180,7 @@ uniqueSub <-
   |> signals.subscribe uniqueObserver
 ```
 
-二つの購読へ、同じ更新を渡します。
+同じ値で二回更新します。
 
 {/* example: examples/learn/focused/signal-distinct.ssrg#updates */}
 ```seseragi title="mainのdo内の式"
@@ -191,10 +193,12 @@ count := 1
 | count | `` `[1, 1, 0] `` |
 | distinct | `` `[1, 0] `` |
 
-普通の購読は同じ1への更新も通知し、distinct側は直前と等しい値を抑えます。この例も、最後に両方のSubscriptionをunsubscribeしています。distinctは更新元を書き換える操作ではなく、通知する側の振る舞いを変えます。
+普通の購読には、同じ1での更新も二回とも届きます。`distinct`を通すと、直前と同じ値の通知は省かれます。`distinct`は元の`count`を変えるのではなく、通知の仕方だけを変えます。（この例でも、最後に二つの購読を`unsubscribe`で解除しています。）
 
 ## 更新と計算を変える
 
-最初の例の更新を`\n -> n + 3`へ変えると、最後の出力は`after: 8`です。派生関数を3倍へ変えると、元の1を足す更新では3から6へ変わります。
+2つ目の例で、更新を`\n -> n + 3`に変えると、最後の表示は`after: 8`になります。`doubled`の計算を3倍に変えると、`before: 3`、`after: 6`です。
 
-`first`を最後にもう一度出力すると、更新後も2のままです。snapshotと派生Signalの違いを確かめてください。次は[型クラス](/docs/learn/type-classes)で、`map`のような操作が異なる型にも使える仕組みを学びます。
+最後に`first`をもう一度表示すると、更新したあとでも2のままです。一度読み取った値と、状態に追従するSignalの違いを確かめてください。
+
+次の[型クラス](/docs/learn/type-classes)では、`map`のような関数がArrayにもMaybeにも使える仕組みを学びます。
