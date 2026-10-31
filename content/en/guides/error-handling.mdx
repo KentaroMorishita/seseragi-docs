@@ -3,19 +3,19 @@ title: Handle failures
 description: Distinguish pure validation from Effect failure and turn input problems into useful messages.
 ---
 
-Validate a quantity string and display either its value or how to correct it. Distinguish an unparseable number from a number outside the accepted range.
+Build a program that validates a quantity and shows either the quantity or how to fix the input. Text that is not a number and a number out of range are treated as different failures.
 
-Result types use [Maybe and Either](/en/docs/learn/maybe-and-either); execution and recovery use [Effects](/en/docs/learn/effects). This task combines those concepts for input validation.
+It combines what you learned in [Maybe and Either](/en/docs/learn/maybe-and-either) and [Effects](/en/docs/learn/effects).
 
 ## Represent failure with a type
 
-`QuantityError` has `NotANumber` and `OutsideRange` cases. `quantity` returns `Either<QuantityError, Int>` containing an accepted integer or an explanation of failure.
+The kinds of failure become a type, `QuantityError`, with two cases: `NotANumber` and `OutsideRange`. The `quantity` function returns `Either<QuantityError, Int>`: the quantity on success, the reason on failure.
 
-`Maybe` fits an absence that is normal. This program needs a reason the user can act on, so it uses `Either`.
+If having no value is an ordinary result, `Maybe` is fine. Here the user needs a reason to fix the input, so it uses `Either`.
 
 ## Save the complete program
 
-Save this as `errors.ssrg`.
+Save the following as `errors.ssrg`.
 
 {/* example: examples/guides/errors.ssrg */}
 ```seseragi title="errors.ssrg"
@@ -61,13 +61,13 @@ pub effect fn main = do {
 }
 ```
 
-This application deliberately maps the parser's detailed error to `NotANumber`. `quantity` owns the range rule, while `report` owns the displayed wording.
+The detailed failure from `ints.parse` is collapsed into `NotANumber` here. The range rule lives in `quantity` and the wording lives in the `match` in `report`, so it is clear where to look for what.
 
 ## Move an Either into an Effect
 
-`fromEither` creates an Effect that succeeds for `Right` and fails for `Left`. `effects.attempt` handles recoverable failure and returns success as `Right` or its reason as `Left`.
+`fromEither` creates an Effect that succeeds for `Right` and fails for `Left`. `effects.attempt` goes the other way: it catches the Effect's failure and returns `Right` on success or `Left` on failure, as a value.
 
-`quantity` initially returns a synchronous result. The Effect made from it describes success or failure before execution. After `attempt`, `match` can treat both accepted and rejected input as values to display.
+Thanks to `attempt`, `report` can handle success and failure as ordinary values with `match`, and build text to display in either case.
 
 ## Inspect the result
 
@@ -81,11 +81,11 @@ Enter a number
 Use 1 to 1000
 ```
 
-The validation failures for “many” and 0 are recovered into messages, so this run succeeds. It does not recover a failure of `println` itself. An inability to write to Console still fails.
+The failures for “many” and 0 are turned into messages, so the program as a whole succeeds. It does not handle a failure of `println` itself, though; such a failure is not turned into success.
 
 ## Use a default only on failure
 
-This independent example uses `light` when a setting is absent and preserves it when present. Save the following two blocks in order as `error-recovery.ssrg`. It reads no files or environment variables; `Maybe<String>` supplies presence or absence.
+The next, separate example uses `light` when there is no theme setting, and the setting otherwise. Write the following two blocks in order in `error-recovery.ssrg`. It reads no files; whether a setting exists is passed as a `Maybe<String>`.
 
 {/* example: examples/guides/error-recovery.ssrg#fallback */}
 ```seseragi title="error-recovery.ssrg"
@@ -106,7 +106,7 @@ effect fn fallback error: ThemeError
   }
 ```
 
-`effects.fromMaybe` turns `Nothing` into the typed failure `MissingSetting`. `fallback` also constructs an Effect: it requires no additional services and returns `light` without a typed failure. Its return type is `Task<String>`.
+`effects.fromMaybe` creates an Effect that fails with `MissingSetting` for `Nothing`. `fallback` is an Effect that returns `light` instead on failure. It needs nothing and cannot fail, so its type is `Task<String>`.
 
 {/* example: examples/guides/error-recovery.ssrg#paths */}
 ```seseragi title="error-recovery.ssrg"
@@ -131,16 +131,18 @@ light
 dark
 ```
 
-`recover` calls `fallback` on the failure path created from `Nothing`. The successful value from `Just "dark"` passes through. Where `attempt` returns success or failure as a value to inspect, this example supplies an alternative Effect for failure.
+Passing `Nothing` fails, so `recover` calls `fallback` and the result is `light`. `Just "dark"` succeeds, so the result is `dark` as is.
+
+`attempt` in the previous example receives success and failure as values to inspect; `recover` in this example runs a replacement Effect on failure.
 
 ## Unify application failures
 
-When combining input, filesystem, or network Effects, use `mapError` to convert each failure into an application failure type. [Build a CLI application](/en/docs/guides/cli-app) unifies `InputFailure StdinError` and `OutputFailure ConsoleError` in `AppError`.
+When you combine Effects with different failure types, such as input, files, and network, bring them to the application's failure type with `mapError`. [Build a CLI application](/en/docs/guides/cli-app) merges `InputFailure StdinError` and `OutputFailure ConsoleError` into one `AppError`.
 
-`map` transforms success values; `mapError` transforms failure reasons. Decide at the application boundary whether to recover and continue or propagate failure to the caller.
+`map` transforms success values; `mapError` transforms failure reasons. Whether to recover and continue or return the failure to the caller is a decision for each application.
 
-## Distinguish defects and cancellation
+## Bugs and cancellation are separate
 
-`attempt` and `recover` handle declared recoverable failures. They do not turn a runtime contract defect or cancellation into an ordinary input error.
+`attempt` and `recover` handle only the failures written in types with `fails`. Abnormal outcomes caused by bugs (defects) and cancelled work cannot be caught as ordinary failures.
 
-Seseragi has no `try/catch` syntax. To handle host exceptions, use a `task` binding as demonstrated in [TypeScript bindings](/en/docs/guides/typescript-bindings). [Effect Reference](/en/docs/reference/effects) defines failure, defect, and cancellation contracts.
+Seseragi has no `try/catch` syntax. To handle exceptions thrown by TypeScript functions, use a `task` binding, introduced in [TypeScript bindings](/en/docs/guides/typescript-bindings). The detailed rules for failures, defects, and cancellation are in the [Effect reference](/en/docs/reference/effects).

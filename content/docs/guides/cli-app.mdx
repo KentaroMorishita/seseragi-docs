@@ -3,25 +3,25 @@ title: CLIアプリを作る
 description: 標準入力を読み、数量を検証し、金額を出力するCLIを作る。
 ---
 
-一行で渡された数量を読み、単価480の合計金額を出力します。入力は1から1000までの整数に限ります。変換と検証は純粋関数へ置き、標準入力と出力は`main`で行います。
+標準入力から数量を一行読み、単価480円の合計金額を表示するCLIを作ります。受け付ける数量は1から1000までの整数です。文字列の変換と検証は普通の関数に書き、標準入力と出力は`main`だけで行います。
 
-`fn`の呼び出しと`match`に加え、[MaybeとEither](/docs/learn/maybe-and-either)と[Effect](/docs/learn/effects)を使います。呼び出しの構文は[関数とパイプライン](/docs/learn/functions-and-pipelines)で確認できます。
+「学ぶ」の[MaybeとEither](/docs/learn/maybe-and-either)と[Effect](/docs/learn/effects)の内容を使います。
 
 ## 準備する
 
-[ローカルで使う](/docs/learn/local-development)の手順でSeseragi CLIとBunを導入してください。このプログラムは一つのファイルで動き、追加パッケージは必要ありません。
+[ローカルで使う](/docs/learn/local-development)の手順で、Seseragi CLIとBunを入れておいてください。プログラムは一つのファイルだけで動き、追加のパッケージは要りません。
 
-`process`ターゲットが提供する標準入力とConsoleを使います。ブラウザー向けの`web`ターゲットへ切り替えて実行するコードではありません。
+標準入力とコンソールを使うので、ブラウザーではなくCLI（`process`ターゲット）で実行します。
 
-## 入力の契約を決める
+## 受け付ける入力を決める
 
-`quantity`は文字列を整数へ変換し、範囲を検証して`Either<AppError, Int>`を返します。不正な文字列、0、1001、入力がない場合を`InvalidQuantity`として扱います。
+`quantity`関数は、文字列を整数に変換して範囲を確かめ、`Either<AppError, Int>`を返します。整数でない文字列、0、1001などは、すべて`InvalidQuantity`という失敗にします。
 
-`readLine`の`Nothing`は入力終了を表します。空文字列を読んだ場合の`Just ""`とは区別されています。このアプリでは、どちらも有効な数量にならないため失敗へ変えます。
+`readLine`は、入力が終わっていれば`Nothing`、空の行を読んだら`Just ""`を返し、この二つは区別されます。このアプリでは、どちらも正しい数量ではないので失敗として扱います。
 
 ## 完成したプログラム
 
-`quantity.ssrg`へ保存してください。
+次の内容を`quantity.ssrg`に保存してください。
 
 {/* example: examples/guides/cli-app.ssrg */}
 ```seseragi title="quantity.ssrg"
@@ -60,11 +60,13 @@ pub effect fn main = do {
 }
 ```
 
-`fromEither`は検証済みの`Either`をEffectへ移します。入力の`StdinError`と出力の`ConsoleError`は、`mapError`でアプリの`AppError`へ揃えます。複数の失敗をコンパイラーが自動的に一つの型へまとめることはありません。
+`fromEither`は、検証した結果の`Either`をEffectに変えます。`Left`ならそこでEffectが失敗します。
+
+標準入力の失敗`StdinError`と、出力の失敗`ConsoleError`は、`mapError`でアプリの`AppError`に揃えています。種類の違う失敗が自動で一つの型にまとめられることはないので、このように自分でまとめます。
 
 ## 入力を渡して実行する
 
-macOSやLinuxのシェルでは、次のコマンドで数量を標準入力へ渡せます。
+macOSやLinuxでは、次のようにして数量を標準入力に渡せます。
 
 ```sh
 printf '3\n' |
@@ -75,7 +77,7 @@ printf '3\n' |
 Total: 1440
 ```
 
-直接`seseragi run quantity.ssrg`を実行した場合は、数量を入力してEnterを押してください。`readLine`は一行だけ読むため、後続の行はこのアプリの計算に使いません。
+`seseragi run quantity.ssrg`だけを実行した場合は、数量を打ち込んでEnterを押してください。`readLine`は一行だけ読むので、二行目以降は使われません。
 
 ## 不正な入力を確かめる
 
@@ -86,17 +88,17 @@ printf 'many\n' |
   seseragi run quantity.ssrg
 ```
 
-どちらも`InvalidQuantity`の未処理の型付き失敗となり、CLIは終了コード1を返します。金額は出力しません。コンパイルやターゲットの設定に問題がある場合の終了コード2とは区別されます。
+どちらも`InvalidQuantity`で失敗し、その失敗を誰も処理していないので、CLIは終了コード1で終わります。金額は表示されません。（コンパイルエラーや設定の問題で実行できなかった場合は、終了コード2になります。）
 
-利用者向けのメッセージを出したい場合は、[失敗を扱う](/docs/guides/error-handling)の`attempt`と`match`で、回復可能な失敗を表示へ変えられます。
+失敗したときに利用者向けのメッセージを出したい場合は、[失敗を扱う](/docs/guides/error-handling)で紹介する`attempt`と`match`を使います。
 
 ## 空入力と変換失敗を分ける
 
-入力の整え方だけを試す独立したプログラムです。以下の三つのコードを順に`cli-normalization.ssrg`へ保存してください。標準入力の読み取りは含めず、渡す文字列を固定して検証します。
+ここからは、入力の整え方だけを試す別のプログラムです。次の三つのコードを順に`cli-normalization.ssrg`に書いてください。標準入力は使わず、決まった文字列で試します。
 
 ### 前後の空白を除いてから読む
 
-`std/text`の`trim`で前後の空白を除きます。空になった入力は`EmptyLine`、整数として読めない入力は`NotANumber`です。この二つをActionや表示の文言へ変える前に区別します。
+`std/text`の`trim`で前後の空白を取り除きます。空になったら`EmptyLine`、整数として読めなければ`NotANumber`と、失敗の理由を分けておきます。
 
 {/* example: examples/guides/cli-normalization.ssrg#parser */}
 ```seseragi title="cli-normalization.ssrg"
@@ -124,7 +126,7 @@ fn parse input: String -> Parsed = {
 
 ### 理由ごとに案内を変える
 
-`message`は検証結果を表示文へ変えます。入力を読むEffectやConsoleへの出力は、この関数にはありません。
+`message`は、結果を表示する文に変えるだけの関数です。入力を読んだり出力したりはしません。
 
 {/* example: examples/guides/cli-normalization.ssrg#message */}
 ```seseragi title="cli-normalization.ssrg"
@@ -169,10 +171,10 @@ Enter a whole number
 Quantity: 0
 ```
 
-`" 3 "`は3へ変換でき、空文字列と`"many"`には異なる案内が出ます。0も整数として読めるため、この小さなparserでは成功します。1から1000という業務上の範囲には、先の`quantity`のような追加の条件が必要です。
+`" 3 "`は3に変換され、空文字列と`"many"`にはそれぞれ違う案内が出ます。0は整数として読めるので、この`parse`では成功します。1から1000の範囲に絞るには、前の`quantity`のような確認を足します。
 
 ## パッケージへ進める
 
-関数を別ファイルから再利用したり、テストを置いたりする段階で`seseragi.toml`を持つパッケージへ移します。実行ターゲットは`[run]`の`target = "process"`です。
+関数を別のファイルに分けたり、テストを書いたりしたくなったら、`seseragi.toml`を置いてパッケージにします。CLIアプリなら、`[run]`に`target = "process"`と書きます。
 
-[テスト](/docs/guides/testing)では検証したい境界値を固定し、[パッケージと配布](/docs/guides/packages-and-deployment)では実行入口と公開APIを分けます。[CLI Reference](/docs/reference/cli)で各コマンドのオプションを調べられます。
+[テスト](/docs/guides/testing)では境界の値の確認を自動化し、[パッケージと配布](/docs/guides/packages-and-deployment)ではアプリの入口と公開する関数を分けます。コマンドのオプションは[CLIリファレンス](/docs/reference/cli)にあります。

@@ -3,19 +3,19 @@ title: 失敗を扱う
 description: 同期の検証とEffectの失敗を区別し、利用者が直せるメッセージへ変える。
 ---
 
-数量の文字列を検証し、正常なら数量を、不正なら直し方を表示します。数字として読めない入力と範囲外の入力を、異なる失敗として扱います。
+数量の入力を検証して、正しければ数量を、間違っていれば直し方を表示するプログラムを作ります。数字として読めない入力と、範囲外の入力は、別の失敗として扱います。
 
-結果の型は[MaybeとEither](/docs/learn/maybe-and-either)、実行と回復は[Effect](/docs/learn/effects)で扱った構文を使います。このガイドでは、その二つを入力の検証へ組み合わせます。
+「学ぶ」の[MaybeとEither](/docs/learn/maybe-and-either)と[Effect](/docs/learn/effects)の内容を組み合わせて使います。
 
 ## 失敗を型で表す
 
-`QuantityError`は`NotANumber`と`OutsideRange`の二つのケースです。`quantity`は`Either<QuantityError, Int>`を返します。純粋な検証の結果には、成功した`Int`か、その失敗理由が入ります。
+失敗の種類を`QuantityError`という型にします。ケースは`NotANumber`（数字ではない）と`OutsideRange`（範囲外）の二つです。`quantity`関数は`Either<QuantityError, Int>`を返し、成功なら数量、失敗ならその理由が入ります。
 
-値がないこと自体が正常なら`Maybe`を使えます。この例では利用者が入力を直すために理由が必要なので、`Either`を使っています。
+値がないこと自体が普通の結果なら`Maybe`でも構いません。ここでは利用者が入力を直せるように理由を伝えたいので、`Either`を使います。
 
 ## 完成したプログラム
 
-`errors.ssrg`へ保存してください。
+次の内容を`errors.ssrg`に保存してください。
 
 {/* example: examples/guides/errors.ssrg */}
 ```seseragi title="errors.ssrg"
@@ -61,13 +61,13 @@ pub effect fn main = do {
 }
 ```
 
-`ints.parse`自身の詳細な失敗を、ここではアプリの`NotANumber`へまとめます。範囲のルールは`quantity`の中で決まり、表示する文言は`report`の`match`で決まります。
+`ints.parse`が返す細かい失敗は、ここではまとめて`NotANumber`にしています。範囲の決まりは`quantity`に、表示する文言は`report`の`match`にまとまっていて、どこを見れば何が分かるかがはっきりしています。
 
 ## EitherをEffectへ移す
 
-`fromEither`は`Right`を成功、`Left`を失敗とするEffectを作ります。`effects.attempt`は回復可能な失敗を受け止め、成功値を`Right`、失敗理由を`Left`として返します。
+`fromEither`は、`Right`なら成功、`Left`なら失敗するEffectを作ります。`effects.attempt`はその逆向きの変換で、Effectの失敗を受け止めて、成功なら`Right`、失敗なら`Left`の値として返します。
 
-元の`quantity`は同期の結果です。そこから作ったEffectは、実行されるまで計算を進める副作用の境界を越えません。`attempt`後の`match`では、正常な入力も不正な入力も表示の対象として扱えます。
+`attempt`のおかげで、`report`の中では成功も失敗も普通の値として`match`で場合分けでき、どちらの場合も表示する文を作れます。
 
 ## 結果を確かめる
 
@@ -81,11 +81,11 @@ Enter a number
 Use 1 to 1000
 ```
 
-「many」と0の検証失敗を表示へ回復しているため、この実行は成功します。ただし、`println`自体の出力失敗は回復していません。Consoleに書けない場合まで成功扱いに変えるコードではありません。
+「many」と0の失敗はメッセージの表示に変えているので、プログラム全体は成功で終わります。ただし、`println`そのものが出力に失敗した場合は処理していません。そういう失敗まで成功扱いにしてしまうわけではありません。
 
 ## 失敗したときだけ既定値を返す
 
-設定がなければ`light`を使い、設定があればその値を保つ独立した例です。次の二つのコードを順に`error-recovery.ssrg`へ保存してください。ファイルや環境変数は読まず、設定の有無を`Maybe<String>`で渡します。
+次は、テーマの設定がなければ`light`を使い、あればその値を使う、という別の例です。次の二つのコードを順に`error-recovery.ssrg`に書いてください。ファイルなどは読まず、設定があるかどうかを`Maybe<String>`で渡します。
 
 {/* example: examples/guides/error-recovery.ssrg#fallback */}
 ```seseragi title="error-recovery.ssrg"
@@ -106,7 +106,7 @@ effect fn fallback error: ThemeError
   }
 ```
 
-`effects.fromMaybe`は`Nothing`を`MissingSetting`という型付き失敗へ移します。`fallback`もEffectを作る関数で、追加サービスを要求せず、失敗せずに`light`を返します。その戻り値の型は`Task<String>`です。
+`effects.fromMaybe`は、`Nothing`のときに`MissingSetting`で失敗するEffectを作ります。`fallback`は、失敗したときに代わりに`light`を返すEffectです。何も必要とせず失敗もしないので、型は`Task<String>`です。
 
 {/* example: examples/guides/error-recovery.ssrg#paths */}
 ```seseragi title="error-recovery.ssrg"
@@ -131,16 +131,18 @@ light
 dark
 ```
 
-`Nothing`から作った失敗の経路では、`recover`が`fallback`を呼びます。`Just "dark"`から返るのは成功した値そのものです。`attempt`で成功・失敗を値として分岐する方法に対し、この例では失敗時の代替Effectを渡しています。
+`Nothing`を渡したときは失敗するので、`recover`が`fallback`を呼んで`light`になります。`Just "dark"`のときは成功するので、そのまま`dark`です。
+
+前の例の`attempt`は「成功も失敗も値として受け取って場合分けする」方法、この例の`recover`は「失敗したときに代わりのEffectを実行する」方法です。
 
 ## アプリの失敗型へ揃える
 
-入力、ファイル、通信など複数のEffectを組み合わせるときは、`mapError`でアプリの失敗型へ変換します。[CLIアプリを作る](/docs/guides/cli-app)では`InputFailure StdinError`と`OutputFailure ConsoleError`を一つの`AppError`へ揃えています。
+入力・ファイル・通信など、失敗の型が違うEffectを組み合わせるときは、`mapError`でアプリ全体の失敗の型に揃えます。[CLIアプリを作る](/docs/guides/cli-app)では、`InputFailure StdinError`と`OutputFailure ConsoleError`を一つの`AppError`にまとめています。
 
-成功値の変換には`map`、失敗理由の変換には`mapError`を使います。回復して処理を続けるか、呼び出し元へ失敗を返すかはアプリの方針として決めます。
+成功の値を変換するのが`map`、失敗の理由を変換するのが`mapError`です。失敗から立て直して続けるか、呼び出し元に失敗を返すかは、アプリごとに決めます。
 
-## defectとキャンセルを区別する
+## バグやキャンセルは別扱い
 
-`attempt`や`recover`が扱うのは型で宣言された回復可能な失敗です。ランタイムの契約違反などのdefectや、処理のキャンセルを通常の入力エラーへ変換しません。
+`attempt`や`recover`が扱うのは、`fails`で型に書いた失敗だけです。プログラムのバグによる異常（defect）や、処理のキャンセルは、普通の失敗として受け止めることはできません。
 
-Seseragiに`try/catch`構文はありません。ホスト側の例外を扱う場合は[TypeScriptとの接続](/docs/guides/typescript-bindings)で`task` bindingを使います。失敗、defect、キャンセルの詳しい契約は[Effect Reference](/docs/reference/effects)で調べられます。
+Seseragiには`try/catch`構文はありません。TypeScript側の関数が投げる例外を扱うときは、[TypeScriptとの接続](/docs/guides/typescript-bindings)で紹介する`task` bindingを使います。失敗・defect・キャンセルの細かい決まりは[Effectリファレンス](/docs/reference/effects)にあります。

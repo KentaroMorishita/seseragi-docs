@@ -3,26 +3,26 @@ title: 実用ガイド
 description: 実行できるアプリから、状態・フォーム・テスト・配布の構成を学ぶ。
 ---
 
-作りたいものに合わせて進めてください。各ガイドには、保存するファイル、実行コマンド、確認する結果を載せています。CLIとBunの導入は[ローカルで使う](/docs/learn/local-development)から始められます。
+作りたいものに合わせて、好きなガイドから読んでください。どのガイドにも、保存するファイル、実行するコマンド、表示される結果を載せています。CLIとBunをまだ入れていなければ、先に[ローカルで使う](/docs/learn/local-development)を見てください。
 
 ## TypeScriptから読み始める
 
-[TypeScriptからSeseragiへ](/docs/guides/typescript-to-seseragi)では、関数呼び出し、型、失敗、副作用を対応づけます。Reactに慣れている場合も、状態を持つ場所とHTMLを返す関数の役割を先に確かめてください。
+[TypeScriptからSeseragiへ](/docs/guides/typescript-to-seseragi)では、関数呼び出し・型・失敗・副作用の書き方を、TypeScriptと並べて比べます。Reactに慣れている人は、状態をどこに持つかと、HTMLを返す関数の役割もここで確かめておくと、Webアプリのガイドが読みやすくなります。
 
 ## コマンドラインで動かす
 
-[CLIアプリを作る](/docs/guides/cli-app)で標準入力を読み、数量を検証して金額を出力します。[失敗を扱う](/docs/guides/error-handling)では、入力の失敗を型で表し、表示するメッセージへ変えます。
+[CLIアプリを作る](/docs/guides/cli-app)では、標準入力から数量を読み、検証して金額を表示します。[失敗を扱う](/docs/guides/error-handling)では、入力の失敗を型で表し、利用者向けのメッセージに変えます。
 
 ## ブラウザーに画面を作る
 
-[Webアプリを作る](/docs/guides/web-app)では、カウンターを作って開発サーバーで操作します。[状態とAction](/docs/guides/state-and-actions)で更新関数を整理し、[フォーム](/docs/guides/forms)で入力値と検証結果を画面へつなぎます。
+[Webアプリを作る](/docs/guides/web-app)では、カウンターを作って開発サーバーで動かします。[状態とAction](/docs/guides/state-and-actions)で状態の更新を整理し、[フォーム](/docs/guides/forms)で入力と検証結果を画面につなぎます。
 
 ## 画面が大きくなったら分ける
 
-[コンポーネント](/docs/guides/components)はHTMLを返す純粋関数を扱います。[状態を持つ機能](/docs/guides/stateful-features)では、機能ごとにSignalを作り、親へ読み取り専用の画面を返します。画面の再描画と状態の生成を分けて考えるための二つのガイドです。
+[コンポーネント](/docs/guides/components)では、HTMLを返すだけの関数で画面を部品に分けます。[状態を持つ機能](/docs/guides/stateful-features)では、機能ごとに自分の状態を持たせ、親には画面だけを渡す作り方を学びます。
 
 ## 変更を検証して配布する
 
-[テスト](/docs/guides/testing)で境界値の確認を自動化し、[パッケージと配布](/docs/guides/packages-and-deployment)で公開する関数とアプリの入口を分けます。[TypeScriptとの接続](/docs/guides/typescript-bindings)では、ホスト側の関数を安全な呼び出し契約で包みます。
+[テスト](/docs/guides/testing)では、境界の値の確認を自動化します。[パッケージと配布](/docs/guides/packages-and-deployment)では、ほかのパッケージに公開する関数と、アプリの入口を分けます。[TypeScriptとの接続](/docs/guides/typescript-bindings)では、TypeScriptの関数を型の付いた形でSeseragiから呼べるようにします。
 
-構文そのものを順に学ぶ場合は[Learn](/docs/learn/first-program)、型やAPIの契約を調べる場合は[Reference](/docs/reference)へ進んでください。
+言語の機能を順に学びたいときは[学ぶ](/docs/learn/first-program)、型やAPIの細かい決まりを調べたいときは[リファレンス](/docs/reference)を見てください。
