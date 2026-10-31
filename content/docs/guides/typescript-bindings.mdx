@@ -3,13 +3,13 @@ title: TypeScriptとの接続
 description: pureとtaskを選び、TypeScriptの関数と例外を型付き境界で扱う。
 ---
 
-ローカルのTypeScriptモジュールをSeseragiから呼びます。文字列を加工する純粋な関数と、Promiseが失敗する関数を別の呼び出し契約でbindします。外部ライブラリを追加しないため、ネットワークなしで動かせる例です。
+自分で書いたTypeScriptの関数を、Seseragiから呼び出します。文字列を加工するだけの関数と、Promiseを返して失敗することもある関数の二つを、それぞれに合った方法でつなぎます。外部のライブラリは使わないので、ネットワークなしで試せます。
 
 [モジュール](/docs/learn/modules)のimportと、[Effect](/docs/learn/effects)の実行・失敗を使います。TypeScriptとの境界を宣言する`foreign`の構文は、このガイドで説明します。
 
 ## ファイルを用意する
 
-次の構成を作ってください。host側のmanifestとロックは、Seseragi自身のmanifest・ロックとは別の入力です。
+次のファイルを作ってください。TypeScript側の`package.json`とロックファイルは、Seseragiの`seseragi.toml`・`seseragi.lock`とは別に用意します。
 
 ```text
 bindings/
@@ -80,7 +80,7 @@ export async function loadLabel() {
 }
 ```
 
-`bracket`は同期的に文字列を作ります。`loadLabel`は、失敗の扱いを確かめるために意図的にPromiseをrejectします。モジュールを読み込むだけでは、この関数の本体は実行されません。
+`bracket`は、文字列をその場で加工して返すだけの関数です。`loadLabel`は、失敗の扱いを試すため、わざとPromiseをrejectします。
 
 ## foreignで呼び出し方を宣言する
 
@@ -94,11 +94,11 @@ from "../host/format.ts" {
 }
 ```
 
-`pure`は、同期的・決定的・例外を投げない・外部状態を観測も変更もしないことをbindingの作者が保証する宣言です。単に「軽い処理だから」という理由では選びません。
+`pure`は、「その場で結果を返し、同じ入力には必ず同じ結果を返し、例外を投げず、外の世界を読みも書きもしない」ことを、bindingを書く人が約束する宣言です。コンパイラーはこの約束を確かめられないので、「軽い処理だから」という理由で付けてはいけません。
 
-`task`はEffectとして見えます。最後の`String`は成功値の型で、実際の呼び出しは`Effect<{}, Js.Error, String>`です。同期的なthrowやPromiseのrejectionは`Js.Error`の失敗として渡されます。
+`task`を付けた関数は、Seseragiからは成功の型が`String`、失敗の型が`Js.Error`のEffect（`Effect<{}, Js.Error, String>`）に見えます。関数が例外を投げたり、Promiseがrejectされたりすると、`Js.Error`の失敗になります。
 
-同じホストモジュールに`pure`のmemberがある場合、モジュール全体はpure-loadです。この例ではモジュールの初期化も副作用を起こしません。初期化自体に副作用や失敗があるライブラリは、pureのmemberを宣言せずtask-loadにする必要があります。
+なお、同じTypeScriptモジュールに`pure`の関数が一つでもあると、そのモジュールは読み込むだけなら副作用がない、という扱いになります。読み込んだだけで何かが起きたり失敗したりするライブラリでは、`pure`の関数を宣言しないでください。
 
 ## Seseragi側から使う
 
@@ -123,11 +123,11 @@ pub effect fn main = do {
 }
 ```
 
-`bracket`は通常の関数としてパイプラインへ置けます。`loadLabel`はTaskを作り、`attempt`で失敗を結果の値へ戻します。外部例外をSeseragiの`try/catch`で捕捉する構文はありません。
+`bracket`は普通の関数としてパイプラインに置けます。`loadLabel`はEffectを返すので、`attempt`で失敗を値として受け取り、場合分けしています。TypeScript側の例外も、`try/catch`ではなく型の付いた失敗として扱えます。
 
 ## 実行して境界を確かめる
 
-`bindings/`で実行してください。
+`bindings/`で実行します。
 
 ```sh
 seseragi lock update
@@ -139,12 +139,12 @@ seseragi run .
 Please try again
 ```
 
-`task fn loadLabel`を呼ぶだけではホスト関数は実行されません。この例では`main`の`do`がTaskを順に実行し、意図的なrejectionを`attempt`が受け止めています。
+`loadLabel`を呼んだだけでは、TypeScriptの関数はまだ実行されません。`main`の`do`の中で実行され、わざと起こしたrejectを`attempt`が受け止めています。
 
 ## bindingをアプリの型へ包む
 
-ホストが`null`や`undefined`を返す場合、raw bindingには`Js.NullOr`や`Js.UndefinedOr`などの境界型を使います。アプリへ公開する関数で`Maybe`へ変換し、意味のある不在として扱います。可変オブジェクトを不変レコードとして共有する宣言にはしません。
+TypeScriptの関数が`null`や`undefined`を返す場合、bindingでは`Js.NullOr`や`Js.UndefinedOr`のような型で受け取ります。そのうえで、アプリから使う関数の中で`Maybe`に変換します。中身が書き換わるかもしれないオブジェクトを、そのまま不変のレコードとして扱うことはしません。
 
-大きなライブラリでは`seseragi dts convert`でbinding候補を生成できます。`.d.ts`だけから純粋性や例外を推測せず、未変換項目のレポートを確認し、生成物をimportする手書きadapterを置きます。公開APIに生成fileそのものを使う構成ではありません。
+大きなライブラリなら、`seseragi dts convert`で`.d.ts`からbindingのたたき台を作れます。ただし`.d.ts`からは、関数が純粋か、例外を投げるかまでは分かりません。変換できなかった項目の一覧を確かめ、生成したファイルをそのまま使うのではなく、それをimportする手書きのラッパーを用意してください。
 
-変換規則、nullable、opaque型、エラーのphaseは[TypeScript interop Reference](/docs/reference/typescript-interop)にあります。[パッケージと配布](/docs/guides/packages-and-deployment)でadapterを公開する入口を分けられます。
+変換の決まり、`null`の扱い、opaque型、エラーの種類は[TypeScript連携リファレンス](/docs/reference/typescript-interop)にあります。ラッパーをパッケージとして公開する方法は[パッケージと配布](/docs/guides/packages-and-deployment)で扱います。

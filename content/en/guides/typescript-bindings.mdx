@@ -3,13 +3,13 @@ title: TypeScript bindings
 description: Choose pure or task contracts and handle TypeScript calls and exceptions at a typed boundary.
 ---
 
-Call a local TypeScript module from Seseragi. Bind a pure string transformation and a function with a rejected Promise under different calling contracts. This example has no external library dependency and runs without network access.
+Call TypeScript functions you wrote yourself from Seseragi. Two functions, one that only transforms a string and one that returns a Promise that can fail, are connected in the way that suits each. No external libraries are used, so it works without a network.
 
 This task uses imports from [Modules](/en/docs/learn/modules) and execution/failure from [Effects](/en/docs/learn/effects). The `foreign` boundary declaration is introduced here.
 
 ## Prepare the files
 
-Create this structure. Host manifest and lock inputs are separate from Seseragi's manifest and lock:
+Create the following files. The TypeScript side's `package.json` and lockfile are separate from Seseragi's `seseragi.toml` and `seseragi.lock`:
 
 ```text
 bindings/
@@ -80,7 +80,7 @@ export async function loadLabel() {
 }
 ```
 
-`bracket` constructs a string synchronously. `loadLabel` deliberately rejects its Promise to demonstrate failure handling. Loading the module does not execute that function's body.
+`bracket` only transforms a string and returns it right away. `loadLabel` deliberately rejects its Promise, to try out failure handling.
 
 ## Declare the foreign calling contracts
 
@@ -94,11 +94,11 @@ from "../host/format.ts" {
 }
 ```
 
-A `pure` binding guarantees a synchronous, deterministic, non-throwing call that neither observes nor modifies external state. The binding author supplies that guarantee; an operation being inexpensive is not sufficient.
+`pure` is a promise made by the person writing the binding: "returns immediately, always gives the same result for the same input, never throws, and neither reads nor changes the outside world". The compiler cannot check that promise, so do not add it just because the work is cheap.
 
-A `task` member appears as an Effect. The final `String` declares the success value. Its actual type is `Effect<{}, Js.Error, String>`. Synchronous throws and Promise rejections enter the `Js.Error` failure channel.
+A function marked `task` appears in Seseragi as an Effect whose success type is `String` and failure type is `Js.Error` (`Effect<{}, Js.Error, String>`). If the function throws or its Promise is rejected, that becomes a `Js.Error` failure.
 
-A pure member makes the entire resolved host module pure-load. This module's initialization has no effects. A library whose initialization can perform effects or fail must not declare pure members; use task-load instead.
+Also, if a TypeScript module has even one `pure` function, the module is treated as having no side effects when loaded. For a library that does something, or can fail, just by being loaded, do not declare `pure` functions.
 
 ## Use the bindings from Seseragi
 
@@ -123,11 +123,11 @@ pub effect fn main = do {
 }
 ```
 
-`bracket` works as an ordinary pipeline function. `loadLabel` creates a Task; `attempt` turns its failure back into a result value. Seseragi does not catch the external exception through `try/catch` syntax.
+`bracket` sits in a pipeline like any other function. `loadLabel` returns an Effect, so `attempt` receives its failure as a value for `match`. Exceptions from TypeScript become typed failures instead of something to `try/catch`.
 
 ## Run and inspect the boundary
 
-Execute these commands in `bindings/`:
+Run the following in `bindings/`:
 
 ```sh
 seseragi lock update
@@ -139,12 +139,12 @@ seseragi run .
 Please try again
 ```
 
-Calling `task fn loadLabel` alone does not execute the host function. `main` runs the Tasks in order, and `attempt` handles the intentional rejection.
+Calling `loadLabel` alone does not run the TypeScript function yet. It runs inside the `do` of `main`, where `attempt` catches the deliberate rejection.
 
 ## Wrap a binding in application types
 
-If a host returns `null` or `undefined`, use raw boundary types such as `Js.NullOr` or `Js.UndefinedOr`. Convert them into `Maybe` in a handwritten application adapter. Do not share a mutable object as an immutable record.
+When a TypeScript function returns `null` or `undefined`, receive it in the binding with a type such as `Js.NullOr` or `Js.UndefinedOr`, then convert it to `Maybe` inside the functions your app uses. Never treat an object that might change as an immutable record.
 
-For a larger library, `seseragi dts convert` generates binding candidates. Declaration files do not establish purity or exception behavior. Review the conversion report and place handwritten adapters around generated imports instead of exposing generated files directly as a public API.
+For a large library, `seseragi dts convert` drafts bindings from `.d.ts` files. A `.d.ts` file cannot tell whether a function is pure or throws, though. Check the list of items that could not be converted, and instead of using the generated file directly, write a wrapper that imports it.
 
-[TypeScript interop Reference](/en/docs/reference/typescript-interop) defines conversion, nullable and opaque types, and failure phases. [Packages and deployment](/en/docs/guides/packages-and-deployment) separates the adapter's public entry.
+The conversion rules, `null` handling, opaque types, and error kinds are in the [TypeScript interop reference](/en/docs/reference/typescript-interop). Publishing a wrapper as a package is covered in [Packages and deployment](/en/docs/guides/packages-and-deployment).

@@ -3,13 +3,11 @@ title: テストを書く
 description: 公開APIをstd/testで検証し、境界値を継続して確かめる。
 ---
 
-小計3000以上なら送料0、それより小さければ400になる関数をテストします。境界の直前、境界そのもの、境界の直後を固定し、変更で条件をずらしていないか確認します。
-
-[関数とパイプライン](/docs/learn/functions-and-pipelines)、[モジュール](/docs/learn/modules)、[Effect](/docs/learn/effects)の構文を使います。テストのファイル構成とrunnerの操作は、以下で準備します。
+小計が3000以上なら送料0、それより少なければ400を返す関数をテストします。境界の少し手前・ちょうど境界・少し先の三つをテストしておけば、あとで条件を書き間違えてもすぐに気づけます。
 
 ## テスト用のパッケージを作る
 
-`shipping/`に次の構成を作ります。CLIとBunが必要です。テストは`tests/`、通常の関数は`src/`へ置きます。
+`shipping/`に次のファイルを作ります。関数は`src/`に、テストは`tests/`に置きます。
 
 ```text
 shipping/
@@ -34,7 +32,7 @@ target = "node"
 jobs = 1
 ```
 
-`[exports]`の`"." = "shipping"`が公開の入口です。`[test]`の`target = "node"`は現在のテストランナーのターゲットで、アプリの`run.target`とは別の設定です。
+`[exports]`の`"." = "shipping"`で、`shipping`モジュールをパッケージの入口として公開します。`[test]`の`target = "node"`はテストを実行する環境の指定で、アプリを実行する`[run]`の`target`とは別です。
 
 ## 公開する関数を書く
 
@@ -44,7 +42,7 @@ pub fn fee subtotal: Int -> Int =
   if subtotal >= 3000 then 0 else 400
 ```
 
-関数を公開する`pub`と、モジュールを公開するexport mapの両方が必要です。テスト側はパッケージの公開入口から`fee`をimportします。
+テストからは、パッケージの外から使うのと同じように`fee`をimportします。そのため、関数の`pub`と、`[exports]`でのモジュールの公開の両方が必要です。
 
 ## テストの木を作る
 
@@ -64,13 +62,13 @@ pub let tests: test.Test =
   ]
 ```
 
-`test.equal`は期待値、実際の値の順です。`pub let tests: test.Test`がランナーに読み取られる入口です。ここでの`let`はテスト定義を公開する契約で、実行用の固定入力を名前だけ付けて並べる束縛とは役割が異なります。
+`test.equal`の引数は、期待する値、実際の値の順です。テストランナーは、`pub let tests: test.Test`という名前の値を探して実行します。
 
-`test.suite`と`test.test`は通常の値を作ります。テスト本文のEffectは、ランナーがそのケースを実行するまで実行されません。
+`test.suite`と`test.test`は、テストの一覧を表す普通の値を作るだけです。テストの中身は、ランナーがそのテストを実行するときに初めて実行されます。
 
 ## 実行する
 
-`shipping/`で次を実行してください。
+`shipping/`で次のコマンドを実行します。
 
 ```sh
 seseragi lock update
@@ -84,9 +82,9 @@ PASS shipping::fee::above threshold
 3 passed; 0 failed; 0 skipped
 ```
 
-関数の条件を`subtotal > 3000`へ変えて保存したら、もう一度`seseragi lock update`を実行し、`seseragi test`で確かめてください。`at threshold`が失敗し、2 passed・1 failedになります。元の`>=`へ戻した後も、ロックを更新してからテストを実行します。
+試しに、関数の条件を`subtotal > 3000`に変えてみてください。保存したら`seseragi lock update`を実行してから`seseragi test`を実行します。`at threshold`が失敗し、2 passed・1 failedになります。確かめたら`>=`に戻し、同じようにロックファイルを更新してからテストします。
 
-通常のソース変更はロックに含まれる内容を変えるため、更新前のテストは`SES-K0102`で止まります。テスト失敗は終了コード1、古いロックを含む設定・コンパイル・探索の問題は2です。
+ソースを変えるとロックファイルの内容と合わなくなるので、更新しないままだと`SES-K0102`で止まります。終了コードは、テストの失敗なら1、ロックファイルの不一致やコンパイルエラーなどなら2です。
 
 ## 一部だけを実行する
 
@@ -96,13 +94,13 @@ seseragi test --exact \
   shipping::fee::at\ threshold
 ```
 
-`--filter`は完全名に対する大文字小文字を区別する部分文字列です。正規表現ではありません。`--exact`は完全なケース名を指定します。どちらも0件を成功として扱わず、終了コード2になります。
+`--filter`には、テストの名前に含まれる文字列を指定します（大文字と小文字は区別し、正規表現は使えません）。`--exact`は、テストの名前を完全に指定します。どちらも、一致するテストが一件もなければ終了コード2で終わります。
 
-`--jobs`で並列実行数を指定できます。各ケースは独立した環境とリソーススコープで実行され、レポートは定義順で出ます。
+`--jobs`で、同時に実行するテストの数を指定できます。並べて実行しても、結果は定義した順に表示されます。
 
 ## 成功と型付き失敗を小さくテストする
 
-送料とは別のパッケージで、名前の入力を四つのケースに分けます。[フォームの独立した検証例](/docs/guides/forms)と同じ、前後の空白を除いて空の名前を拒否する規則です。
+次は、失敗することを確かめるテストです。別のパッケージで、[フォーム](/docs/guides/forms)の検証と同じ「前後の空白を取り除き、空なら受け付けない」規則を、四つの入力でテストします。
 
 ### 名前のパッケージを用意する
 
@@ -111,7 +109,7 @@ mkdir -p names/src names/tests
 cd names
 ```
 
-次を`seseragi.toml`へ保存します。
+`seseragi.toml`は次のとおりです。
 
 {/* example: examples/guides/testing-validation/seseragi.toml */}
 ```toml title="seseragi.toml"
@@ -128,7 +126,7 @@ target = "node"
 jobs = 1
 ```
 
-`src/names.ssrg`には純粋な検証関数を置きます。
+`src/names.ssrg`に検証の関数を書きます。
 
 {/* example: examples/guides/testing-validation/src/names.ssrg#validator */}
 ```seseragi title="src/names.ssrg"
@@ -147,7 +145,7 @@ pub fn name input: String -> Name = {
 
 ### 期待値と失敗理由を指定する
 
-次の二つのコードを順に`tests/names.ssrg`へ保存します。`accepted`は期待値の型を`Either<String, String>`へ揃え、`missing`は受け入れる失敗理由を判定します。
+次の二つのコードを順に`tests/names.ssrg`に書きます。`accepted`は期待する成功の値を作る関数、`missing`は期待する失敗の理由かどうかを判定する関数です。
 
 {/* example: examples/guides/testing-validation/tests/names.ssrg#helpers */}
 ```seseragi title="tests/names.ssrg"
@@ -164,7 +162,7 @@ fn missing error: String -> Bool =
   error == "missing name"
 ```
 
-正常な入力には`test.equal`を使います。空入力には`test.expectFailure`を使い、型付き失敗になることと、その理由の両方を確かめます。
+正しい入力には`test.equal`を使います。空の入力には`test.expectFailure`を使い、失敗することと、失敗の理由の両方を確かめます。
 
 {/* example: examples/guides/testing-validation/tests/names.ssrg#cases */}
 ```seseragi title="tests/names.ssrg"
@@ -200,23 +198,21 @@ PASS names::name::spaces
 4 passed; 0 failed; 0 skipped
 ```
 
-`blank`と`spaces`は、検証が失敗したことを確認してテストが成功するケースです。検証の`Either`は`effects.fromEither`でEffectへ移しています。
+`blank`と`spaces`は、検証がちゃんと失敗したので、テストとしては成功です。検証結果の`Either`は、`effects.fromEither`でEffectに変えてから渡しています。
 
 ### 失敗したテストを読む
 
-`valid`の期待値だけを`accepted "Eve"`へ変え、ロックを更新して`seseragi test --filter valid`を実行すると、期待した`Right "Eve"`と実際の`Right "Ada"`の不一致が出ます。期待値を戻してから、次の変更を一つずつ試せます。
+`valid`の期待値を`accepted "Eve"`に変え、ロックファイルを更新して`seseragi test --filter valid`を実行すると、期待した`Right "Eve"`と実際の`Right "Ada"`が違う、と表示されます。期待値を戻したら、次の二つの変更も一つずつ試せます。
 
 | 変更 | `blank`が報告する問題 |
 | --- | --- |
 | 空入力で`Right "default"`を返す | `expected a typed failure` |
 | `missing`が別の理由を求める | `typed failure did not match` |
 
-どちらもロックを更新した後、`seseragi test --filter blank`で確かめられます。前者は失敗するはずの処理が成功した場合、後者は失敗したが理由が違った場合です。テストの終了コードは1です。試した変更を元へ戻すたびに、ロックを更新して四件が通ることを確認してください。
+どちらも、ロックファイルを更新してから`seseragi test --filter blank`で確かめます。一つ目は「失敗するはずが成功した」場合、二つ目は「失敗したが理由が違った」場合で、どちらもテストは失敗し、終了コード1になります。変更を戻したら、ロックファイルを更新して四件すべてが通ることを確かめてください。
 
-`expectFailure`は型付き失敗を検証するための関数です。defectやキャンセルを、期待した入力エラーとして成功扱いにはしません。
+`expectFailure`が受け止めるのは、型で表した失敗だけです。バグによる異常（defect）やキャンセルを、期待した失敗として扱うことはありません。
 
 ## 検証する範囲を選ぶ
 
-このテストは送料の規則を検証し、フォームの入力やブラウザーの操作は検証しません。UIの入力・フォーカス・イベントの確認は、ブラウザーでも行います。純粋な更新関数は同じ`test.equal`で直接確認できます。
-
-[状態とAction](/docs/guides/state-and-actions)にUIから分けた更新関数の例があります。ランナーのtimeout、filter、終了コードは[CLI Reference](/docs/reference/cli)で確認できます。
+ここでのテストは関数の動きを確かめるもので、画面の操作は確かめません。入力欄やクリックの動きは、ブラウザーで確かめます。ただし、画面の`update`のような関数なら、同じ`test.equal`でそのままテストできます（[状態とAction](/docs/guides/state-and-actions)）。テストランナーのタイムアウトやフィルター、終了コードの詳細は[CLIリファレンス](/docs/reference/cli)にあります。
