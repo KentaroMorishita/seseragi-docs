@@ -3,7 +3,7 @@ title: "型"
 description: "基本型、注釈、generic、型の互換性、推論と曖昧性の境界を確認する。"
 ---
 
-すべての式は実行前に型を持ちます。型検査に失敗したプログラムは実行されません。型を決められない場所を暗黙の`Any`で埋めることはなく、必要な注釈を要求します。
+すべての式は、実行する前に型が決まります。型チェックに通らないプログラムは実行されません。型が決まらないところを`any`のような何でもありの型で済ませることはなく、型を書くよう求めます。
 
 ## 基本型
 
@@ -11,15 +11,15 @@ description: "基本型、注釈、generic、型の互換性、推論と曖昧�
 | --- | --- |
 | `Int` | -9007199254740991〜9007199254740991の正確な整数 |
 | `Float` | IEEE 754 binary64。`Int`とは別の型 |
-| `Bool` | `True`または`False`。truthy/falsyはない |
+| `Bool` | `True`または`False`。ほかの値を真偽値として扱うことはない |
 | `Char` | Unicodeスカラー値一個 |
 | `String` | Unicodeスカラー値の不変列 |
 | `Unit` | 値は`()`だけ |
-| `Never` | 値を持たない底型 |
+| `Never` | 値を一つも持たない型 |
 
-`Int`はoverflowでwrapせず、範囲外の演算結果やzero divisionはランタイム defectです。negative zeroは持ちません。`Float`のNaNやinfinityは数値literalではなく、標準ライブラリの名前付き値です。任意精度整数には[標準ライブラリ](/docs/reference/library)の`std/big-int`を使います。
+`Int`の計算が範囲を超えたときや、0で割ったときは、桁あふれせずにその場でプログラムが止まります（defect）。`-0`はありません。`Float`のNaNや無限大は、数値リテラルではなく、標準ライブラリにある名前の付いた値です。もっと大きな整数を扱うには、[標準ライブラリ](/docs/reference/library)の`std/big-int`を使います。
 
-`Never`はどの型が必要な場所でも使えます。これは「値がない」型で、正常に値`()`を返す`Unit`とは異なります。
+`Never`は、どんな型が必要な場所にも置けます。「値が存在しない」型で、`()`という値をちゃんと返す`Unit`とは違います。
 
 ## 型の書き方
 
@@ -27,20 +27,20 @@ description: "基本型、注釈、generic、型の互換性、推論と曖昧�
 | --- | --- |
 | `Array<A>`、`List<A>` | 別々の不変コレクション |
 | `Maybe<A>` | 値がない場合がある |
-| `Either<E, A>` | 評価済みの失敗または成功 |
-| `Effect<R, E, A>` | 環境・失敗・成功を持つ遅延計算 |
-| `Task<A>` | `Effect<{}, Never, A>`の透明alias |
+| `Either<E, A>` | 計算済みの失敗または成功 |
+| `Effect<R, E, A>` | 必要なもの・失敗・成功の型を持つ、まだ実行されていない処理 |
+| `Task<A>` | `Effect<{}, Never, A>`の別名 |
 | `(A, B)` | タプル |
-| `{ name: String }` | structural レコード |
+| `{ name: String }` | レコード（形で型が決まる） |
 | `A -> B -> C` | `A -> (B -> C)`、右結合の関数型 |
 
-型引数は`,`で区切り、入れ子にできます。通常の値型では全引数を指定します。`Maybe`だけや`Either<String>`だけは値型ではありません。型構築子パラメーター`F<_>`が必要な位置に限り、`Maybe`や`Either<String, _>`を渡せます。
+型引数は`,`で区切り、入れ子にもできます。値の型として書くときは、型引数をすべて指定します。`Maybe`や`Either<String>`だけでは値の型になりません。ただし、`F<_>`のように「型引数を一つ受け取る型」が必要な場所には、`Maybe`や`Either<String, _>`を渡せます。
 
-## 注釈とgeneric
+## 型の注釈とジェネリクス
 
-通常の`fn`にはパラメーター型と戻り型を書きます。非公開`let`は推論できます。公開`let`には完全な注釈が必要です。[Effect関数](/docs/reference/effects)のcompact formは、本体から正規Effect型を推論する例外です。
+`fn`には、引数の型と結果の型を書きます。公開しない`let`は型を省略できますが、`pub`を付けた`let`には型をすべて書きます。例外として、[Effect関数](/docs/reference/effects)を型を省いた形で書いた場合は、本体からEffectの型が推論されます。
 
-型パラメーターは宣言名の直後に書き、宣言内でだけ参照できます。次の`identity`は、呼び出すたびに型パラメーターを新しく決めます。
+型パラメーターは宣言の名前のすぐ後ろに書き、その宣言の中でだけ使えます。次の`identity`は、呼び出すたびに型パラメーターが決まり直します。
 
 {/* example: examples/reference/generics.ssrg */}
 
@@ -55,13 +55,13 @@ pub effect fn main = do {
 }
 ```
 
-出力は`42: ready`です。必要なら`identity<String> "ready"`のように型引数を明示できます。明示する場合は宣言順に全個数を指定し、値引数・期待型と一致させます。
+出力は`42: ready`です。`identity<String> "ready"`のように型引数を明示することもできます。明示するときは、宣言した順にすべての型引数を書き、それが引数や期待される型と合っている必要があります。
 
-`let identity = \value -> value`のような非再帰的な束縛も一般化されます。多相性はrank-1で、関数パラメーターやレコードフィールドの型そのものへ「呼ぶたびに型が変わる関数」を埋め込むhigher-rank型はありません。
+`let identity = \value -> value`のような（再帰しない）`let`も、いろいろな型で使えるように一般化されます。ただし、関数の引数やレコードのフィールドに「呼ぶたびに型が変わる関数」を入れること（higher-rank型）はできません。
 
 ### letの一般化と期待型
 
-次はmain内の断片です。非再帰的なidentityのバインディングが一般化され、IntとStringへ別々に使えます。
+次の例では、`let`で作った`identity`を、`Int`と`String`の両方に使っています。
 
 {/* example: examples/reference/inference-context.ssrg#generalized */}
 
@@ -72,7 +72,7 @@ let text = identity "ready"
 println `${number}: ${text}`
 ```
 
-出力は`42: ready`です。空ArrayやNothingはペイロードから型を決められないので、次のように期待型を指定できます。
+出力は`42: ready`です。空のArrayや`Nothing`は中身から型が分からないので、次のように型を書いて決めます。
 
 {/* example: examples/reference/inference-context.ssrg#context */}
 
@@ -83,15 +83,15 @@ println $ show empty
 println $ show missing
 ```
 
-出力は`[]`と`Nothing`です。注釈が空の値へ要素型を与えています。
+出力は`[]`と`Nothing`です。
 
 ## 同じ型として扱える範囲
 
-ADT、struct、newtypeはnominalです。見た目やフィールド構成が同じでも、別宣言なら別の型です。aliasは新しい型を作らず、展開先と同じ型です。
+ADT・struct・newtypeは、名前で区別される型です。形やフィールドがまったく同じでも、別々に宣言すれば別の型になります。`alias`は新しい型を作らず、元の型とまったく同じ型です。
 
-レコードにはwidth subtypingがあります。`{ name: String }`が必要な関数へ、`{ id: Int, name: String }`を渡せます。フィールド型は同一である必要があり、フィールドの内側へ暗黙のdepth subtypingはしません。
+レコードは、余分なフィールドがあっても受け取れます。`{ name: String }`が必要な関数に、`{ id: Int, name: String }`を渡せます。ただしフィールドの型は同じでなければならず、フィールドの中身についてまで余分を許すことはありません。
 
-`{ id?: String }`のフィールド accessは`Maybe<String>`です。optionalはフィールドの不在を表し、requiredな`{ id: Maybe<String> }`とは異なります。optionalをrequiredへ暗黙変換することはできません。
+`{ id?: String }`の`id`を読むと`Maybe<String>`になります。`?`はフィールドそのものがないかもしれないことを表し、`{ id: Maybe<String> }`（フィールドは必ずあり、値が`Maybe`）とは別の型です。`?`付きのフィールドを、必ずあるフィールドとして扱うことはできません。
 
 ### 必要なレコードフィールドだけを受け取る
 
@@ -110,7 +110,7 @@ name { name: "Aki", age: 30 }
 |> println
 ```
 
-追加のageがあっても、必要なnameがStringなのでAkiを返します。nominalなPersonをこのレコード型へ暗黙変換する規則ではありません。
+`age`という余分なフィールドがあっても、必要な`name`が`String`なので`Aki`を返します。ただし、structの`Person`がこのレコード型として受け取られるわけではありません。
 
 ## 暗黙変換とエラー
 
@@ -121,8 +121,8 @@ name { name: "Aki", age: 30 }
 | 内部値からnewtype | コンストラクターで包む |
 | structから同じフィールドのレコード | 新しいレコードを明示的に作る |
 | `Array<A>`から`List<A>` | 変換関数を呼ぶ |
-| `Js.Nullable<A>`から`Maybe<A>` | 境界adapterを使う |
+| `Js.Nullable<A>`から`Maybe<A>` | 変換関数を書く |
 
 user-defined型とコレクションはinvariantです。レコードの互換性があっても、`Array<広いrecord>`と`Array<狭いrecord>`が自動で互換になるわけではありません。必要なら`map`で変換します。
 
-例外は`Never`、レコードのwidth subtyping、Effectの要件/failure widening、`MutableSignal<A>`から`Signal<A>`への読み取り権限の変換です。各境界の条件は[Effect](/docs/reference/effects)と[Signal](/docs/reference/signals)で確認できます。型引数の不足、aliasの循環、決まらない戻り型パラメーター、kind不一致は実行前のエラーです。
+自動で変換されるのは、`Never`、レコードの余分なフィールド、Effectの必要なものと失敗の型の拡大、`MutableSignal<A>`から`Signal<A>`（読み取り専用）への変換だけです。それぞれの条件は[Effect](/docs/reference/effects)と[Signal](/docs/reference/signals)にあります。型引数が足りない、`alias`が循環している、結果の型パラメーターが決まらない、型引数の数が合わない、といった場合は実行前にエラーになります。
