@@ -3,11 +3,11 @@ title: TypeScriptからSeseragiへ
 description: 呼び出しから不変データ、Maybe・Either・Effect、Reactのpropsと状態まで、小さな例で比較する。
 ---
 
-TypeScriptで使っている書き方と比べながら、Seseragiの関数、データ、副作用、Web UIを学びます。まず同じ入力で同じ結果になる例を読み、数値や副作用のように動作が異なるところも確認します。
+TypeScriptでいつも書いているコードと並べながら、Seseragiの関数・データ・副作用・Web UIの書き方を見ていきます。同じ結果になる例がほとんどですが、数値の扱いや副作用が実行されるタイミングのように、振る舞いが違うところもあります。そうした違いも一緒に確かめます。
 
-`main`を含む例は、そのコードを掲載ファイル名で保存して`seseragi run ファイル名.ssrg`で実行できます。宣言や`main`内の抜粋、Web用packageは、その都度区別します。CLIの準備は[ローカルで使う](/docs/learn/local-development)を参照してください。
+`main`を含む例は、見出しのファイル名で保存して`seseragi run ファイル名.ssrg`で実行できます。CLIの準備は[ローカルで使う](/docs/learn/local-development)を見てください。
 
-TypeScriptのプログラムは`strict`で型を確認し、Node.jsで出力も確認しています。ReactのTSXはコンポーネントの抜粋で、型チェックを行っています。SeseragiのWeb例はブラウザ向けにビルドします。
+TypeScriptの例は、すべて`strict`で型チェックし、Node.jsで実行して出力を確かめています。
 
 ## 数値を関数へ渡す
 
@@ -22,9 +22,9 @@ function double(value: number) {
 console.log(double(21));
 ```
 
-Seseragiの`fn`は関数を定義します。`n: Int`が引数、最後の`Int`が結果の型です。`double 21`は、空白の後ろに置いた21を引数として渡します。
+Seseragiでは`fn`で関数を定義します。`n: Int`が引数、最後の`Int`が結果の型です。呼び出すときは括弧を使わず、`double 21`のように関数名の後ろに空白を空けて引数を書きます。
 
-整数の表示には`printValue`を使います。`main`はプログラムの入口で、出力を伴うため`pub effect fn`として定義します。
+`printValue`は値をそのまま表示する関数です。`main`はプログラムの入口で、出力を行うので`pub effect fn`で定義します。
 
 {/* example: examples/guides/migration.ssrg */}
 
@@ -43,7 +43,7 @@ pub effect fn main = {
 42
 ```
 
-どちらも42です。`let answer`は計算した値に名前を付ける束縛です。Seseragiの`let`は不変で、TypeScriptの`let`のような再代入はできません。
+どちらも42です。Seseragiの`let`はTypeScriptの`const`にあたり、あとから別の値を代入することはできません。
 
 `printValue`は末尾に改行を付けません。後の例で複数の結果を一行ずつ表示するときは、文字列を受け取る`println`を使います。数値などは`show`で文字列に変換できます。
 
@@ -65,7 +65,7 @@ console.log(`${whole}, ${fraction}`);
 2.5, 2.5
 ```
 
-Seseragiでは整数が`Int`、浮動小数点数が`Float`です。整数同士の除算では、結果を0方向へ丸めます。たとえば`-5 / 2`は`-2`です。
+Seseragiでは、整数は`Int`、小数は`Float`という別の型です。整数どうしの割り算は、結果の小数部分を切り捨てます（0に近いほうへ丸めるので、`-5 / 2`は`-2`です）。
 
 {/* example: examples/guides/migration-numeric.ssrg */}
 
@@ -83,11 +83,11 @@ pub effect fn main = {
 2, 2.5
 ```
 
-`5`は`Int`、`5.0`は`Float`と推論されるので、この例の型注釈は省略できます。`Int`と`Float`の暗黙の変換はありません。必要な変換は明示します。
+`5`は`Int`、`5.0`は`Float`と推論されるので、この例の型は書かなくても構いません。`Int`と`Float`が自動で変換されることはなく、変換するときは関数を使います。
 
-標準の定義では、`Float`の比較に`==`や`>`を直接使えません。浮動小数点数の比較には`ieeeEq`や`totalCompare`など、[Floatの関数](/docs/reference/library/float)から用途に合うものを選びます。
+また、`Float`は`==`や`>`で直接比べられません。比べるときは、`ieeeEq`や`totalCompare`など、[Floatの関数](/docs/reference/library/float)から目的に合うものを選びます。
 
-TypeScriptの`number`を一律に`Int`へ置き換えないでください。`.d.ts`との連携では`number`は既定で`Float`として取り込み、`Int`へ指定する場合は整数かどうかと安全な範囲を確認します。詳しくは[TypeScriptと連携する](/docs/guides/typescript-bindings)と[型](/docs/reference/types)を参照してください。
+TypeScriptの`number`を、何でも`Int`に置き換えればいいわけではありません。`.d.ts`から型を取り込むとき、`number`はまず`Float`になります。`Int`にするのは、整数で、しかも安全な範囲に収まると分かっている場合だけです。詳しくは[TypeScriptと連携する](/docs/guides/typescript-bindings)と[型](/docs/reference/types)にあります。
 
 ## 括弧で引数の式をまとめる
 
@@ -128,7 +128,7 @@ pub effect fn main = {
 
 `double 20 + 1`は、20を二倍にした結果へ1を足します。`double (20 + 1)`は、先に足した21を二倍にします。
 
-Seseragiの括弧は、ここでは引数に渡す式をまとめています。関数呼び出しを示す記号ではありません。以降の例でも、まず空白による適用を読み、式をまとめる必要があるところに括弧が現れると考えてください。
+Seseragiの括弧は、引数に渡す式をひとまとめにするためのもので、関数呼び出しの記号ではありません。関数は空白で呼び出し、式をまとめたいところにだけ括弧を書く、と考えてください。
 
 ## 引数を一つずつ受け取る
 
@@ -161,7 +161,7 @@ pub effect fn main =
 42
 ```
 
-`Int -> Int -> Int`は、`Int`を受け取り、次の`Int`を受け取る関数を返す型です。したがって`add 20`まで適用して、残りの引数を待つ関数を作れます。
+`Int -> Int -> Int`は、「`Int`を受け取って、『`Int`を受け取って`Int`を返す関数』を返す」という型です。そのため、`add 20`のように引数を一つだけ渡すと、残りの引数を待つ関数になります。
 
 TypeScriptで同じ形にするなら、関数を返す関数として書きます。
 
@@ -175,7 +175,7 @@ const addTwenty = add(20);
 console.log(addTwenty(22));
 ```
 
-Seseragiでは特別なラッパーを用意せずに部分適用できます。
+Seseragiでは、何も工夫しなくても、引数を一部だけ渡せます（部分適用）。
 
 {/* example: examples/guides/migration-partial.ssrg */}
 
@@ -196,7 +196,7 @@ pub effect fn main = {
 42
 ```
 
-`addTwenty`の型は`Int -> Int`です。`add (20, 22)`と書くと、二つの引数を渡すことにはなりません。`(20, 22)`という一つのタプルを渡すため、上の`add`の型とは合いません。
+`addTwenty`の型は`Int -> Int`です。なお、TypeScriptの癖で`add (20, 22)`と書くと、二つの引数ではなく`(20, 22)`という一つのタプルを渡すことになり、型エラーになります。
 
 [関数とパイプライン](/docs/learn/functions-and-pipelines)で、適用する順番と関数の型を練習できます。
 
@@ -347,11 +347,11 @@ pass
 retry
 ```
 
-両方の分岐は同じ型になります。この例ではどちらも`String`です。Seseragiでは、条件ごとに変数へ代入するよりも、条件式の値を返す形で書けます。
+二つの分岐は同じ型でなければなりません。この例ではどちらも`String`です。TypeScriptの三項演算子`? :`に近く、`let`で変数を用意して分岐ごとに代入する、という書き方は要りません。
 
-複数の出力を順に実行するため、ここでは`main = do { ... }`を使っています。通常の`{ ... }`は最後の式を返すブロックで、並べたEffectを自動で順に実行するものではありません。[値と式](/docs/learn/values-and-expressions)と[Effect](/docs/learn/effects)で、この二つの役割を確認できます。
+この例の`main`は、複数の出力を順に実行するために`do { ... }`を使っています。`do`のない普通の`{ ... }`は最後の式を返すブロックで、中のEffectを順に実行するわけではありません。この違いは[値と式](/docs/learn/values-and-expressions)と[Effect](/docs/learn/effects)で詳しく扱います。
 
-## レコードのfieldを読む
+## レコードのフィールドを読む
 
 名前の付いた値をまとめ、ドットで取り出す点は似ています。
 
@@ -377,11 +377,11 @@ pub effect fn main = {
 3
 ```
 
-Seseragiでは`{ x: 3, y: 4 }`がレコードです。レコードの型は、fieldの名前とそれぞれの型から決まります。
+Seseragiでは`{ x: 3, y: 4 }`がレコードです。レコードの型は、フィールドの名前と型で決まります。TypeScriptのオブジェクト型と同じく、形で判断されます。
 
 ## 更新後のレコードを新しく作る
 
-TypeScriptの`const`は変数への再代入を防ぎますが、それだけでオブジェクトのfieldを不変にはしません。ここでは元の値を保つため、スプレッド構文でコピーを作ります。
+TypeScriptの`const`は変数への再代入を防ぐだけで、オブジェクトの中身は書き換えられます。元の値を残すには、スプレッド構文でコピーを作ります。
 
 {/* example: examples/guides/migration-typescript/immutable.ts#example */}
 
@@ -396,7 +396,7 @@ console.log(
 );
 ```
 
-Seseragiのレコード自体は不変です。既存のfieldを引き継いで、一部が異なる新しいレコードを作ります。
+Seseragiのレコードは、そもそも中身を書き換えられません。同じスプレッド構文で、一部のフィールドだけが違う新しいレコードを作ります。
 
 {/* example: examples/guides/migration-immutable.ssrg */}
 
@@ -419,7 +419,7 @@ pub effect fn main = {
 1, 2
 ```
 
-`next`の`count`は2、`base`は1のままです。`{ ...base, count: ... }`は元の値の書き換えではありません。この考え方は、[Reactでオブジェクトの状態を更新する](https://react.dev/learn/updating-objects-in-state)ときにコピーを作る形にも近いものです。
+`next`の`count`は2で、`base`は1のままです。[Reactでオブジェクトの状態を更新する](https://react.dev/learn/updating-objects-in-state)ときにコピーを作るのと同じ考え方で、Seseragiではそれが唯一の方法になっています。
 
 ## 型の別名とstructを区別する
 
@@ -440,7 +440,7 @@ const point: Point = { x: 3, y: 4 };
 console.log(horizontal(point));
 ```
 
-Seseragiでレコード型に別名を付けるなら`alias`を使います。次は宣言部分です。
+Seseragiでレコード型に名前を付けるなら`alias`を使います。
 
 {/* example: examples/guides/migration-alias.ssrg#declaration */}
 
@@ -466,13 +466,13 @@ printValue (horizontal point)
 3
 ```
 
-この`alias Point`は新しい名義型を作りません。同じfieldと型を持つレコードを受け取ります。
+`alias`は名前を付けるだけなので、`alias Point`は同じフィールドを持つどんなレコードでも受け取ります。TypeScriptの`type`と同じ振る舞いです。
 
-一方、Seseragiの`struct Point { ... }`は名前で区別される型を作ります。fieldが同じでも別のstructとは異なる型です。TypeScriptのobject型をすべて機械的にstructへ置き換えるのではなく、構造で扱うレコードか、名前で区別する型かを選びます。[レコードとstruct](/docs/learn/records-and-structs)に具体例があります。
+一方、Seseragiの`struct Point { ... }`は、名前で区別される型を作ります。フィールドがまったく同じでも、名前の違うstructとは別の型です。TypeScriptのオブジェクト型を移すときは、形で扱いたいならレコード、意味の違いで区別したいならstruct、と選んでください。具体例は[レコードとstruct](/docs/learn/records-and-structs)にあります。
 
 ## ユニオンをケースとmatchで扱う
 
-ここからは数値の関数を離れ、発送状態を表すデータで比べます。TypeScriptでは判別可能なユニオンでケースを分けられます。次は型の宣言です。
+ここからは、荷物の発送状態を表すデータで比べます。TypeScriptでは、`kind`のような目印のプロパティを持つユニオン型でケースを表せます。
 
 {/* example: examples/guides/migration-typescript/data.ts#declaration */}
 
@@ -482,7 +482,7 @@ type Delivery =
   | { kind: "sent"; city: string };
 ```
 
-値を作る部分です。
+値を作ります。
 
 {/* example: examples/guides/migration-typescript/data.ts#construct */}
 
@@ -508,9 +508,9 @@ function label(value: Delivery) {
 }
 ```
 
-Seseragiでは`Preparing`と`Sent String`がケースです。大文字で始まる`Sent`はconstructorで、`Sent "Kyoto"`が都市名を持つ値を作ります。関数の引数を渡す構文とは、ここで役割を分けて読んでください。
+Seseragiでは`Preparing`と`Sent String`がケースです。`Sent "Kyoto"`で、都市名を持つ`Sent`の値を作ります。目印のプロパティを自分で用意する必要はありません。
 
-`match`はケースを分け、`Sent city`から都市名を取り出します。次は独立したプログラムです。
+`match`でケースを分け、`Sent city`で都市名を取り出します。
 
 {/* example: examples/guides/migration-data.ssrg */}
 
@@ -537,13 +537,13 @@ pub effect fn main = {
 Kyoto
 ```
 
-TypeScript側も`label(delivery)`で`Kyoto`を返します。Seseragiでは、定義したケースをすべて扱わない`match`はコンパイル時に診断されます。
+TypeScript側も`label(delivery)`で`Kyoto`を返します。違うのは、ケースの扱い漏れです。Seseragiの`match`は、扱っていないケースがあるとコンパイルエラーになります。
 
 ケースの定義は[代数的データ型](/docs/learn/algebraic-data-types)、値の取り出し方は[パターンマッチ](/docs/learn/pattern-matching)で詳しく扱います。
 
 ## 値の不在をMaybeで表す
 
-TypeScriptでは`string | undefined`などで、存在しないかもしれない値を表せます。次は不在のときだけ`Guest`を返す関数です。
+TypeScriptでは、ないかもしれない値を`string | undefined`などで表します。次は、名前がないときだけ`Guest`を返す関数です。
 
 {/* example: examples/guides/migration-typescript/maybe.ts#name */}
 
@@ -555,7 +555,7 @@ function name(
 }
 ```
 
-Seseragiの`Maybe<String>`は、値を持つ`Just`か、値を持たない`Nothing`です。次は関数の宣言部分です。
+Seseragiでは`Maybe<String>`を使います。値がある`Just`か、値がない`Nothing`のどちらかです。
 
 {/* example: examples/guides/migration-maybe.ssrg#name */}
 
@@ -565,9 +565,9 @@ fn name value: Maybe<String>
   value ?? "Guest"
 ```
 
-両言語の`??`は、不在のときに右辺を評価して使います。空文字列は存在する値なので、そのまま返ります。
+どちらの`??`も、値がないときだけ右側を使います。空文字列は「値がある」ので、そのまま返ります。
 
-TypeScriptで三つの入力を比べます。結果の文字列が空でも見えるよう、表示時だけ角括弧で囲みます。
+三つの入力で比べてみます。空文字列も見えるように、表示するときだけ角括弧で囲んでいます。
 
 {/* example: examples/guides/migration-typescript/maybe.ts#inputs */}
 
@@ -577,7 +577,7 @@ console.log(`[${name(undefined)}]`);
 console.log(`[${name("")}]`);
 ```
 
-Seseragiでは、次を同じファイルの`main = do { ... }`内に置きます。
+Seseragiでは、次のように書きます。
 
 {/* example: examples/guides/migration-maybe.ssrg#inputs */}
 
@@ -598,11 +598,11 @@ println ("[" + empty + "]")
 []
 ```
 
-`Just ""`と`Nothing`は異なります。空文字列も拒否したい場合は、不在の処理とは別に入力を検証します。
+`Just ""`と`Nothing`は別物です。空文字列も受け付けたくない場合は、値がないときの処理とは別に検証します。
 
 ## Maybeの中身だけを変換する
 
-TypeScriptで、値があるときだけ二倍にする関数です。
+値があるときだけ二倍にする関数で比べます。
 
 {/* example: examples/guides/migration-typescript/maybe-map.ts#example */}
 
@@ -649,13 +649,13 @@ Just 42
 Nothing
 ```
 
-`map double`は`Just`の中身を変換します。`Nothing`はそのままです。型注釈`Maybe<Int>`は、値を持たないケースでも中身の型を決めるために使っています。
+`map double`は`Just`の中身だけを変換し、`Nothing`はそのまま返します。TypeScriptのように`if`で値の有無を確かめる必要はありません。（`Nothing`だけでは中身の型が分からないので、`Maybe<Int>`と型を書いています。）
 
-この`map`と配列の`map`は、どちらも容器の中身を変換する操作です。型クラスの仕組みは[型クラス](/docs/learn/type-classes)、不在の扱いは[MaybeとEither](/docs/learn/maybe-and-either)で学べます。
+この`map`は、配列の`map`と同じ関数です。どちらも「入れ物の中身を変換する」操作だからです。この仕組みは[型クラス](/docs/learn/type-classes)、値がない場合の扱いは[MaybeとEither](/docs/learn/maybe-and-either)で詳しく学べます。
 
 ## 理由のある失敗をEitherで表す
 
-名前が空なら理由を返し、それ以外なら成功の値を返す例です。TypeScriptでは、成功と失敗をユニオンにできます。
+名前が空なら失敗の理由を、そうでなければ成功の値を返す例です。TypeScriptでは、成功と失敗をユニオン型で表せます。
 
 {/* example: examples/guides/migration-typescript/either.ts#validate */}
 
@@ -677,7 +677,7 @@ function validate(
 }
 ```
 
-Seseragiでは`Either<String, String>`を使います。最初の型は失敗の理由、次の型は成功の値です。ここでは両方を文字列にしています。
+Seseragiでは`Either<String, String>`を使います。一つ目の型が失敗の理由、二つ目の型が成功の値で、ここではどちらも文字列です。
 
 {/* example: examples/guides/migration-either.ssrg#validate */}
 
@@ -690,7 +690,7 @@ fn validate text: String
     Right text
 ```
 
-結果を表示用の文字列に変える部分も、別の関数にします。
+結果を表示用の文字列にする関数も作ります。
 
 {/* example: examples/guides/migration-typescript/either.ts#report */}
 
@@ -713,9 +713,7 @@ fn report r: Either<String, String>
   }
 ```
 
-`"Ada"`を検証した結果は成功、`""`は失敗です。どちらも結果を持つ値なので、ケースごとに処理できます。
-
-次はSeseragiの`main = do { ... }`内の抜粋です。
+`"Ada"`の検証は成功、`""`は失敗です。失敗も例外ではなく普通の値なので、`match`でケースごとに処理できます。
 
 {/* example: examples/guides/migration-either.ssrg#cases */}
 
@@ -737,13 +735,13 @@ Enter a name
 
 TypeScriptでも`report(validate("Ada"))`と`report(validate(""))`で同じ二つの文字列を得られます。
 
-`Either`は、検証してすでに得られた結果です。非同期の処理を始めることや、例外を投げることは、この型自体の役割ではありません。次のEffectと区別してください。[失敗を扱う](/docs/guides/error-handling)では、入力の検証とEffectの失敗からの回復を分けて実装します。
+`Either`は、すでに計算し終わった結果を表す値です。非同期の処理を始めたり、例外を投げたりはしません。そうした処理は、次に見るEffectで表します。[失敗を扱う](/docs/guides/error-handling)では、`Either`による検証とEffectの失敗の扱いを組み合わせます。
 
 ## PromiseとEffectの実行時点を比べる
 
-TypeScriptの`async`関数とSeseragiの`effect fn`は、名前を付けた副作用の処理を表せます。ただし、いつ処理が実行されるかは同じではありません。
+TypeScriptの`async`関数も、Seseragiの`effect fn`も、副作用のある処理に名前を付けたものです。ただし、処理がいつ実行されるかが違います。
 
-このTypeScript関数には`await`より前の出力だけがあります。
+次のTypeScriptの関数は、呼ばれるとすぐにメッセージを出力します。
 
 {/* example: examples/guides/migration-typescript/effect.ts#announce */}
 
@@ -753,7 +751,7 @@ async function announce(s: string) {
 }
 ```
 
-関数を呼び、同じPromiseを二回待ちます。次はES moduleのトップレベルの抜粋です。単独のTypeScriptファイルで試す場合は、上の宣言と組み合わせ、末尾へ`export {};`を加えてmoduleにします。
+関数を呼んで、同じPromiseを二回`await`します。（単独のファイルで試すときは、上の宣言と合わせ、最後に`export {};`を足してください。）
 
 {/* example: examples/guides/migration-typescript/effect.ts#execute */}
 
@@ -771,9 +769,9 @@ ran
 constructed
 ```
 
-`announce("ran")`を呼ぶと関数の本体が進むため、`constructed`より先に出力します。同じPromiseを二回待っても、その本体をもう一度呼ぶことにはなりません。
+`announce("ran")`を呼んだ瞬間に本体が動くので、`ran`が`constructed`より先に出力されます。同じPromiseを二回待っても、本体はもう実行されません。
 
-Seseragiでは、`effect fn`を呼ぶと実行する計算を作ります。次は宣言部分です。
+Seseragiでは、`effect fn`を呼んでも「実行すると出力する処理」ができるだけで、まだ何も起こりません。
 
 {/* example: examples/guides/migration-effect.ssrg#announce */}
 
@@ -782,7 +780,7 @@ effect fn announce text: String =
   println text
 ```
 
-次を`main = do { ... }`内に置きます。`let job`は計算を作り、その後の`job`でその計算を実行します。
+`main`の`do`の中で、`let job`で処理を作り、そのあと`job`の行で実行します。
 
 {/* example: examples/guides/migration-effect.ssrg#execute */}
 
@@ -801,9 +799,9 @@ ran
 ran
 ```
 
-先に`constructed`が出力されます。同じEffectを二回実行すると、出力も二回起きます。
+今度は`constructed`が先に出力されます。そして同じEffectを二回実行すると、出力も二回起きます。
 
-実行して得た値を再利用するには、`do`内で`<-`を使います。次は、出力してから42を返す別のプログラムです。
+実行した結果を何度も使いたいときは、`<-`で一度だけ実行して結果を受け取ります。次は、出力してから42を返す例です。
 
 {/* example: examples/guides/migration-effect-result.ssrg */}
 
@@ -829,22 +827,22 @@ ran
 42, 42
 ```
 
-`let job`は計算を作り、`answer <- job`がその計算を一回実行して結果を束縛します。後ろの二つの`answer`は結果の整数を再利用するため、`ran`は一回だけです。`let answer = job`なら計算そのものを束縛し、実行しません。
+`answer <- job`で処理を一回実行し、結果の整数を`answer`で受け取ります。そのあとの二つの`answer`は整数を使い回しているだけなので、`ran`は一回しか出力されません。`<-`の代わりに`let answer = job`と書くと、処理そのものに名前が付くだけで、実行はされません。
 
-`Effect<R, E, A>`は、必要な環境R、失敗の型E、成功の型Aを表します。TypeScriptの`Promise<A>`のように成功値だけを読む型とは異なり、環境と失敗も型で扱います。
+Effectの型`Effect<R, E, A>`には、必要なもの`R`、失敗の型`E`、成功の型`A`の三つが入っています。成功の型しか分からない`Promise<A>`と違い、何を使い、どう失敗しうるかまで型で分かります。
 
 | 扱いたいこと | Seseragiで使うもの |
 | --- | --- |
 | 引数から値を計算する | 通常の`fn` |
 | 値が存在しないかもしれない | `Maybe<A>` |
 | 得られた結果が成功か失敗か | `Either<E, A>` |
-| 副作用を伴う計算を作り、後で実行する | `Effect<R, E, A>` |
+| 副作用のある処理を作り、あとで実行する | `Effect<R, E, A>` |
 
-Effectの合成と`do`の規則は[Effect](/docs/learn/effects)、明示する環境や失敗の型は[Effectリファレンス](/docs/reference/effects)を参照してください。
+Effectの組み立て方と`do`は[Effect](/docs/learn/effects)、型の細かい決まりは[Effectリファレンス](/docs/reference/effects)にあります。
 
 ## Reactのpropsと表示する関数を比べる
 
-まず、状態もイベントも持たない部品で比べます。[Reactのprops](https://react.dev/learn/passing-props-to-a-component)は、親からコンポーネントへ値を渡します。次はReactコンポーネントの抜粋です。
+まずは、状態もイベントも持たない部品で比べます。Reactでは、[props](https://react.dev/learn/passing-props-to-a-component)で親からコンポーネントに値を渡します。
 
 {/* example: examples/guides/migration-typescript/react.tsx#badge */}
 
@@ -856,7 +854,7 @@ function Badge(props: BadgeProps) {
 }
 ```
 
-Seseragiでは、propsを受け取りHTMLを返す通常の関数にします。次はimport、型、関数の宣言です。
+Seseragiでは、propsを受け取ってHTMLを返す、普通の関数として書きます。JSXの代わりに`html`モジュールの関数を使います。
 
 {/* example: examples/guides/migration-props.ssrg#badge */}
 
@@ -870,7 +868,7 @@ fn badge props: BadgeProps
   html.span { children: props.label }
 ```
 
-この部品はActionを発生させないので、結果の型は`Html<Never>`です。`badge { label: "Ready" }`をHTMLの文字列にすると、次の結果になります。
+`Html<A>`の`A`は、その画面が発生させるイベント（Action）の型です。この部品はイベントを発生させないので`Html<Never>`です。`badge { label: "Ready" }`をHTMLの文字列にすると、次のようになります。
 
 出力
 
@@ -880,11 +878,11 @@ fn badge props: BadgeProps
 
 propsを読む点は似ていますが、Seseragiの`badge`自体はHTMLの値を作る純粋な関数です。DOMへ取り付ける処理は別に行います。[コンポーネント](/docs/guides/components)では、複数のpropsとエスケープを扱います。
 
-この例は`Html<Never>`を単独のHTML出力に使っています。対象版では、`Html<Never>`を`Html<Action>`へそのまま渡せません。画面に組み込む部品では、画面とActionの型を揃えます。複数のAction型で使う部品は、Actionの型を[ジェネリクス](/docs/learn/generics)の引数Aにし、関数の結果を`Html<A>`にします。
+なお、今のバージョンでは`Html<Never>`の部品を`Html<Action>`の画面にそのまま入れることはできません。画面に組み込む部品は、画面と同じAction型にそろえます。いろいろな画面で使い回したい部品は、Action型を[ジェネリクス](/docs/learn/generics)の型引数にして、`Html<A>`を返すようにします。
 
 ## 状態の更新を純粋な関数として比べる
 
-Reactの[reducer](https://react.dev/learn/extracting-state-logic-into-a-reducer)は、現在の状態とActionから次の状態を返します。UIを付ける前に、この関数だけを比較できます。
+Reactの[reducer](https://react.dev/learn/extracting-state-logic-into-a-reducer)は、今の状態とActionから次の状態を返す関数です。画面を作る前に、この関数だけを比べてみます。
 
 {/* example: examples/guides/migration-typescript/update.ts#update */}
 
@@ -906,7 +904,7 @@ function reducer(
 }
 ```
 
-Seseragiでも次の状態を計算する`update`を作ります。`dom.app`へ渡す関数の引数は、Action、現在の状態の順です。Reactのreducerとは順序が逆なので注意してください。
+Seseragiでも、次の状態を計算する`update`を作ります。ActionはADTで表すので、`match`で扱い漏れがあればコンパイラーが教えてくれます。引数の順番はAction、今の状態の順で、Reactのreducerとは逆なので注意してください。
 
 {/* example: examples/guides/migration-update.ssrg#update */}
 
@@ -923,7 +921,7 @@ fn update action: Action
   }
 ```
 
-TypeScriptでは、次の二つの呼び出しで確認できます。
+TypeScriptでは、次のように確かめられます。
 
 {/* example: examples/guides/migration-typescript/update.ts#cases */}
 
@@ -936,7 +934,7 @@ console.log(reducer(
 ));
 ```
 
-Seseragiでは、次を`main = do { ... }`内に置きます。
+Seseragiでは次のとおりです。
 
 {/* example: examples/guides/migration-update.ssrg#cases */}
 
@@ -956,11 +954,11 @@ update Reset 9
 0
 ```
 
-`Increment`は現在の値を一つ増やし、`Reset`は現在の値にかかわらず0を返します。状態を画面へ取り付ける前に、更新の規則だけを実行・テストできます。
+`Increment`は今の値に1を足し、`Reset`は今の値に関係なく0を返します。画面とつなぐ前に、更新の決まりだけを実行したりテストしたりできます。
 
 ## イベントと状態を画面へ接続する
 
-ここでReactの`useReducer`へつなぎます。次は、前の`reducer`と`useReducer`のimportを使うコンポーネントの抜粋です。
+Reactでは、`useReducer`でreducerを画面につなぎます。
 
 {/* example: examples/guides/migration-typescript/react.tsx#events */}
 
@@ -979,7 +977,7 @@ function Counter() {
 }
 ```
 
-Reactでは、クリックする関数から`dispatch`を呼びます。Seseragiでは`onClick`にActionの値を渡します。次は、前の`Action`を使う`view`の宣言です。
+Reactでは、クリックされたときの関数の中で`dispatch`を呼びます。Seseragiでは、`onClick`にActionの値そのものを渡します。
 
 {/* example: examples/guides/migration-web/src/main.ssrg#view */}
 
@@ -993,9 +991,9 @@ fn view count: Int
   }
 ```
 
-この`view`はカウントから`Html<Action>`を作ります。`onClick: Increment`は、クリックのときに送るActionです。状態を書き換える処理を`view`に埋め込まず、`update`へ渡します。
+`view`は、カウントから`Html<Action>`を作るだけの関数です。`onClick: Increment`は「クリックされたら`Increment`を送る」という意味です。状態を書き換える処理は`view`には書かず、すべて`update`に任せます。
 
-同じWeb用packageの`main`で接続します。`dom`は`std/web/dom`からimportします。
+最後に、`main`で画面に取り付けます。`dom`は`std/web/dom`からimportします。
 
 {/* example: examples/guides/migration-web/src/main.ssrg#mount */}
 
@@ -1009,8 +1007,8 @@ pub effect fn main =
   }
 ```
 
-`dom.app`は`#app`へ取り付け、初期状態0から始めます。クリックのActionを`update`へ渡し、次の状態を`view`へ渡して表示を更新します。ボタンは最初が`Count: 0`、一回クリックすると`Count: 1`です。
+`dom.app`は、`#app`の要素に画面を取り付け、状態0から始めます。クリックで送られたActionを`update`に渡して次の状態を作り、それを`view`に渡して画面を更新します。ボタンは最初`Count: 0`で、一回クリックすると`Count: 1`になります。
 
-この例はWeb用packageとしてビルドするコードです。単独のCLIファイルとして実行する例とは異なります。package、HTMLの入口、ビルドからブラウザで動かすまでの手順は[Webアプリを作る](/docs/guides/web-app)を参照してください。
+この例はブラウザで動かすWebアプリなので、`seseragi run`ではなくWeb用のパッケージとしてビルドします。手順は[Webアプリを作る](/docs/guides/web-app)を見てください。
 
-`dom.app`が状態のSignalとDOMへの接続を管理します。Reactのhookをそのまま書き換えるものではありません。独立した状態や共有する状態は[状態を持つ機能](/docs/guides/stateful-features)、入力値をActionへ変換する例は[フォーム](/docs/guides/forms)で扱います。
+`dom.app`は、状態の管理と画面の更新をまとめて引き受けます。部品ごとに状態を持たせる方法は[状態を持つ機能](/docs/guides/stateful-features)、入力をActionに変える例は[フォーム](/docs/guides/forms)で扱います。
