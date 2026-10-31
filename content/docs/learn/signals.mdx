@@ -7,9 +7,11 @@ Seseragiの値は、一度作ったら変わりません。でも、ボタンを
 
 `MutableSignal<A>`は書き換えられる状態の入れ物で、Effectを使って読み書きします。状態から計算した値は、読み取り専用の`Signal<A>`として作れます。元の状態が変わると、計算した値も自動で追従します。
 
+この章のコードでは、[関数](/docs/learn/functions)のラムダ、[パイプライン](/docs/learn/pipelines)の`|>`と`show`、[ArrayとList](/docs/learn/arrays-and-lists)、[Effect](/docs/learn/effects)の`do`と`<-`を使います。
+
 ## 値を指定して更新する
 
-まずは、状態を書き換えて読み取るだけの例です。`std/signal`を`signals`としてimportしておきます。
+まずは、状態を書き換えて読み取るだけの例です。`std/signal`を`signals`としてimportしておきます（importの書き方は[モジュール](/docs/learn/modules)で扱います）。
 
 {/* example: examples/learn/focused/signal-set.ssrg#set */}
 ```seseragi title="mainのdo内の式"

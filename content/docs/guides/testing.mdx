@@ -5,6 +5,8 @@ description: 公開APIをstd/testで検証し、境界値を継続して確か�
 
 小計が3000以上なら送料0、それより少なければ400を返す関数をテストします。境界の少し手前・ちょうど境界・少し先の三つをテストしておけば、あとで条件を書き間違えてもすぐに気づけます。
 
+「学ぶ」の[モジュール](/docs/learn/modules)の内容と、[関数適用演算子](/docs/learn/application-operator)の`$`を使います。後半の入力検証のテストでは[MaybeとEither](/docs/learn/maybe-and-either)も使います。
+
 ## テスト用のパッケージを作る
 
 `shipping/`に次のファイルを作ります。関数は`src/`に、テストは`tests/`に置きます。

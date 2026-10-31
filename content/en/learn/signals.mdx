@@ -7,9 +7,11 @@ Values in Seseragi never change once created. Yet you also need state that chang
 
 A `MutableSignal<A>` is a container for state you can change, read and written with Effects. Values computed from state become read-only `Signal<A>`s, and they follow the original state automatically when it changes.
 
+The code in this chapter uses [Functions](/en/docs/learn/functions) for lambdas, [Pipelines](/en/docs/learn/pipelines) for `|>` and `show`, [Arrays and lists](/en/docs/learn/arrays-and-lists), and [Effects](/en/docs/learn/effects) for `do` and `<-`.
+
 ## Set a new value
 
-First, an example that only changes state and reads it back. Import `std/signal` as `signals`:
+First, an example that only changes state and reads it back. Import `std/signal` as `signals` ([Modules](/en/docs/learn/modules) covers imports):
 
 {/* example: examples/learn/focused/signal-set.ssrg#set */}
 ```seseragi title="Expressions in main do"

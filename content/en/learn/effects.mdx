@@ -7,9 +7,11 @@ Building a string and printing it on the screen are two different things. The fi
 
 Seseragi represents interactions with the outside world, such as output, reading and writing state, and asynchronous work, as values called `Effect`s. An Effect is a value describing "work that does something when run"; creating one does not do anything yet. This chapter covers creating Effects, running them, and handling failures.
 
+The code in this chapter uses [Pipelines](/en/docs/learn/pipelines) for `|>` and `show`, [Records and structs](/en/docs/learn/records-and-structs), [Algebraic data types](/en/docs/learn/algebraic-data-types), and [Pattern matching](/en/docs/learn/pattern-matching) for `match`.
+
 ## Receive the value from a successful computation
 
-Start with an Effect that does not touch the outside world and simply returns a value. Import `std/effect`:
+Start with an Effect that does not touch the outside world and simply returns a value. Import `std/effect` ([Modules](/en/docs/learn/modules) covers imports):
 
 {/* example: examples/learn/focused/effect-bind.ssrg#import */}
 ```seseragi title="Import declaration"

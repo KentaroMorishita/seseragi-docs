@@ -5,6 +5,8 @@ description: "Reuse data shapes and behavior while preserving each argument type
 
 Instead of making one box for integers and another for strings, you can make a single `Box<A>` whose content type is a parameter. These are generics, the same idea as TypeScript's `Box<T>`. `A` is not a value; it stands in for a type name.
 
+The code in this chapter uses [Functions](/en/docs/learn/functions), [Pipelines](/en/docs/learn/pipelines) for `|>` and `show`, [Records and structs](/en/docs/learn/records-and-structs), [Algebraic data types](/en/docs/learn/algebraic-data-types), and [Pattern matching](/en/docs/learn/pattern-matching) for `match`. The `do { ... }` in `main` runs the steps inside it from top to bottom; [Effects](/en/docs/learn/effects) covers it in detail.
+
 ## Keep the argument and result types related
 
 Start with a small function that uses one type parameter. The `<A>` after the function name is the type parameter:

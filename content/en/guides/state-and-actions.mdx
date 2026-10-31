@@ -5,6 +5,8 @@ description: Keep update rules pure so you can verify them independently of view
 
 Check the “increment” and “reset” of the counter from [Build a Web application](/en/docs/guides/web-app) without a screen. Gathering “how each operation changes the state” into one function, `update`, lets you verify behavior before building the screen.
 
+Operations use [Algebraic data types](/en/docs/learn/algebraic-data-types), branching in `update` uses [Pattern matching](/en/docs/learn/pattern-matching), and state is grouped with a [struct](/en/docs/learn/records-and-structs).
+
 ## Separate state from an operation
 
 The state is an `Int` holding the current count, and operations are an `Action` with two cases, `Increment` and `Reset`. `update action state` returns the new state from an operation and the current state.

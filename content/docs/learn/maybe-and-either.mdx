@@ -7,6 +7,8 @@ TypeScriptでは、値がないことを`undefined`や`null`で、失敗を例�
 
 Seseragiでは、この二つを型で表します。「探したけど見つからなかった」のように値がないこと自体が普通の結果なら`Maybe`、「入力が正しくなかった」のように失敗の理由を伝えたいなら`Either`を使います。この章では二つを順に試してから、ポート番号を検査する例で組み合わせます。
 
+この章のコードでは、[関数](/docs/learn/functions)のラムダ、[パイプライン](/docs/learn/pipelines)の`|>`、[代数的データ型](/docs/learn/algebraic-data-types)、[パターンマッチ](/docs/learn/pattern-matching)の`match`、[ArrayとList](/docs/learn/arrays-and-lists)を使います。
+
 ## Maybeで存在と欠如を表す
 
 `Maybe<A>`は、値がある`Just 値`か、値がない`Nothing`のどちらかです。`Just 21`は整数がある状態を表します。`Nothing`だけでは中身の型が分からないので、必要なら`let absent: Maybe<Int> = Nothing`のように型を書きます。

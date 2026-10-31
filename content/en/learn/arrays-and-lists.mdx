@@ -5,6 +5,8 @@ description: "Transform, filter, and summarize collections, choosing between Arr
 
 This chapter covers Array and List, which hold many values together. It starts with `map`, which transforms elements, and `filter`, which selects them, then moves on to indexing, reduction, and Lists, and finally combines them.
 
+The code in this chapter uses [Functions](/en/docs/learn/functions) for lambdas, [Pipelines](/en/docs/learn/pipelines) for `|>` and `show`, and [Pattern matching](/en/docs/learn/pattern-matching) for `match`.
+
 ## Change elements with map
 
 `[1, 2, 3]` is an array of type `Array<Int>`. `map` creates a new Array by applying a function to each element, just like TypeScript's `array.map(...)`.
@@ -25,7 +27,7 @@ The lambda that doubles an integer is applied to each of the three elements. The
 
 ## Select elements with filter
 
-`filter` keeps the elements for which the condition function returns `True`. It lives in the `std/array` module, so import it at the top of the file:
+`filter` keeps the elements for which the condition function returns `True`. It lives in the `std/array` module, so import it at the top of the file ([Modules](/en/docs/learn/modules) covers imports):
 
 {/* example: examples/learn/focused/array-filter.ssrg#import */}
 ```seseragi title="Import declaration"

@@ -7,6 +7,8 @@ description: "型ごとの操作を定義し、where制約で共通の関数か�
 
 この章では、標準の型クラスを使ってから、値を表示する自分の型クラスを作ります。
 
+この章のコードでは、[パイプライン](/docs/learn/pipelines)の`|>`と`show`、[関数適用演算子](/docs/learn/application-operator)の`$`、[レコードとstruct](/docs/learn/records-and-structs)、[代数的データ型](/docs/learn/algebraic-data-types)、[ジェネリクス](/docs/learn/generics)、[Effect](/docs/learn/effects)の`do`を使います。
+
 ## 標準の操作を制約として使う
 
 これまで使ってきた`==`は、`Eq`という型クラスの操作です。ジェネリックな関数で`==`を使うには、「`A`は`Eq`を実装している」という条件を`where`で書きます。
