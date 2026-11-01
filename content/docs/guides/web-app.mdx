@@ -1,11 +1,11 @@
 ---
 title: Webアプリを作る
-description: 純粋な更新関数とHTMLから、操作できるカウンターを作る。
+description: Signalに数を保存し、ボタンで更新するカウンターを作る。
 ---
 
-「Add one」で数が増え、「Reset」で0に戻るカウンターを作ります。状態は`Int`、ボタンの操作は`Action`という型、画面は状態から作るHTMLで表します。ブラウザへの表示は`dom.app`に任せます。
+「Add one」で数が増え、「Reset」で0に戻るカウンターを作ります。数を[Signal](/docs/learn/signals)に保存し、数が変わると画面も変わるようにつなぎます。
 
-Actionの定義には、「学ぶ」の[代数的データ型](/docs/learn/algebraic-data-types)と[パターンマッチ](/docs/learn/pattern-matching)の内容を使います。
+ボタンには、クリック時に実行する`Task<Unit>`を渡します。これは`Effect<{}, Never, Unit>`の別名で、必要なサービスも失敗もなく、結果として`Unit`を返す処理です。処理を作ることと実行することの違いは[Effect](/docs/learn/effects)、ラムダと部分適用は[関数](/docs/learn/functions)で説明しています。
 
 ## プロジェクトを作る
 
@@ -24,21 +24,15 @@ cd counter
 ```seseragi title="src/main.ssrg"
 import * as dom from "std/web/dom"
 import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal }
+  from "std/signal"
 
-type Action =
-  | Increment
-  | Reset
+alias Counter = MutableSignal<Int>
+alias View = html.Html<Task<Unit>>
 
-alias View = html.Html<Action>
-
-fn update action: Action -> n: Int
-  -> Int =
-  match action {
-    Increment -> n + 1
-    Reset -> 0
-  }
-
-fn view count: Int -> View =
+fn view count: Counter
+  -> current: Int -> View =
   html.main {
     style: html.style {
       margin: "32px auto",
@@ -48,33 +42,50 @@ fn view count: Int -> View =
     children: [
       html.h1 { children: "Counter" },
       html.p {
-        children: `Count: ${count}`
+        children: `Count: ${current}`
       },
       html.button {
         buttonType: "button",
-        onClick: Increment,
+        onClick: signals.update
+          (\n: Int -> n + 1) count,
         children: "Add one"
       },
       html.button {
         buttonType: "button",
-        onClick: Reset,
+        onClick: signals.set 0 count,
         children: "Reset"
       }
     ]
   }
 
-pub effect fn main =
-  dom.app {
-    target: "#app",
-    initial: 0,
-    update,
-    view
-  }
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+
+pub effect fn main = do {
+  count <- signals.make 0
+  let content =
+    signals.map (view count) count
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
+  |> mapError runtimeError
+}
 ```
 
-`Increment`と`Reset`は、ユーザーが何をしたかを表します。`update`は、今の数とActionから次の数を返すだけの関数で、画面には触りません。`view`も、今の数から画面（`Html<Action>`）を作るだけの関数です。
+`Counter`は`MutableSignal<Int>`、`View`は`Html<Task<Unit>>`に付けた[型の別名](/docs/learn/records-and-structs)です。`view`には、更新先のSignalと、表示する現在の整数を渡します。HTMLのpropsはレコードで、`children`に文字や子要素を入れます。
 
-`onClick: Increment`には、クリックで実行する処理ではなく、クリックされたら送るActionを書きます。
+`signals.update`は今の値から次の値を計算するTaskを作り、`signals.set`は指定した値に変えるTaskを作ります。`onClick`に書いた時点では実行されません。クリックされると`dom.run`が`perform`へ渡し、返されたTaskを実行します。
 
 ## 開発サーバーで操作する
 
@@ -89,11 +100,13 @@ seseragi dev --open
 
 ソースを保存するとページが再読み込みされるので、カウンターも0に戻ります。
 
-## 状態とDOMの管理を読む
+## Signalを画面につなぐ
 
-`dom.app`は、初期値を入れたSignalを作り、`view`で画面を作ります。イベントが起きるたびに`update`で次の状態を計算し、変わったところだけ画面に反映します。中で特別なことをしているわけではなく、Signalの作成・表示先の取得・イベントの接続をまとめた、普通の標準ライブラリの関数です。
+`main`で`signals.make 0`を一回実行して、数を保存する場所を作ります。`signals.map (view count) count`は、数からHTMLを計算する読み取り専用のSignalです。数が変わると、新しい数で`view`を呼んだ結果に追従します。画面を計算するたびに状態を作り直すことはありません。
 
-イベントは起きた順に処理されます。細かい決まりは[Web UIリファレンス](/docs/reference/web-ui)にあります。
+`dom.query`で表示先の`#app`を取得し、`dom.run`に画面のSignalを渡します。`dom.run`は、画面の変化とイベントを受け取り続け、終了時には購読とリスナーを解除します。イベントは起きた順に処理されます。細かい決まりは[Web UIリファレンス](/docs/reference/web-ui)にあります。
+
+`queryError`と`runtimeError`は、表示先の取得や画面の実行で起きる失敗を`String`に変える関数です。`mapError`で失敗の型を揃えています。失敗の扱い方は[失敗を扱う](/docs/guides/error-handling)で説明しています。
 
 ## 見た目を整えてビルドする
 
@@ -110,4 +123,4 @@ seseragi build .
 
 ## 次の機能を加える
 
-[状態とAction](/docs/guides/state-and-actions)では`update`を画面なしで確かめ、[フォーム](/docs/guides/forms)では文字の入力を扱います。カウンターをいくつも並べたいときは、[状態を持つ機能](/docs/guides/stateful-features)の作り方が使えます。
+[フォーム](/docs/guides/forms)では文字の入力と送信を扱います。カウンターをいくつも並べたいときは、[状態を持つ機能](/docs/guides/stateful-features)の作り方が使えます。

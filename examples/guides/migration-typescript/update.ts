@@ -1,28 +1,14 @@
 // docs:start update
-type Action =
-  | { type: "increment" }
-  | { type: "reset" };
-
-function reducer(
-  count: number,
-  action: Action,
-): number {
-  switch (action.type) {
-    case "increment":
-      return count + 1;
-    case "reset":
-      return 0;
-  }
+function increment(count: number) {
+  return count + 1;
 }
 // docs:end update
 
 // docs:start cases
-console.log(reducer(
-  0, { type: "increment" },
-));
-console.log(reducer(
-  9, { type: "reset" },
-));
+let count = increment(0);
+console.log(count);
+count = 0;
+console.log(count);
 // docs:end cases
 
 export {};

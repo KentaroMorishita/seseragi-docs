@@ -1,22 +1,21 @@
 // docs:start update
-type Action =
-  | Increment
-  | Reset
+import * as signals from "std/signal"
 
-fn update action: Action
-  -> count: Int -> Int =
-  match action {
-    Increment -> count + 1
-    Reset -> 0
-  }
+fn increment count: Int -> Int =
+  count + 1
 // docs:end update
 
 pub effect fn main = do {
   // docs:start cases
-  update Increment 0
+  count <- signals.make 0
+  signals.update increment count
+  increased <- signals.read count
+  increased
   |> show
   |> println
-  update Reset 9
+  signals.set 0 count
+  reset <- signals.read count
+  reset
   |> show
   |> println
   // docs:end cases

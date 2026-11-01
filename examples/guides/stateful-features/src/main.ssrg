@@ -5,8 +5,8 @@ import { create } from "./counter"
 
 alias View = html.Html<Task<Unit>>
 
-fn layout first: View -> second: View
-  -> View =
+fn page first: View
+  -> second: View -> View =
   html.main {
     style: html.style {
       margin: "32px auto",
@@ -32,15 +32,11 @@ pub effect fn main = do {
   first <- create "Today"
   second <- create "Tomorrow"
   let content =
-    signals.combine layout first $
-      second
+    signals.combine page first second
   target <-
     dom.query "#app"
     |> mapError queryError
-  let options = dom.defaultOptions ()
-  (
-    dom.run options target perform $
-      content
-  )
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
   |> mapError runtimeError
 }

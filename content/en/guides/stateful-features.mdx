@@ -5,7 +5,7 @@ description: Create a private Signal and return a read-only view to the parent.
 
 Place two counters, “Today” and “Tomorrow”, side by side so that pressing one leaves the other unchanged. The counter module owns its state and returns only its view (`Signal<Html<Task<Unit>>>`) to the parent. The parent never touches the child's state.
 
-It uses what you learned in [Effects](/en/docs/learn/effects), [Signals](/en/docs/learn/signals), and [Modules](/en/docs/learn/modules). State uses a [struct](/en/docs/learn/records-and-structs), button handlers use lambdas from [Functions](/en/docs/learn/functions), and `$` from [The application operator](/en/docs/learn/application-operator) removes parentheses. `Task<Unit>` is an alias for `Effect<{}, Never, Unit>`, an Effect that needs nothing and cannot fail. A button carries such a Task as its Action for clicks.
+It uses what you learned in [Effects](/en/docs/learn/effects), [Signals](/en/docs/learn/signals), and [Modules](/en/docs/learn/modules). Button handlers use lambdas from [Functions](/en/docs/learn/functions), and HTML props use [records](/en/docs/learn/records-and-structs). `Task<Unit>` is an alias for `Effect<{}, Never, Unit>`, an Effect that needs nothing and cannot fail. A button carries such a Task to execute on a click.
 
 ## Prepare a project
 
@@ -25,37 +25,30 @@ import * as signals from "std/signal"
 import { MutableSignal, Signal }
   from "std/signal"
 
-struct Count { count: Int }
-
+alias Counter = MutableSignal<Int>
 alias View = html.Html<Task<Unit>>
 
 fn view title: String
-  -> state: MutableSignal<Count>
-  -> current: Count
-  -> View =
+  -> state: Counter
+  -> current: Int -> View =
   html.section {
     children: [
-      html.h2<Task<Unit>, String> {
-        children: title
-      },
-      html.p<Task<Unit>, String> {
-        children: show current.count
+      html.h2 { children: title },
+      html.p {
+        children: show current
       },
       html.button {
         buttonType: "button",
         children: "Add one",
         onClick: signals.update
-          (\n: Count -> Count {
-            count: n.count + 1
-          }) state
+          (\n: Int -> n + 1) state
       }
     ]
   }
 
 pub effect fn create title: String
   -> Signal<View> = do {
-  state <-
-    signals.make $ Count { count: 0 }
+  state <- signals.make 0
   state
   |> signals.map (view title state)
   |> succeed
@@ -64,7 +57,7 @@ pub effect fn create title: String
 
 `create` is an Effect: running it creates one piece of state with `signals.make` and returns a Signal of the view built from that state.
 
-The writable `MutableSignal` stays inside the module; the parent gets only a read-only `Signal`. Each button carries "a Task that updates the state" as its Action, so the parent does not need to know what Actions the child has.
+The writable `MutableSignal` stays inside the module; the parent gets only a read-only `Signal`. Each button carries a Task that updates state. The parent can execute it without knowing how the child updates its state.
 
 ## Compose views in the parent
 
@@ -77,8 +70,8 @@ import { create } from "./counter"
 
 alias View = html.Html<Task<Unit>>
 
-fn layout first: View -> second: View
-  -> View =
+fn page first: View
+  -> second: View -> View =
   html.main {
     style: html.style {
       margin: "32px auto",
@@ -104,21 +97,17 @@ pub effect fn main = do {
   first <- create "Today"
   second <- create "Tomorrow"
   let content =
-    signals.combine layout first $
-      second
+    signals.combine page first second
   target <-
     dom.query "#app"
     |> mapError queryError
-  let options = dom.defaultOptions ()
-  (
-    dom.run options target perform $
-      content
-  )
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
   |> mapError runtimeError
 }
 ```
 
-`create "Today"` and `create "Tomorrow"` each run and create separate state. `signals.combine` passes the two views to `layout`, combining them into one view.
+`create "Today"` and `create "Tomorrow"` each run and create separate state. `signals.combine` passes the two views to `page`, combining them into one view.
 
 `perform` just returns the Task the child prepared. On a click, `dom.run` runs that Task.
 
@@ -209,6 +198,6 @@ Create application-wide state in the topmost parent. Do not put global state at 
 
 ## Distinguish shutdown from resource ownership
 
-`dom.run` manages the subscriptions and event listeners it uses to update the screen, and releases them when it ends. Its own failures are converted to `String` with `mapError`.
+`dom.run` manages the subscriptions and event listeners it uses to update the screen, and releases them when it ends. Its own failures are converted to `String` with `mapError`. See [Handle failures](/en/docs/guides/error-handling) for aligning failure types.
 
 If a child owns subscriptions, timers, or connections of its own, tie their cleanup to an Effect scope or a `DomMount`. Disappearing from the screen does not clean them up automatically. The detailed rules are in the [Signal reference](/en/docs/reference/signals) and the [Web UI reference](/en/docs/reference/web-ui).

@@ -1,0 +1,30 @@
+// docs:start declarations
+alias Entry = { id?: String }
+
+fn presence entry: Entry
+  -> Maybe<String> = {
+  let { id? } = entry
+  id
+}
+
+fn label entry: Entry -> String =
+  match entry {
+    { id?: Just value } -> value
+    { id?: Nothing } -> "missing"
+  }
+// docs:end declarations
+
+// docs:start cases
+pub effect fn main = do {
+  let absent: Entry = {}
+  let present: Entry = { id: "intro" }
+  presence absent
+  |> show
+  |> println
+  presence present
+  |> show
+  |> println
+  println (label absent)
+  println (label present)
+}
+// docs:end cases

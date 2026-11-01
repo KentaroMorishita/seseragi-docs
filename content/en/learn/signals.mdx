@@ -101,7 +101,7 @@ Reading with `*` takes the value at that moment, once. If you read two Signals s
 
 To keep receiving changes, subscribe with `subscribe`. A new subscription first receives the current value, then every update. When you no longer need it, pass the `Subscription` returned by `subscribe` to `unsubscribe`. Creating a computed Signal or reading it once does not start a subscription.
 
-Updating with the same value still sends a notification. To be notified only when the value changes, use `distinct`. The detailed rules for subscriptions are in the [Signal reference](/en/docs/reference/signals), and connecting state to a screen is covered in the [State and actions](/en/docs/guides/state-and-actions) guide.
+Updating with the same value still sends a notification. To be notified only when the value changes, use `distinct`. The detailed rules for subscriptions are in the [Signal reference](/en/docs/reference/signals), and connecting state to a screen is covered in the [Build a Web application](/en/docs/guides/web-app) guide.
 
 ### Try subscribing and unsubscribing
 

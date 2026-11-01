@@ -12,16 +12,17 @@ description: "配布版CLIのコマンド、target、profile、診断、テス�
 | `new web PATH` | Webアプリのひな形とロックファイルを作る |
 | `run FILE_OR_PACKAGE` | CLIアプリを実行する |
 | `build FILE_OR_PACKAGE` | CLIアプリやWebアプリの配布物を作る |
-| `dev [PACKAGE]` | Webアプリの開発サーバーを起動する（保存すると自動でビルドし直す） |
+| `dev [PACKAGE]` | Webアプリを配信するか、native実行ファイルを再ビルドする |
 | `lock update [PACKAGE]` | ロックファイルを更新する |
 | `lint FILE_OR_PACKAGE` | コードの問題点を指摘する |
 | `format [--check] FILE` | ソースを整形する、または整形済みか調べる |
 | `test [PACKAGE]` | `tests/`のテストを実行する |
 | `benchmark [PACKAGE]` | `benchmarks/`のベンチマークを計測する |
+| `doc [PACKAGE]` | パッケージのAPIドキュメントを生成する |
 | `doc [PACKAGE] --test` | ドキュメントコメントの中のコード例を実行して確かめる |
 | `dts convert [PACKAGE]` | `.d.ts`からTypeScriptのbindingを生成する |
 
-`new`で作れるひな形は、今は`web`だけです。すでにあるディレクトリには作りません。`doc`は今のところ`--test`だけで、APIドキュメントのサイトを作る機能はありません。
+`new`で作れるひな形は、今は`web`だけです。すでにあるディレクトリには作りません。`doc`はAPIドキュメントを`dist/doc/`へ生成します。`--test`を付けると、先にコメント内のコード例を検証します。非公開の宣言も含めるには`--include-private`を付けます。
 
 ## runとターゲット
 
@@ -32,7 +33,7 @@ seseragi run main.ssrg
 seseragi run . --profile release
 ```
 
-logical ターゲットは`process`と`web`です。現在`run`はprocess、`dev`はwebを実行し、`build`は両方に対応します。オプションの値として受理しても、コマンドが未対応の組み合わせを別ターゲットへfallbackしません。
+`process`はTypeScript経由で動かすCLIアプリ、`web`はブラウザー向けのターゲットです。`run`は`process`、`dev`は`web`、`build`は両方に対応します。`run`・`build`・`dev`には、ネイティブ実行ファイルを作る`--target native`も指定できます。`native`はコマンドのオプションで選び、`run.target`には書きません。
 
 ターゲット（CLIで動かすか、ブラウザーで動かすか）は、コマンドのオプション、`run.target`、コマンドの種類の順に決まります。プログラムが必要とするサービスをターゲットが用意できない場合は、実行する前にエラーになります。HTTPサーバーはCLIアプリとして扱われ、Webアプリにはなりません。
 
@@ -48,6 +49,18 @@ seseragi dev \
 `build`では`--out-dir PATH`と`--source-map emit|omit`を指定できます。プロファイル（developmentかreleaseか）は、コマンドのオプション、`[build].profile`の順に決まり、どちらもなければdevelopmentです。ソースマップは、developmentでは出力し、releaseでは出力しません。CLIアプリの入口のファイルは、developmentでは`entry.ts`、releaseでは`entry.js`です。出力に含まれる`artifact-manifest.json`で、実際の入口を確かめられます。
 
 `dev`は保存したソースを見張り、`build`と同じ仕組みでビルドし直します。`dev`の間は、ソースを編集してもロックファイルを更新する必要はありません（`build`や`test`では、ソースを変えるとロックファイルの更新が必要です）。ただし、`seseragi.toml`・依存パッケージ・Providerの要件を変えたときは、`dev`中でも更新が必要です。`--open`を付けるとブラウザーが開きます。
+
+### nativeで実行する
+
+```bash
+seseragi run main.ssrg --target native
+seseragi build . --target native
+seseragi dev . --target native
+```
+
+`run`は一時ディレクトリにビルドして実行します。`build`は`dist/program`を作り、`--out-dir PATH`で出力先を変えられます。`dev`はソースの変更を見張り、`.seseragi/dev/`へ再ビルドします。`dev --target native`は実行やブラウザーの起動は行いません。ビルドには`rustc`が必要です。
+
+nativeでは`build --source-map`と、`run`の`--diagnostic-format json`・signal・終了猶予・seedの実行オプションは使えません。必要な構文やサービスがnativeで対応していなければ、ビルドでエラーになります。`test`・`benchmark`・`doc --test`は`--target node`を使います。
 
 ## 診断と整形
 

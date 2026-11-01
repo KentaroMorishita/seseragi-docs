@@ -143,7 +143,55 @@ pub effect fn main = do {
 
 レコードのパターンは、書いたフィールド以外を無視します。structのパターンも同じですが、型の名前が合っていて、そのフィールドが見える場所でなければ使えません。パターンの中でスプレッドは使えません。
 
-省略可能なフィールドには`{ id? }`か`{ id?: pattern }`を使います（今のバージョンのコンパイラーはまだ対応しておらず、`SES-T0101`になります。それまではフィールドを読んで得た`Maybe`を`match`してください）。`id?`はフィールドがあるかどうかを`Maybe<A>`として受け取り、`id?: Just value`はフィールドがある場合だけ一致します。必ずあるフィールドに`?`を付けると、いつも`Just`になります。省略可能なフィールドを、普通の`{ id }`で取り出すことはできません。
+省略可能なフィールドには`{ id? }`か`{ id?: pattern }`を使います。`id?`はフィールドがあるかどうかを`Maybe<A>`として受け取り、`id?: Just value`はフィールドがある場合だけ一致します。必ずあるフィールドに`?`を付けると、いつも`Just`になります。省略可能なフィールドを、普通の`{ id }`で取り出すことはできません。
+
+次の二つのコードを順に`optional-patterns.ssrg`へ保存すると、省略した場合と値を入れた場合を比べられます。
+
+{/* example: examples/reference/optional-patterns.ssrg#declarations */}
+```seseragi title="optional-patterns.ssrg"
+alias Entry = { id?: String }
+
+fn presence entry: Entry
+  -> Maybe<String> = {
+  let { id? } = entry
+  id
+}
+
+fn label entry: Entry -> String =
+  match entry {
+    { id?: Just value } -> value
+    { id?: Nothing } -> "missing"
+  }
+```
+
+`presence`の`{ id? }`は、フィールドを省略した場合にも一致します。`label`は`Just`と`Nothing`を別々に扱います。
+
+{/* example: examples/reference/optional-patterns.ssrg#cases */}
+```seseragi title="optional-patterns.ssrg"
+pub effect fn main = do {
+  let absent: Entry = {}
+  let present: Entry = { id: "intro" }
+  presence absent
+  |> show
+  |> println
+  presence present
+  |> show
+  |> println
+  println (label absent)
+  println (label present)
+}
+```
+
+```sh
+seseragi run optional-patterns.ssrg
+```
+
+```text
+Nothing
+Just intro
+missing
+intro
+```
 
 ## 名前が使える範囲とコスト
 

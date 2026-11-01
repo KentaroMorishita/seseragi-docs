@@ -1,11 +1,11 @@
 ---
 title: Build a Web application
-description: Build an interactive counter using a pure update function and HTML.
+description: Store a number in a Signal and update it with buttons.
 ---
 
-Build a counter that goes up with “Add one” and back to 0 with “Reset”. The state is an `Int`, button presses are an `Action` type, and the screen is HTML built from the state. `dom.app` takes care of displaying it in the browser.
+Build a counter that goes up with “Add one” and back to 0 with “Reset”. Store the number in a [Signal](/en/docs/learn/signals), then connect the screen so it follows changes to the number.
 
-The Action type uses what you learned in [Algebraic data types](/en/docs/learn/algebraic-data-types) and [Pattern matching](/en/docs/learn/pattern-matching).
+Each button carries a `Task<Unit>` to run when clicked. This is an alias for `Effect<{}, Never, Unit>`: a computation that needs no services, cannot fail, and returns `Unit`. [Effects](/en/docs/learn/effects) explains building and executing computations; [Functions](/en/docs/learn/functions) explains lambdas and partial application.
 
 ## Create a project
 
@@ -16,7 +16,7 @@ cd counter
 
 Replace `src/main.ssrg` with the code below. The generated `src/app.ssrg` is not used in this guide.
 
-Leave `seseragi.toml` as it is. To set up the CLI and Bun, see [Local development](/en/docs/learn/local-development).
+Keep `seseragi.toml` as generated. See [Local development](/en/docs/learn/local-development) to prepare the CLI and Bun.
 
 ## Write the complete counter
 
@@ -24,21 +24,15 @@ Leave `seseragi.toml` as it is. To set up the CLI and Bun, see [Local developmen
 ```seseragi title="src/main.ssrg"
 import * as dom from "std/web/dom"
 import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal }
+  from "std/signal"
 
-type Action =
-  | Increment
-  | Reset
+alias Counter = MutableSignal<Int>
+alias View = html.Html<Task<Unit>>
 
-alias View = html.Html<Action>
-
-fn update action: Action -> n: Int
-  -> Int =
-  match action {
-    Increment -> n + 1
-    Reset -> 0
-  }
-
-fn view count: Int -> View =
+fn view count: Counter
+  -> current: Int -> View =
   html.main {
     style: html.style {
       margin: "32px auto",
@@ -48,66 +42,85 @@ fn view count: Int -> View =
     children: [
       html.h1 { children: "Counter" },
       html.p {
-        children: `Count: ${count}`
+        children: `Count: ${current}`
       },
       html.button {
         buttonType: "button",
-        onClick: Increment,
+        onClick: signals.update
+          (\n: Int -> n + 1) count,
         children: "Add one"
       },
       html.button {
         buttonType: "button",
-        onClick: Reset,
+        onClick: signals.set 0 count,
         children: "Reset"
       }
     ]
   }
 
-pub effect fn main =
-  dom.app {
-    target: "#app",
-    initial: 0,
-    update,
-    view
-  }
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+
+pub effect fn main = do {
+  count <- signals.make 0
+  let content =
+    signals.map (view count) count
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
+  |> mapError runtimeError
+}
 ```
 
-`Increment` and `Reset` describe what the user did. `update` only returns the next count from the current count and an Action; it never touches the screen. `view` likewise only builds the screen (`Html<Action>`) from the current count.
+`Counter` is a [type alias](/en/docs/learn/records-and-structs) for `MutableSignal<Int>`, and `View` is an alias for `Html<Task<Unit>>`. Pass `view` both the Signal to update and the current integer to display. HTML props are records; `children` holds text or child elements.
 
-`onClick: Increment` names the Action to send when clicked, not code to run on click.
+`signals.update` builds a Task that calculates the next value from the current one; `signals.set` builds a Task that writes the specified value. Placing a Task in `onClick` does not run it. On a click, `dom.run` passes it to `perform` and executes the returned Task.
 
-## Operate the development server
+## Try it on the development server
 
-Update the lockfile, then start the development server:
+Update the lock, then start the development server.
 
 ```sh
 seseragi lock update
 seseragi dev --open
 ```
 
-Open `http://127.0.0.1:3000/` and you see “Count: 0”. Click “Add one” twice for “Count: 2”, and “Reset” to go back to “Count: 0”.
+Open `http://127.0.0.1:3000/` to see “Count: 0”. Press “Add one” twice for “Count: 2”, then “Reset” to return to “Count: 0”.
 
-Saving a source file reloads the page, so the counter goes back to 0.
+Saving the source reloads the page, so the counter also returns to 0.
 
-## Understand state and DOM ownership
+## Connect the Signal to the screen
 
-`dom.app` creates a Signal holding the initial value and builds the screen with `view`. Each time an event happens, it computes the next state with `update` and applies only what changed to the screen. There is nothing magic about it: it is an ordinary standard-library function that bundles creating the Signal, finding where to display, and wiring up events.
+In `main`, execute `signals.make 0` once to create storage for the number. `signals.map (view count) count` is a read-only Signal that computes HTML from the number. When the number changes, it follows the result of calling `view` with that new number. Computing the screen never recreates state.
 
-Events are processed in the order they happen. The detailed rules are in the [Web UI reference](/en/docs/reference/web-ui).
+Find the `#app` element with `dom.query`, then pass the screen's Signal to `dom.run`. It keeps receiving screen changes and events, and releases its subscriptions and listeners when it ends. Events are processed in order. See the [Web UI reference](/en/docs/reference/web-ui) for the detailed rules.
 
-## Style and build
+`queryError` and `runtimeError` turn failures from finding the target or running the screen into `String`. `mapError` aligns their failure types. See [Handle failures](/en/docs/guides/error-handling) for failure handling.
 
-`style` takes a style built with `html.style`. This example uses `maxWidth`, `margin`, and `padding` to limit the width, center the content, and add space inside. For CSS class names, use `class`.
+## Style and build it
 
-Stop the development server with `Ctrl-C`, update the lockfile, and build:
+Pass styles made with `html.style` to `style`. Here, `maxWidth`, `margin`, and `padding` limit the width, center the content, and add inner space. Use `class` for CSS class names.
+
+Stop the development server with `Ctrl-C`, update the lock, and build.
 
 ```sh
 seseragi lock update
 seseragi build .
 ```
 
-`dist/` now contains `index.html`, JavaScript, CSS, and so on. Serve them from an HTTP server or static hosting instead of opening the HTML file directly.
+The `dist/` directory contains `index.html`, JavaScript, and CSS. Serve it over HTTP or static hosting.
 
-## Add another capability
+## Add the next feature
 
-[State and Actions](/en/docs/guides/state-and-actions) checks `update` without a screen, and [Forms](/en/docs/guides/forms) handles text input. To place several counters side by side, use the approach in [Stateful features](/en/docs/guides/stateful-features).
+[Forms](/en/docs/guides/forms) covers text input and submission. To place several counters together, use the approach in [Stateful features](/en/docs/guides/stateful-features).

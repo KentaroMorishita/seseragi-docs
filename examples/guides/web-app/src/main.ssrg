@@ -1,11 +1,13 @@
 import * as dom from "std/web/dom"
 import * as html from "std/web/html"
 import * as signals from "std/signal"
-import { MutableSignal } from "std/signal"
+import { MutableSignal }
+  from "std/signal"
 
+alias Counter = MutableSignal<Int>
 alias View = html.Html<Task<Unit>>
 
-fn view count: MutableSignal<Int>
+fn view count: Counter
   -> current: Int -> View =
   html.main {
     style: html.style {
@@ -20,8 +22,8 @@ fn view count: MutableSignal<Int>
       },
       html.button {
         buttonType: "button",
-        onClick:
-          signals.update (\n: Int -> n + 1) count,
+        onClick: signals.update
+          (\n: Int -> n + 1) count,
         children: "Add one"
       },
       html.button {
@@ -35,15 +37,23 @@ fn view count: MutableSignal<Int>
 fn perform action: Task<Unit>
   -> Task<Unit> = action
 
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+
 pub effect fn main = do {
   count <- signals.make 0
+  let content =
+    signals.map (view count) count
   target <-
     dom.query "#app"
-    |> mapError (\error: dom.DomError -> show error)
-  let options = dom.defaultOptions ()
-  (
-    dom.run options target perform $
-      signals.map (view count) count
-  )
-  |> mapError (\error: dom.DomRuntimeError<Never> -> show error)
+    |> mapError queryError
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
+  |> mapError runtimeError
 }

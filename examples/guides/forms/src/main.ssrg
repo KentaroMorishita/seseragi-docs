@@ -1,7 +1,10 @@
 import * as dom from "std/web/dom"
 import * as html from "std/web/html"
 import * as signals from "std/signal"
-import { MutableSignal } from "std/signal"
+import { MutableSignal }
+  from "std/signal"
+
+alias Field = MutableSignal<String>
 
 alias View = html.Html<Task<Unit>>
 
@@ -11,24 +14,24 @@ fn greeting name: String -> String =
   else
     `Hello, ${name}`
 
-fn edited draft: MutableSignal<String>
-  -> message: MutableSignal<String>
+fn edited draft: Field
+  -> reply: Field
   -> event: html.InputEvent
   -> Task<Unit> =
   signals.transaction [
     signals.planSet event.value draft,
-    signals.planSet "" message
+    signals.planSet "" reply
   ]
 
-fn submitted draft: MutableSignal<String>
-  -> message: MutableSignal<String>
+fn submitted draft: Field
+  -> reply: Field
   -> Task<Unit> = do {
   name <- signals.read draft
-  signals.set (greeting name) message
+  signals.set (greeting name) reply
 }
 
-fn view draft: MutableSignal<String>
-  -> message: MutableSignal<String>
+fn view draft: Field
+  -> reply: Field
   -> current: String
   -> result: String -> View =
   html.main {
@@ -42,7 +45,8 @@ fn view draft: MutableSignal<String>
         children: "Greeting"
       },
       html.form {
-        onSubmit: submitted draft message,
+        onSubmit:
+          submitted draft reply,
         children: [
           html.label {
             htmlFor: "name",
@@ -52,7 +56,8 @@ fn view draft: MutableSignal<String>
             id: "name",
             name: "name",
             value: current,
-            onInput: edited draft message
+            onInput:
+              edited draft reply
           },
           html.button {
             buttonType: "submit",
@@ -70,16 +75,25 @@ fn view draft: MutableSignal<String>
 fn perform action: Task<Unit>
   -> Task<Unit> = action
 
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+
 pub effect fn main = do {
   draft <- signals.make ""
-  message <- signals.make ""
+  reply <- signals.make ""
+  let render = view draft reply
+  let content =
+    signals.combine render draft reply
   target <-
     dom.query "#app"
-    |> mapError (\error: dom.DomError -> show error)
-  let options = dom.defaultOptions ()
-  (
-    dom.run options target perform $
-      signals.combine (view draft message) draft message
-  )
-  |> mapError (\error: dom.DomRuntimeError<Never> -> show error)
+    |> mapError queryError
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
+  |> mapError runtimeError
 }

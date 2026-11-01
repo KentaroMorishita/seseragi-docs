@@ -1,11 +1,11 @@
 ---
 title: フォームを作る
-description: 入力値、Action、検証結果をつないで、名前を受け取るフォームを作る。
+description: 入力と結果をSignalに保存し、名前を受け取るフォームを作る。
 ---
 
-名前を入力して「Greet」を押すと挨拶が表示されるフォームを作ります。空のまま送ると「Enter your name」と表示します。入力中の文字列と検証の結果を一つの`Model`にまとめ、`update`で更新します。
+名前を入力して「Greet」を押すと挨拶が表示されるフォームを作ります。空のまま送ると「Enter your name」と表示します。入力中の文字列と送信後の結果を、それぞれ[Signal](/docs/learn/signals)に保存します。
 
-状態・Action・`view`の役割分担は、[Webアプリを作る](/docs/guides/web-app)と同じです。
+画面への接続は[Webアプリを作る](/docs/guides/web-app)と同じです。イベントで実行する`Task<Unit>`と`do`は[Effect](/docs/learn/effects)、HTMLのpropsに使うレコードは[レコードとstruct](/docs/learn/records-and-structs)で説明しています。
 
 ## プロジェクトを準備する
 
@@ -22,45 +22,40 @@ cd greeting-form
 ```seseragi title="src/main.ssrg"
 import * as dom from "std/web/dom"
 import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal }
+  from "std/signal"
 
-struct Model {
-  draft: String,
-  message: String
+alias Field = MutableSignal<String>
+
+alias View = html.Html<Task<Unit>>
+
+fn greeting name: String -> String =
+  if name == "" then
+    "Enter your name"
+  else
+    `Hello, ${name}`
+
+fn edited draft: Field
+  -> reply: Field
+  -> event: html.InputEvent
+  -> Task<Unit> =
+  signals.transaction [
+    signals.planSet event.value draft,
+    signals.planSet "" reply
+  ]
+
+fn submitted draft: Field
+  -> reply: Field
+  -> Task<Unit> = do {
+  name <- signals.read draft
+  signals.set (greeting name) reply
 }
 
-type Action =
-  | Edited String
-  | Submitted
-
-alias View = html.Html<Action>
-
-fn update action: Action
-  -> model: Model -> Model =
-  match action {
-    Edited draft -> Model {
-      ...model,
-      draft,
-      message: ""
-    }
-    Submitted ->
-      if model.draft == "" then
-        Model {
-          ...model,
-          message: "Enter your name"
-        }
-      else
-        Model {
-          ...model,
-          message:
-            `Hello, ${model.draft}`
-        }
-  }
-
-fn edited event: html.InputEvent
-  -> Action =
-  Edited event.value
-
-fn view model: Model -> View =
+fn view draft: Field
+  -> reply: Field
+  -> current: String
+  -> result: String -> View =
   html.main {
     style: html.style {
       margin: "32px auto",
@@ -72,7 +67,8 @@ fn view model: Model -> View =
         children: "Greeting"
       },
       html.form {
-        onSubmit: Submitted,
+        onSubmit:
+          submitted draft reply,
         children: [
           html.label {
             htmlFor: "name",
@@ -81,8 +77,9 @@ fn view model: Model -> View =
           html.input {
             id: "name",
             name: "name",
-            value: model.draft,
-            onInput: edited
+            value: current,
+            onInput:
+              edited draft reply
           },
           html.button {
             buttonType: "submit",
@@ -92,30 +89,47 @@ fn view model: Model -> View =
       },
       html.p {
         role: "status",
-        children: model.message
+        children: result
       }
     ]
   }
 
-pub effect fn main =
-  dom.app {
-    target: "#app",
-    initial: Model {
-      draft: "",
-      message: ""
-    },
-    update,
-    view
-  }
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+
+pub effect fn main = do {
+  draft <- signals.make ""
+  reply <- signals.make ""
+  let render = view draft reply
+  let content =
+    signals.combine render draft reply
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
+  |> mapError runtimeError
+}
 ```
 
-`draft`は入力中の文字列、`message`は送信したあとに表示する結果です。`Edited`で入力が変わると前回のメッセージを消し、`Submitted`で今の入力を検証します。
+`Field`は`MutableSignal<String>`の別名です。`draft`は入力中の文字列、`reply`は送信後の結果を保存します。`signals.combine`で二つのSignalの値を`view`に渡し、入力欄と結果の段落が両方の変化に追従するようにします。
 
-## 入力イベントをActionへ変える
+## 入力でSignalを更新する
 
-`html.InputEvent`の`value`には、入力された文字列が入っています。`edited`は、その文字列から`Edited`のActionを作ります。ブラウザーの`Event`オブジェクトそのものを状態に入れることはありません。
+`html.InputEvent`の`value`には、入力された文字列が入っています。`edited draft reply`は、イベントの情報を受け取って更新のTaskを作る関数です。`onInput`がその関数を呼び、`dom.run`がTaskを実行します。
 
-`value: model.draft`で入力欄に今の値を表示し、`onInput: edited`で入力のたびにActionを送ります。Reactの「制御されたコンポーネント」と同じ形です。ラベルの`htmlFor: "name"`と入力欄の`id: "name"`を揃えて、ラベルをクリックすると入力欄が選ばれるようにしています。
+`signals.planSet`で入力の保存と前回の結果の消去を予定し、`signals.transaction`でまとめて反映します。二つのSignalを一度に変える決まりは[Signalの更新](/docs/learn/signals#複数の更新をまとめる)で説明しています。
+
+`value: current`で入力欄に現在の文字列を表示します。ラベルの`htmlFor: "name"`と入力欄の`id: "name"`を揃えているので、ラベルをクリックすると入力欄が選ばれます。
 
 ## 送信して検証する
 
@@ -124,7 +138,7 @@ seseragi lock update
 seseragi dev --open
 ```
 
-`Ada`と入力して「Greet」を押すと、「Hello, Ada」と表示されます。空のまま送ると「Enter your name」です。`onSubmit`を指定したフォームは、ページの再読み込みを自動で止めてActionを送ります（`preventDefault`は要りません）。入力欄でEnterを押しても送信されます。
+`Ada`と入力して「Greet」を押すと、「Hello, Ada」と表示されます。空のまま送ると「Enter your name」です。`onSubmit`を指定したフォームは、ページの再読み込みを自動で止め、`submitted draft reply`のTaskを送ります（`preventDefault`は要りません）。入力欄でEnterを押しても送信されます。
 
 この例では、空白だけの入力も名前として受け付けます。空白を取り除きたい場合は、次の節のように検証の前に整えます。
 
@@ -162,7 +176,7 @@ fn greeting result: Name -> String =
   }
 ```
 
-`greeting`は、成功なら名前を使った挨拶を、失敗なら案内をそのまま返します。
+`greeting`は、[パターンマッチ](/docs/learn/pattern-matching)で成功と失敗を分け、成功なら名前を使った挨拶を、失敗なら案内をそのまま返します。
 
 ### 正常・空・空白だけを比べる
 
@@ -191,11 +205,11 @@ Enter your name
 Enter your name
 ```
 
-`" Ada "`は空白が取り除かれて`Ada`になり、`""`と`"   "`はどちらも受け付けられません。この検証をWebフォームで使うなら、`Submitted`で`name model.draft`を呼び、その結果から`message`を作ります。
+`" Ada "`は空白が取り除かれて`Ada`になり、`""`と`"   "`はどちらも受け付けられません。Webフォームへ組み込むときは、この`Name`と二つの関数で元の`greeting`を置き換えます。`submitted`で読み取った文字列を`name`と`greeting`へ順に渡してから、`reply`に保存します。
 
 ## 検証結果を画面へ戻す
 
-検証に失敗しても、アプリが止まるわけではありません。`Submitted`は、入力の問題を`message`に入れて次の状態として返します。`role: "status"`を付けた段落に、その結果が表示されます。
+`submitted`は、送信時点の入力を`signals.read`で読み、`greeting`で文字列にして`signals.set`で`reply`へ保存します。空の入力でも処理は失敗せず、案内の文字列を保存します。`role: "status"`を付けた段落に、その結果が表示されます。
 
 サーバーへの保存などを足す場合は、入力の検証の失敗と、保存の失敗を分けておきます。入力の失敗なら入力し直し、通信の失敗ならやり直し、と利用者への案内が違うからです。失敗の扱い方は[失敗を扱う](/docs/guides/error-handling)で学べます。
 

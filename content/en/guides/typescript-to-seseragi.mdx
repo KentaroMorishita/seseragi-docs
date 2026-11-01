@@ -5,9 +5,9 @@ description: Compare calls, immutable data, Maybe, Either, Effect, and React pro
 
 This guide puts the TypeScript you write every day next to Seseragi, covering functions, data, side effects, and Web UI. Most examples give the same result, but some behave differently, such as how numbers work and when side effects run. We look at those differences too.
 
-Examples containing `main` can be saved under the file name in their heading and run with `seseragi run filename.ssrg`. See [Local development](/en/docs/learn/local-development) to set up the CLI.
+Standalone examples can be saved under the file name in their heading and run with `seseragi run filename.ssrg`. The final Web app example is built as a Web package. See [Local development](/en/docs/learn/local-development) to set up the CLI.
 
-Every TypeScript example has been type-checked with `strict` and run in Node.js to confirm its output.
+Every TypeScript example has been type-checked with `strict`. Standalone programs also run in Node.js to confirm their output; the React excerpts are type-checked only.
 
 ## Pass a number to a function
 
@@ -880,135 +880,156 @@ Reading props looks similar, but Seseragi's `badge` itself is a pure function co
 
 Note that in the current version, an `Html<Never>` component cannot be placed directly in an `Html<Action>` view. A component used in a view needs the same Action type as the view. To reuse a component across views, make its Action type a [generic](/en/docs/learn/generics) type parameter and return `Html<A>`.
 
-## Compare state updates as pure functions
+## Separate calculation from storing state
 
-A React [reducer](https://react.dev/learn/extracting-state-logic-into-a-reducer) is a function that returns the next state from the current state and an Action. Compare just this function before building a view.
+A pure function can calculate the next number in both TypeScript and Seseragi.
 
 {/* example: examples/guides/migration-typescript/update.ts#update */}
 
 ```typescript title="update.ts"
-type Action =
-  | { type: "increment" }
-  | { type: "reset" };
-
-function reducer(
-  count: number,
-  action: Action,
-): number {
-  switch (action.type) {
-    case "increment":
-      return count + 1;
-    case "reset":
-      return 0;
-  }
+function increment(count: number) {
+  return count + 1;
 }
 ```
 
-In Seseragi, too, write `update` to compute the next state. Actions are an ADT, so the compiler points out any case the `match` misses. The arguments come in the order Action, current state, the reverse of a React reducer.
-
 {/* example: examples/guides/migration-update.ssrg#update */}
 
-```seseragi title="State update declarations"
-type Action =
-  | Increment
-  | Reset
+```seseragi title="migration-update.ssrg"
+import * as signals from "std/signal"
 
-fn update action: Action
-  -> count: Int -> Int =
-  match action {
-    Increment -> count + 1
-    Reset -> 0
-  }
+fn increment count: Int -> Int =
+  count + 1
 ```
 
-In TypeScript, check it like this:
+In Seseragi, store the changing number in a [Signal](/en/docs/learn/signals). Pass `signals.update` a function that calculates the next number from the current one. Use `signals.set` to return to a fixed number.
+
+In TypeScript, assign the calculated number to a variable.
 
 {/* example: examples/guides/migration-typescript/update.ts#cases */}
 
 ```typescript title="update.ts"
-console.log(reducer(
-  0, { type: "increment" },
-));
-console.log(reducer(
-  9, { type: "reset" },
-));
+let count = increment(0);
+console.log(count);
+count = 0;
+console.log(count);
 ```
 
-In Seseragi:
+In Seseragi, create a Signal and execute updates and reads inside the `do` block of `main`. [Effects](/en/docs/learn/effects) explains `<-` and Task execution.
 
 {/* example: examples/guides/migration-update.ssrg#cases */}
 
 ```seseragi title="Excerpt inside main"
-update Increment 0
+count <- signals.make 0
+signals.update increment count
+increased <- signals.read count
+increased
 |> show
 |> println
-update Reset 9
+signals.set 0 count
+reset <- signals.read count
+reset
 |> show
 |> println
 ```
 
-Output
+Both produce:
 
 ```text
 1
 0
 ```
 
-`Increment` adds 1 to the current value, and `Reset` returns 0 whatever the value. You can run and test the update rules before connecting them to a view.
+`increment` calculates an integer from an integer. `signals.update increment count` is a Task that changes state using that function; `signals.read count` is a Task that reads the integer at execution time.
 
 ## Connect events and state to the UI
 
-In React, `useReducer` connects the reducer to the view.
+In React, [`useState`](https://react.dev/reference/react/useState) stores a number, and a click calculates the next value from the current one.
 
 {/* example: examples/guides/migration-typescript/react.tsx#events */}
 
-```tsx title="React events and state"
+```tsx title="React"
 function Counter() {
-  const [count, dispatch] =
-    useReducer(reducer, 0);
+  const [count, setCount] =
+    useState(0);
   const increment = () => {
-    dispatch({ type: "increment" });
+    setCount((n) => n + 1);
   };
   return (
     <button onClick={increment}>
-      {count}
+      Count: {count}
     </button>
   );
 }
 ```
 
-In React, the click handler calls `dispatch`. In Seseragi, `onClick` takes the Action value itself.
+In Seseragi, pass the same operation to `onClick` as a Task. Write the following four blocks in order in `src/main.ssrg` of a Web package. See [Build a Web application](/en/docs/guides/web-app) to create the package and start its development server.
+
+{/* example: examples/guides/migration-web/src/main.ssrg#imports */}
+
+```seseragi title="src/main.ssrg"
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal }
+  from "std/signal"
+```
 
 {/* example: examples/guides/migration-web/src/main.ssrg#view */}
 
-```seseragi title="View in a Web package"
-fn view count: Int
-  -> html.Html<Action> =
+```seseragi title="src/main.ssrg"
+alias Counter = MutableSignal<Int>
+alias View = html.Html<Task<Unit>>
+
+fn view count: Counter
+  -> current: Int -> View =
   html.button {
     buttonType: "button",
-    onClick: Increment,
-    children: `Count: ${count}`
+    onClick: signals.update
+      (\n: Int -> n + 1) count,
+    children: `Count: ${current}`
   }
 ```
 
-`view` only builds `Html<Action>` from the count. `onClick: Increment` means "send `Increment` when clicked". State changes are never written in `view`; they all belong to `update`.
+`Counter` names the type of a writable Signal; `View` names the type of HTML whose buttons carry `Task<Unit>`. `view` takes the update target and current value, then builds HTML. Building a Task here leaves state unchanged until a click.
 
-Finally, mount it in `main`. Import `dom` from `std/web/dom`.
+`perform` returns the Task it receives. The other two functions align DOM failures to `String` ([Handle failures](/en/docs/guides/error-handling)).
+
+{/* example: examples/guides/migration-web/src/main.ssrg#helpers */}
+
+```seseragi title="src/main.ssrg"
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+```
+
+Finally, connect state and display.
 
 {/* example: examples/guides/migration-web/src/main.ssrg#mount */}
 
-```seseragi title="Web package entry"
-pub effect fn main =
-  dom.app {
-    target: "#app",
-    initial: 0,
-    update,
-    view
-  }
+```seseragi title="src/main.ssrg"
+pub effect fn main = do {
+  count <- signals.make 0
+  let content =
+    signals.map (view count) count
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
+  |> mapError runtimeError
+}
 ```
 
-`dom.app` mounts the view on the `#app` element and starts from state 0. It passes each Action sent by a click to `update` to get the next state, then passes that to `view` to update the screen. The button starts at `Count: 0` and shows `Count: 1` after one click.
+Execute `signals.make 0` once in `main`. Use `signals.map` to make a Signal that calculates HTML from the number, then pass it to `dom.run`. On a click, `dom.run` executes the Task, and the screen follows the changed number. The button starts at `Count: 0` and shows `Count: 1` after one click.
 
-This example is a Web app that runs in the browser, so it is built as a Web package rather than run with `seseragi run`. See [Build a Web application](/en/docs/guides/web-app) for the steps.
+The Web package's HTML contains the `#app` target. Build this browser program with `seseragi build .`.
 
-`dom.app` takes care of managing state and updating the screen. [Stateful features](/en/docs/guides/stateful-features) shows how to give each part its own state, and [Forms](/en/docs/guides/forms) shows how input becomes Actions.
+[Stateful features](/en/docs/guides/stateful-features) shows how to give each part its own state, and [Forms](/en/docs/guides/forms) shows how to save input in Signals.

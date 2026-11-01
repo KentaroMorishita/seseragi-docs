@@ -60,7 +60,7 @@ The first pipeline applies `Increment` to 0 twice, giving 2; the second applies 
 
 ## Group several values into state
 
-In a form, you often want the state to hold the text being typed and a message as well as a number. Group them into a struct. To update it, create a new value such as `Model { ...model, draft: value }`; fields cannot be assigned. [Forms](/en/docs/guides/forms) has a larger example.
+In a form, you often want the state to hold the text being typed and a message as well as a number. Group them into a struct. To update it, create a new value such as `Model { ...model, draft: value }`; fields cannot be assigned. This section checks how to construct values with several fields. [Forms](/en/docs/guides/forms) instead stores input and results in separate Signals.
 
 ### Change one field at a time
 

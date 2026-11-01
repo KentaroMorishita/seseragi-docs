@@ -1,11 +1,11 @@
 ---
 title: Build a form
-description: Connect input values, Actions, and validation results in a greeting form.
+description: Store input and results in Signals to build a greeting form.
 ---
 
-Build a form that shows a greeting when you type a name and press “Greet”. Submitting it empty shows “Enter your name”. The text being typed and the validation result are grouped into one `Model`, updated by `update`.
+Build a form that shows a greeting when you type a name and press “Greet”. Submitting it empty shows “Enter your name”. Store the text being typed and the submitted result in separate [Signals](/en/docs/learn/signals).
 
-State, Actions, and `view` divide the work the same way as in [Build a Web application](/en/docs/guides/web-app).
+Connect the screen as in [Build a Web application](/en/docs/guides/web-app). [Effects](/en/docs/learn/effects) explains `Task<Unit>` and `do`; [Records and structs](/en/docs/learn/records-and-structs) explains the records used for HTML props.
 
 ## Prepare a project
 
@@ -22,45 +22,40 @@ In a project created with `seseragi new web`, replace `src/main.ssrg` with the c
 ```seseragi title="src/main.ssrg"
 import * as dom from "std/web/dom"
 import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal }
+  from "std/signal"
 
-struct Model {
-  draft: String,
-  message: String
+alias Field = MutableSignal<String>
+
+alias View = html.Html<Task<Unit>>
+
+fn greeting name: String -> String =
+  if name == "" then
+    "Enter your name"
+  else
+    `Hello, ${name}`
+
+fn edited draft: Field
+  -> reply: Field
+  -> event: html.InputEvent
+  -> Task<Unit> =
+  signals.transaction [
+    signals.planSet event.value draft,
+    signals.planSet "" reply
+  ]
+
+fn submitted draft: Field
+  -> reply: Field
+  -> Task<Unit> = do {
+  name <- signals.read draft
+  signals.set (greeting name) reply
 }
 
-type Action =
-  | Edited String
-  | Submitted
-
-alias View = html.Html<Action>
-
-fn update action: Action
-  -> model: Model -> Model =
-  match action {
-    Edited draft -> Model {
-      ...model,
-      draft,
-      message: ""
-    }
-    Submitted ->
-      if model.draft == "" then
-        Model {
-          ...model,
-          message: "Enter your name"
-        }
-      else
-        Model {
-          ...model,
-          message:
-            `Hello, ${model.draft}`
-        }
-  }
-
-fn edited event: html.InputEvent
-  -> Action =
-  Edited event.value
-
-fn view model: Model -> View =
+fn view draft: Field
+  -> reply: Field
+  -> current: String
+  -> result: String -> View =
   html.main {
     style: html.style {
       margin: "32px auto",
@@ -72,7 +67,8 @@ fn view model: Model -> View =
         children: "Greeting"
       },
       html.form {
-        onSubmit: Submitted,
+        onSubmit:
+          submitted draft reply,
         children: [
           html.label {
             htmlFor: "name",
@@ -81,8 +77,9 @@ fn view model: Model -> View =
           html.input {
             id: "name",
             name: "name",
-            value: model.draft,
-            onInput: edited
+            value: current,
+            onInput:
+              edited draft reply
           },
           html.button {
             buttonType: "submit",
@@ -92,30 +89,47 @@ fn view model: Model -> View =
       },
       html.p {
         role: "status",
-        children: model.message
+        children: result
       }
     ]
   }
 
-pub effect fn main =
-  dom.app {
-    target: "#app",
-    initial: Model {
-      draft: "",
-      message: ""
-    },
-    update,
-    view
-  }
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+
+pub effect fn main = do {
+  draft <- signals.make ""
+  reply <- signals.make ""
+  let render = view draft reply
+  let content =
+    signals.combine render draft reply
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
+  |> mapError runtimeError
+}
 ```
 
-`draft` is the text being typed, and `message` is the result to show after submitting. `Edited` clears the previous message when the input changes, and `Submitted` validates the current input.
+`Field` is an alias for `MutableSignal<String>`. `draft` stores the text being typed, and `reply` stores the submitted result. `signals.combine` passes both values to `view`, so the field and result paragraph follow changes to either Signal.
 
-## Turn an input event into an Action
+## Update Signals from input
 
-The `value` of `html.InputEvent` holds the typed text. `edited` turns that text into an `Edited` Action. The browser's `Event` object itself never goes into the state.
+The `value` of `html.InputEvent` holds the typed text. `edited draft reply` is a function that takes event data and builds an update Task. `onInput` calls that function, and `dom.run` executes the Task.
 
-`value: model.draft` shows the current value in the field, and `onInput: edited` sends an Action on every keystroke: the same shape as a controlled component in React. Matching `htmlFor: "name"` on the label with `id: "name"` on the field makes clicking the label select the field.
+`signals.planSet` plans to save the input and clear the previous result; `signals.transaction` applies both together. See [Signal updates](/en/docs/learn/signals#group-several-updates) for updating two Signals at once.
+
+`value: current` displays the current text in the field. Matching `htmlFor: "name"` on the label with `id: "name"` on the field makes clicking the label select the field.
 
 ## Submit and validate
 
@@ -124,7 +138,7 @@ seseragi lock update
 seseragi dev --open
 ```
 
-Type `Ada` and press “Greet” to see “Hello, Ada”. Submitting it empty shows “Enter your name”. A form with `onSubmit` automatically stops the page reload and sends the Action (no `preventDefault` needed). Pressing Enter in the field submits too.
+Type `Ada` and press “Greet” to see “Hello, Ada”. Submitting it empty shows “Enter your name”. A form with `onSubmit` automatically stops the page reload and sends the `submitted draft reply` Task (no `preventDefault` needed). Pressing Enter in the field submits too.
 
 This example accepts input made only of spaces as a name. To strip spaces, tidy the input before validating, as in the next section.
 
@@ -162,7 +176,7 @@ fn greeting result: Name -> String =
   }
 ```
 
-`greeting` returns a greeting with the name on success, and the hint as is on failure.
+`greeting` uses [pattern matching](/en/docs/learn/pattern-matching) to return a greeting with the name on success, and the hint as is on failure.
 
 ### Compare valid, empty, and whitespace-only input
 
@@ -191,11 +205,11 @@ Enter your name
 Enter your name
 ```
 
-`" Ada "` has its spaces removed and becomes `Ada`; `""` and `"   "` are both rejected. To use this check in the Web form, call `name model.draft` in `Submitted` and build `message` from the result.
+`" Ada "` has its spaces removed and becomes `Ada`; `""` and `"   "` are both rejected. To use this check in the Web form, replace the original `greeting` with this `Name` alias and the two functions. In `submitted`, pass the text read from the Signal through `name` and `greeting`, then save it to `reply`.
 
 ## Return validation to the interface
 
-A failed validation does not stop the app. `Submitted` puts the problem in `message` and returns it as the next state, and a paragraph with `role: "status"` displays it.
+`submitted` reads the input at submission time with `signals.read`, turns it into text with `greeting`, and saves it to `reply` with `signals.set`. Empty input saves a hint rather than failing the computation. A paragraph with `role: "status"` displays the result.
 
 If you add something like saving to a server, keep validation failures separate from saving failures. The user fixes the input for one and retries for the other, so the hints differ. [Handle failures](/en/docs/guides/error-handling) covers how to handle failures.
 
