@@ -41,7 +41,7 @@ function layoutOptions(pathname: string) {
       { text: "Playground ↗", url: "https://seseragi.vercel.app/", external: true },
       { text: en ? "日本語" : "English", url: en ? pathname.replace(/^\/en/, "") || "/" : `/en${pathname === "/" ? "" : pathname}`, active: "none" as const },
     ],
-    githubUrl: "https://github.com/KentaroMorishita/seseragi-docs",
+    githubUrl: "https://github.com/KentaroMorishita/seseragi",
   };
 }
 function Provider({ pathname, children }: { pathname: string; children: ReactNode }) {
