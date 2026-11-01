@@ -5,9 +5,9 @@ description: 呼び出しから不変データ、Maybe・Either・Effect、React
 
 TypeScriptでいつも書いているコードと並べながら、Seseragiの関数・データ・副作用・Web UIの書き方を見ていきます。同じ結果になる例がほとんどですが、数値の扱いや副作用が実行されるタイミングのように、振る舞いが違うところもあります。そうした違いも一緒に確かめます。
 
-`main`を含む例は、見出しのファイル名で保存して`seseragi run ファイル名.ssrg`で実行できます。CLIの準備は[ローカルで使う](/docs/learn/local-development)を見てください。
+単独ファイルの例は、見出しのファイル名で保存して`seseragi run ファイル名.ssrg`で実行できます。最後のWebアプリの例は、Web用packageとしてビルドします。CLIの準備は[ローカルで使う](/docs/learn/local-development)を見てください。
 
-TypeScriptの例は、すべて`strict`で型チェックし、Node.jsで実行して出力を確かめています。
+TypeScriptの例は、すべて`strict`で型チェックしています。通常のプログラムはNode.jsで実行して出力を確かめ、Reactの抜粋は型チェックだけを行っています。
 
 ## 数値を関数へ渡す
 
@@ -880,135 +880,156 @@ propsを読む点は似ていますが、Seseragiの`badge`自体はHTMLの値�
 
 なお、今のバージョンでは`Html<Never>`の部品を`Html<Action>`の画面にそのまま入れることはできません。画面に組み込む部品は、画面と同じAction型にそろえます。いろいろな画面で使い回したい部品は、Action型を[ジェネリクス](/docs/learn/generics)の型引数にして、`Html<A>`を返すようにします。
 
-## 状態の更新を純粋な関数として比べる
+## 値の計算と状態の保存を分ける
 
-Reactの[reducer](https://react.dev/learn/extracting-state-logic-into-a-reducer)は、今の状態とActionから次の状態を返す関数です。画面を作る前に、この関数だけを比べてみます。
+次の数を計算するだけなら、TypeScriptでもSeseragiでも純粋な関数で書けます。
 
 {/* example: examples/guides/migration-typescript/update.ts#update */}
 
 ```typescript title="update.ts"
-type Action =
-  | { type: "increment" }
-  | { type: "reset" };
-
-function reducer(
-  count: number,
-  action: Action,
-): number {
-  switch (action.type) {
-    case "increment":
-      return count + 1;
-    case "reset":
-      return 0;
-  }
+function increment(count: number) {
+  return count + 1;
 }
 ```
 
-Seseragiでも、次の状態を計算する`update`を作ります。ActionはADTで表すので、`match`で扱い漏れがあればコンパイラーが教えてくれます。引数の順番はAction、今の状態の順で、Reactのreducerとは逆なので注意してください。
-
 {/* example: examples/guides/migration-update.ssrg#update */}
 
-```seseragi title="状態を更新する宣言"
-type Action =
-  | Increment
-  | Reset
+```seseragi title="migration-update.ssrg"
+import * as signals from "std/signal"
 
-fn update action: Action
-  -> count: Int -> Int =
-  match action {
-    Increment -> count + 1
-    Reset -> 0
-  }
+fn increment count: Int -> Int =
+  count + 1
 ```
 
-TypeScriptでは、次のように確かめられます。
+Seseragiでは、変化する数の保存に[Signal](/docs/learn/signals)を使います。`signals.update`には、今の数から次の数を計算する関数を渡します。決まった数へ戻すときは`signals.set`を使います。
+
+TypeScriptでは、計算した数を変数へ代入します。
 
 {/* example: examples/guides/migration-typescript/update.ts#cases */}
 
 ```typescript title="update.ts"
-console.log(reducer(
-  0, { type: "increment" },
-));
-console.log(reducer(
-  9, { type: "reset" },
-));
+let count = increment(0);
+console.log(count);
+count = 0;
+console.log(count);
 ```
 
-Seseragiでは次のとおりです。
+Seseragiでは、`main`の`do`の中でSignalを作り、更新と読み取りを実行します。`<-`とTaskの実行は[Effect](/docs/learn/effects)で説明しています。
 
 {/* example: examples/guides/migration-update.ssrg#cases */}
 
 ```seseragi title="main内の抜粋"
-update Increment 0
+count <- signals.make 0
+signals.update increment count
+increased <- signals.read count
+increased
 |> show
 |> println
-update Reset 9
+signals.set 0 count
+reset <- signals.read count
+reset
 |> show
 |> println
 ```
 
-出力
+どちらも出力は次のとおりです。
 
 ```text
 1
 0
 ```
 
-`Increment`は今の値に1を足し、`Reset`は今の値に関係なく0を返します。画面とつなぐ前に、更新の決まりだけを実行したりテストしたりできます。
+`increment`は整数から整数を計算する関数です。`signals.update increment count`はその関数を使って状態を変えるTaskで、`signals.read count`は実行時点の整数を読むTaskです。
 
 ## イベントと状態を画面へ接続する
 
-Reactでは、`useReducer`でreducerを画面につなぎます。
+Reactでは、[`useState`](https://react.dev/reference/react/useState)で数を保存し、クリック時に現在値から次の値を計算します。
 
 {/* example: examples/guides/migration-typescript/react.tsx#events */}
 
-```tsx title="Reactのイベントと状態"
+```tsx title="React"
 function Counter() {
-  const [count, dispatch] =
-    useReducer(reducer, 0);
+  const [count, setCount] =
+    useState(0);
   const increment = () => {
-    dispatch({ type: "increment" });
+    setCount((n) => n + 1);
   };
   return (
     <button onClick={increment}>
-      {count}
+      Count: {count}
     </button>
   );
 }
 ```
 
-Reactでは、クリックされたときの関数の中で`dispatch`を呼びます。Seseragiでは、`onClick`にActionの値そのものを渡します。
+Seseragiでは、同じ操作をTaskとして`onClick`へ渡します。次の四つのコードを順に、Web用packageの`src/main.ssrg`へ書いてください。packageの作り方と開発サーバーの起動手順は[Webアプリを作る](/docs/guides/web-app)にあります。
+
+{/* example: examples/guides/migration-web/src/main.ssrg#imports */}
+
+```seseragi title="src/main.ssrg"
+import * as dom from "std/web/dom"
+import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal }
+  from "std/signal"
+```
 
 {/* example: examples/guides/migration-web/src/main.ssrg#view */}
 
-```seseragi title="Web用packageの表示関数"
-fn view count: Int
-  -> html.Html<Action> =
+```seseragi title="src/main.ssrg"
+alias Counter = MutableSignal<Int>
+alias View = html.Html<Task<Unit>>
+
+fn view count: Counter
+  -> current: Int -> View =
   html.button {
     buttonType: "button",
-    onClick: Increment,
-    children: `Count: ${count}`
+    onClick: signals.update
+      (\n: Int -> n + 1) count,
+    children: `Count: ${current}`
   }
 ```
 
-`view`は、カウントから`Html<Action>`を作るだけの関数です。`onClick: Increment`は「クリックされたら`Increment`を送る」という意味です。状態を書き換える処理は`view`には書かず、すべて`update`に任せます。
+`Counter`は更新できるSignalの型、`View`はボタンに`Task<Unit>`を持つHTMLの型に付けた別名です。`view`は更新先と現在値を受け取り、HTMLを作ります。ここでTaskを作っても、クリックされるまでは状態は変わりません。
 
-最後に、`main`で画面に取り付けます。`dom`は`std/web/dom`からimportします。
+`perform`は受け取ったTaskをそのまま返します。残りの二つの関数は、DOMの失敗を`String`に揃えます（[失敗を扱う](/docs/guides/error-handling)）。
+
+{/* example: examples/guides/migration-web/src/main.ssrg#helpers */}
+
+```seseragi title="src/main.ssrg"
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+```
+
+最後に状態と表示を接続します。
 
 {/* example: examples/guides/migration-web/src/main.ssrg#mount */}
 
-```seseragi title="Web用packageの入口"
-pub effect fn main =
-  dom.app {
-    target: "#app",
-    initial: 0,
-    update,
-    view
-  }
+```seseragi title="src/main.ssrg"
+pub effect fn main = do {
+  count <- signals.make 0
+  let content =
+    signals.map (view count) count
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
+  |> mapError runtimeError
+}
 ```
 
-`dom.app`は、`#app`の要素に画面を取り付け、状態0から始めます。クリックで送られたActionを`update`に渡して次の状態を作り、それを`view`に渡して画面を更新します。ボタンは最初`Count: 0`で、一回クリックすると`Count: 1`になります。
+`signals.make 0`は`main`で一回だけ実行します。`signals.map`で数からHTMLを計算するSignalを作り、`dom.run`に渡します。クリックされると`dom.run`がTaskを実行し、数の変化に画面が追従します。最初は`Count: 0`、一回押すと`Count: 1`です。
 
-この例はブラウザで動かすWebアプリなので、`seseragi run`ではなくWeb用のパッケージとしてビルドします。手順は[Webアプリを作る](/docs/guides/web-app)を見てください。
+表示先の`#app`はWeb用packageのHTMLにあります。このプログラムはブラウザー向けに`seseragi build .`でビルドします。
 
-`dom.app`は、状態の管理と画面の更新をまとめて引き受けます。部品ごとに状態を持たせる方法は[状態を持つ機能](/docs/guides/stateful-features)、入力をActionに変える例は[フォーム](/docs/guides/forms)で扱います。
+部品ごとに状態を持たせる方法は[状態を持つ機能](/docs/guides/stateful-features)、入力をSignalへ保存する例は[フォーム](/docs/guides/forms)で扱います。

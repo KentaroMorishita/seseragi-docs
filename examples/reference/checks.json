@@ -168,5 +168,10 @@
     "file": "examples/reference/invalid/nested-array-do.ssrg",
     "mode": "diagnostic",
     "code": "SES-T0101"
+  },
+  {
+    "file": "examples/reference/optional-patterns.ssrg",
+    "mode": "run",
+    "stdout": "Nothing\nJust intro\nmissing\nintro\n"
   }
 ]

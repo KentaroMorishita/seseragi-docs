@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useState } from "react";
 
 // docs:start badge
 type BadgeProps = { label: string };
@@ -8,32 +8,16 @@ function Badge(props: BadgeProps) {
 }
 // docs:end badge
 
-type Action =
-  | { type: "increment" }
-  | { type: "reset" };
-
-function reducer(
-  count: number,
-  action: Action,
-): number {
-  switch (action.type) {
-    case "increment":
-      return count + 1;
-    case "reset":
-      return 0;
-  }
-}
-
 // docs:start events
 function Counter() {
-  const [count, dispatch] =
-    useReducer(reducer, 0);
+  const [count, setCount] =
+    useState(0);
   const increment = () => {
-    dispatch({ type: "increment" });
+    setCount((n) => n + 1);
   };
   return (
     <button onClick={increment}>
-      {count}
+      Count: {count}
     </button>
   );
 }

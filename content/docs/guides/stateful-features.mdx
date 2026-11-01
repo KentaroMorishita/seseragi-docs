@@ -5,7 +5,7 @@ description: privateなSignalを作り、読み取り専用の画面を親へ返
 
 「Today」と「Tomorrow」の二つのカウンターを並べ、片方を押してももう片方は変わらないようにします。カウンターのモジュールが自分の状態を持ち、親には画面（`Signal<Html<Task<Unit>>>`）だけを返します。親は子の状態に触れません。
 
-「学ぶ」の[Effect](/docs/learn/effects)、[Signal](/docs/learn/signals)、[モジュール](/docs/learn/modules)の内容を使います。状態には[struct](/docs/learn/records-and-structs)、ボタンの処理には[関数](/docs/learn/functions)のラムダ、括弧を減らすのに[関数適用演算子](/docs/learn/application-operator)の`$`を使います。`Task<Unit>`は`Effect<{}, Never, Unit>`の別名で、何も必要とせず失敗もしないEffectです。ボタンは、このTaskをクリック時のActionとして持ちます。
+「学ぶ」の[Effect](/docs/learn/effects)、[Signal](/docs/learn/signals)、[モジュール](/docs/learn/modules)の内容を使います。ボタンの処理には[関数](/docs/learn/functions)のラムダ、HTMLのpropsには[レコード](/docs/learn/records-and-structs)を使います。`Task<Unit>`は`Effect<{}, Never, Unit>`の別名で、何も必要とせず失敗もしないEffectです。ボタンは、このTaskをクリック時に実行する処理として持ちます。
 
 ## プロジェクトを準備する
 
@@ -25,37 +25,30 @@ import * as signals from "std/signal"
 import { MutableSignal, Signal }
   from "std/signal"
 
-struct Count { count: Int }
-
+alias Counter = MutableSignal<Int>
 alias View = html.Html<Task<Unit>>
 
 fn view title: String
-  -> state: MutableSignal<Count>
-  -> current: Count
-  -> View =
+  -> state: Counter
+  -> current: Int -> View =
   html.section {
     children: [
-      html.h2<Task<Unit>, String> {
-        children: title
-      },
-      html.p<Task<Unit>, String> {
-        children: show current.count
+      html.h2 { children: title },
+      html.p {
+        children: show current
       },
       html.button {
         buttonType: "button",
         children: "Add one",
         onClick: signals.update
-          (\n: Count -> Count {
-            count: n.count + 1
-          }) state
+          (\n: Int -> n + 1) state
       }
     ]
   }
 
 pub effect fn create title: String
   -> Signal<View> = do {
-  state <-
-    signals.make $ Count { count: 0 }
+  state <- signals.make 0
   state
   |> signals.map (view title state)
   |> succeed
@@ -64,7 +57,7 @@ pub effect fn create title: String
 
 `create`はEffectで、実行すると`signals.make`で状態を一つ作り、その状態から作った画面のSignalを返します。
 
-書き換えられる`MutableSignal`はモジュールの中に閉じ込め、親には読み取り専用の`Signal`だけを返します。ボタンには「状態を更新するTask」をActionとして渡しているので、子がどんなActionを持つかを親が知る必要はありません。
+書き換えられる`MutableSignal`はモジュールの中に閉じ込め、親には読み取り専用の`Signal`だけを返します。ボタンには状態を更新するTaskを渡しています。親は子の更新方法を知らなくても、そのTaskを実行できます。
 
 ## 親が画面を組み合わせる
 
@@ -77,8 +70,8 @@ import { create } from "./counter"
 
 alias View = html.Html<Task<Unit>>
 
-fn layout first: View -> second: View
-  -> View =
+fn page first: View
+  -> second: View -> View =
   html.main {
     style: html.style {
       margin: "32px auto",
@@ -104,21 +97,17 @@ pub effect fn main = do {
   first <- create "Today"
   second <- create "Tomorrow"
   let content =
-    signals.combine layout first $
-      second
+    signals.combine page first second
   target <-
     dom.query "#app"
     |> mapError queryError
-  let options = dom.defaultOptions ()
-  (
-    dom.run options target perform $
-      content
-  )
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
   |> mapError runtimeError
 }
 ```
 
-`create "Today"`と`create "Tomorrow"`はそれぞれ実行され、別々の状態を作ります。`signals.combine`で二つの画面を`layout`に渡し、一つの画面にまとめます。
+`create "Today"`と`create "Tomorrow"`はそれぞれ実行され、別々の状態を作ります。`signals.combine`で二つの画面を`page`に渡し、一つの画面にまとめます。
 
 `perform`は、子が用意したTaskをそのまま返すだけの関数です。クリックされると、`dom.run`がそのTaskを実行します。
 
@@ -209,6 +198,6 @@ Same: 2
 
 ## 終了とリソースの扱いを分ける
 
-`dom.run`は、画面の更新に使う購読とイベントリスナーを自分で管理し、終了するときに解除します。`dom.run`自身の失敗は、`mapError`で`String`に変換しています。
+`dom.run`は、画面の更新に使う購読とイベントリスナーを自分で管理し、終了するときに解除します。`dom.run`自身の失敗は、`mapError`で`String`に変換しています。失敗の型を揃える方法は[失敗を扱う](/docs/guides/error-handling)で説明しています。
 
 子が自分で購読やタイマー、通信などを持つ場合は、その後始末をEffectのスコープや`DomMount`に結び付けます。画面から消えただけで自動的に片付くわけではありません。細かい決まりは[Signalリファレンス](/docs/reference/signals)と[Web UIリファレンス](/docs/reference/web-ui)にあります。

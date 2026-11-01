@@ -101,7 +101,7 @@ pub effect fn main = do {
 
 変化を受け取り続けたいときは、`subscribe`で購読します。購読を始めると、まず今の値が一度通知され、そのあと更新のたびに通知されます。要らなくなったら、`subscribe`が返した`Subscription`を`unsubscribe`に渡して解除します。計算したSignalを作ったり、一度読んだりするだけでは、購読は始まりません。
 
-同じ値で更新した場合も、通知は届きます。値が変わったときだけ通知してほしい場合は`distinct`を使います。購読の細かい決まりは[Signalリファレンス](/docs/reference/signals)、画面とのつなぎ方は[状態とアクション](/docs/guides/state-and-actions)のガイドにあります。
+同じ値で更新した場合も、通知は届きます。値が変わったときだけ通知してほしい場合は`distinct`を使います。購読の細かい決まりは[Signalリファレンス](/docs/reference/signals)、画面とのつなぎ方は[Webアプリを作る](/docs/guides/web-app)のガイドにあります。
 
 ### 購読と解除を試す
 

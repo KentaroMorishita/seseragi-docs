@@ -4,7 +4,7 @@
     "jaNote": "この版のAPI catalogは、結果の環境型から元のRを省略しています。ここでは仕様とruntimeに従ってRを補っています。実行には元の環境RとClockが必要です。要求するserviceがあれば、そのproviderも引き続き必要です。",
     "enNote": "This release's API catalog omits the source environment R from the result. This signature restores R according to the specification and runtime. Execution still requires R together with Clock; any required service providers must still be supplied.",
     "source": "docs/spec/10-library-surface.md:1783; runtime/ts/src/effect.ts:1261; catalog omission: crates/seseragi-project/src/standard.rs:2568",
-    "languageVersion": "0.61.125",
+    "languageVersion": "0.61.136",
     "catalogSignature": "timeout<R, E, A> arg1: Duration -> arg2: Effect<R, E, A> -> Effect<{ clock: Clock }, E, Maybe<A>>"
   },
   "std/effect::timeoutFail": {
@@ -12,7 +12,7 @@
     "jaNote": "この版のAPI catalogは、結果の環境型から元のRを省略しています。ここでは仕様とruntimeに従ってRを補っています。実行には元の環境RとClockが必要です。要求するserviceがあれば、そのproviderも引き続き必要です。",
     "enNote": "This release's API catalog omits the source environment R from the result. This signature restores R according to the specification and runtime. Execution still requires R together with Clock; any required service providers must still be supplied.",
     "source": "docs/spec/10-library-surface.md:1787; runtime/ts/src/effect.ts:1273; catalog omission: crates/seseragi-project/src/standard.rs:2568",
-    "languageVersion": "0.61.125",
+    "languageVersion": "0.61.136",
     "catalogSignature": "timeoutFail<R, E, A> arg1: E -> arg2: Duration -> arg3: Effect<R, E, A> -> Effect<{ clock: Clock }, E, A>"
   },
   "std/effect::retry": {
@@ -20,7 +20,7 @@
     "jaNote": "この版のAPI catalogは、結果の環境型から元のRを省略しています。ここでは仕様とruntimeに従ってRを補っています。実行には元の環境RとClockが必要です。要求するserviceがあれば、そのproviderも引き続き必要です。",
     "enNote": "This release's API catalog omits the source environment R from the result. This signature restores R according to the specification and runtime. Execution still requires R together with Clock; any required service providers must still be supplied.",
     "source": "docs/spec/10-library-surface.md:1818; runtime/ts/src/effect.ts:1216; catalog omission: crates/seseragi-project/src/standard.rs:2568",
-    "languageVersion": "0.61.125",
+    "languageVersion": "0.61.136",
     "catalogSignature": "retry<R, E, A> arg1: Schedule<E> -> arg2: Effect<R, E, A> -> Effect<{ clock: Clock }, E, A>"
   },
   "std/effect::repeat": {
@@ -28,7 +28,7 @@
     "jaNote": "この版のAPI catalogは、結果の環境型から元のRを省略しています。ここでは仕様とruntimeに従ってRを補っています。実行には元の環境RとClockが必要です。要求するserviceがあれば、そのproviderも引き続き必要です。",
     "enNote": "This release's API catalog omits the source environment R from the result. This signature restores R according to the specification and runtime. Execution still requires R together with Clock; any required service providers must still be supplied.",
     "source": "docs/spec/10-library-surface.md:1822; runtime/ts/src/effect.ts:1241; catalog omission: crates/seseragi-project/src/standard.rs:2568",
-    "languageVersion": "0.61.125",
+    "languageVersion": "0.61.136",
     "catalogSignature": "repeat<R, E, A> arg1: Schedule<A> -> arg2: Effect<R, E, A> -> Effect<{ clock: Clock }, E, A>"
   }
 }

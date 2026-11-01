@@ -1,33 +1,49 @@
+// docs:start imports
 import * as dom from "std/web/dom"
 import * as html from "std/web/html"
-
-type Action =
-  | Increment
-  | Reset
-
-fn update action: Action
-  -> count: Int -> Int =
-  match action {
-    Increment -> count + 1
-    Reset -> 0
-  }
+import * as signals from "std/signal"
+import { MutableSignal }
+  from "std/signal"
+// docs:end imports
 
 // docs:start view
-fn view count: Int
-  -> html.Html<Action> =
+alias Counter = MutableSignal<Int>
+alias View = html.Html<Task<Unit>>
+
+fn view count: Counter
+  -> current: Int -> View =
   html.button {
     buttonType: "button",
-    onClick: Increment,
-    children: `Count: ${count}`
+    onClick: signals.update
+      (\n: Int -> n + 1) count,
+    children: `Count: ${current}`
   }
 // docs:end view
 
+// docs:start helpers
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+// docs:end helpers
+
 // docs:start mount
-pub effect fn main =
-  dom.app {
-    target: "#app",
-    initial: 0,
-    update,
-    view
-  }
+pub effect fn main = do {
+  count <- signals.make 0
+  let content =
+    signals.map (view count) count
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
+  |> mapError runtimeError
+}
 // docs:end mount

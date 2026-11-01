@@ -1,44 +1,39 @@
 import * as dom from "std/web/dom"
 import * as html from "std/web/html"
+import * as signals from "std/signal"
+import { MutableSignal }
+  from "std/signal"
 
-struct Model {
-  draft: String,
-  message: String
+alias Field = MutableSignal<String>
+
+alias View = html.Html<Task<Unit>>
+
+fn greeting name: String -> String =
+  if name == "" then
+    "Enter your name"
+  else
+    `Hello, ${name}`
+
+fn edited draft: Field
+  -> reply: Field
+  -> event: html.InputEvent
+  -> Task<Unit> =
+  signals.transaction [
+    signals.planSet event.value draft,
+    signals.planSet "" reply
+  ]
+
+fn submitted draft: Field
+  -> reply: Field
+  -> Task<Unit> = do {
+  name <- signals.read draft
+  signals.set (greeting name) reply
 }
 
-type Action =
-  | Edited String
-  | Submitted
-
-alias View = html.Html<Action>
-
-fn update action: Action
-  -> model: Model -> Model =
-  match action {
-    Edited draft -> Model {
-      ...model,
-      draft,
-      message: ""
-    }
-    Submitted ->
-      if model.draft == "" then
-        Model {
-          ...model,
-          message: "Enter your name"
-        }
-      else
-        Model {
-          ...model,
-          message:
-            `Hello, ${model.draft}`
-        }
-  }
-
-fn edited event: html.InputEvent
-  -> Action =
-  Edited event.value
-
-fn view model: Model -> View =
+fn view draft: Field
+  -> reply: Field
+  -> current: String
+  -> result: String -> View =
   html.main {
     style: html.style {
       margin: "32px auto",
@@ -50,7 +45,8 @@ fn view model: Model -> View =
         children: "Greeting"
       },
       html.form {
-        onSubmit: Submitted,
+        onSubmit:
+          submitted draft reply,
         children: [
           html.label {
             htmlFor: "name",
@@ -59,8 +55,9 @@ fn view model: Model -> View =
           html.input {
             id: "name",
             name: "name",
-            value: model.draft,
-            onInput: edited
+            value: current,
+            onInput:
+              edited draft reply
           },
           html.button {
             buttonType: "submit",
@@ -70,18 +67,33 @@ fn view model: Model -> View =
       },
       html.p {
         role: "status",
-        children: model.message
+        children: result
       }
     ]
   }
 
-pub effect fn main =
-  dom.app {
-    target: "#app",
-    initial: Model {
-      draft: "",
-      message: ""
-    },
-    update,
-    view
-  }
+fn perform action: Task<Unit>
+  -> Task<Unit> = action
+
+fn queryError error: dom.DomError
+  -> String = show error
+
+alias DomFailure =
+  dom.DomRuntimeError<Never>
+
+fn runtimeError error: DomFailure
+  -> String = show error
+
+pub effect fn main = do {
+  draft <- signals.make ""
+  reply <- signals.make ""
+  let render = view draft reply
+  let content =
+    signals.combine render draft reply
+  target <-
+    dom.query "#app"
+    |> mapError queryError
+  let opts = dom.defaultOptions ()
+  dom.run opts target perform content
+  |> mapError runtimeError
+}

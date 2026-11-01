@@ -143,7 +143,55 @@ pub effect fn main = do {
 
 Record patterns ignore unspecified fields. Struct patterns also ignore unspecified fields, while respecting nominal identity and visibility. There is no spread inside a pattern.
 
-Use `{ id? }` or `{ id?: pattern }` for an optional field (the current compiler does not support these yet and reports `SES-T0101`; until then, read the field and `match` on the resulting `Maybe`). `id?` binds presence as `Maybe<A>`; `id?: Just value` matches only when present. Querying a required field always produces `Just`. A regular `{ id }` pattern cannot extract an optional field.
+Use `{ id? }` or `{ id?: pattern }` for an optional field. `id?` binds presence as `Maybe<A>`; `id?: Just value` matches only when present. Querying a required field always produces `Just`. A regular `{ id }` pattern cannot extract an optional field.
+
+Save the following two blocks in order in `optional-patterns.ssrg` to compare an omitted field with a present one.
+
+{/* example: examples/reference/optional-patterns.ssrg#declarations */}
+```seseragi title="optional-patterns.ssrg"
+alias Entry = { id?: String }
+
+fn presence entry: Entry
+  -> Maybe<String> = {
+  let { id? } = entry
+  id
+}
+
+fn label entry: Entry -> String =
+  match entry {
+    { id?: Just value } -> value
+    { id?: Nothing } -> "missing"
+  }
+```
+
+The `{ id? }` in `presence` matches even when the field is omitted. `label` handles `Just` and `Nothing` separately.
+
+{/* example: examples/reference/optional-patterns.ssrg#cases */}
+```seseragi title="optional-patterns.ssrg"
+pub effect fn main = do {
+  let absent: Entry = {}
+  let present: Entry = { id: "intro" }
+  presence absent
+  |> show
+  |> println
+  presence present
+  |> show
+  |> println
+  println (label absent)
+  println (label present)
+}
+```
+
+```sh
+seseragi run optional-patterns.ssrg
+```
+
+```text
+Nothing
+Just intro
+missing
+intro
+```
 
 ## Scope and cost
 
