@@ -7,7 +7,23 @@ description: CLIを導入してコードを実行し、Webアプリの開発と�
 
 ## CLIとBunを導入する
 
-[CLIのダウンロード](https://github.com/KentaroMorishita/seseragi/releases)ページから、使っているOSとCPUに合うアーカイブをダウンロードします。展開して出てくる`seseragi`を、PATHの通ったディレクトリに置いてください。エディター用のLSPも同じアーカイブに入っています。
+macOSとLinuxでは、次のコマンドでCLIを入れます。
+
+```sh
+curl -fsSL https://github.com/KentaroMorishita/seseragi/releases/latest/download/install.sh | sh
+```
+
+Windowsでは、PowerShellで次のコマンドを実行します。
+
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/KentaroMorishita/seseragi/releases/latest/download/install.ps1 | iex"
+```
+
+CLIとエディター用のLSPは`~/.seseragi/bin`に入ります。スクリプトはダウンロードしたファイルのチェックサムを確かめ、合わないときはインストールしません。macOSとLinuxでは、`~/.seseragi/bin`がPATHに入っていなければ、追加する方法を表示します。Windowsでは、PATHに自動で追加します。新しいターミナルを開いてから使ってください。
+
+新しい版があるかは`seseragi upgrade --check`で確かめられます。`seseragi upgrade`を実行すると、新しい版を同じスクリプトで入れ直します。インストールのコマンドをもう一度実行しても更新できます。
+
+スクリプトを使わずに入れたいときは、[GitHub Releases](https://github.com/KentaroMorishita/seseragi/releases)から、OSとCPUに合うアーカイブをダウンロードして展開し、`seseragi`をPATHの通ったディレクトリに置きます。
 
 Bunは[公式のインストール手順](https://bun.sh/docs/installation)に従って入れてください。配布されているCLIを使うなら、Rustは要りません。
 
