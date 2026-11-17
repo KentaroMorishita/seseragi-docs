@@ -84,7 +84,7 @@ let nested =
   |> map positive
 ```
 
-`nested` has type `Maybe<Maybe<Int>>` and prints as `Just Just 2`. When the next step also returns `Maybe`, use `flatMap` instead of `map`:
+`nested` has type `Maybe<Maybe<Int>>` and prints as `Just (Just 2)`. When the next step also returns `Maybe`, use `flatMap` instead of `map`:
 
 {/* example: examples/learn/focused/maybe-flatmap.ssrg#chained */}
 ```seseragi title="Binding in main"

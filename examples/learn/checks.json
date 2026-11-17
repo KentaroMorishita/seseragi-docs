@@ -198,7 +198,7 @@
   {
     "file": "examples/learn/focused/maybe-flatmap.ssrg",
     "mode": "run",
-    "stdout": "Just Just 2\nJust 2\nNothing\n"
+    "stdout": "Just (Just 2)\nJust 2\nNothing\n"
   },
   {
     "file": "examples/learn/focused/either-map.ssrg",

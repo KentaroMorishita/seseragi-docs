@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "languageVersion": "0.61.136",
-  "languageCommit": "09de5b327a1f542c539f6b3f4d91f627217bedb1",
-  "catalogArtifactVersion": "0.61.136",
+  "languageVersion": "0.61.171",
+  "languageCommit": "cde80ea08c4664f7a407f53273700b01a9ee30fe",
+  "catalogArtifactVersion": "0.61.171",
   "sourceHashes": {
-    "registry": "548a97e1763957e647c2fa4e769d027a76a72f4d797a167cba1c0ed4d8571655",
-    "wasm": "3aa311a70ea234cf2c925ea4d2a5de2b5ff5ed118cfdfac363bb80b3eaa1c7e0"
+    "registry": "774469e4151423528d312fd3227199f35b9664e7adf7e64c2300ac3abb0a6c8e",
+    "wasm": "5d5b6bc264245df3f4573a1b11d6fb9b64e2a636c2421bcecc72a9ee07b8e338"
   },
   "modules": [
     {
@@ -3609,7 +3609,7 @@
       "module": "std/effect",
       "category": "Effect",
       "kind": "effect-function",
-      "signature": "repeat<R, E, A> arg1: Schedule<A> -> arg2: Effect<R, E, A> -> Effect<{ clock: Clock }, E, A>",
+      "signature": "repeat<R, E, A> arg1: Schedule<A> -> arg2: Effect<R, E, A> -> Effect<R & { clock: Clock }, E, A>",
       "description": "Repeats successes according to a Schedule and Clock.",
       "typeParameters": [
         "R",
@@ -3624,7 +3624,7 @@
       "module": "std/effect",
       "category": "Effect",
       "kind": "effect-function",
-      "signature": "retry<R, E, A> arg1: Schedule<E> -> arg2: Effect<R, E, A> -> Effect<{ clock: Clock }, E, A>",
+      "signature": "retry<R, E, A> arg1: Schedule<E> -> arg2: Effect<R, E, A> -> Effect<R & { clock: Clock }, E, A>",
       "description": "Retries typed failures according to a Schedule and Clock.",
       "typeParameters": [
         "R",
@@ -3720,7 +3720,7 @@
       "module": "std/effect",
       "category": "Effect",
       "kind": "effect-function",
-      "signature": "timeout<R, E, A> arg1: Duration -> arg2: Effect<R, E, A> -> Effect<{ clock: Clock }, E, Maybe<A>>",
+      "signature": "timeout<R, E, A> arg1: Duration -> arg2: Effect<R, E, A> -> Effect<R & { clock: Clock }, E, Maybe<A>>",
       "description": "Applies a Clock-backed timeout and returns Maybe on expiry.",
       "typeParameters": [
         "R",
@@ -3735,7 +3735,7 @@
       "module": "std/effect",
       "category": "Effect",
       "kind": "effect-function",
-      "signature": "timeoutFail<R, E, A> arg1: E -> arg2: Duration -> arg3: Effect<R, E, A> -> Effect<{ clock: Clock }, E, A>",
+      "signature": "timeoutFail<R, E, A> arg1: E -> arg2: Duration -> arg3: Effect<R, E, A> -> Effect<R & { clock: Clock }, E, A>",
       "description": "Applies a Clock-backed timeout with an explicit typed failure on expiry.",
       "typeParameters": [
         "R",
@@ -12121,6 +12121,21 @@
       "signature": "choose<A> arg1: NonEmptyList<A> -> Effect<{ random: Random }, Never, A>",
       "description": "Compiler-owned standard library symbol.",
       "typeParameters": [
+        "A"
+      ],
+      "constraints": []
+    },
+    {
+      "identity": "std/stream::chunk",
+      "name": "chunk",
+      "module": "std/stream",
+      "category": "Prelude",
+      "kind": "function",
+      "signature": "chunk<R, E, A> arg1: Int -> arg2: Stream<R, E, A> -> Either<SizeError, Stream<R, E, Array<A>>>",
+      "description": "Compiler-owned standard library symbol.",
+      "typeParameters": [
+        "R",
+        "E",
         "A"
       ],
       "constraints": []
