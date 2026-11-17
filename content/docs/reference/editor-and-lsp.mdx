@@ -1,0 +1,44 @@
+---
+title: "エディターとLSP"
+description: "seseragi-lspの支援機能、VS Code拡張のコマンド、設定項目を確認する。"
+---
+
+配布されているCLIアーカイブとVS Code拡張（VSIX）には、Seseragiの言語サーバー`seseragi-lsp`が含まれています。このページでは、言語サーバーが提供する支援機能と、VS Code拡張のコマンド・設定項目を説明します。導入手順は[ローカルで使う](/docs/learn/local-development)にあります。
+
+## 言語サーバー（LSP）の支援機能
+
+| 分類 | 機能 |
+| --- | --- |
+| 診断と修正 | 構文・型エラー、lint、未解決の名前やexportの候補、修正提案（クイックフィックス）、native/WASMで未対応な機能の警告 |
+| 型の表示 | ホバー表示、シグネチャヘルプ（空白・`(`・`,`で起動）、インレイヒント |
+| 移動と検索 | 定義へ移動、型定義へ移動、実装へ移動（traitからinstanceへ、または呼び出し先のinstanceメソッドへ）、参照の検索、ドキュメント/ワークスペースシンボル |
+| 編集支援 | 入力補完（`.`で起動）、名前の変更、ドキュメントハイライト、折りたたみ、選択範囲の拡大、コード整形（全体・選択範囲）、セマンティックトークン |
+
+インレイヒントでは、型注釈を書いていない`let`・ラムダ引数・`do`束縛の推論型と、`with`や`fails`を省略した`effect fn`の推論結果が、ホバーと同じ表記で表示されます。折りたたみと選択範囲の拡大は、ファイルにエラーがある状態でも動作します。
+
+## VS Code拡張のコマンド
+
+VS Codeのコマンドパレットから、次の操作を実行できます。`Seseragi: Run Project`は`.ssrg`ファイルのタイトルバーにある実行ボタンからも呼べます。
+
+| コマンド | 用途 |
+| --- | --- |
+| `Seseragi: Run Project` | 現在のプロジェクトを実行する |
+| `Seseragi: Build Web App` | Webアプリをビルドする |
+| `Seseragi: Start Development Server` | Web開発サーバーを起動する |
+| `Seseragi: Stop Development Server` | 起動中の開発サーバーを止める |
+| `Seseragi: Open in Browser` | 開発サーバーのURLをブラウザーで開く |
+| `Seseragi: Show Project Output` | プロジェクト実行・ビルドの出力パネルを開く |
+| `Seseragi: Restart Language Server` | 言語サーバーを再起動する |
+| `Seseragi: Show Language Server Output` | 言語サーバーのログ出力パネルを開く |
+| `Seseragi: Migrate Legacy Settings` | 旧バージョンの拡張設定を移行する |
+
+## VS Code拡張の設定項目
+
+| 設定キー | 既定値 | 説明 |
+| --- | --- | --- |
+| `seseragi.inlayHints.bindingTypes` | `true` | 型注釈のない`let`・ラムダ引数・`do`束縛に推論型を表示する |
+| `seseragi.inlayHints.effectRows` | `true` | `with`や`fails`を省略した`effect fn`に推論結果を表示する |
+| `seseragi.languageServer.path` | `""` | 拡張に同梱されたものではなく、別の`seseragi-lsp`実行ファイルを使う場合にパスを指定する |
+| `seseragi.cli.path` | `""` | `PATH`上以外の`seseragi` CLIを使う場合にパスを指定する |
+
+`[seseragi]`の既定フォーマッターにはこの拡張が設定され、テキストエディターの保存時フォーマットや範囲フォーマットでCLIと同じ正規レイアウトに整形されます。CLIコマンドの詳細は[CLIリファレンス](/docs/reference/cli)にあります。
