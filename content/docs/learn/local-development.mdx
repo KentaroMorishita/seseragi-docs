@@ -23,6 +23,15 @@ CLIとエディター用のLSPは`~/.seseragi/bin`に入ります。スクリプ
 
 新しい版があるかは`seseragi upgrade --check`で確かめられます。`seseragi upgrade`を実行すると、新しい版を同じスクリプトで入れ直します。インストールのコマンドをもう一度実行しても更新できます。
 
+macOS（Apple シリコンとIntel）とLinux（x64）では、HomebrewでもCLIとLSPをインストール・更新できます。
+
+```sh
+brew install KentaroMorishita/seseragi/seseragi
+brew upgrade seseragi
+```
+
+最初のインストールでは、`KentaroMorishita/seseragi/seseragi`と省略しない名前で指定します。こうすると、Homebrewがこのtapのformulaを信頼します。Homebrewで入れたCLIでは、`seseragi upgrade`はファイルを置き換えず、`brew upgrade seseragi`を案内します。
+
 スクリプトを使わずに入れたいときは、[GitHub Releases](https://github.com/KentaroMorishita/seseragi/releases)から、OSとCPUに合うアーカイブをダウンロードして展開し、`seseragi`をPATHの通ったディレクトリに置きます。
 
 Bunは[公式のインストール手順](https://bun.sh/docs/installation)に従って入れてください。配布されているCLIを使うなら、Rustは要りません。

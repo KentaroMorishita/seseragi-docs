@@ -21,7 +21,7 @@ This page documents commands confirmed by the distributed CLI’s `seseragi --he
 | `doc [PACKAGE]` | Generate package API documentation |
 | `doc [PACKAGE] --test` | Check declaration documentation examples |
 | `dts convert [PACKAGE]` | Generate configured TypeScript bindings |
-| `upgrade [--check]` | Check for a newer release and install it |
+| `upgrade [--check]` | Check for a newer release and install it (prints `brew upgrade seseragi` for Homebrew installs) |
 | `help [COMMAND]` | Show help for a command (`--help` / `-h` also work) |
 
 `new` supports the `cli` and `web` templates (run `seseragi new` with no arguments to list them). Generation does not overwrite an existing directory. `doc` generates API documentation in `dist/doc/`. Add `--test` to verify comment examples first, or `--include-private` to include private declarations.

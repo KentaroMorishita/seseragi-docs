@@ -21,7 +21,7 @@ description: "配布版CLIのコマンド、target、profile、診断、テス�
 | `doc [PACKAGE]` | パッケージのAPIドキュメントを生成する |
 | `doc [PACKAGE] --test` | ドキュメントコメントの中のコード例を実行して確かめる |
 | `dts convert [PACKAGE]` | `.d.ts`からTypeScriptのbindingを生成する |
-| `upgrade [--check]` | 新しいリリースの有無を調べ、インストールする |
+| `upgrade [--check]` | 新しいリリースの有無を調べ、インストールする（Homebrew版では`brew upgrade seseragi`を案内） |
 | `help [COMMAND]` | コマンドごとのヘルプを表示する（`--help` / `-h`も可） |
 
 `new`で作れるひな形は`cli`と`web`です（引数なしの`seseragi new`で一覧を表示します）。すでにあるディレクトリには作りません。`doc`はAPIドキュメントを`dist/doc/`へ生成します。`--test`を付けると、先にコメント内のコード例を検証します。非公開の宣言も含めるには`--include-private`を付けます。
