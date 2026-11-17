@@ -17,6 +17,7 @@
     "web-ui",
     "---開発ツールと実行---",
     "cli",
+    "editor-and-lsp",
     "diagnostics",
     "project-configuration",
     "runtime-providers",
