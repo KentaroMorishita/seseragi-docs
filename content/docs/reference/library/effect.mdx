@@ -82,7 +82,7 @@ Schedule<_>
 <small className="api-kind">内部表現を隠した型</small>
 
 ```seseragi
-ScheduleDecision<_>
+ScheduleDecision
 ```
 
 ### `ScheduleError`
@@ -167,9 +167,9 @@ NonPositiveParallelism
 <small className="api-kind">コンストラクタ</small>
 
 ```seseragi
-ScheduleContinue<A>
+ScheduleContinue
   Duration
-  -> ScheduleDecision<A>
+  -> ScheduleDecision
 ```
 
 ### `ScheduleStop`
@@ -178,7 +178,7 @@ ScheduleContinue<A>
 
 ```seseragi
 ScheduleStop
-  ScheduleDecision<A>
+  ScheduleDecision
 ```
 
 ## 関数と演算子
@@ -493,7 +493,7 @@ retry<R, E, A>
 
 ```seseragi
 schedule<A>
-  (Int -> A -> ScheduleDecision<A>)
+  (Int -> A -> ScheduleDecision)
   -> Schedule<A>
 ```
 
