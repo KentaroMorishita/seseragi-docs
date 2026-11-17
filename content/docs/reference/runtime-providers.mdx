@@ -29,7 +29,7 @@ description: "service requirement、logical target、互換性、決定的なPro
 
 アプリが必要とするサービスは、Effectの型から集められ、`main`の必要なものとしてまとめられます。importしただけで使っていないサービスが、必要なものに加わることはありません。
 
-`seseragi.toml`に書く`process`や`web`は、アプリをどこで動かすかを表すターゲットです。Providerの成果物に付いている`bun-process`のような名前は、それとは別の、実際の実行環境の名前です。まずターゲットを決め、そのあとでProviderが選ばれます。Providerが足りないからといって、勝手に別のターゲットに切り替わることはありません。今は、`process`はBunで、`web`はブラウザーで動きます。なお、コンパイラーがWASMで配られていることと、生成されるプログラムがWASMになることは別の話です。
+`seseragi.toml`に書く`process`や`web`、`wasm`は、アプリやライブラリのターゲットです。Providerの成果物に付いている`bun-process`のような名前は、それとは別の、実際の実行環境の名前です。まずターゲットを決め、そのあとでProviderが選ばれます。Providerが足りないからといって、勝手に別のターゲットに切り替わることはありません。`process`はBunで、`web`はブラウザーで動き、`--target native`ではネイティブ実行ファイルを、`wasm`ではWebAssemblyライブラリをビルドします。コンパイラー自体がPlayground向けにWASMで配られていることと、生成されるプログラムを`wasm`ターゲットでビルドすることは別の話です。
 
 ## Clockを使う例
 

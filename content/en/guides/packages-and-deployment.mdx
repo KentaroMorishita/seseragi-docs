@@ -99,7 +99,7 @@ seseragi build . --profile release
 bun dist/entry.js
 ```
 
-The built program prints 400 too. Building bundles the generated JavaScript and the runtime into a single `entry.js`, which you run with Bun. It does not produce a standalone executable for your OS.
+The built program prints 400 too. Building for `process` bundles the generated JavaScript and the runtime into a single `entry.js`, which you run with Bun. To produce a standalone native executable for your OS, use `seseragi build . --target native`.
 
 Apps such as HTTP servers are distributed the same way as this CLI app, not as a static site. [Runtime Providers](/en/docs/reference/runtime-providers) lists the features an app can use.
 
