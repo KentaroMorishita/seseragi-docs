@@ -71,7 +71,7 @@ index = "web/index.html"
 public = "public"
 ```
 
-A custom HTML document has exactly one `<!-- seseragi:head -->` in head and one `<!-- seseragi:entry -->` in body. The builder replaces them with generated CSS/script references. Regular public files retain relative paths. Collisions with generated assets, the root index, or build markers, symlinks, and outside-package inputs are rejected.
+A custom HTML document has exactly one `<!-- seseragi:head -->` in head and one `<!-- seseragi:entry -->` in body. The builder replaces them with generated CSS/script references. Regular public files retain relative paths. Collisions with generated assets, the root index, or build markers, symlinks, and outside-package inputs are rejected. To embed WASM programs in a Web package, configure `[web.programs.<name>]` with `module` and `exports`; see [Program WASM](/en/docs/reference/program-wasm).
 
 ## Lock updates
 

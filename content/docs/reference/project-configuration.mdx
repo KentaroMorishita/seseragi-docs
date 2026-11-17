@@ -71,7 +71,7 @@ index = "web/index.html"
 public = "public"
 ```
 
-custom HTMLのheadに`<!-- seseragi:head -->`、bodyに`<!-- seseragi:entry -->`を各一個置きます。builderがgenerated CSS/scriptへ置換します。publicのregular ファイルは相対pathを保ってcopyします。generated assets、ルート index、build markerなどへの衝突、symlink、パッケージ外の入力はエラーです。
+custom HTMLのheadに`<!-- seseragi:head -->`、bodyに`<!-- seseragi:entry -->`を各一個置きます。builderがgenerated CSS/scriptへ置換します。publicのregular ファイルは相対pathを保ってcopyします。generated assets、ルート index、build markerなどへの衝突、symlink、パッケージ外の入力はエラーです。WebアプリへWASMプログラムを組み込む場合は`[web.programs.<name>]`（`module`と`exports`）を指定します。詳細は[Program WASM](/docs/reference/program-wasm)にあります。
 
 ## lockの更新
 

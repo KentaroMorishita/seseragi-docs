@@ -1,0 +1,84 @@
+---
+title: "Program WASM"
+description: "Check wasm targets, web.programs configuration, export syntax, outputs, ABIs, and supported APIs."
+---
+
+Program WASM compiles Seseragi modules into WebAssembly libraries callable from JavaScript and TypeScript. You can build a standalone WASM library or embed one or more WASM programs inside a Web package.
+
+## Choosing a setup
+
+| Use case | `seseragi.toml` setting | Commands |
+| --- | --- | --- |
+| Standalone WASM library | `run.target = "wasm"` and `run.exports` | `seseragi build .` / `seseragi dev .` |
+| Embedded in a Web app | `[web.programs.<name>]` (`module` and `exports`) | `seseragi build . --target web` / `seseragi dev` |
+
+Because a `wasm` library has no `main` entry point, `seseragi run` rejects it. Running `seseragi dev` with `--target wasm` watches sources and rebuilds into `.seseragi/dev-wasm/` without starting a dev server.
+
+```toml title="Standalone library manifest"
+[package]
+name = "acme/calc"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[run]
+entry = "calc"
+target = "wasm"
+exports = ["amount", "labelInt=label<Int>"]
+```
+
+```toml title="Embedded in a Web app"
+[web.programs.calculation]
+module = "calculation"
+exports = ["amount", "label<Int>"]
+```
+
+## Export syntax
+
+List public function exports in `exports`:
+
+| Form | Meaning |
+| --- | --- |
+| `"amount"` | Export public function `amount` under its own name |
+| `"label<Int>"` | Instantiate generic function `label` with `Int` and export it as `label` |
+| `"labelInt=label<Int>"` | Instantiate generic function `label` with `Int` and export it as `labelInt` (used to export one function at multiple types) |
+
+Unconstrained generic functions can be exported directly without fixing type arguments. Constrained generic functions must be instantiated as `function<Type>` or `alias=function<Type>`; missing trait instances are reported as ordinary type errors.
+
+## Outputs and ABIs
+
+Building produces the following artifacts:
+
+- `program.wasm`: Compiled WebAssembly binary
+- `program.mjs`: JavaScript loader that validates inputs and converts values
+- `program.d.mts`: TypeScript declarations for the loader and exported functions
+- `program-wasm.json`: Manifest recording the ABI identifier, `capabilities`, and output files
+- `program.rs`: Generated Rust source
+
+The loader validates the ABI identifier embedded in `program.wasm` and rejects mismatched binaries.
+
+| ABI identifier | Usage |
+| --- | --- |
+| `seseragi-program-wasm-pure-v1` | Only pure functions are exported |
+| `seseragi-program-wasm-effect-v3` | Providerless Effect exports (`Fiber` and `Deferred` supported) |
+| `seseragi-program-wasm-host-effect-v3` | Effect exports requiring `Console` or host functions |
+
+During `seseragi dev`, when only `program.wasm` changes, the loader swaps the underlying instance in place while keeping page state. Runtime defects and traps raise `ProgramWasmDefect` (`kind: "defect"` or `"trap"`) and retire that instance.
+
+## Boundary types and supported APIs
+
+### Supported boundary values
+
+- Primitives (`Int`, `Float`, `Bool`, `Char`, `String`, `Unit`), `Array`, `List`, closed records, structs, ADTs (including generic and recursive types), `newtype`, `opaque` types, `BigInt`, and canonical `Decimal`
+- Unconstrained type-parameter values pass through as opaque host values. Types with unbounded recursive type-argument growth are rejected at build time.
+
+### Supported standard APIs
+
+- Collections and abstractions: `Array`, `List`, `Map`, `Set`, ranges, comprehensions, sorting, grouping, iterators, `reduceUntil`, `Maybe`, `Either`, `NonEmptyList`, `Validation`, `Functor`/`Applicative`/`Monad`/`Traversable`/`Monoid`/`Reducible`, `Show`/`Debug`/`Eq`/`Ord`/`Hash` (including `deriving`)
+- Numbers, text, and data: `Int` (including checked/saturating arithmetic), `Float` (including `**` / `power`), `BigInt`, `Decimal`, `std/text`, UTF-8 conversions, `Bytes` (hex / base64), `std/json` (parsing, printing, derived codecs), standard error types
+- Providerless Effect ABI: `Ref`, `Fiber` (`fork`, `await`, `poll`, `join`, `interrupt`, `yieldNow`), `std/deferred`
+- Host Effect ABI: `with Console` (passed via `run({ console })`) and multi-argument async/sync host functions (generic Effect exports and `Fiber`/`Deferred` are not supported on the host Effect ABI)
+
+### Rejected at build time (`SES-RUST-0001`)
+
+- Environments, concurrency queues, and streams: `std/queue`, `std/semaphore`, `std/stream`, monad transformers, `forEach`, `effects.service`, `effects.provide`, `effects.provideSome`
+- Host-dependent or engine-specific APIs: `Regex`, transcendental math functions beyond `sqrt` and constants, Unicode classification and grapheme segmentation, `Clock` sleeps, filesystem, stdin, process signals, and child processes
