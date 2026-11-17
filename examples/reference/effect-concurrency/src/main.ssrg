@@ -1,0 +1,65 @@
+import { Clock } from "std/clock"
+import * as effects from "std/effect"
+import * as queues from "std/queue"
+import * as refs from "std/ref"
+import * as semaphores from "std/semaphore"
+
+type WorkerError deriving Show =
+  | QueueFailure queues.QueueClosed
+  | SemaphoreFailure semaphores.SemaphoreCreateError
+  | ScheduleFailure effects.ScheduleError
+  | ConsoleFailure ConsoleError
+
+// docs:start fiber-queue
+effect fn drain q: queues.Queue<String>
+  -> Unit with Console fails WorkerError = do {
+  first <-
+    queues.take q
+    |> effects.mapError QueueFailure
+  second <-
+    queues.take q
+    |> effects.mapError QueueFailure
+  println `${first}, ${second}`
+  |> effects.mapError ConsoleFailure
+}
+
+effect fn sendTwice -> Unit with Console fails WorkerError = do {
+  q <- queues.unbounded ()
+  worker <- effects.fork (drain q)
+  queues.offer "one" q
+  |> effects.mapError QueueFailure
+  queues.offer "two" q
+  |> effects.mapError QueueFailure
+  effects.join worker
+}
+// docs:end fiber-queue
+
+// docs:start semaphore-schedule
+effect fn tryOnce sem: semaphores.Semaphore -> attempts: refs.Ref<Int>
+  -> Int fails String =
+  semaphores.withPermit sem $ do {
+    n <- refs.modify (\c: Int -> (c + 1, c + 1)) attempts
+    if n < 2 then effects.fail "busy" else effects.succeed n
+  }
+
+effect fn retryWithPermit -> Unit with Console, Clock fails WorkerError = do {
+  sem <-
+    semaphores.make 1
+    |> effects.mapError SemaphoreFailure
+  attempts <- refs.make 0
+  policy <-
+    effects.recurs<String> 2
+    |> effects.fromEither
+    |> effects.mapError ScheduleFailure
+  done <-
+    effects.retry policy (tryOnce sem attempts)
+    |> effects.mapError (\_ -> QueueFailure queues.QueueClosed)
+  println `attempts: ${done}`
+  |> effects.mapError ConsoleFailure
+}
+// docs:end semaphore-schedule
+
+pub effect fn main = do {
+  sendTwice ()
+  retryWithPermit ()
+}

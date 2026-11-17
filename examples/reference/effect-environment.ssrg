@@ -1,0 +1,25 @@
+import * as effects from "std/effect"
+
+struct Settings { prefix: String }
+
+// docs:start service-read
+fn announce label: String
+  -> Effect<{ settings: Settings, console: Console }, ConsoleError, Unit> = do {
+  cfg <- effects.service (\env -> env.settings)
+  println `${cfg.prefix}: ${label}`
+}
+// docs:end service-read
+
+// docs:start provide-env
+fn withPrefix<E, A> prefix: String
+  -> op: Effect<{ settings: Settings, console: Console }, E, A>
+  -> Effect<{ console: Console }, E, A> =
+  effects.provideSome (\env -> {
+    settings: Settings { prefix: prefix },
+    console: env.console,
+  }) op
+
+pub effect fn main =
+  announce "ready"
+  |> withPrefix "app"
+// docs:end provide-env
