@@ -9,31 +9,34 @@ This page documents commands confirmed by the distributed CLI’s `seseragi --he
 
 | Command | Purpose |
 | --- | --- |
-| `new web PATH` | Generate a Web starter and lock |
-| `run FILE_OR_PACKAGE` | Execute a process application |
-| `build FILE_OR_PACKAGE` | Produce process or Web artifacts |
-| `dev [PACKAGE]` | Serve Web builds or rebuild a native executable |
+| `new TEMPLATE PATH` | Generate a starter project from `cli` or `web` |
+| `run FILE_OR_PACKAGE` | Execute a process or native application |
+| `build FILE_OR_PACKAGE` | Produce process, Web, WASM, or native artifacts |
+| `dev [PACKAGE]` | Serve Web builds or rebuild WASM or native outputs |
 | `lock update [PACKAGE]` | Explicitly update package and provider locks |
 | `lint FILE_OR_PACKAGE` | Emit lint diagnostics |
-| `format [--check] FILE` | Format source or check formatting |
+| `format [--check] [PATH ...]` | Format sources or check formatting (`-` for stdin) |
 | `test [PACKAGE]` | Execute Test trees in the tests root |
 | `benchmark [PACKAGE]` | Measure cases in the benchmarks root |
 | `doc [PACKAGE]` | Generate package API documentation |
 | `doc [PACKAGE] --test` | Check declaration documentation examples |
 | `dts convert [PACKAGE]` | Generate configured TypeScript bindings |
+| `upgrade [--check]` | Check for a newer release and install it |
+| `help [COMMAND]` | Show help for a command (`--help` / `-h` also work) |
 
-The only new template is currently web. Generation does not overwrite an existing directory. `doc` generates API documentation in `dist/doc/`. Add `--test` to verify comment examples first, or `--include-private` to include private declarations.
+`new` supports the `cli` and `web` templates (run `seseragi new` with no arguments to list them). Generation does not overwrite an existing directory. `doc` generates API documentation in `dist/doc/`. Add `--test` to verify comment examples first, or `--include-private` to include private declarations.
 
 ## Run and target selection
 
-A standalone file can run as scratch input. For multiple modules or dependencies, use a package with seseragi.toml and seseragi.lock.
+A standalone file can run as scratch input. For multiple modules or dependencies, use a package with seseragi.toml and seseragi.lock. Arguments after `--` are passed straight to the program (read via `std/process.arguments`) without being parsed as seseragi options.
 
 ```bash
 seseragi run main.ssrg
 seseragi run . --profile release
+seseragi run . -- Alice
 ```
 
-`process` runs a CLI application through TypeScript; `web` targets the browser. `run` supports `process`, `dev` supports `web`, and `build` supports both. `run`, `build`, and `dev` also accept `--target native` to build a native executable. Select `native` with the command option, not in `run.target`.
+`process` runs a CLI application through TypeScript; `web` targets the browser; `wasm` builds a WebAssembly library from `run.entry` and `run.exports`. `run` supports `process`, `dev` supports `web` and `wasm`, and `build` supports all three. `run`, `build`, and `dev` also accept `--target native` to build a native executable. Select `native` with the command option, not in `run.target`.
 
 Selection uses a CLI override, run.target, and command capability narrowing/defaults. Targets unable to supply required services are rejected before execution. An HTTP server is a process application, not automatically a static Web application.
 
@@ -58,9 +61,9 @@ seseragi build . --target native
 seseragi dev . --target native
 ```
 
-`run` builds into a temporary directory and starts the executable. `build` writes `dist/program`; use `--out-dir PATH` to change the output directory. `dev` watches source changes and rebuilds into `.seseragi/dev/`. `dev --target native` does not start the executable or open a browser. Building requires `rustc`.
+`run` builds into a temporary directory and starts the executable. `build` writes `dist/program`; use `--out-dir PATH` to change the output directory. `dev` watches source changes and rebuilds into `.seseragi/dev/` (`dev --target wasm` rebuilds into `.seseragi/dev-wasm/`). `dev --target native` does not start the executable or open a browser. Native builds automatically prepare the pinned Rust toolchain (overridable with `SESERAGI_NATIVE_TOOLCHAIN` and `SESERAGI_NATIVE_CACHE`).
 
-Native builds do not accept `build --source-map`; native runs do not accept `--diagnostic-format json` or the signal, shutdown-grace, and seed runtime options. Unsupported native syntax or services cause a build error. `test`, `benchmark`, and `doc --test` use `--target node`.
+Native builds do not accept `build --source-map`; native runs do not accept `--diagnostic-format json` or the signal, shutdown-grace, and seed runtime options. Unsupported native syntax or services cause a build error. `test` and `benchmark` support `--target node` and `--target native`; `doc --test` uses `--target node`.
 
 ## Diagnostics and formatting
 
@@ -69,9 +72,10 @@ Run and lint accept `--diagnostic-format text|json`. JSON contains no ANSI color
 ```bash
 seseragi lint . --deny-warnings
 seseragi format --check main.ssrg
+seseragi format src tests
 ```
 
-Formatting preserves source meaning. Style is canonical rather than configured through custom indentation or quote flags. For displayed documentation examples, author readable source first instead of relying only on CSS wrapping.
+`format` accepts multiple files, directories, and packages, and defaults to the package containing the current directory when given no paths. Passing `-` reads from standard input and writes to standard output. Formatting preserves source meaning. Style is canonical rather than configured through custom indentation or quote flags. For displayed documentation examples, author readable source first instead of relying only on CSS wrapping.
 
 ## Tests, benchmarks, and documentation tests
 
