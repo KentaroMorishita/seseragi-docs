@@ -20,6 +20,7 @@
     "editor-and-lsp",
     "diagnostics",
     "project-configuration",
+    "program-wasm",
     "runtime-providers",
     "performance",
     "---Look up APIs---",
