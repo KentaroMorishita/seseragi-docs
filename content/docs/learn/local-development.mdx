@@ -7,7 +7,7 @@ description: CLIを導入してコードを実行し、Webアプリの開発と�
 
 ## CLIとBunを導入する
 
-macOSとLinuxでは、次のコマンドでCLIを入れます。
+macOSとLinuxでは、次のコマンドでCLIとエディター用のLSPをインストールします。
 
 ```sh
 curl -fsSL https://github.com/KentaroMorishita/seseragi/releases/latest/download/install.sh | sh
@@ -52,7 +52,7 @@ Hello, Seseragi!
 
 CLIと同じダウンロードページに、VS Code拡張のVSIXファイルもあります。OSとCPUに合うものをダウンロードし、VS Codeのコマンドパレットで「Extensions: Install from VSIX...」を実行して、そのファイルを選んでください。
 
-VSIXにはLSPも入っているので、ほかに何かをインストールする必要はありません。
+VSIXにはLSPも入っているので、ほかに何かをインストールする必要はありません。インレイヒント、定義や実装へのジャンプ、拡張機能のコマンドや設定項目は[エディターとLSP](/docs/reference/editor-and-lsp)で確認できます。
 
 ## Webアプリを作る
 
@@ -63,7 +63,7 @@ seseragi new web hello-web
 cd hello-web
 ```
 
-`seseragi.toml`、`seseragi.lock`、`src/app.ssrg`、`src/main.ssrg`が作られます。アプリの状態と画面は`app.ssrg`に、それをブラウザのページに表示する処理は`main.ssrg`に書かれています。
+`seseragi.toml`、`seseragi.lock`、`src/app.ssrg`、`src/main.ssrg`、`tests/app.ssrg`などが作られます。アプリの状態と画面は`app.ssrg`に、それをブラウザのページに表示する処理は`main.ssrg`に、`update`のテストは`tests/app.ssrg`に書かれています。
 
 ## ブラウザで開発する
 

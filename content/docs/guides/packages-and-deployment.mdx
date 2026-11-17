@@ -99,7 +99,7 @@ seseragi build . --profile release
 bun dist/entry.js
 ```
 
-ビルドしたものを実行しても400が表示されます。ビルドすると、生成されたJavaScriptとランタイムが`entry.js`一つにまとめられ、それをBunで実行します。OS向けの実行ファイルが一つできるわけではありません。
+ビルドしたものを実行しても400が表示されます。`process`ターゲットのビルドでは、生成されたJavaScriptとランタイムが`entry.js`一つにまとめられ、それをBunで実行します。OS向けの単一実行ファイルを作りたい場合は`seseragi build . --target native`を使います。
 
 HTTPサーバーのようなアプリも、静的サイトではなく、このCLIアプリと同じ形で配布します。アプリが使える機能は[ランタイムProvider](/docs/reference/runtime-providers)で確かめられます。
 

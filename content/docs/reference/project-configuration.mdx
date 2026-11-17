@@ -20,7 +20,7 @@ target = "process"
 
 `package.name`・`version`・`language`は必須です。`name`は小文字の単語を`/`でつないだもの、`version`はSemVer、`language`は対応する言語バージョンの範囲です。`language`にはコンパイラーのバージョン番号ではなく、言語のバージョンを書きます。
 
-`run.entry`は、ソースのディレクトリからのモジュールのパス（拡張子なし）です。`run.target`は`process`（CLI）か`web`です。ライブラリでは`[run]`を省略できます。知らないキー、重複したキー、型の違う値はエラーです。ツール独自の設定は`[tool.NAME]`に書きます。
+`run.entry`は、ソースのディレクトリからのモジュールのパス（拡張子なし）です。`run.target`は`process`（CLI）、`web`（ブラウザー）、`wasm`（WebAssemblyライブラリ）のいずれかです。`wasm`では`run.exports`で公開する関数を指定します。`[run]`には実行時オプションの既定値として、`signal_mode`（`"cancel"`または`"forward"`、既定は`"cancel"`）、`shutdown_grace_ms`（`cancel`時の猶予ミリ秒、既定は`10000`）、`hash_seed`・`random_seed`（`"entropy"`または整数、既定は`"entropy"`）も書けます（`wasm`ではこれらを指定できません）。ライブラリでは`[run]`を省略できます。知らないキー、重複したキー、型の違う値はエラーです。ツール独自の設定は`[tool.NAME]`に書きます。
 
 ## ソースのルートとモジュールのパス
 
@@ -71,7 +71,7 @@ index = "web/index.html"
 public = "public"
 ```
 
-custom HTMLのheadに`<!-- seseragi:head -->`、bodyに`<!-- seseragi:entry -->`を各一個置きます。builderがgenerated CSS/scriptへ置換します。publicのregular ファイルは相対pathを保ってcopyします。generated assets、ルート index、build markerなどへの衝突、symlink、パッケージ外の入力はエラーです。
+custom HTMLのheadに`<!-- seseragi:head -->`、bodyに`<!-- seseragi:entry -->`を各一個置きます。builderがgenerated CSS/scriptへ置換します。publicのregular ファイルは相対pathを保ってcopyします。generated assets、ルート index、build markerなどへの衝突、symlink、パッケージ外の入力はエラーです。WebアプリへWASMプログラムを組み込む場合は`[web.programs.<name>]`（`module`と`exports`）を指定します。詳細は[Program WASM](/docs/reference/program-wasm)にあります。
 
 ## lockの更新
 

@@ -1,0 +1,84 @@
+---
+title: "Program WASM"
+description: "wasmターゲットとweb.programsの設定、公開関数の書き方、生成物、ABI、対応範囲を確認する。"
+---
+
+Program WASMは、SeseragiのモジュールからJavaScriptやTypeScriptで呼び出せるWebAssemblyライブラリを作る仕組みです。単独のWASMライブラリとしてビルドする方法と、Webアプリのパッケージに組み込む方法の二つがあります。
+
+## 構成の選び方
+
+| 用途 | `seseragi.toml` の設定 | 実行するコマンド |
+| --- | --- | --- |
+| 単独のWASMライブラリ | `run.target = "wasm"` と `run.exports` | `seseragi build .` / `seseragi dev .` |
+| Webアプリ内での利用 | `[web.programs.<name>]` の `module` と `exports` | `seseragi build . --target web` / `seseragi dev` |
+
+`wasm`ターゲットのライブラリは`main`を持たないため、`seseragi run`では実行できません。`seseragi dev`を`wasm`ターゲットで動かすと、開発サーバーは起動せず、変更のたびに`.seseragi/dev-wasm/`へ再ビルドします。
+
+```toml title="単独ライブラリの設定例"
+[package]
+name = "acme/calc"
+version = "0.1.0"
+language = ">=0.1.0 <0.2.0"
+
+[run]
+entry = "calc"
+target = "wasm"
+exports = ["amount", "labelInt=label<Int>"]
+```
+
+```toml title="Webアプリへ組み込む設定例"
+[web.programs.calculation]
+module = "calculation"
+exports = ["amount", "label<Int>"]
+```
+
+## exportsの書き方
+
+`exports`には公開関数名の配列を書きます。
+
+| 書き方 | 意味 |
+| --- | --- |
+| `"amount"` | 公開関数`amount`をそのまま公開する |
+| `"label<Int>"` | ジェネリック関数`label`を型引数`Int`で具体化し、`label`という名前で公開する |
+| `"labelInt=label<Int>"` | 型引数`Int`で具体化した`label`を別名`labelInt`で公開する（一つの関数を複数の型で公開するときに使う） |
+
+制約のないジェネリック関数は、型引数を固定せずにそのまま公開できます。trait制約のあるジェネリック関数は、`function<Type>`や`alias=function<Type>`の形で具体化して公開します。指定した型に合うinstanceがなければコンパイルエラーになります。
+
+## 生成されるファイルとABI
+
+ビルドすると、次のファイルが出力されます。
+
+- `program.wasm`: コンパイルされたWebAssemblyバイナリ
+- `program.mjs`: WASMを読み込んで型検査と値の変換を行うJavaScriptローダー
+- `program.d.mts`: ローダーと公開関数のTypeScript型定義
+- `program-wasm.json`: 使用するABI、機能一覧（`capabilities`）、出力ファイル情報を記録したマニフェスト
+- `program.rs`: 生成されたRustソース
+
+ローダーは読み込む`program.wasm`のABI識別子を確認し、一致しないバイナリを拒否します。
+
+| ABI識別子 | 用途 |
+| --- | --- |
+| `seseragi-program-wasm-pure-v1` | pure関数のみを公開する場合 |
+| `seseragi-program-wasm-effect-v3` | 環境やホスト関数を持たないEffect関数を公開する場合（`Fiber`・`Deferred`に対応） |
+| `seseragi-program-wasm-host-effect-v3` | `Console`やホスト関数を使うEffect関数を公開する場合 |
+
+`seseragi dev`でWebアプリの`program.wasm`だけが変わったときは、ページを再読み込みせず実行中のローダーの`exports`を新しいインスタンスへ差し替えます。実行中の異常（defect）やWASMのトラップは`ProgramWasmDefect`（`kind: "defect"`または`"trap"`）として報告され、そのインスタンスは終了します。
+
+## 境界で扱える値と標準APIの対応範囲
+
+### 境界を越えて受け渡しできる値
+
+- 基本型（`Int`, `Float`, `Bool`, `Char`, `String`, `Unit`）、`Array`、`List`、閉じたレコード、構造体、ADT（ジェネリック型や再帰型を含む）、`newtype`、`opaque`型、`BigInt`、正規形の`Decimal`
+- 制約のない型パラメーターの値は、ホスト側の値をそのまま保持して返します。型パラメーターの増加を伴う無限再帰データ型など、有限の符号化を作れない型はビルド時に拒否されます。
+
+### ビルドできる標準機能
+
+- コレクションと変換: `Array`, `List`, `Map`, `Set`, 範囲、内包表記、ソート、グルーピング、イテレーター、`reduceUntil`、`Maybe`, `Either`, `NonEmptyList`, `Validation`、`Functor`/`Applicative`/`Monad`/`Traversable`/`Monoid`/`Reducible`、`Show`/`Debug`/`Eq`/`Ord`/`Hash`（`deriving`を含む）
+- 数値・文字列・データ: `Int`（検査付き・飽和演算含む）、`Float`（`**` / `power`含む）、`BigInt`、`Decimal`、`std/text`、UTF-8変換、`Bytes`（hex / base64）、`std/json`（構築・解析・導出コーデック）、標準エラー型
+- Effect（環境なしABI）: `Ref`、`Fiber`（`fork`, `await`, `poll`, `join`, `interrupt`, `yieldNow`）、`std/deferred`
+- Effect（ホストEffect ABI）: `with Console`（`run({ console })`で渡す）および複数の引数を持つ非同期・同期ホスト関数（ただし型パラメーター付きEffectや`Fiber`/`Deferred`は不可）
+
+### ビルド時に拒否される機能（`SES-RUST-0001`）
+
+- 環境と同期・ストリーム: `std/queue`, `std/semaphore`, `std/stream`, モナド変換子、`forEach`、`effects.service` / `provide` / `provideSome`
+- 環境依存・エンジン差が出るAPI: `Regex`、`Float`の`**`以外の数学関数（`sqrt`や定数を除く）、Unicode分類・書記素クラスター、`Clock`スリープ・ファイル・標準入力・プロセスシグナル・子プロセス（これらは実行時にもdefectになります）

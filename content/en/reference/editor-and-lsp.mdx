@@ -1,0 +1,44 @@
+---
+title: "Editor and LSP"
+description: "Check seseragi-lsp features, VS Code extension commands, and configuration settings."
+---
+
+Both the distributed CLI archives and the VS Code extension (VSIX) include the Seseragi language server, `seseragi-lsp`. This page lists the features provided by the language server along with the VS Code extension's commands and settings. See [Local development](/en/docs/learn/local-development) for installation instructions.
+
+## Language server (LSP) features
+
+| Category | Features |
+| --- | --- |
+| Diagnostics and fixes | Syntax/type errors, lint, suggestions for unresolved names/exports, quick fixes, warnings for features unsupported on native/WASM |
+| Type information | Hover, signature help (triggered on space, `(`, `,`), inlay hints |
+| Navigation and search | Go to Definition, Go to Type Definition, Go to Implementations (from a trait to its instances, or from a trait method call to the selected instance method), Find References, document/workspace symbols |
+| Editing support | Completion (triggered on `.`), rename, document highlights, folding ranges, selection ranges, document and range formatting, semantic tokens |
+
+Inlay hints display the inferred types for unannotated `let` bindings, lambda parameters, and `do` binds, as well as the inferred `with` and `fails` rows of `effect fn` declarations, using the same text as hover. Folding and selection ranges continue working even while the file contains errors.
+
+## VS Code extension commands
+
+Run these from the VS Code command palette. `Seseragi: Run Project` is also available from the editor title run button on `.ssrg` files.
+
+| Command | Purpose |
+| --- | --- |
+| `Seseragi: Run Project` | Run the current project |
+| `Seseragi: Build Web App` | Build the Web app |
+| `Seseragi: Start Development Server` | Start the Web development server |
+| `Seseragi: Stop Development Server` | Stop the running development server |
+| `Seseragi: Open in Browser` | Open the development server URL in a browser |
+| `Seseragi: Show Project Output` | Open the project execution/build output channel |
+| `Seseragi: Restart Language Server` | Restart the language server |
+| `Seseragi: Show Language Server Output` | Open the language server log channel |
+| `Seseragi: Migrate Legacy Settings` | Migrate settings from an earlier extension version |
+
+## VS Code extension settings
+
+| Setting key | Default | Description |
+| --- | --- | --- |
+| `seseragi.inlayHints.bindingTypes` | `true` | Show inferred types for unannotated `let`, lambda parameters, and `do` binds |
+| `seseragi.inlayHints.effectRows` | `true` | Show inferred `with` requirements and `fails` types on `effect fn` declarations |
+| `seseragi.languageServer.path` | `""` | Path to a custom `seseragi-lsp` executable instead of the bundled binary |
+| `seseragi.cli.path` | `""` | Path to the `seseragi` CLI when not using the one on `PATH` |
+
+The extension sets itself as the default formatter for `[seseragi]`, formatting files to the same canonical layout as the CLI. See the [CLI reference](/en/docs/reference/cli) for CLI commands.

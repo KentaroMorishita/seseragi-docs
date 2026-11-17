@@ -29,7 +29,7 @@ Applications call public module operations. Service-object members, ABI result e
 
 Requirements flow from Effect types into the entry's closed environment. Merely importing a module does not add unused services.
 
-Manifest process/web are logical targets. Artifact targets such as bun-process identify toolchain adapters. Select the logical target first, then a provider; missing providers do not trigger a hidden target switch. The current process path uses Bun, and Web uses the browser. Distributing the compiler as WASM is also separate from compiling application programs to WASM.
+Manifest process, web, and wasm are logical targets. Artifact targets such as bun-process identify toolchain adapters. Select the logical target first, then a provider; missing providers do not trigger a hidden target switch. The process target runs on Bun, web runs in the browser, `--target native` builds a native executable, and wasm builds a WebAssembly library. Distributing the compiler itself as WASM for the Playground is also separate from building programs for the wasm target.
 
 ## A Clock example
 

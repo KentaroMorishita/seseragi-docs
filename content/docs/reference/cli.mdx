@@ -9,31 +9,34 @@ description: "配布版CLIのコマンド、target、profile、診断、テス�
 
 | コマンド | 用途 |
 | --- | --- |
-| `new web PATH` | Webアプリのひな形とロックファイルを作る |
+| `new TEMPLATE PATH` | `cli`や`web`のひな形からプロジェクトを作る |
 | `run FILE_OR_PACKAGE` | CLIアプリを実行する |
-| `build FILE_OR_PACKAGE` | CLIアプリやWebアプリの配布物を作る |
-| `dev [PACKAGE]` | Webアプリを配信するか、native実行ファイルを再ビルドする |
+| `build FILE_OR_PACKAGE` | CLIアプリ・Webアプリ・WASMライブラリの配布物を作る |
+| `dev [PACKAGE]` | Webアプリを配信するか、WASMやnativeを再ビルドする |
 | `lock update [PACKAGE]` | ロックファイルを更新する |
 | `lint FILE_OR_PACKAGE` | コードの問題点を指摘する |
-| `format [--check] FILE` | ソースを整形する、または整形済みか調べる |
+| `format [--check] [PATH ...]` | ソースを整形する、または整形済みか調べる（`-`で標準入力） |
 | `test [PACKAGE]` | `tests/`のテストを実行する |
 | `benchmark [PACKAGE]` | `benchmarks/`のベンチマークを計測する |
 | `doc [PACKAGE]` | パッケージのAPIドキュメントを生成する |
 | `doc [PACKAGE] --test` | ドキュメントコメントの中のコード例を実行して確かめる |
 | `dts convert [PACKAGE]` | `.d.ts`からTypeScriptのbindingを生成する |
+| `upgrade [--check]` | 新しいリリースの有無を調べ、インストールする |
+| `help [COMMAND]` | コマンドごとのヘルプを表示する（`--help` / `-h`も可） |
 
-`new`で作れるひな形は、今は`web`だけです。すでにあるディレクトリには作りません。`doc`はAPIドキュメントを`dist/doc/`へ生成します。`--test`を付けると、先にコメント内のコード例を検証します。非公開の宣言も含めるには`--include-private`を付けます。
+`new`で作れるひな形は`cli`と`web`です（引数なしの`seseragi new`で一覧を表示します）。すでにあるディレクトリには作りません。`doc`はAPIドキュメントを`dist/doc/`へ生成します。`--test`を付けると、先にコメント内のコード例を検証します。非公開の宣言も含めるには`--include-private`を付けます。
 
 ## runとターゲット
 
-ファイルを一つだけ渡して、そのまま実行できます。複数のモジュールや依存パッケージを使うときは、`seseragi.toml`と`seseragi.lock`を持つパッケージのディレクトリを渡します。
+ファイルを一つだけ渡して、そのまま実行できます。複数のモジュールや依存パッケージを使うときは、`seseragi.toml`と`seseragi.lock`を持つパッケージのディレクトリを渡します。`--`の後ろに書いた引数はCLIのオプションとして解釈されず、そのままプログラムへ渡されます（`std/process.arguments`で読めます）。
 
 ```bash
 seseragi run main.ssrg
 seseragi run . --profile release
+seseragi run . -- Alice
 ```
 
-`process`はTypeScript経由で動かすCLIアプリ、`web`はブラウザー向けのターゲットです。`run`は`process`、`dev`は`web`、`build`は両方に対応します。`run`・`build`・`dev`には、ネイティブ実行ファイルを作る`--target native`も指定できます。`native`はコマンドのオプションで選び、`run.target`には書きません。
+`process`はTypeScript経由で動かすCLIアプリ、`web`はブラウザー向けのターゲット、`wasm`は`run.entry`と`run.exports`からWebAssemblyライブラリを作るターゲットです。`run`は`process`、`dev`は`web`と`wasm`、`build`は三つすべてに対応します。`run`・`build`・`dev`には、ネイティブ実行ファイルを作る`--target native`も指定できます。`native`はコマンドのオプションで選び、`run.target`には書きません。
 
 ターゲット（CLIで動かすか、ブラウザーで動かすか）は、コマンドのオプション、`run.target`、コマンドの種類の順に決まります。プログラムが必要とするサービスをターゲットが用意できない場合は、実行する前にエラーになります。HTTPサーバーはCLIアプリとして扱われ、Webアプリにはなりません。
 
@@ -58,9 +61,9 @@ seseragi build . --target native
 seseragi dev . --target native
 ```
 
-`run`は一時ディレクトリにビルドして実行します。`build`は`dist/program`を作り、`--out-dir PATH`で出力先を変えられます。`dev`はソースの変更を見張り、`.seseragi/dev/`へ再ビルドします。`dev --target native`は実行やブラウザーの起動は行いません。ビルドには`rustc`が必要です。
+`run`は一時ディレクトリにビルドして実行します。`build`は`dist/program`を作り、`--out-dir PATH`で出力先を変えられます。`dev`はソースの変更を見張り、`.seseragi/dev/`へ再ビルドします（`dev --target wasm`は`.seseragi/dev-wasm/`へ再ビルドします）。`dev --target native`は実行やブラウザーの起動は行いません。nativeビルドに必要な固定版のRustツールチェーンは自動で用意されます（`SESERAGI_NATIVE_TOOLCHAIN`と`SESERAGI_NATIVE_CACHE`で上書きできます）。
 
-nativeでは`build --source-map`と、`run`の`--diagnostic-format json`・signal・終了猶予・seedの実行オプションは使えません。必要な構文やサービスがnativeで対応していなければ、ビルドでエラーになります。`test`・`benchmark`・`doc --test`は`--target node`を使います。
+nativeでは`build --source-map`と、`run`の`--diagnostic-format json`・signal・終了猶予・seedの実行オプションは使えません。必要な構文やサービスがnativeで対応していなければ、ビルドでエラーになります。`test`と`benchmark`は`--target node`と`--target native`に対応し、`doc --test`は`--target node`を使います。
 
 ## 診断と整形
 
@@ -69,9 +72,10 @@ nativeでは`build --source-map`と、`run`の`--diagnostic-format json`・signa
 ```bash
 seseragi lint . --deny-warnings
 seseragi format --check main.ssrg
+seseragi format src tests
 ```
 
-フォーマッターは、プログラムの意味を変えずに整形します。整形のスタイルは一つに決まっていて、インデントや引用符の好みを指定するオプションはありません。
+`format`は複数のファイル・ディレクトリ・パッケージを受け付け、引数を省略すると現在のディレクトリを含むパッケージを整形します。`-`を渡すと標準入力から読み、整形した結果を標準出力に書きます。フォーマッターは、プログラムの意味を変えずに整形します。整形のスタイルは一つに決まっていて、インデントや引用符の好みを指定するオプションはありません。
 
 ## test、benchmark、document test
 

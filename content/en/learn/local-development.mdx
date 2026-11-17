@@ -7,7 +7,7 @@ To use Seseragi on your machine, you need two things: the CLI and Bun. If you on
 
 ## Install the CLI and Bun
 
-On macOS and Linux, install the CLI with:
+On macOS and Linux, install the CLI and editor LSP with:
 
 ```sh
 curl -fsSL https://github.com/KentaroMorishita/seseragi/releases/latest/download/install.sh | sh
@@ -52,7 +52,7 @@ Hello, Seseragi!
 
 The same download page has a VSIX file for the VS Code extension. Download the one for your operating system and CPU, run “Extensions: Install from VSIX...” from the VS Code command palette, and select the file.
 
-The VSIX includes the LSP, so there is nothing else to install.
+The VSIX includes the LSP, so there is nothing else to install. See [Editor and LSP](/en/docs/reference/editor-and-lsp) for inlay hints, Go to Definition/Implementations, and extension commands and settings.
 
 ## Create a Web app
 
@@ -63,7 +63,7 @@ seseragi new web hello-web
 cd hello-web
 ```
 
-This generates `seseragi.toml`, `seseragi.lock`, `src/app.ssrg`, and `src/main.ssrg`. The app's state and view live in `app.ssrg`; `main.ssrg` displays them on the browser page.
+This generates `seseragi.toml`, `seseragi.lock`, `src/app.ssrg`, `src/main.ssrg`, and `tests/app.ssrg` (along with `.gitignore`). The app's state and view live in `app.ssrg`, `main.ssrg` displays them on the browser page, and `tests/app.ssrg` tests `update`.
 
 ## Develop in the browser
 
