@@ -85,4 +85,4 @@ This commonly matters after changing package source before running tests. The de
 
 ## Separate compiler errors from runtime failure
 
-Compilation errors stop before execution. An Effect's typed failure is a value in its error channel and may be recovered with `catchAll`. A defect or cancellation is not the same channel. See [failure handling](/en/docs/guides/error-handling) and the [Effect reference](/en/docs/reference/effects).
+Compilation errors stop before execution. An Effect's typed failure is a value in its error channel and may be recovered with `recover`. A defect or cancellation is not the same channel. See [failure handling](/en/docs/guides/error-handling) and the [Effect reference](/en/docs/reference/effects).
