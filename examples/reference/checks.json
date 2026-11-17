@@ -173,5 +173,20 @@
     "file": "examples/reference/optional-patterns.ssrg",
     "mode": "run",
     "stdout": "Nothing\nJust intro\nmissing\nintro\n"
+  },
+  {
+    "file": "examples/reference/effect-for.ssrg",
+    "mode": "run",
+    "stdout": "1\n2\n3\n"
+  },
+  {
+    "file": "examples/reference/effect-environment.ssrg",
+    "mode": "run",
+    "stdout": "app: ready\n"
+  },
+  {
+    "file": "examples/reference/effect-concurrency/src/main.ssrg",
+    "mode": "run",
+    "stdout": "one, two\nattempts: 2\n"
   }
 ]

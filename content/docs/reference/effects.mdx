@@ -185,4 +185,114 @@ failureは自動unionしません。異なるerror型を合わせるには、ア
 
 `main`は`pub`で公開し、`Unit`の引数を一つ受け取って、`Unit`で成功するEffectを返す関数です。必要なものはフィールドが確定したレコード、失敗の型も具体的な型でなければなりません。失敗の型が`Never`でなければ、`Show`のinstanceが必要です（失敗したときに表示するため）。実行環境が用意できないサービスを必要としている場合は、実行する前にエラーになります。
 
+## forによる反復
+
+Effectの中でArray・List・範囲などの要素を先頭から順に一つずつ処理するときは、`for`式を使います。各要素は順番に実行され、本体が返した値は捨てて次の要素へ進みます。
+
+{/* example: examples/reference/effect-for.ssrg#for-loop */}
+
+```seseragi title="effect-for.ssrg"
+pub effect fn main =
+  for n <- 1..=3 {
+    println $ show n
+  }
+```
+
+出力は`1`、`2`、`3`の順です。`for`の左側のパターンは必ず一致するものに限られます。
+
+## 環境の読み取りと差し替え
+
+`effects.service`は現在の環境レコードから値を取り出します。`effects.provide`は環境全体を渡して必要なサービスを満たし、`effects.provideSome`は外側の環境を受け取って一部のフィールドだけを補ったり置き換えたりします。
+
+{/* example: examples/reference/effect-environment.ssrg#service-read */}
+
+```seseragi title="宣言: serviceで環境を読む"
+fn announce label: String
+  -> Effect<{ settings: Settings, console: Console }, ConsoleError, Unit> = do {
+  cfg <- effects.service (\env -> env.settings)
+  println `${cfg.prefix}: ${label}`
+}
+```
+
+{/* example: examples/reference/effect-environment.ssrg#provide-env */}
+
+```seseragi title="宣言とmain: provideSomeで一部を補う"
+fn withPrefix<E, A> prefix: String
+  -> op: Effect<{ settings: Settings, console: Console }, E, A>
+  -> Effect<{ console: Console }, E, A> =
+  effects.provideSome (\env -> {
+    settings: Settings { prefix: prefix },
+    console: env.console,
+  }) op
+
+pub effect fn main =
+  announce "ready"
+  |> withPrefix "app"
+```
+
+`withPrefix`は`settings`だけを補い、`console`は呼び出し元の環境から引き継いでいます。出力は`app: ready`です。
+
+## 並行処理と再試行の合成
+
+`effects.fork`で別のFiberを起動し、`effects.join`で完了を待ちます。Fiberどうしの受け渡しには`std/queue`を使い、同時実行数の制限には`std/semaphore`、失敗時の再試行や繰り返しには`std/effect`の`Schedule`を使います。
+
+次の例は、QueueとFiberで二つの文字列を受け渡します。
+
+{/* example: examples/reference/effect-concurrency/src/main.ssrg#fiber-queue */}
+
+```seseragi title="宣言: FiberとQueue"
+effect fn drain q: queues.Queue<String>
+  -> Unit with Console fails WorkerError = do {
+  first <-
+    queues.take q
+    |> effects.mapError QueueFailure
+  second <-
+    queues.take q
+    |> effects.mapError QueueFailure
+  println `${first}, ${second}`
+  |> effects.mapError ConsoleFailure
+}
+
+effect fn sendTwice -> Unit with Console fails WorkerError = do {
+  q <- queues.unbounded ()
+  worker <- effects.fork (drain q)
+  queues.offer "one" q
+  |> effects.mapError QueueFailure
+  queues.offer "two" q
+  |> effects.mapError QueueFailure
+  effects.join worker
+}
+```
+
+続けて、Semaphoreで実行権を保護しながら`effects.recurs`と`effects.retry`で再試行する例です。`effects.retry`は経過時間を扱うため`Clock`を要求します。
+
+{/* example: examples/reference/effect-concurrency/src/main.ssrg#semaphore-schedule */}
+
+```seseragi title="宣言: SemaphoreとSchedule"
+effect fn tryOnce sem: semaphores.Semaphore -> attempts: refs.Ref<Int>
+  -> Int fails String =
+  semaphores.withPermit sem $ do {
+    n <- refs.modify (\c: Int -> (c + 1, c + 1)) attempts
+    if n < 2 then effects.fail "busy" else effects.succeed n
+  }
+
+effect fn retryWithPermit -> Unit with Console, Clock fails WorkerError = do {
+  sem <-
+    semaphores.make 1
+    |> effects.mapError SemaphoreFailure
+  attempts <- refs.make 0
+  policy <-
+    effects.recurs<String> 2
+    |> effects.fromEither
+    |> effects.mapError ScheduleFailure
+  done <-
+    effects.retry policy (tryOnce sem attempts)
+    |> effects.mapError (\_ -> QueueFailure queues.QueueClosed)
+  println `attempts: ${done}`
+  |> effects.mapError ConsoleFailure
+}
+```
+
+`sendTwice`と`retryWithPermit`を順に実行すると、`one, two`と`attempts: 2`が出力されます。各操作の詳しい型は[std/effect](/docs/reference/library/effect)・[std/queue](/docs/reference/library/queue)・[std/semaphore](/docs/reference/library/semaphore)にあります。
+
 Effectの組み立て方は[Effect](/docs/learn/effects)、アプリの失敗の設計は[失敗を扱う](/docs/guides/error-handling)にあります。

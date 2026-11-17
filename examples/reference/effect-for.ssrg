@@ -1,0 +1,6 @@
+// docs:start for-loop
+pub effect fn main =
+  for n <- 1..=3 {
+    println $ show n
+  }
+// docs:end for-loop
