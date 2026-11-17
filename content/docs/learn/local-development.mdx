@@ -7,7 +7,19 @@ description: CLIを導入してコードを実行し、Webアプリの開発と�
 
 ## CLIとBunを導入する
 
-[CLIのダウンロード](https://github.com/KentaroMorishita/seseragi/releases)ページから、使っているOSとCPUに合うアーカイブをダウンロードします。展開して出てくる`seseragi`を、PATHの通ったディレクトリに置いてください。エディター用のLSPも同じアーカイブに入っています。
+macOSとLinuxでは、次のコマンドでCLIとエディター用のLSPをインストールします。
+
+```sh
+curl -fsSL https://github.com/KentaroMorishita/seseragi/releases/latest/download/install.sh | sh
+```
+
+Windowsでは、PowerShellで次のコマンドを実行します。
+
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/KentaroMorishita/seseragi/releases/latest/download/install.ps1 | iex"
+```
+
+CLIとLSPは`~/.seseragi/bin`に入ります。チェックサムを確認して合わない場合は導入を止め、PATHが通っていない場合は設定方法を表示します。更新するときは`seseragi upgrade`を実行します。[CLIのダウンロード](https://github.com/KentaroMorishita/seseragi/releases)ページからアーカイブを手動で展開して配置することもできます。
 
 Bunは[公式のインストール手順](https://bun.sh/docs/installation)に従って入れてください。配布されているCLIを使うなら、Rustは要りません。
 
@@ -47,7 +59,7 @@ seseragi new web hello-web
 cd hello-web
 ```
 
-`seseragi.toml`、`seseragi.lock`、`src/app.ssrg`、`src/main.ssrg`が作られます。アプリの状態と画面は`app.ssrg`に、それをブラウザのページに表示する処理は`main.ssrg`に書かれています。
+`seseragi.toml`、`seseragi.lock`、`src/app.ssrg`、`src/main.ssrg`、`tests/app.ssrg`などが作られます。アプリの状態と画面は`app.ssrg`に、それをブラウザのページに表示する処理は`main.ssrg`に、`update`のテストは`tests/app.ssrg`に書かれています。
 
 ## ブラウザで開発する
 
