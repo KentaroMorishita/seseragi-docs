@@ -7,7 +7,19 @@ To use Seseragi on your machine, you need two things: the CLI and Bun. If you on
 
 ## Install the CLI and Bun
 
-[Download the CLI](https://github.com/KentaroMorishita/seseragi/releases) archive for your operating system and CPU. Extract it and place `seseragi` in a directory on your PATH. The archive also includes the LSP.
+On macOS and Linux, install the CLI and editor LSP with:
+
+```sh
+curl -fsSL https://github.com/KentaroMorishita/seseragi/releases/latest/download/install.sh | sh
+```
+
+On Windows, run this in PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/KentaroMorishita/seseragi/releases/latest/download/install.ps1 | iex"
+```
+
+Both tools are placed in `~/.seseragi/bin` after verifying the archive checksum. Update later with `seseragi upgrade`. You can also extract an archive manually from the [CLI downloads](https://github.com/KentaroMorishita/seseragi/releases) page.
 
 Install Bun using its [official instructions](https://bun.sh/docs/installation). You do not need Rust when using the prebuilt CLI.
 
@@ -47,7 +59,7 @@ seseragi new web hello-web
 cd hello-web
 ```
 
-This generates `seseragi.toml`, `seseragi.lock`, `src/app.ssrg`, and `src/main.ssrg`. The app's state and view live in `app.ssrg`; `main.ssrg` displays them on the browser page.
+This generates `seseragi.toml`, `seseragi.lock`, `src/app.ssrg`, `src/main.ssrg`, and `tests/app.ssrg` (along with `.gitignore`). The app's state and view live in `app.ssrg`, `main.ssrg` displays them on the browser page, and `tests/app.ssrg` tests `update`.
 
 ## Develop in the browser
 
