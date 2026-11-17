@@ -20,7 +20,7 @@ target = "process"
 
 package.name, version, and language are required. Names use lowercase slash-separated segments; version is SemVer; language is a language-version range. It is not the compiler distribution version copied into a different field.
 
-run.entry is an extensionless module path within the source root; run.target is process, web, or wasm. For wasm, list exported functions in run.exports. Libraries may omit run. Unknown core keys, duplicate keys, and values of the wrong type are errors. Tool-specific settings belong under tool.NAME.
+run.entry is an extensionless module path within the source root; run.target is process, web, or wasm. For wasm, list exported functions in run.exports. `[run]` also accepts default runtime settings: `signal_mode` (`"cancel"` or `"forward"`, default `"cancel"`), `shutdown_grace_ms` (grace period in milliseconds for `"cancel"`, default `10000`), and `hash_seed` / `random_seed` (`"entropy"` or an integer, default `"entropy"`); none of these four may be set on `wasm`. Libraries may omit run. Unknown core keys, duplicate keys, and values of the wrong type are errors. Tool-specific settings belong under tool.NAME.
 
 ## Roots and module paths
 
