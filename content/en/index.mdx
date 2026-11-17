@@ -50,6 +50,6 @@ Model absence with `Maybe`, success and failure with `Either`, and states carryi
 
 ## Execution environments
 
-The CLI is implemented in Rust. The current compilation path executes programs using TypeScript and the runtime. The browser Playground uses the Rust compiler's WASM build.
+The CLI is implemented in Rust. It compiles programs to TypeScript for Bun and the browser, as well as native executables with `--target native` and WebAssembly libraries with the `wasm` target. The browser Playground uses the Rust compiler's WASM build.
 
 Seseragi is under development, and syntax or features may change. This site distinguishes features you can use now from contracts not yet connected to an implementation.
