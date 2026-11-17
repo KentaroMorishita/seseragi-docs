@@ -23,6 +23,15 @@ The CLI and the editor LSP go to `~/.seseragi/bin`. The script checks the checks
 
 `seseragi upgrade --check` tells you whether a newer release exists, and `seseragi upgrade` installs it with the same script. Running the install command again also updates.
 
+With Homebrew on macOS (Apple silicon or Intel) or Linux (x64), you can also install and update the CLI and LSP with:
+
+```sh
+brew install KentaroMorishita/seseragi/seseragi
+brew upgrade seseragi
+```
+
+Use the full name `KentaroMorishita/seseragi/seseragi` for the first install so Homebrew trusts the formula from this tap. On a CLI installed with Homebrew, `seseragi upgrade` tells you to run `brew upgrade seseragi` instead of replacing the files.
+
 To install without the script, download the archive for your operating system and CPU from [GitHub Releases](https://github.com/KentaroMorishita/seseragi/releases), extract it, and place `seseragi` in a directory on your PATH.
 
 Install Bun using its [official instructions](https://bun.sh/docs/installation). You do not need Rust when using the prebuilt CLI.
