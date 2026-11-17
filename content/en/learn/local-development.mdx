@@ -19,7 +19,11 @@ On Windows, run this in PowerShell:
 powershell -ExecutionPolicy Bypass -c "irm https://github.com/KentaroMorishita/seseragi/releases/latest/download/install.ps1 | iex"
 ```
 
-Both tools are placed in `~/.seseragi/bin` after verifying the archive checksum. Update later with `seseragi upgrade`. You can also extract an archive manually from the [CLI downloads](https://github.com/KentaroMorishita/seseragi/releases) page.
+The CLI and the editor LSP go to `~/.seseragi/bin`. The script checks the checksum of every download and installs nothing when it does not match. On macOS and Linux, it tells you how to add `~/.seseragi/bin` to your PATH if it is missing. On Windows, it adds the directory to your PATH; open a new terminal before using it.
+
+`seseragi upgrade --check` tells you whether a newer release exists, and `seseragi upgrade` installs it with the same script. Running the install command again also updates.
+
+To install without the script, download the archive for your operating system and CPU from [GitHub Releases](https://github.com/KentaroMorishita/seseragi/releases), extract it, and place `seseragi` in a directory on your PATH.
 
 Install Bun using its [official instructions](https://bun.sh/docs/installation). You do not need Rust when using the prebuilt CLI.
 
