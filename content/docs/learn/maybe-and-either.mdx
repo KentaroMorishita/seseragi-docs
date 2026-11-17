@@ -84,7 +84,7 @@ let nested =
   |> map positive
 ```
 
-`nested`の型は`Maybe<Maybe<Int>>`で、表示すると`Just Just 2`です。次の処理も`Maybe`を返すときは、`map`の代わりに`flatMap`を使います。
+`nested`の型は`Maybe<Maybe<Int>>`で、表示すると`Just (Just 2)`です。次の処理も`Maybe`を返すときは、`map`の代わりに`flatMap`を使います。
 
 {/* example: examples/learn/focused/maybe-flatmap.ssrg#chained */}
 ```seseragi title="main内の束縛"

@@ -88,6 +88,20 @@ bufferCapacity
      >
 ```
 
+### `chunk`
+
+<small className="api-kind">関数</small>
+
+```seseragi
+chunk<R, E, A>
+  Int
+  -> Stream<R, E, A>
+  -> Either<
+       SizeError,
+       Stream<R, E, Array<A>>
+     >
+```
+
 ### `concat`
 
 <small className="api-kind">関数</small>
