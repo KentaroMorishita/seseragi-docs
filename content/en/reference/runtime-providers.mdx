@@ -71,6 +71,12 @@ After compatibility filtering, selection uses root explicit configuration, toolc
 
 Selection completes before entry evaluation. Unprovided services are not filled with undefined to fail later. Selection, artifact digests, and host identities are fixed in the same seseragi.lock.
 
+### Native target behavior
+
+With `--target native`, the runtime uses built-in implementations for `std/clock::Clock`, `std/fs::FileSystem`, `std/http::HttpClient`, `std/child-process::ChildProcesses`, `std/random::Random`, and `std/entropy::Entropy`.
+
+Because `std/http::HttpClient` uses its built-in HTTP/1.1 client, a native build rejects any `seseragi.toml` in the project that selects an alternate `HttpClient` provider or configures `[provider].artifacts` with `SES-RUST-0001`. Alternate manifest provider selections or artifacts for the other built-in native services are rejected at build time in the same way.
+
 ## Execution and resources
 
 Provider-backed Effects are cold too; construction does not start a host operation. Typed failure, defects, and cancellation remain distinct outcomes. Successful resource acquisition is handed atomically to scope ownership; an explicit close racing with a finalizer still closes once.

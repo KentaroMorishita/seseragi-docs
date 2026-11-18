@@ -81,4 +81,4 @@ exports = ["amount", "label<Int>"]
 ### ビルド時に拒否される機能（`SES-RUST-0001`）
 
 - 環境と同期・ストリーム: `std/queue`, `std/semaphore`, `std/stream`, モナド変換子、`forEach`、`effects.service` / `provide` / `provideSome`
-- 環境依存・エンジン差が出るAPI: `Regex`、`Float`の`**`以外の数学関数（`sqrt`や定数を除く）、Unicode分類・書記素クラスター、`Clock`スリープ・ファイル・標準入力・プロセスシグナル・子プロセス（これらは実行時にもdefectになります）
+- 環境依存・エンジン差が出るAPI: `Regex`、`Float`の`**`以外の数学関数（`sqrt`や定数を除く）、Unicode分類・書記素クラスター、`Clock`スリープ・ファイル・標準入力・プロセスシグナル・子プロセス・`std/http`（これらは実行時にもdefectになります）

@@ -63,7 +63,7 @@ seseragi dev . --target native
 
 `run`は一時ディレクトリにビルドして実行します。`build`は`dist/program`を作り、`--out-dir PATH`で出力先を変えられます。`dev`はソースの変更を見張り、`.seseragi/dev/`へ再ビルドします（`dev --target wasm`は`.seseragi/dev-wasm/`へ再ビルドします）。`dev --target native`は実行やブラウザーの起動は行いません。nativeビルドに必要な固定版のRustツールチェーンは自動で用意されます（`SESERAGI_NATIVE_TOOLCHAIN`と`SESERAGI_NATIVE_CACHE`で上書きできます）。
 
-nativeでは`build --source-map`と、`run`の`--diagnostic-format json`・signal・終了猶予・seedの実行オプションは使えません。必要な構文やサービスがnativeで対応していなければ、ビルドでエラーになります。`test`と`benchmark`は`--target node`と`--target native`に対応し、`doc --test`は`--target node`を使います。
+nativeでは`build --source-map`と、`run`の`--diagnostic-format json`・signal・終了猶予・`--hash-seed`の実行オプションは使えません（`--random-seed`は指定できます）。必要な構文やサービスがnativeで対応していなければ、ビルドでエラーになります。対応するサービス（`std/http::HttpClient`など）は組み込みの実装を使うため、`seseragi.toml`で別のProviderや成果物を指定している場合はビルド時に拒否されます（[Runtime Provider](/docs/reference/runtime-providers)）。`test`と`benchmark`は`--target node`と`--target native`に対応し、`doc --test`は`--target node`を使います。
 
 ## 診断と整形
 

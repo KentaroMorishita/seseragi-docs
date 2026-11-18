@@ -19,8 +19,9 @@ import * as http from "std/http"
 - Non-2xx statuses still arrive as successful responses. Distinguish application-level HTTP failures from DNS, TLS, socket, and other transport failures.
 - sendBytes/sendEmpty collect bodies in memory as small-response APIs. Exceeding an explicit limit cancels the response and returns a typed error.
 - Headers are a case-insensitive ordered multimap. Values are not automatically comma-joined, preserving independent values such as Set-Cookie.
-- Redirects, cookie jars, authentication, retries, timeouts, and Content-Encoding decoding are not automatic. Choose text/JSON body decoding explicitly too.
+- Redirects, cookie jars, authentication, retries, and timeouts are not automatic. exchange does not decode Content-Encoding on process or native targets, and text/JSON body decoding is explicit too.
 - exchange is a cold Stream. Each terminal execution starts a request and releases body/connection resources on cancellation or early termination.
+- On --target native, the built-in HTTP/1.1 client supports http:// URLs; https:// fails with HttpTlsFailure, and sendBytes/sendEmpty fail compressed response bodies (gzip, deflate, br) with HttpProtocolFailure instead of decompressing them.
 
 ## Use this reference
 
