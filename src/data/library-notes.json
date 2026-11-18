@@ -270,15 +270,17 @@
       "non-2xx statusもresponseとして成功します。HTTPの業務上の失敗と、DNS・TLS・socketなどのtransport failureを分けて扱います。",
       "sendBytes/sendEmptyはbodyをメモリへ集めるsmall-response APIです。明示した上限を超えるとキャンセルし、型付きエラーを返します。",
       "Headersはcase-insensitiveな順序付きmulti-mapです。複数valueをcommaで自動結合しないため、Set-Cookieなどの独立した値を保てます。",
-      "redirect、cookie jar、認証、retry、timeout、Content-Encoding decodeは自動適用しません。bodyのtext/JSON decodeもアプリの方針で明示します。",
-      "exchangeはcoldなStreamです。terminal実行ごとにrequestを開始し、キャンセルや途中終了でもbodyとconnectionのリソースを解放します。"
+      "redirect、cookie jar、認証、retry、timeoutは自動適用しません。exchangeはprocessとnativeでContent-Encodingを展開せず、bodyのtextやJSONへの変換もアプリの方針で明示します。",
+      "exchangeはcoldなStreamです。terminal実行ごとにrequestを開始し、キャンセルや途中終了でもbodyとconnectionのリソースを解放します。",
+      "--target nativeでは組み込みのHTTP/1.1クライアントでhttp://に対応します。https://はHttpTlsFailureで失敗し、sendBytesとsendEmptyでは圧縮された応答ボディ（gzip・deflate・br）を展開せずHttpProtocolFailureで失敗します。"
     ],
     "en": [
       "Non-2xx statuses still arrive as successful responses. Distinguish application-level HTTP failures from DNS, TLS, socket, and other transport failures.",
       "sendBytes/sendEmpty collect bodies in memory as small-response APIs. Exceeding an explicit limit cancels the response and returns a typed error.",
       "Headers are a case-insensitive ordered multimap. Values are not automatically comma-joined, preserving independent values such as Set-Cookie.",
-      "Redirects, cookie jars, authentication, retries, timeouts, and Content-Encoding decoding are not automatic. Choose text/JSON body decoding explicitly too.",
-      "exchange is a cold Stream. Each terminal execution starts a request and releases body/connection resources on cancellation or early termination."
+      "Redirects, cookie jars, authentication, retries, and timeouts are not automatic. exchange does not decode Content-Encoding on process or native targets, and text/JSON body decoding is explicit too.",
+      "exchange is a cold Stream. Each terminal execution starts a request and releases body/connection resources on cancellation or early termination.",
+      "On --target native, the built-in HTTP/1.1 client supports http:// URLs; https:// fails with HttpTlsFailure, and sendBytes/sendEmpty fail compressed response bodies (gzip, deflate, br) with HttpProtocolFailure instead of decompressing them."
     ]
   },
   "std/http/server": {

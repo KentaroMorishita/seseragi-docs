@@ -63,7 +63,7 @@ seseragi dev . --target native
 
 `run` builds into a temporary directory and starts the executable. `build` writes `dist/program`; use `--out-dir PATH` to change the output directory. `dev` watches source changes and rebuilds into `.seseragi/dev/` (`dev --target wasm` rebuilds into `.seseragi/dev-wasm/`). `dev --target native` does not start the executable or open a browser. Native builds automatically prepare the pinned Rust toolchain (overridable with `SESERAGI_NATIVE_TOOLCHAIN` and `SESERAGI_NATIVE_CACHE`).
 
-Native builds do not accept `build --source-map`; native runs do not accept `--diagnostic-format json` or the signal, shutdown-grace, and seed runtime options. Unsupported native syntax or services cause a build error. `test` and `benchmark` support `--target node` and `--target native`; `doc --test` uses `--target node`.
+Native builds do not accept `build --source-map`; native runs do not accept `--diagnostic-format json` or the signal, shutdown-grace, and `--hash-seed` runtime options (`--random-seed` is supported). Unsupported native syntax or services cause a build error. Supported services (such as `std/http::HttpClient`) use built-in implementations, so selecting an alternate provider or provider artifacts in `seseragi.toml` is rejected at build time (see [Runtime providers](/en/docs/reference/runtime-providers)). `test` and `benchmark` support `--target node` and `--target native`; `doc --test` uses `--target node`.
 
 ## Diagnostics and formatting
 

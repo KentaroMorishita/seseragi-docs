@@ -71,6 +71,12 @@ Providerの候補になるのは、選んだターゲットに標準で用意さ
 
 Providerの選択は、プログラムを実行する前に終わります。用意できないサービスを`undefined`のまま実行して、途中でエラーになるようなことはありません。選んだProviderの情報は`seseragi.lock`に記録されます。
 
+### nativeターゲットでの扱い
+
+`--target native`では、`std/clock::Clock`、`std/fs::FileSystem`、`std/http::HttpClient`、`std/child-process::ChildProcesses`、`std/random::Random`、`std/entropy::Entropy`にランタイム組み込みの実装を使います。
+
+`std/http::HttpClient`には組み込みのHTTP/1.1クライアントを使うため、プロジェクト内の`seseragi.toml`で別の`HttpClient` ProviderやProvider成果物（`[provider].artifacts`）を指定している場合、nativeビルドは`SES-RUST-0001`エラーで拒否します。ほかの組み込みサービスでも、別のProvider構成や成果物の指定は同様にビルド時に拒否されます。
+
 ## 実行とリソース
 
 Providerを使うEffectも、作っただけでは実行されません。失敗・defect・キャンセルは、それぞれ別の終わり方として扱われます。リソースを取得してから後始末を登録するまでの間に取りこぼしは起きず、自分で閉じたあとに後始末が動いても、閉じる処理は一回だけです。
