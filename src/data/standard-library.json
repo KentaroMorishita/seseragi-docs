@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "languageVersion": "0.61.186",
-  "languageCommit": "2816bee2fdbf3c95db713b29d4a99983897cec37",
-  "catalogArtifactVersion": "0.61.186",
+  "languageVersion": "0.61.190",
+  "languageCommit": "f8f96ad510b17cf2ba585a395ee1265792932405",
+  "catalogArtifactVersion": "0.61.190",
   "sourceHashes": {
     "registry": "774469e4151423528d312fd3227199f35b9664e7adf7e64c2300ac3abb0a6c8e",
-    "wasm": "ee5733b09285fab6b84851e9f1b1083079efd8ac6585f86f9430d9aa3d8bc1b7"
+    "wasm": "121b6104744dbb6406d032c1a120029c0d94b4edcf92b9fcb7931c52e49e2d32"
   },
   "modules": [
     {
