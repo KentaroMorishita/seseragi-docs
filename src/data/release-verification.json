@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "languageVersion": "0.61.186",
-  "languageCommit": "2816bee2fdbf3c95db713b29d4a99983897cec37",
-  "examplesDigest": "81dc420ece9b6d9f85dcf9800247f8407480e5710938dd836c2f677aa43879ac",
+  "languageVersion": "0.61.190",
+  "languageCommit": "f8f96ad510b17cf2ba585a395ee1265792932405",
+  "examplesDigest": "fc54149d6fd28df624a368a61f06d6cc59944dd01973895e89d1db2936111111",
   "cliHelpDigest": "ac4bac75e8613d00959001ca3ecb79aa89c8348c76b3d7ad941b46505e16a9d1",
-  "reviewedAt": "2026-11-18T21:46:21.700Z"
+  "reviewedAt": "2026-11-21T22:08:43.234Z"
 }
