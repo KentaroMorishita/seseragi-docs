@@ -24,7 +24,7 @@ A source file is UTF-8 text with a `.ssrg` extension. Names are case-sensitive. 
 
 A numeric `_` must occur singly between two digits. `01`, `1__0`, `1.`, `.5`, and incomplete exponents are rejected. Invalid numeric spelling or an out-of-range literal produces `SES-P0203`. See [Types](/en/docs/reference/types) for numeric ranges and arithmetic boundaries.
 
-Char and String escapes include `\n`, `\r`, `\t`, `\0`, `\\`, and `\u{03BB}`. A decoded Char must still contain exactly one scalar. Unknown escapes produce `SES-P0201`; a Char containing multiple scalars produces `SES-P0202`. Templates can contain line breaks and evaluate interpolations once, from left to right.
+Char and String escapes include `\n`, `\r`, `\t`, `\0`, `\\`, and `\u{03BB}`. A decoded Char must still contain exactly one scalar. Unknown escapes produce `SES-P0201`; a Char containing multiple scalars produces `SES-P0202`. Templates can contain line breaks and evaluate interpolations once, from left to right. Because `` `[ `` begins a `List` literal, a template string that starts with `[` and closes on the same line produces `SES-P0001`; embed a leading `[` as an interpolation such as `` `${"["}ok]` ``.
 
 ## Declarations and expressions
 
